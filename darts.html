@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDC 2026 Simulator (Responsive)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== GLOBAL STYLES ==================== */
+        :root {
+            --pdc-red: #d50000;
+            --pdc-dark-red: #9a0000;
+            --pdc-blue: #0e2a3a;
+            --pdc-bg: #000000;
+            --pdc-gold: #ffcc00;
+            --text-grey: #8fa3ad;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--pdc-bg);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ==================== SETUP SCREEN ==================== */
+        #setup-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a3c50, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .setup-box {
+            background: rgba(14, 42, 58, 0.98);
+            border-radius: 12px;
+            width: 550px;
+            max-width: 95%; /* Responsive width */
+            max-height: 90vh;
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            background: #081b26;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'Roboto Condensed';
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--pdc-gold);
+            border-bottom: 3px solid var(--pdc-gold);
+        }
+        .tab-btn:hover { color: white; }
+
+        .tab-content { padding: 20px; display: none; flex-direction: column; gap: 12px; }
+        .tab-content.active { display: flex; }
+
+        /* INPUTS */
+        input[type="text"], input[type="number"], select {
+            padding: 12px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 16px;
+            border-radius: 4px;
+            border: none;
+            background: #eee;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Search Input Specific */
+        .player-search-input {
+            background: #333;
+            color: var(--pdc-gold);
+            border: 1px solid #555;
+            margin-bottom: 5px;
+        }
+        .player-search-input::placeholder { color: #888; }
+
+        /* CHECKBOX ROW */
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .checkbox-row input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0 10px 0 0;
+            cursor: pointer;
+            accent-color: var(--pdc-gold);
+        }
+        .checkbox-row label {
+            margin: 0;
+            color: white;
+            cursor: pointer;
+            text-transform: none;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        /* FORMAT BUTTONS */
+        .format-row { display: flex; gap: 10px; }
+        .format-btn {
+            flex: 1;
+            padding: 10px;
+            background: #222;
+            border: 1px solid #444;
+            color: #888;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .format-btn.selected {
+            background: var(--pdc-gold);
+            color: black;
+            border-color: var(--pdc-gold);
+        }
+
+        /* PLAYER SELECTOR STYLES */
+        .player-selector-box {
+            display: none; 
+            flex-direction: column;
+            gap: 5px;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 4px;
+            background: #111;
+        }
+        .player-list-container {
+            height: 200px;
+            overflow-y: auto;
+            background: #222;
+            border: 1px solid #333;
+        }
+        .player-option {
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .player-option:hover { background: #333; }
+        .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
+        .player-option input { width: auto; margin-right: 10px; cursor: pointer; }
+        .p-flag-mini { width: 20px; height: 15px; margin-right: 8px; object-fit: cover; }
+
+        /* TOURNAMENT CONFIG GRID */
+        .tourn-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .tourn-input-group {
+            background: #222;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+        .tourn-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--pdc-gold);
+        }
+        .tourn-input-group input {
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* ACTION BUTTONS */
+        .btn-gold, .btn-blue {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .btn-gold { background: var(--pdc-gold); color: black; }
+        .btn-blue { background: #1b4dff; color: white; }
+
+        label { font-weight: bold; font-size: 12px; color: #ccc; text-transform: uppercase; margin-bottom: -5px; }
+
+        /* ==================== TOURNAMENT HUB ==================== */
+        #tournament-hub {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #111;
+            z-index: 90;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .hub-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .hub-title { font-size: 28px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; }
+        
+        .round-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .nav-btn {
+            background: #333; color: white; border: 1px solid #555;
+            padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px;
+        }
+        .nav-btn:disabled { opacity: 0.3; cursor: default; }
+        
+        .hub-round-info { text-align: center; }
+        .hub-round-name { font-size: 20px; color: white; font-weight: bold; text-transform: uppercase;}
+        .hub-round-format { color: #888; font-size: 12px; margin-top: 2px; }
+
+        .bracket-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            padding: 5px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* BRACKET MATCH CARD */
+        .bracket-match {
+            background: linear-gradient(90deg, #222, #2a2a2a);
+            border-left: 4px solid #444;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .bracket-match.active { border-left-color: var(--pdc-gold); background: #333; }
+        .bracket-match.completed { opacity: 0.9; border-left-color: #555; }
+
+        .bm-players { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .bm-row { display: flex; justify-content: space-between; font-size: 14px; color: #aaa; }
+        .bm-row.winner { color: var(--pdc-gold); font-weight: 900; }
+        .bm-row.loser { color: #555; text-decoration: line-through; }
+        .bm-score { font-family: 'Roboto Condensed'; font-weight: bold; min-width: 20px; text-align: right; }
+
+        .btn-watch {
+            background: var(--pdc-red); color: white; border: none;
+            padding: 6px 12px; font-weight: bold; font-size: 12px;
+            cursor: pointer; border-radius: 4px; margin-left: 10px;
+        }
+
+        /* ==================== MATCH UI ==================== */
+        #match-screen { display: none; flex-direction: column; height: 100%; }
+
+        .event-bar {
+            height: 40px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-bottom: 1px solid #444;
+            flex-shrink: 0;
+        }
+        .event-bar img { height: 20px; }
+        .event-bar span { font-family: 'Roboto Condensed'; font-weight: bold; font-size: 12px; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .scoreboard-header { display: flex; height: 120px; flex-shrink: 0; }
+        .player-card { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #000; }
+        .player-card:last-child { border-right: none; }
+
+        .name-strip {
+            height: 40px; display: flex; align-items: center; padding: 0 10px; gap: 8px;
+            background: linear-gradient(to bottom, #4c6478, #2f4254);
+            border-bottom: 1px solid #000;
+        }
+        .score-strip {
+            flex: 1; background: linear-gradient(to bottom, #e4eaf0, #cfd7df);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;
+        }
+        .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
+        .player-card.active .score-strip { background: linear-gradient(to bottom, #ffffff, #eeeeee); color: black; }
+
+        .flag { height: 18px; width: 28px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); }
+        .p-name { font-size: 18px; font-weight: bold; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-score { font-size: 50px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; }
+        .p-avg { font-size: 12px; font-weight: bold; margin-top: 2px; }
+        .starter-dot { width: 8px; height: 8px; background-color: var(--pdc-gold); border-radius: 50%; display: none; }
+
+        .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: #151515; }
+        .visit-row { display: grid; grid-template-columns: 1fr 30px 60px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; }
+        .v-score { font-family: 'Roboto Condensed'; font-size: 28px; font-weight: bold; color: white; }
+        .v-left { text-align: right; } .v-right { text-align: left; }
+        .v-round { color: var(--text-grey); font-size: 12px; text-align: center; font-family: 'Roboto Condensed'; }
+        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; transition: opacity 0.2s; }
+
+        .bottom-bar {
+            height: 70px;
+            background: #0e2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 2px solid #333;
+            flex-shrink: 0;
+        }
+
+        .legs-display { display: grid; grid-template-columns: 1fr 50px 30px 80px 30px 50px 1fr; width: 100%; max-width: 600px; align-items: center; padding: 0 10px; }
+        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; text-align: center; font-family:'Roboto Condensed'; }
+        .sub-score { font-size: 20px; color: white; font-weight: bold; text-align: center; font-family:'Roboto Condensed'; opacity: 0.7; }
+        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; }
+
+        /* OVERLAYS */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
+        .intro-box { background: #b00000; color: white; text-align: center; padding: 20px 40px; border: 2px solid white; min-width: 250px; }
+        .end-box { background: #222; padding: 30px; text-align: center; border: 1px solid #444; width: 90%; max-width: 400px; border-radius: 8px; }
+        .end-winner { font-size: 32px; color: var(--pdc-gold); font-weight: bold; margin: 15px 0; }
+        .end-score { font-size: 42px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; color: white; }
+
+        /* GAME SHOT / 180 BOXES */
+        .game-shot-box, .high-checkout-box { 
+            color: white; font-size: 12vw; font-weight: 900; padding: 20px; 
+            border: 3px solid white; animation: popIn 0.3s forwards; 
+            text-transform: uppercase; text-align: center; width: 80%;
+        }
+        .game-shot-box { background: #009900; font-size: 10vw; }
+        .high-checkout-box { background: #1b4dff; font-size: 10vw; }
+
+        .one-eighty-box { 
+            background: var(--pdc-red); color: white; font-size: 25vw; font-weight: 900; 
+            padding: 20px; border: 4px solid white; animation: popIn 0.3s forwards; 
+            text-transform: uppercase; transform: rotate(-5deg); box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
+            font-family: 'Roboto Condensed';
+        }
+
+        @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
+
+        /* ==================== RESPONSIVE QUERIES ==================== */
+        @media (max-width: 768px) {
+            .setup-box { width: 100%; height: 100%; border-radius: 0; border: none; }
+            .tab-btn { font-size: 16px; padding: 10px; }
+            .scoreboard-header { height: 100px; }
+            .p-score { font-size: 40px; }
+            .p-name { font-size: 14px; }
+            .name-strip { padding: 0 5px; height: 30px; }
+            .legs-display { grid-template-columns: 40px 30px 80px 30px 40px; justify-content: center; }
+            .legs-display .leg-name { display: none; } /* Hide names in footer on mobile */
+            .main-score { font-size: 26px; }
+            .sub-score { font-size: 18px; }
+            .flag { width: 20px; height: 14px; }
+            .visit-row { grid-template-columns: 1fr 20px 40px 20px 1fr; }
+            .v-score { font-size: 24px; }
+        }
+
+        @media (max-height: 600px) {
+            .scoreboard-header { height: 80px; }
+            .p-score { font-size: 34px; }
+            .bottom-bar { height: 50px; }
+            .event-bar { height: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen">
+        <div class="setup-box">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="App.switchTab('single')" id="tab-btn-single">SINGLE</button>
+                <button class="tab-btn" onclick="App.switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
+            </div>
+
+            <!-- SINGLE MATCH TAB -->
+            <div id="tab-single" class="tab-content active">
+                <label>Event Name</label>
+                <input type="text" id="inp-event" value="PDC MATCHPLAY">
+
+                <label>Format</label>
+                <div class="format-row">
+                    <button class="format-btn selected" id="btn-sets" onclick="App.setMode('sets')">SETS</button>
+                    <button class="format-btn" id="btn-legs" onclick="App.setMode('legs')">LEGS</button>
+                </div>
+
+                <label id="lbl-target">First to X Sets</label>
+                <select id="inp-target">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="7" selected>7</option>
+                </select>
+
+                <div id="legs-per-set-div">
+                    <label>Legs per Set (Best of)</label>
+                    <select id="inp-set-legs">
+                        <option value="3">3</option>
+                        <option value="5" selected>5</option>
+                    </select>
+                </div>
+
+                <label>Player 1</label>
+                <input type="text" class="player-search-input" id="search-p1" placeholder="Search Player 1..." onkeyup="App.filterSingleMatchPlayers('search-p1', 'inp-p1')">
+                <select id="inp-p1"></select>
+                
+                <label>Player 2</label>
+                <input type="text" class="player-search-input" id="search-p2" placeholder="Search Player 2..." onkeyup="App.filterSingleMatchPlayers('search-p2', 'inp-p2')">
+                <select id="inp-p2"></select>
+
+                <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
+                    <input type="checkbox" id="inp-tiebreak">
+                    <label for="inp-tiebreak">Tiebreak (Win by 2)</label>
+                </div>
+
+                <button class="btn-gold" onclick="App.startMatch()">START MATCH</button>
+            </div>
+
+            <!-- TOURNAMENT TAB -->
+            <div id="tab-tourn" class="tab-content">
+                <label>Event Name</label>
+                <input type="text" id="tourn-event-name" value="CUSTOM CUP">
+
+                <label>Size</label>
+                <select id="tourn-size" onchange="Tournament.updateConfigUI()">
+                    <option value="4">4 (Semi-Finals)</option>
+                    <option value="8">8 (Quarter-Finals)</option>
+                    <option value="16">16 (Last 16)</option>
+                    <option value="32" selected>32 (Last 32)</option>
+                    <option value="64">64 (Last 64)</option>
+                    <option value="128">128 (Last 128)</option>
+                </select>
+
+                <label>Selection</label>
+                <div class="format-row">
+                    <button class="format-btn selected" id="sel-random" onclick="Tournament.setSelectionMethod('random')">RANDOM</button>
+                    <button class="format-btn" id="sel-manual" onclick="Tournament.setSelectionMethod('manual')">MANUAL</button>
+                </div>
+
+                <div id="manual-selector" class="player-selector-box">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> / <span id="sel-total">32</span></label>
+                        <button onclick="Tournament.clearSelection()" style="background:#444; border:1px solid #555; color:#ccc; font-size:10px; cursor:pointer; padding:2px 6px;">CLEAR</button>
+                    </div>
+                    <input type="text" id="player-search" placeholder="Search name..." onkeyup="Tournament.filterPlayerList()" style="padding:6px; font-size:12px;">
+                    <div class="player-list-container" id="player-list-container"></div>
+                </div>
+
+                <label>Format</label>
+                <div class="format-row">
+                    <button class="format-btn selected" id="tourn-mode-sets" onclick="Tournament.setMode('sets')">SETS</button>
+                    <button class="format-btn" id="tourn-mode-legs" onclick="Tournament.setMode('legs')">LEGS</button>
+                </div>
+
+                <label>Round Distances</label>
+                <div class="tourn-config-grid" id="tourn-rounds-container"></div>
+
+                <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
+                    <input type="checkbox" id="tourn-tiebreak">
+                    <label for="tourn-tiebreak">Tiebreak</label>
+                </div>
+
+                <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOURNAMENT HUB -->
+    <div id="tournament-hub">
+        <div class="hub-header">
+            <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
+            
+            <div class="round-nav">
+                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt;</button>
+                <div class="hub-round-info">
+                    <div class="hub-round-name" id="tourn-round-name">ROUND 1</div>
+                    <div class="hub-round-format" id="tourn-round-fmt">Format</div>
+                </div>
+                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">&gt;</button>
+            </div>
+        </div>
+        <div class="bracket-container" id="tourn-bracket"></div>
+    </div>
+
+    <!-- MATCH SCREEN -->
+    <div id="match-screen">
+        <div class="event-bar">
+            <img src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
+            <span id="txt-event-header">EVENT NAME</span>
+        </div>
+
+        <div class="scoreboard-header">
+            <div class="player-card" id="card-p0">
+                <div class="name-strip">
+                    <div class="starter-dot" id="dot-p0"></div>
+                    <img class="flag" id="flag-p0" src="" alt="">
+                    <span class="p-name" id="name-p0">PLAYER 1</span>
+                </div>
+                <div class="score-strip">
+                    <div class="p-score" id="score-p0">501</div>
+                    <div class="p-avg" id="avg-p0">AVG 0.00</div>
+                </div>
+            </div>
+            <div class="player-card" id="card-p1">
+                <div class="name-strip">
+                    <div class="starter-dot" id="dot-p1"></div>
+                    <img class="flag" id="flag-p1" src="" alt="">
+                    <span class="p-name" id="name-p1">PLAYER 2</span>
+                </div>
+                <div class="score-strip">
+                    <div class="p-score" id="score-p1">501</div>
+                    <div class="p-avg" id="avg-p1">AVG 0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visit-board" id="visit-container"></div>
+
+        <div class="bottom-bar">
+            <div class="legs-display">
+                <div class="leg-name" style="text-align:right;" id="bot-name-p0">NAME</div>
+                <div class="main-score" id="bot-sets-p0">0</div>
+                <div class="sub-score" id="bot-legs-p0">0</div>
+                <div class="leg-label"><span id="lbl-score-type">SETS</span></div>
+                <div class="sub-score" id="bot-legs-p1">0</div>
+                <div class="main-score" id="bot-sets-p1">0</div>
+                <div class="leg-name" style="text-align:left;" id="bot-name-p1">NAME</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAYS -->
+    <div id="overlay-intro" class="overlay">
+        <div class="intro-box">
+            <div class="intro-title" id="intro-title-txt">Leg 1</div>
+            <div class="intro-name" id="intro-name-txt">Player Name</div>
+            <div style="margin-top:10px; font-size:14px; color:#ddd;">TO THROW FIRST</div>
+        </div>
+    </div>
+
+    <div id="overlay-shot" class="overlay"></div>
+    <div id="overlay-180" class="overlay"><div class="one-eighty-box">180</div></div>
+
+    <div id="overlay-end" class="overlay">
+        <div class="end-box">
+            <div style="color:#aaa;">MATCH WINNER</div>
+            <div class="end-winner" id="end-winner-name">PLAYER</div>
+            <div class="end-score" id="end-score-txt">0 - 0</div>
+            <button class="btn-gold" onclick="App.returnToMenu()">CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= DATA =================
+        const RAW_PLAYERS = [
+ {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
+{name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
+{name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
+{name: "Michael van Gerwen", country: "nl", avg: 96.95, co: 42.0, fav: 20},
+{name: "Jonny Clayton", country: "wal", avg: 96.43, co: 41.0, fav: 16},
+{name: "Gary Anderson", country: "sco", avg: 97.92, co: 39.0, fav: 20},
+{name: "Stephen Bunting", country: "eng", avg: 97.90, co: 40.0, fav: 20},
+{name: "Ryan Searle", country: "eng", avg: 95.58, co: 38.0, fav: 20},
+{name: "Josh Rock", country: "nir", avg: 98.15, co: 37.0, fav: 20},
+{name: "Danny Noppert", country: "nl", avg: 94.97, co: 40.0, fav: 20},
+{name: "James Wade", country: "eng", avg: 94.73, co: 45.0, fav: 16},
+{name: "Gerwyn Price", country: "wal", avg: 97.95, co: 39.0, fav: 20},
+{name: "Chris Dobey", country: "eng", avg: 96.88, co: 38.0, fav: 20},
+{name: "Nathan Aspinall", country: "eng", avg: 95.72, co: 38.0, fav: 20},
+{name: "Martin Schindler", country: "ger", avg: 94.19, co: 37.0, fav: 20},
+{name: "Ross Smith", country: "eng", avg: 96.57, co: 37.0, fav: 20},
+{name: "Damon Heta", country: "aus", avg: 94.76, co: 38.0, fav: 16},
+{name: "Jermaine Wattimena", country: "nl", avg: 94.72, co: 37.0, fav: 20},
+{name: "Mike De Decker", country: "bel", avg: 93.78, co: 39.0, fav: 20},
+{name: "Rob Cross", country: "eng", avg: 95.89, co: 42.0, fav: 18},
+{name: "Luke Woodhouse", country: "eng", avg: 92.74, co: 37.0, fav: 20},
+{name: "Dave Chisnall", country: "eng", avg: 91.70, co: 36.0, fav: 20},
+{name: "Daryl Gurney", country: "nir", avg: 93.10, co: 38.0, fav: 16},
+{name: "Ryan Joyce", country: "eng", avg: 92.73, co: 36.0, fav: 20},
+{name: "Dimitri Van den Bergh", country: "bel", avg: 88.89, co: 36.0, fav: 20},
+{name: "Cameron Menzies", country: "sco", avg: 92.76, co: 39.0, fav: 20},
+{name: "Ritchie Edhouse", country: "eng", avg: 91.00, co: 35.0, fav: 20},
+{name: "Krzysztof Ratajski", country: "pl", avg: 94.57, co: 39.0, fav: 20},
+{name: "Wessel Nijman", country: "nl", avg: 95.86, co: 38.0, fav: 20},
+{name: "Dirk van Duijvenbode", country: "nl", avg: 96.60, co: 35.0, fav: 20},
+{name: "Peter Wright", country: "sco", avg: 91.89, co: 37.0, fav: 20},
+{name: "Michael Smith", country: "eng", avg: 92.70, co: 40.0, fav: 20},
+{name: "Andrew Gilding", country: "eng", avg: 93.54, co: 40.0, fav: 20},
+{name: "Ricardo Pietreczko", country: "ger", avg: 90.98, co: 34.0, fav: 20},
+{name: "Joe Cullen", country: "eng", avg: 91.76, co: 36.0, fav: 20},
+{name: "Raymond van Barneveld", country: "nl", avg: 91.51, co: 38.0, fav: 20},
+{name: "Martin Lukeman", country: "eng", avg: 90.00, co: 36.0, fav: 20},
+{name: "Kevin Doets", country: "nl", avg: 91.76, co: 35.0, fav: 20},
+{name: "Callan Rydz", country: "eng", avg: 93.58, co: 38.0, fav: 20},
+{name: "Ricky Evans", country: "eng", avg: 91.69, co: 35.0, fav: 20},
+{name: "Brendan Dolan", country: "nir", avg: 90.91, co: 44.0, fav: 20},
+{name: "Niels Zonneveld", country: "nl", avg: 93.04, co: 38.0, fav: 20},
+{name: "William O'Connor", country: "irl", avg: 94.14, co: 37.0, fav: 20},
+{name: "Scott Williams", country: "eng", avg: 91.34, co: 35.0, fav: 20},
+{name: "Madars Razma", country: "lat", avg: 91.73, co: 34.0, fav: 20},
+{name: "Mickey Mansell", country: "nir", avg: 91.59, co: 39.0, fav: 20},
+{name: "Gabriel Clemens", country: "ger", avg: 91.69, co: 37.0, fav: 20},
+{name: "James Hurrell", country: "eng", avg: 92.12, co: 38.0, fav: 20},
+{name: "Connor Scutt", country: "eng", avg: 93.13, co: 36.0, fav: 20},
+{name: "Justin Hood", country: "eng", avg: 92.24, co: 36.0, fav: 20},
+{name: "Jeffrey de Graaf", country: "swe", avg: 90.30, co: 35.0, fav: 20},
+{name: "Ian White", country: "eng", avg: 91.33, co: 36.0, fav: 20},
+{name: "Alan Soutar", country: "sco", avg: 91.59, co: 37.0, fav: 20},
+{name: "Niko Springer", country: "ger", avg: 93.74, co: 37.0, fav: 20},
+{name: "Mensur Suljovic", country: "aut", avg: 91.68, co: 36.0, fav: 16},
+{name: "Ryan Meikle", country: "eng", avg: 90.19, co: 35.0, fav: 20},
+{name: "Richard Veenstra", country: "nl", avg: 90.72, co: 33.0, fav: 20},
+{name: "Keane Barry", country: "irl", avg: 89.71, co: 32.0, fav: 20},
+{name: "Nick Kenny", country: "wal", avg: 90.41, co: 34.0, fav: 20},
+{name: "Kim Huybrechts", country: "bel", avg: 91.06, co: 35.0, fav: 20},
+{name: "Thibault Tricole", country: "fra", avg: 89.44, co: 32.0, fav: 20},
+{name: "Lukas Wenig", country: "ger", avg: 91.55, co: 35.0, fav: 20},
+{name: "Rob Owen", country: "wal", avg: 90.07, co: 34.0, fav: 20},
+{name: "Mario Vandenbogaerde", country: "bel", avg: 91.09, co: 36.0, fav: 20},
+{name: "Stephen Burton", country: "eng", avg: 89.78, co: 33.0, fav: 20},
+{name: "Matt Campbell", country: "can", avg: 90.34, co: 33.0, fav: 20},
+{name: "Karel Sedlacek", country: "cze", avg: 93.35, co: 34.0, fav: 20},
+{name: "Dom Taylor", country: "eng", avg: 94.25, co: 34.0, fav: 20},
+{name: "Chris Landman", country: "nl", avg: 89.97, co: 33.0, fav: 20},
+{name: "Darren Beveridge", country: "eng", avg: 90.54, co: 34.0, fav: 20},
+{name: "Bradley Brooks", country: "eng", avg: 93.01, co: 36.0, fav: 20},
+{name: "Florian Hempel", country: "ger", avg: 89.36, co: 34.0, fav: 20},
+{name: "Andreas Harrysson", country: "swe", avg: 90.24, co: 35.0, fav: 20},
+{name: "Cam Crabtree", country: "eng", avg: 90.84, co: 34.0, fav: 20},
+{name: "Wesley Plaisier", country: "nl", avg: 92.55, co: 36.0, fav: 20},
+{name: "Steve Lennon", country: "irl", avg: 90.91, co: 34.0, fav: 20},
+{name: "Matthew Dennant", country: "eng", avg: 90.88, co: 34.0, fav: 20},
+{name: "Andy Baetens", country: "bel", avg: 90.99, co: 35.0, fav: 20},
+{name: "Dylan Slevin", country: "irl", avg: 90.47, co: 33.0, fav: 20},
+{name: "Sebastian Bialecki", country: "pol", avg: 90.36, co: 32.0, fav: 20},
+{name: "Charlie Manby", country: "eng", avg: 96.76, co: 42.0, fav: 20},
+{name: "Jose de Sousa", country: "por", avg: 88.15, co: 35.0, fav: 20},
+{name: "Max Hopp", country: "ger", avg: 89.75, co: 34.0, fav: 20},
+{name: "Owen Bates", country: "eng", avg: 91.52, co: 35.0, fav: 20},
+{name: "Adam Lipscombe", country: "eng", avg: 89.79, co: 32.0, fav: 20},
+{name: "Adam Hunt", country: "eng", avg: 89.75, co: 33.0, fav: 20},
+{name: "Jim Williams", country: "wal", avg: 87.91, co: 31.0, fav: 20},
+{name: "Darius Labanauskas", country: "lit", avg: 90.11, co: 33.0, fav: 20},
+{name: "Haupai Puha", country: "nzl", avg: 89.46, co: 32.0, fav: 20},
+{name: "Dominik Gruellich", country: "ger", avg: 90.19, co: 33.0, fav: 20},
+{name: "Stefan Bellmont", country: "sui", avg: 86.60, co: 31.0, fav: 20},
+{name: "Rhys Griffin", country: "wal", avg: 87.33, co: 32.0, fav: 20},
+{name: "Berry van Peer", country: "nl", avg: 87.17, co: 31.0, fav: 20},
+{name: "Cor Dekker", country: "nor", avg: 89.44, co: 33.0, fav: 20},
+{name: "Patrick Geeraets", country: "nl", avg: 90.17, co: 32.0, fav: 20},
+{name: "Robert Grundy", country: "eng", avg: 89.17, co: 32.0, fav: 20},
+{name: "Nathan Rafferty", country: "nir", avg: 86.30, co: 31.0, fav: 20},
+{name: "Jitse Van der Wal", country: "nl", avg: 87.00, co: 32.0, fav: 20},
+{name: "Radek Szaganski", country: "pol", avg: 88.73, co: 33.0, fav: 20},
+{name: "Arno Merk", country: "ger", avg: 81.89, co: 29.0, fav: 20},
+{name: "Jelle Klaasen", country: "nl", avg: 88.54, co: 32.0, fav: 20},
+{name: "Martijn Dragt", country: "nl", avg: 88.88, co: 32.0, fav: 20},
+{name: "Jamai van den Herik", country: "nl", avg: 90.62, co: 33.0, fav: 20},
+{name: "Jurjen van der Velde", country: "nl", avg: 88.50, co: 32.0, fav: 20},
+{name: "Danny Lauby", country: "usa", avg: 85.87, co: 31.0, fav: 20},
+{name: "David Davies", country: "wal", avg: 88.86, co: 31.0, fav: 20},
+{name: "Beau Greaves", country: "eng", avg: 95.03, co: 35.0, fav: 20},
+{name: "William Borland", country: "sco", avg: 89.84, co: 32.0, fav: 20},
+{name: "Benjamin Reus", country: "den", avg: 85.21, co: 31.0, fav: 20},
+{name: "Mervyn King", country: "eng", avg: 90.23, co: 34.0, fav: 20},
+{name: "Brett Claydon", country: "eng", avg: 86.46, co: 31.0, fav: 20},
+{name: "George Killington", country: "eng", avg: 86.01, co: 31.0, fav: 20},
+{name: "Maik Kuivenhoven", country: "nl", avg: 91.10, co: 34.0, fav: 20},
+{name: "Andy Boulton", country: "eng", avg: 88.66, co: 31.0, fav: 20},
+{name: "Adam Sevada", country: "usa", avg: 89.45, co: 32.0, fav: 20},
+{name: "David Munyua", country: "ken", avg: 85.50, co: 30.0, fav: 20},
+{name: "Joe Comito", country: "aus", avg: 85.50, co: 30.0, fav: 20},
+{name: "Jonny Tata", country: "aus", avg: 84.00, co: 30.0, fav: 20},
+{name: "Leonard Gates", country: "usa", avg: 88.00, co: 33.0, fav: 20},
+{name: "Motomu Sakai", country: "jpn", avg: 84.50, co: 30.0, fav: 20},
+{name: "Nitin Kumar", country: "ind", avg: 83.50, co: 29.0, fav: 20},
+{name: "Paul Lim", country: "sgp", avg: 86.50, co: 32.0, fav: 20},
+{name: "Ted Evetts", country: "eng", avg: 88.51, co: 32.0, fav: 20},
+{name: "Tavis Dudeney", country: "eng", avg: 83.59, co: 29.0, fav: 20},
+{name: "Oskar Lukasiak", country: "swe", avg: 86.91, co: 31.0, fav: 20},
+{name: "Darryl Pilgrim", country: "eng", avg: 90.49, co: 33.0, fav: 20},
+{name: "Boris Krcmar", country: "cro", avg: 89.29, co: 33.0, fav: 20},
+{name: "Alexis Toylo", country: "phi", avg: 86.00, co: 31.0, fav: 20},
+{name: "Michele Turetta", country: "ita", avg: 87.20, co: 32.0, fav: 20},
+{name: "Tom Bissell", country: "eng", avg: 88.98, co: 32.0, fav: 20},
+{name: "Alex Spellman", country: "usa", avg: 86.00, co: 31.0, fav: 20},
+{name: "Lisa Ashton", country: "eng", avg: 89.00, co: 33.0, fav: 20},
+{name: "Christian Kist", country: "nl", avg: 90.42, co: 33.0, fav: 20},
+{name: "Leon Weber", country: "ger", avg: 88.30, co: 32.0, fav: 20},
+{name: "Dennie Olde Kalter", country: "nl", avg: 90.57, co: 33.0, fav: 20},
+{name: "Joshua Richardson", country: "eng", avg: 82.99, co: 30.0, fav: 20},
+{name: "Teemu Harju", country: "fin", avg: 87.50, co: 31.0, fav: 20},
+{name: "Jim Long", country: "can", avg: 87.40, co: 31.0, fav: 20},
+{name: "Thomas Lovely", country: "eng", avg: 89.35, co: 32.0, fav: 20},
+{name: "Marvin van Velzen", country: "nl", avg: 86.74, co: 31.0, fav: 20},
+{name: "Adam Gawlas", country: "cze", avg: 87.00, co: 32.0, fav: 20},
+{name: "Viktor Tingstrom", country: "swe", avg: 88.87, co: 31.0, fav: 20},
+{name: "Adam Warner", country: "eng", avg: 86.90, co: 31.0, fav: 20},
+{name: "Cristo Reyes", country: "esp", avg: 92.19, co: 36.0, fav: 20},
+{name: "David Cameron", country: "can", avg: 88.00, co: 32.0, fav: 20},
+{name: "Fallon Sherrock", country: "eng", avg: 90.00, co: 34.0, fav: 20},
+{name: "Gemma Hayter", country: "eng", avg: 88.00, co: 32.0, fav: 20},
+{name: "Jesus Salate", country: "arg", avg: 85.00, co: 30.0, fav: 20},
+{name: "Krzysztof Kciuk", country: "pl", avg: 88.00, co: 32.0, fav: 20},
+{name: "Lourence Ilagan", country: "phi", avg: 90.00, co: 33.0, fav: 20},
+{name: "Man Lok Leung", country: "hkg", avg: 88.00, co: 32.0, fav: 20},
+{name: "Mitsuhiko Tatsunami", country: "jpn", avg: 84.00, co: 30.0, fav: 20},
+{name: "Noa-Lynn van Leuven", country: "nl", avg: 88.00, co: 32.0, fav: 20},
+{name: "Paolo Nebrida", country: "phi", avg: 90.00, co: 33.0, fav: 20},
+{name: "Patrik Kovacs", country: "hun", avg: 85.00, co: 30.0, fav: 20},
+{name: "Ryusei Azemoto", country: "jpn", avg: 85.00, co: 30.0, fav: 20},
+{name: "Simon Whitlock", country: "aus", avg: 91.00, co: 35.0, fav: 20},
+{name: "Stowe Buntz", country: "usa", avg: 89.00, co: 32.0, fav: 20},
+{name: "Tim Pusey", country: "aus", avg: 86.00, co: 31.0, fav: 20},
+{name: "Xiaochen Zong", country: "chn", avg: 85.00, co: 30.0, fav: 20},
+{name: "Greg Ritchie", country: "sco", avg: 89.12, co: 32.0, fav: 20},
+{name: "Alexander Merkx", country: "nl", avg: 90.99, co: 33.0, fav: 20},
+{name: "Jimmy van Schie", country: "nl", avg: 89.22, co: 32.0, fav: 20},
+{name: "Carl Sneyd", country: "eng", avg: 89.86, co: 32.0, fav: 20},
+{name: "Adam Paxton", country: "eng", avg: 87.10, co: 31.0, fav: 20},
+{name: "Maximilian Czerwinski", country: "ger", avg: 84.82, co: 30.0, fav: 20},
+{name: "Graham Hall", country: "eng", avg: 89.72, co: 32.0, fav: 20},
+{name: "Danny van Trijp", country: "nl", avg: 89.61, co: 32.0, fav: 20},
+{name: "Kevin Burness", country: "sco", avg: 87.20, co: 31.0, fav: 20},
+{name: "Tytus Kanik", country: "pl", avg: 82.56, co: 29.0, fav: 20},
+{name: "Joe Hunt", country: "eng", avg: 90.97, co: 33.0, fav: 20},
+{name: "Stefaan Henderyck", country: "bel", avg: 86.57, co: 31.0, fav: 20},
+{name: "Tim Wolters", country: "nl", avg: 82.43, co: 29.0, fav: 20},
+{name: "Michael Unterbuchner", country: "ger", avg: 93.45, co: 37.0, fav: 20},
+{name: "Rusty-Jake Rodriguez", country: "aut", avg: 87.70, co: 32.0, fav: 20},
+{name: "Tommy Lishman", country: "eng", avg: 90.30, co: 33.0, fav: 20},
+{name: "Jack Tweddell", country: "eng", avg: 88.63, co: 32.0, fav: 20},
+{name: "Tom Sykes", country: "eng", avg: 88.78, co: 32.0, fav: 20},
+{name: "Pero Ljubic", country: "cro", avg: 82.87, co: 28.0, fav: 20},
+{name: "Scott Waites", country: "eng", avg: 88.79, co: 32.0, fav: 20},
+{name: "Johan Engstrom", country: "swe", avg: 88.00, co: 31.0, fav: 20},
+{name: "Kai Gotthardt", country: "ger", avg: 90.06, co: 33.0, fav: 20},
+{name: "Jarno Bottenberg", country: "nl", avg: 82.31, co: 29.0, fav: 20},
+{name: "Jeffrey Sparidaans", country: "nl", avg: 89.80, co: 32.0, fav: 20},
+{name: "Daniel Klose", country: "ger", avg: 85.00, co: 30.0, fav: 20},
+{name: "Henry Coates", country: "eng", avg: 87.07, co: 31.0, fav: 20},
+{name: "Jules van Dongen", country: "nl", avg: 62.27, co: 15.0, fav: 20},
+{name: "Dragutin Horvat", country: "cro", avg: 89.52, co: 33.0, fav: 20},
+{name: "Benjamin Pratnemer", country: "aut", avg: 89.00, co: 32.0, fav: 20},
+{name: "Aden Kirk", country: "eng", avg: 85.29, co: 30.0, fav: 20},
+{name: "Lee Cocks", country: "eng", avg: 89.16, co: 32.0, fav: 20},
+{name: "Michael Flynn", country: "irl", avg: 89.14, co: 32.0, fav: 20},
+{name: "Nathan Girvan", country: "sco", avg: 90.76, co: 33.0, fav: 20},
+{name: "Scott Campbell", country: "sco", avg: 86.87, co: 31.0, fav: 20},
+{name: "Kevin Troppmann", country: "ger", avg: 82.50, co: 28.0, fav: 20},
+{name: "Martin Kramer", country: "ger", avg: 82.50, co: 28.0, fav: 20},
+{name: "Andras Borbely", country: "hun", avg: 82.50, co: 28.0, fav: 20},
+{name: "Sam Spivey", country: "usa", avg: 88.02, co: 32.0, fav: 20},
+{name: "Francois Schweyen", country: "fra", avg: 82.50, co: 28.0, fav: 20},
+{name: "Kevin Knopf", country: "ger", avg: 82.50, co: 28.0, fav: 20},
+{name: "Petr Krivka", country: "cze", avg: 82.50, co: 28.0, fav: 20},
+{name: "Paul Krohne", country: "ger", avg: 82.50, co: 28.0, fav: 20},
+{name: "Graham Usher", country: "eng", avg: 82.68, co: 28.0, fav: 20},
+{name: "Martin Thomas", country: "eng", avg: 86.93, co: 31.0, fav: 20},
+{name: "Sietse Lap", country: "nl", avg: 83.37, co: 29.0, fav: 20},
+{name: "Felix Springer", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Tomislav Rosandic", country: "cro", avg: 83.00, co: 29.0, fav: 20},
+{name: "Andreas Toft Jorgensen", country: "den", avg: 83.00, co: 29.0, fav: 20},
+{name: "Ansh Sood", country: "ind", avg: 83.00, co: 29.0, fav: 20},
+{name: "Dalibor Smolik", country: "cze", avg: 83.00, co: 29.0, fav: 20},
+{name: "Denis Schnetzer", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Rocco Fulciniti", country: "ita", avg: 83.00, co: 29.0, fav: 20},
+{name: "Andreas Hyllgaardhus", country: "den", avg: 83.00, co: 29.0, fav: 20},
+{name: "Levente Sarai", country: "hun", avg: 83.00, co: 29.0, fav: 20},
+{name: "Nandor Major", country: "hun", avg: 83.00, co: 29.0, fav: 20},
+{name: "Nandor Pres", country: "hun", avg: 83.00, co: 29.0, fav: 20},
+{name: "Filip Manak", country: "cze", avg: 83.00, co: 29.0, fav: 20},
+{name: "Jiri Brejcha", country: "cze", avg: 83.00, co: 29.0, fav: 20},
+{name: "Lukas Unger", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Xanti Van den Bergh", country: "bel", avg: 83.00, co: 29.0, fav: 20},
+{name: "Liam Maendl-Lawrance", country: "aut", avg: 83.00, co: 29.0, fav: 20},
+{name: "Miroslaw Grudziecki", country: "pl", avg: 83.00, co: 29.0, fav: 20},
+{name: "Yorick Hofkens", country: "bel", avg: 83.00, co: 29.0, fav: 20},
+{name: "Joshua Hermann", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Moritz Bohrmann", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Jeffrey De Zwaan", country: "nl", avg: 83.00, co: 29.0, fav: 20},
+{name: "Jerry Hendriks", country: "nl", avg: 83.00, co: 29.0, fav: 20},
+{name: "Marcel Erba", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Christian Goedl", country: "aut", avg: 83.00, co: 29.0, fav: 20},
+{name: "Gyorgy Jehirszki", country: "hun", avg: 83.00, co: 29.0, fav: 20},
+{name: "Rowby-John Rodriguez", country: "aut", avg: 83.00, co: 29.0, fav: 20},
+{name: "Zoran Lerchbacher", country: "aut", avg: 83.00, co: 29.0, fav: 20},
+{name: "Finn Behrens", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Michael Rosenauer", country: "aut", avg: 83.00, co: 29.0, fav: 20},
+{name: "Rene Eidams", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Patrick Klingelhoefer", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Paul Goyer", country: "can", avg: 83.00, co: 29.0, fav: 20},
+{name: "Laurin Welk", country: "ger", avg: 83.00, co: 29.0, fav: 20},
+{name: "Marko Kantele", country: "fin", avg: 83.00, co: 29.0, fav: 20},
+{name: "Cedric Waegemans", country: "bel", avg: 83.00, co: 29.0, fav: 20},
+{name: "Patrick De Backer", country: "bel", avg: 83.00, co: 29.0, fav: 20},
+{name: "Sybren Gijbels", country: "bel", avg: 83.00, co: 29.0, fav: 20},
+{name: "Jenson Walker", country: "eng", avg: 85.37, co: 30.0, fav: 20},
+{name: "Ron Meulenkamp", country: "nl", avg: 87.68, co: 31.0, fav: 20},
+{name: "Paul Rowley", country: "eng", avg: 87.00, co: 31.0, fav: 20},
+{name: "Shaun Fox", country: "eng", avg: 86.00, co: 30.0, fav: 20},
+{name: "Simon Stevenson", country: "eng", avg: 86.00, co: 30.0, fav: 20},
+{name: "Tommy Morris", country: "eng", avg: 86.00, co: 30.0, fav: 20},
+{name: "Ryan Branley", country: "eng", avg: 85.00, co: 30.0, fav: 20},
+  {name: "Brooks, Bradley", country: "eng", avg: 93.87, co: 50.27, fav: 20},
+  {name: "Long, Jim", country: "can", avg: 93.35, co: 48.65, fav: 16},
+  {name: "Kuivenhoven, Maik", country: "eng", avg: 91.27, co: 49.28, fav: 16},
+  {name: "Pilgrim, Darryl", country: "eng", avg: 91.12, co: 52.24, fav: 16},
+  {name: "Crabtree, Cam", country: "eng", avg: 90.4, co: 49.48, fav: 16},
+  {name: "Sedlacek, Karel", country: "cze", avg: 90.38, co: 44.12, fav: 16},
+  {name: "Gotthardt, Kai", country: "ger", avg: 90.35, co: 51.67, fav: 20},
+  {name: "Boulton, Andy", country: "sco", avg: 90.18, co: 50.46, fav: 16},
+  {name: "Tingstrom, Viktor", country: "swe", avg: 89.97, co: 47.59, fav: 16},
+  {name: "Hood, Justin", country: "eng", avg: 89.79, co: 46.69, fav: 20},
+  {name: "Ritchie, Greg", country: "sco", avg: 88.96, co: 52.64, fav: 16},
+  {name: "Van Velzen, Marvin", country: "ned", avg: 88.28, co: 49.52, fav: 20},
+  {name: "Paxton, Adam", country: "eng", avg: 87.67, co: 48.13, fav: 16},
+  {name: "Rodriguez, Rusty-Jake", country: "aut", avg: 87.55, co: 47.9, fav: 20},
+  {name: "Bissell, Tom", country: "eng", avg: 87.44, co: 53.25, fav: 20},
+  {name: "Gruellich, Dominik", country: "ger", avg: 87.23, co: 47.01, fav: 16},
+  {name: "Lovely, Thomas", country: "eng", avg: 86.62, co: 51.32, fav: 16},
+  {name: "Henderyck, Stefaan", country: "bel", avg: 86.33, co: 50.24, fav: 16},
+  {name: "Kanik, Tytus", country: "pol", avg: 85.91, co: 46.03, fav: 16},
+  {name: "Lipscombe, Adam", country: "eng", avg: 85.71, co: 49.66, fav: 20},
+  {name: "Dekker, Cor", country: "nor", avg: 85.52, co: 47.63, fav: 20},
+  {name: "Dudeney, Tavis", country: "eng", avg: 85.43, co: 56.9, fav: 16},
+  {name: "Olde Kalter, Dennie", country: "ned", avg: 85.17, co: 44.85, fav: 16},
+  {name: "Weber, Leon", country: "ger", avg: 84.34, co: 45.61, fav: 16},
+  {name: "Lukasiak, Oskar", country: "swe", avg: 84.29, co: 48.61, fav: 20},
+  {name: "Warner, Adam", country: "eng", avg: 84.0, co: 47.14, fav: 16},
+  {name: "Hopp, Max", country: "ger", avg: 83.92, co: 39.29, fav: 20},
+  {name: "Ljubic, Pero", country: "cro", avg: 83.92, co: 50.51, fav: 20},
+  {name: "Czerwinski, Maximilian", country: "ger", avg: 83.07, co: 50.94, fav: 16},
+  {name: "Rowley, Paul", country: "eng", avg: 93.33, co: 50.33, fav: 20},
+  {name: "King, Mervyn", country: "eng", avg: 92.42, co: 50.45, fav: 16},
+  {name: "Greaves, Beau", country: "eng", avg: 91.78, co: 51.58, fav: 16},
+  {name: "O'Shea, John", country: "irl", avg: 91.48, co: 49.84, fav: 16},
+  {name: "De Zwaan, Jeffrey", country: "ned", avg: 90.52, co: 56.45, fav: 16},
+  {name: "Sharp, David", country: "sco", avg: 90.32, co: 43.67, fav: 20},
+  {name: "Waites, Scott", country: "eng", avg: 90.0, co: 59.89, fav: 20},
+  {name: "Morris, Tommy", country: "eng", avg: 89.97, co: 48.49, fav: 20},
+  {name: "McGuirk, Shane", country: "irl", avg: 89.87, co: 45.66, fav: 20},
+  {name: "Smith-Neale, Adam", country: "eng", avg: 89.87, co: 46.31, fav: 20},
+  {name: "Bellmont, Stefan", country: "sui", avg: 89.72, co: 57.35, fav: 20},
+  {name: "Carroll, Shaun", country: "eng", avg: 89.72, co: 44.33, fav: 20},
+  {name: "Hall, Graham", country: "eng", avg: 89.6, co: 59.84, fav: 16},
+  {name: "Monk, Arron", country: "eng", avg: 89.09, co: 41.0, fav: 20},
+  {name: "Evans, Lee", country: "eng", avg: 88.69, co: 55.5, fav: 20},
+  {name: "Evetts, Ted", country: "eng", avg: 88.6, co: 50.02, fav: 16},
+  {name: "Krcmar, Boris", country: "cro", avg: 88.5, co: 57.17, fav: 20},
+  {name: "Tweddell, Jack", country: "eng", avg: 88.4, co: 48.67, fav: 20},
+  {name: "Sykes, Tom", country: "eng", avg: 88.37, co: 50.77, fav: 16},
+  {name: "Hamilton, Andy", country: "eng", avg: 88.33, co: 59.63, fav: 16},
+  {name: "Cole, Jarred", country: "eng", avg: 88.27, co: 48.35, fav: 20},
+  {name: "Grearson, Martin", country: "eng", avg: 88.11, co: 47.18, fav: 20},
+  {name: "Atkins, Jamie", country: "eng", avg: 88.1, co: 48.18, fav: 16},
+  {name: "Warburton, Mike", country: "wal", avg: 87.93, co: 55.82, fav: 20},
+  {name: "Van Der Meijden, Gilbert", country: "ned", avg: 87.69, co: 45.09, fav: 16},
+  {name: "Wickenden, Christopher", country: "eng", avg: 87.68, co: 47.38, fav: 20},
+  {name: "Ulrich, Ricardo", country: "eng", avg: 87.6, co: 44.81, fav: 16},
+  {name: "Hughes, Jamie", country: "eng", avg: 87.24, co: 55.91, fav: 16},
+  {name: "Henderson, John", country: "sco", avg: 87.19, co: 46.41, fav: 16},
+  {name: "Mol, Damian", country: "eng", avg: 87.17, co: 44.52, fav: 16},
+  {name: "Barstow, Chas", country: "eng", avg: 87.15, co: 42.48, fav: 20},
+  {name: "Van Schie, Jimmy", country: "ned", avg: 87.11, co: 49.75, fav: 20},
+  {name: "Walker, Jenson", country: "eng", avg: 87.03, co: 41.65, fav: 20},
+  {name: "Lonsdale, Tom", country: "eng", avg: 87.01, co: 54.86, fav: 16},
+  {name: "Sneyd, Carl", country: "eng", avg: 86.97, co: 45.38, fav: 16},
+  {name: "Hine, Steve", country: "eng", avg: 86.96, co: 56.24, fav: 20},
+  {name: "Davies, David", country: "wal", avg: 86.88, co: 43.13, fav: 20},
+  {name: "McGeeney, Mark", country: "eng", avg: 86.75, co: 50.67, fav: 20},
+  {name: "Weening, Brandon", country: "aus", avg: 86.67, co: 58.7, fav: 16},
+  {name: "Perez, Christian", country: "phi", avg: 86.66, co: 49.05, fav: 20},
+  {name: "Jansen, Danny", country: "cze", avg: 86.61, co: 53.69, fav: 16},
+  {name: "Banks, Thomas", country: "eng", avg: 86.6, co: 48.32, fav: 20},
+  {name: "Labanauskas, Darius", country: "ltu", avg: 86.58, co: 53.15, fav: 20},
+  {name: "Branley, Ryan", country: "eng", avg: 86.57, co: 48.83, fav: 20},
+  {name: "Klose, Daniel", country: "ger", avg: 86.5, co: 44.2, fav: 16},
+  {name: "McEwan, Jim", country: "sco", avg: 86.47, co: 46.94, fav: 16},
+  {name: "Merkx, Alexander", country: "eng", avg: 86.4, co: 46.1, fav: 20},
+  {name: "Williams, Alex", country: "wal", avg: 86.39, co: 51.65, fav: 20},
+  {name: "O'Connor, Ryan", country: "eng", avg: 86.36, co: 45.32, fav: 16},
+  {name: "Sherrock, Fallon", country: "eng", avg: 86.3, co: 45.72, fav: 20},
+  {name: "Bogaert, Luc", country: "bel", avg: 86.24, co: 45.81, fav: 16},
+  {name: "Halsall, Ieuan", country: "wal", avg: 86.24, co: 44.92, fav: 16},
+  {name: "Van Den Herik, Jamai", country: "ned", avg: 86.23, co: 43.66, fav: 20},
+  {name: "Harrysson, Andreas", country: "swe", avg: 86.15, co: 48.77, fav: 16},
+  {name: "Leadenham, Kevin", country: "eng", avg: 86.04, co: 42.22, fav: 16},
+  {name: "Leung, Kai Fan", country: "hkg", avg: 85.88, co: 50.72, fav: 20},
+  {name: "Van Der Velde, Jurjen", country: "ned", avg: 85.84, co: 39.6, fav: 20},
+  {name: "Parry, Kurt", country: "wal", avg: 85.8, co: 52.05, fav: 16},
+  {name: "Ayres, Daniel", country: "eng", avg: 85.78, co: 45.19, fav: 20},
+  {name: "Wilson, Carl", country: "eng", avg: 85.77, co: 53.66, fav: 20},
+  {name: "Cameron, David", country: "can", avg: 85.67, co: 45.73, fav: 20},
+  {name: "Martin, Charlie", country: "eng", avg: 85.66, co: 55.51, fav: 16},
+  {name: "Burgoyne, Peter", country: "eng", avg: 85.62, co: 42.71, fav: 20},
+  {name: "Payne, Josh", country: "eng", avg: 85.57, co: 50.63, fav: 20},
+  {name: "Beeton, James", country: "eng", avg: 85.53, co: 43.02, fav: 20},
+  {name: "Proosten, Davy", country: "eng", avg: 85.48, co: 51.25, fav: 20},
+  {name: "Lishman, Tommy", country: "eng", avg: 85.43, co: 50.0, fav: 16},
+  {name: "Campbell, Scott", country: "sco", avg: 85.37, co: 47.73, fav: 20},
+  {name: "Turner, Shane", country: "eng", avg: 85.29, co: 47.0, fav: 20},
+  {name: "Trueman, Danny", country: "sco", avg: 85.26, co: 53.06, fav: 16},
+  {name: "Finn Forde, Dean", country: "irl", avg: 85.24, co: 51.31, fav: 20},
+  {name: "Fagg, Jeremy", country: "aus", avg: 85.15, co: 45.33, fav: 16},
+  {name: "Frauenfelder, Levy", country: "eng", avg: 85.12, co: 49.92, fav: 16},
+  {name: "Linwood, Paul", country: "wal", avg: 85.09, co: 42.1, fav: 20},
+  {name: "Moston, Jim", country: "eng", avg: 84.96, co: 45.6, fav: 16},
+  {name: "Wares, Stuart", country: "sco", avg: 84.96, co: 36.87, fav: 20},
+  {name: "Kirk, Aden", country: "eng", avg: 84.86, co: 50.25, fav: 20},
+  {name: "Coates, Henry", country: "eng", avg: 84.85, co: 57.2, fav: 16},
+  {name: "Thomas, Keenan", country: "wal", avg: 84.72, co: 45.93, fav: 16},
+  {name: "Petersen, Devon", country: "rsa", avg: 84.69, co: 38.89, fav: 16},
+  {name: "Williams, Lee", country: "wal", avg: 84.64, co: 43.2, fav: 16},
+  {name: "Hunt, Joe", country: "eng", avg: 84.61, co: 49.91, fav: 20},
+  {name: "Rodriguez, Rowby-John", country: "aut", avg: 84.61, co: 53.2, fav: 16},
+  {name: "Astbury, Daniel", country: "eng", avg: 84.53, co: 56.52, fav: 20},
+  {name: "Roetzsch, Franz", country: "ger", avg: 84.52, co: 55.49, fav: 20},
+  {name: "Van Trijp, Danny", country: "ned", avg: 84.52, co: 52.41, fav: 20},
+  {name: "Hughes, James Howard", country: "eng", avg: 84.48, co: 40.71, fav: 16},
+  {name: "Owens, Jamie", country: "eng", avg: 84.48, co: 47.54, fav: 20},
+  {name: "Mitchell, Scott", country: "eng", avg: 84.47, co: 49.45, fav: 20},
+  {name: "Norris, Alan", country: "eng", avg: 84.47, co: 45.84, fav: 20},
+  {name: "Pratnemer, Benjamin", country: "svn", avg: 84.47, co: 45.58, fav: 20},
+  {name: "Greaves, Taylor", country: "eng", avg: 84.44, co: 42.46, fav: 20},
+  {name: "Potter, Nathan", country: "eng", avg: 84.43, co: 48.94, fav: 16},
+  {name: "Rosandic, Tomislav", country: "cro", avg: 84.28, co: 44.23, fav: 16},
+  {name: "Tringler, Patrick", country: "aut", avg: 84.25, co: 49.95, fav: 16},
+  {name: "Whitlock, Simon", country: "aus", avg: 84.22, co: 47.85, fav: 20},
+  {name: "Robbe, Mario", country: "eng", avg: 84.21, co: 44.63, fav: 16},
+  {name: "Beck, Adam", country: "eng", avg: 84.15, co: 42.4, fav: 20},
+  {name: "Walters, Scott", country: "eng", avg: 84.08, co: 50.31, fav: 16},
+  {name: "Whitlock, Mason", country: "aus", avg: 84.06, co: 49.0, fav: 16},
+  {name: "Fisher, Sean", country: "wal", avg: 84.03, co: 52.07, fav: 20},
+  {name: "Goffin, Callum", country: "wal", avg: 84.01, co: 50.63, fav: 16},
+  {name: "Pride, Lewis", country: "eng", avg: 83.99, co: 43.73, fav: 16},
+  {name: "Cass, Andrew", country: "eng", avg: 83.97, co: 50.29, fav: 20},
+  {name: "Burkhill, Trevor", country: "gbr", avg: 83.95, co: 46.09, fav: 16},
+  {name: "Culleton, Niall", country: "irl", avg: 83.94, co: 50.68, fav: 16},
+  {name: "Ostlund, Anton", country: "swe", avg: 83.91, co: 44.67, fav: 20},
+  {name: "Klingelhoefer, Patrick", country: "ger", avg: 83.79, co: 47.94, fav: 20},
+  {name: "Colley, Reece", country: "eng", avg: 83.72, co: 52.06, fav: 20},
+  {name: "Osborne, Colin", country: "eng", avg: 83.67, co: 50.32, fav: 20},
+  {name: "Heneghan, Conor", country: "irl", avg: 83.66, co: 53.26, fav: 20},
+  {name: "Walpen, Marcel", country: "sui", avg: 83.66, co: 43.99, fav: 20},
+  {name: "Worsley, Jon", country: "wal", avg: 83.56, co: 50.05, fav: 16},
+  {name: "Ellis, Nicholas", country: "eng", avg: 83.55, co: 43.44, fav: 20},
+  {name: "Smolik, Dalibor", country: "cze", avg: 83.55, co: 52.13, fav: 20},
+  {name: "Perry, Daniel", country: "eng", avg: 83.52, co: 43.18, fav: 16},
+  {name: "Ehlers, Matthias", country: "ger", avg: 83.48, co: 49.7, fav: 16},
+  {name: "Pallett, David", country: "eng", avg: 83.48, co: 48.78, fav: 16},
+  {name: "Heaver, Jason", country: "eng", avg: 83.45, co: 48.38, fav: 20},
+  {name: "Manby, Charlie", country: "eng", avg: 83.44, co: 50.13, fav: 16},
+  {name: "Baker, Scott", country: "eng", avg: 83.43, co: 40.5, fav: 20},
+  {name: "Bristow, Jimmy", country: "eng", avg: 83.33, co: 46.41, fav: 20},
+  {name: "Gwynne, Jacob", country: "eng", avg: 83.3, co: 51.92, fav: 16},
+  {name: "Dudbridge, Mark", country: "eng", avg: 83.26, co: 51.44, fav: 20},
+  {name: "O'Neill, Keith", country: "sco", avg: 83.26, co: 49.82, fav: 16},
+  {name: "Telnekes, Derk", country: "eng", avg: 83.25, co: 52.92, fav: 20},
+  {name: "Flynn, Michael", country: "irl", avg: 83.23, co: 41.52, fav: 20},
+  {name: "Unterbuchner, Michael", country: "ger", avg: 83.21, co: 47.9, fav: 20},
+  {name: "Smejda, Michal", country: "cze", avg: 83.18, co: 50.35, fav: 16},
+  {name: "Justicia, Jose", country: "esp", avg: 83.16, co: 42.23, fav: 20},
+  {name: "Burness, Kevin", country: "nir", avg: 83.14, co: 52.76, fav: 20},
+  {name: "Burnett, Richie", country: "wal", avg: 83.05, co: 54.81, fav: 20},
+  {name: "Williams, Patrik", country: "eng", avg: 83.05, co: 47.86, fav: 20},
+  {name: "Thornton, Robert", country: "sco", avg: 82.96, co: 41.4, fav: 16},
+  {name: "Lane, Kevin", country: "wal", avg: 82.95, co: 45.64, fav: 16},
+  {name: "Kantele, Marko", country: "fin", avg: 82.92, co: 46.73, fav: 20},
+  {name: "Maclean, Derek", country: "sco", avg: 82.92, co: 48.61, fav: 20},
+  {name: "Van Klompenburg, Danny", country: "ned", avg: 82.92, co: 43.13, fav: 16},
+  {name: "Meulenkamp, Ron", country: "eng", avg: 82.87, co: 48.85, fav: 16},
+  {name: "Dowling, Dylan", country: "irl", avg: 82.85, co: 38.59, fav: 20},
+  {name: "Budgen, Lee", country: "eng", avg: 82.83, co: 51.91, fav: 20},
+  {name: "Kciuk, Krzysztof", country: "pol", avg: 82.8, co: 44.2, fav: 20},
+  {name: "Balsamo, Angelo", country: "ita", avg: 82.73, co: 53.04, fav: 16},
+  {name: "Bremermann, Jannes", country: "ger", avg: 82.71, co: 45.44, fav: 16},
+  {name: "Lever, Ian", country: "eng", avg: 82.64, co: 41.0, fav: 16},
+  {name: "Roelofs, Owen", country: "eng", avg: 82.58, co: 42.58, fav: 16},
+  {name: "Wynn, Jonathan", country: "eng", avg: 82.58, co: 48.23, fav: 20},
+  {name: "Croft, Joe", country: "eng", avg: 82.53, co: 45.8, fav: 20},
+  {name: "O'Keefe, Kelvin", country: "wal", avg: 82.5, co: 42.94, fav: 20},
+  {name: "Usher, Graham", country: "eng", avg: 82.5, co: 41.23, fav: 16},
+  {name: "Gawlas, Adam", country: "cze", avg: 82.34, co: 52.0, fav: 20},
+  {name: "Maiden, Owen", country: "eng", avg: 82.34, co: 46.17, fav: 20},
+  {name: "Ansell, Frankie", country: "eng", avg: 82.26, co: 48.64, fav: 16},
+  {name: "Hohnstedt, Kilian", country: "ger", avg: 82.22, co: 43.95, fav: 16},
+  {name: "Nicholls, Daniel", country: "eng", avg: 82.22, co: 59.81, fav: 20},
+  {name: "Haggerty, Steve", country: "eng", avg: 82.18, co: 41.9, fav: 16},
+  {name: "Wirotius, Pascal", country: "ger", avg: 82.18, co: 46.0, fav: 16},
+  {name: "Bauerdick, Daniel", country: "ger", avg: 82.17, co: 51.8, fav: 16},
+  {name: "Huntley, Michael", country: "wal", avg: 82.15, co: 42.38, fav: 16},
+  {name: "Palmer, Ryan", country: "eng", avg: 82.15, co: 47.49, fav: 16},
+  {name: "Care, Nathan", country: "eng", avg: 82.09, co: 43.58, fav: 16},
+  {name: "Brown, John", country: "eng", avg: 82.07, co: 49.1, fav: 16},
+  {name: "Coward, Phil", country: "eng", avg: 82.07, co: 51.6, fav: 20},
+  {name: "Higgins, Paul", country: "wal", avg: 82.01, co: 45.93, fav: 16},
+  {name: "Noster, Steven", country: "ger", avg: 81.95, co: 53.86, fav: 16},
+  {name: "Cromwell, Thomas", country: "eng", avg: 81.92, co: 43.6, fav: 16},
+  {name: "Smith, Luke", country: "eng", avg: 81.88, co: 34.42, fav: 16},
+  {name: "Mould, Adam", country: "eng", avg: 81.86, co: 50.57, fav: 16},
+  {name: "Thuillier, Nicolas", country: "fra", avg: 81.86, co: 47.95, fav: 20},
+  {name: "Challenger, Mark", country: "wal", avg: 81.85, co: 48.68, fav: 16},
+  {name: "Troppmann, Kevin", country: "ger", avg: 81.85, co: 52.33, fav: 16},
+  {name: "Brouwers, Rohan", country: "eng", avg: 81.81, co: 51.93, fav: 20},
+  {name: "Wilson, Jason", country: "eng", avg: 81.78, co: 55.86, fav: 16},
+  {name: "Whitehead, Conan", country: "eng", avg: 81.77, co: 44.81, fav: 20},
+  {name: "Vetjens, Damian", country: "eng", avg: 81.75, co: 45.44, fav: 16},
+  {name: "Mitchell, Oliver", country: "eng", avg: 81.7, co: 50.02, fav: 16},
+  {name: "Manton, Kyle", country: "eng", avg: 81.67, co: 34.1, fav: 16},
+  {name: "Thomas, Sion", country: "wal", avg: 81.6, co: 56.0, fav: 16},
+  {name: "Richardson, James", country: "eng", avg: 81.54, co: 58.17, fav: 20},
+  {name: "Furness, Ryan", country: "eng", avg: 81.49, co: 48.66, fav: 16},
+  {name: "Girvan, Nathan", country: "sco", avg: 81.43, co: 47.52, fav: 20},
+  {name: "Grudziecki, Miroslaw", country: "pol", avg: 81.39, co: 36.63, fav: 16},
+  {name: "McKeon, Sean", country: "irl", avg: 81.37, co: 51.13, fav: 16},
+  {name: "Preis, Florian", country: "ger", avg: 81.37, co: 45.25, fav: 16},
+  {name: "Armstrong, Darren", country: "sco", avg: 81.32, co: 64.78, fav: 16},
+  {name: "Mioch, Jeroen", country: "eng", avg: 81.3, co: 52.22, fav: 20},
+  {name: "Brown, Keegan", country: "eng", avg: 81.28, co: 42.64, fav: 20},
+  {name: "Beeney, Aaron", country: "eng", avg: 81.26, co: 42.14, fav: 16},
+  {name: "Gallagher, Dean", country: "irl", avg: 81.23, co: 45.27, fav: 16},
+  {name: "Gibson, Colin", country: "sco", avg: 81.22, co: 47.55, fav: 20},
+  {name: "Otter, Marcel", country: "eng", avg: 81.13, co: 46.99, fav: 20},
+  {name: "Labre, Jacques", country: "fra", avg: 81.12, co: 45.39, fav: 20},
+  {name: "McDine, Kevin", country: "eng", avg: 81.09, co: 43.33, fav: 20},
+  {name: "Thomas, Martin", country: "wal", avg: 81.05, co: 48.0, fav: 16},
+  {name: "Jehirszki, Gyorgy", country: "hun", avg: 81.04, co: 44.4, fav: 20},
+  {name: "Althaus, Marcel", country: "ger", avg: 81.0, co: 48.45, fav: 20},
+  {name: "Schmidt, Jan", country: "ger", avg: 80.9, co: 70.0, fav: 20},
+  {name: "Van Den Bergh, Xanti", country: "bel", avg: 80.88, co: 46.12, fav: 20},
+  {name: "Busscher, Michael", country: "ger", avg: 80.81, co: 51.41, fav: 16},
+  {name: "Gray, Adrian", country: "eng", avg: 80.81, co: 44.62, fav: 20},
+  {name: "Mueller (Ffo), Oliver", country: "ger", avg: 80.79, co: 43.24, fav: 20},
+  {name: "Barnes, Jonny", country: "eng", avg: 80.77, co: 46.72, fav: 20},
+  {name: "Williams, David", country: "eng", avg: 80.76, co: 57.27, fav: 16},
+  {name: "Goodger, Ben", country: "gbr", avg: 80.72, co: 46.07, fav: 16},
+  {name: "Fidler, Chris", country: "eng", avg: 80.7, co: 36.0, fav: 16},
+  {name: "Robb, Ben", country: "nzl", avg: 80.64, co: 34.47, fav: 20},
+  {name: "Harrington, Ryan", country: "eng", avg: 80.61, co: 40.67, fav: 16},
+  {name: "Davies, Rhys Peris", country: "wal", avg: 80.57, co: 46.68, fav: 16},
+  {name: "Bell, Lewis", country: "gbr", avg: 80.53, co: 56.38, fav: 16},
+  {name: "Gerdon, Marcel", country: "ger", avg: 80.52, co: 20.0, fav: 16},
+  {name: "Hands, Dan", country: "eng", avg: 80.51, co: 54.68, fav: 20},
+  {name: "Szekely, Pal", country: "hun", avg: 80.49, co: 57.5, fav: 20},
+  {name: "Eidams, Rene", country: "ger", avg: 80.47, co: 30.79, fav: 16},
+  {name: "Prior, Nigel", country: "eng", avg: 80.38, co: 46.98, fav: 16},
+  {name: "Lankhuizen, Kevin", country: "bel", avg: 80.37, co: 43.05, fav: 16},
+  {name: "Vermeer, Gerrit", country: "eng", avg: 80.35, co: 41.48, fav: 16},
+  {name: "Knops, Robbie", country: "bel", avg: 80.34, co: 53.48, fav: 20},
+  {name: "Merk, Arno", country: "ger", avg: 80.28, co: 40.93, fav: 16},
+  {name: "Grbavac, Romeo", country: "cro", avg: 80.22, co: 44.74, fav: 20},
+  {name: "Ramnath, Vinay", country: "eng", avg: 80.19, co: 45.0, fav: 20},
+  {name: "Racoveanu, Daniel", country: "rou", avg: 80.14, co: 47.15, fav: 16},
+  {name: "Gurney, Lewis", country: "eng", avg: 80.13, co: 39.36, fav: 20},
+  {name: "West, Steve", country: "eng", avg: 80.06, co: 37.57, fav: 20},
+  {name: "Gallett, Matt", country: "eng", avg: 80.02, co: 50.5, fav: 20},
+  {name: "Richardson, Brandon Lewis", country: "eng", avg: 79.97, co: 42.07, fav: 20},
+  {name: "Walker, Jim", country: "sco", avg: 79.96, co: 45.57, fav: 16},
+  {name: "Caron, Jeroen", country: "bel", avg: 79.95, co: 47.23, fav: 20},
+  {name: "Sedlak, Vitezslav", country: "cze", avg: 79.87, co: 47.72, fav: 20},
+  {name: "Neyens, Kenny", country: "bel", avg: 79.81, co: 41.17, fav: 20},
+  {name: "Avory, Myles", country: "eng", avg: 79.79, co: 48.92, fav: 16},
+  {name: "Scurfield, Pat", country: "eng", avg: 79.76, co: 37.08, fav: 20},
+  {name: "Rawlings, Jordan-Lee", country: "eng", avg: 79.74, co: 49.61, fav: 20},
+  {name: "Smees, Robin", country: "eng", avg: 79.69, co: 43.52, fav: 16},
+  {name: "Vincent, Jack", country: "eng", avg: 79.68, co: 37.8, fav: 16},
+  {name: "Scholz, Tim", country: "ger", avg: 79.62, co: 40.22, fav: 16},
+  {name: "Lovely, Eddie", country: "eng", avg: 79.6, co: 50.2, fav: 20},
+  {name: "Price, Samuel", country: "eng", avg: 79.58, co: 48.29, fav: 16},
+  {name: "Palmer, Ricky", country: "gbr", avg: 79.57, co: 46.07, fav: 16},
+  {name: "Parkin, James", country: "eng", avg: 79.57, co: 50.44, fav: 20},
+  {name: "Barrow, Lee", country: "eng", avg: 79.54, co: 47.47, fav: 16},
+  {name: "Van Leuven, Noa-Lynn", country: "ned", avg: 79.52, co: 43.63, fav: 16},
+  {name: "Major, Nandor", country: "hun", avg: 79.35, co: 44.15, fav: 20},
+  {name: "Williams, Karl", country: "eng", avg: 79.35, co: 49.56, fav: 16},
+  {name: "Durrant, Jamie", country: "eng", avg: 79.31, co: 46.68, fav: 16},
+  {name: "Stoeckli, Bruno", country: "sui", avg: 79.31, co: 46.21, fav: 16},
+  {name: "Blum, Nico", country: "ger", avg: 79.3, co: 43.44, fav: 16},
+  {name: "Bruns, Frank", country: "ger", avg: 79.26, co: 43.9, fav: 16},
+  {name: "Lowe, Kevin", country: "eng", avg: 79.2, co: 38.19, fav: 16},
+  {name: "Male, Jack", country: "eng", avg: 79.15, co: 42.86, fav: 20},
+  {name: "Moore, Martyn", country: "eng", avg: 79.12, co: 46.0, fav: 16},
+  {name: "Blades, Gary", country: "eng", avg: 79.09, co: 40.7, fav: 20},
+  {name: "Sparidaans, Jeffrey", country: "eng", avg: 79.08, co: 46.47, fav: 16},
+  {name: "Kay, Keelan", country: "eng", avg: 79.06, co: 46.17, fav: 20},
+  {name: "Kohnlein, Thomas", country: "ger", avg: 79.06, co: 48.0, fav: 16},
+  {name: "Kraft, Marvin", country: "ger", avg: 79.03, co: 19.71, fav: 20},
+  {name: "Mitchell, Paul", country: "gbr", avg: 79.03, co: 44.8, fav: 16},
+  {name: "Cavajda, Dominik", country: "cze", avg: 79.02, co: 40.64, fav: 20},
+  {name: "Shire, Jack", country: "eng", avg: 79.02, co: 39.14, fav: 20},
+  {name: "Raman, Brian", country: "bel", avg: 79.0, co: 48.86, fav: 16},
+  {name: "Krivka, Petr", country: "cze", avg: 78.94, co: 52.93, fav: 16},
+  {name: "Garcia Del Pozo, Jorge", country: "esp", avg: 78.93, co: 46.52, fav: 20},
+  {name: "Marcone, Francesco", country: "ita", avg: 78.93, co: 39.74, fav: 20},
+  {name: "Robbie, Hayden", country: "eng", avg: 78.84, co: 44.94, fav: 16},
+  {name: "Roberts, Deian", country: "wal", avg: 78.84, co: 31.0, fav: 20},
+  {name: "Hilger, Moritz", country: "ger", avg: 78.83, co: 47.95, fav: 16},
+  {name: "De Jong, Max", country: "ned", avg: 78.8, co: 31.67, fav: 20},
+  {name: "Blankley, Ashley", country: "gbr", avg: 78.76, co: 30.0, fav: 20},
+  {name: "Sumner, David", country: "eng", avg: 78.74, co: 45.43, fav: 20},
+  {name: "Hofkens, Yorick", country: "ger", avg: 78.73, co: 43.57, fav: 20},
+  {name: "Baur, Travis", country: "nir", avg: 78.68, co: 41.55, fav: 20},
+  {name: "Bailey, James", country: "aus", avg: 78.66, co: 44.82, fav: 16},
+  {name: "Tibbe, Gerko", country: "eng", avg: 78.63, co: 46.66, fav: 16},
+  {name: "Riding, Tom", country: "eng", avg: 78.58, co: 49.78, fav: 20},
+  {name: "Socha, Florian", country: "ger", avg: 78.58, co: 52.11, fav: 20},
+  {name: "Kelly, Liam", country: "eng", avg: 78.54, co: 43.56, fav: 16},
+  {name: "Taylor, Scott", country: "eng", avg: 78.54, co: 60.43, fav: 16},
+  {name: "Teehan, Ciaran", country: "irl", avg: 78.52, co: 38.36, fav: 20},
+  {name: "Hurds, Chris", country: "eng", avg: 78.51, co: 48.55, fav: 20},
+  {name: "Quinn, Patrick", country: "irl", avg: 78.5, co: 40.85, fav: 20},
+  {name: "Vleghert, Marc", country: "eng", avg: 78.47, co: 42.48, fav: 16},
+  {name: "Dekker, Patrick", country: "eng", avg: 78.38, co: 48.91, fav: 16},
+  {name: "Bradshaw, Justin", country: "eng", avg: 78.35, co: 44.07, fav: 20},
+  {name: "Admiraal, Laurens", country: "eng", avg: 78.33, co: 47.19, fav: 16},
+  {name: "Erba, Marcel", country: "ger", avg: 78.31, co: 45.25, fav: 20},
+  {name: "Becker, Jarod", country: "ger", avg: 78.3, co: 52.32, fav: 16},
+  {name: "Davey, John", country: "wal", avg: 78.25, co: 49.38, fav: 16},
+  {name: "Michael, John", country: "gre", avg: 78.16, co: 42.5, fav: 20},
+  {name: "Jansen, Javanico", country: "cze", avg: 78.14, co: 47.7, fav: 20},
+  {name: "Goedl, Christian", country: "aut", avg: 78.13, co: 33.9, fav: 16},
+  {name: "Baba, Yoshihisa", country: "jpn", avg: 78.12, co: 47.8, fav: 16},
+  {name: "Caste, Mat", country: "eng", avg: 78.04, co: 41.47, fav: 20},
+  {name: "Schiertz, Felix", country: "sui", avg: 78.04, co: 43.81, fav: 16},
+  {name: "Lap, Sietse", country: "eng", avg: 77.99, co: 43.57, fav: 20},
+  {name: "Krassen, Sergio", country: "ita", avg: 77.98, co: 40.43, fav: 16},
+  {name: "Koehoorn, Gillian", country: "eng", avg: 77.96, co: 43.56, fav: 16},
+  {name: "Vanbesien, James", country: "bel", avg: 77.96, co: 50.02, fav: 16},
+  {name: "Nirschl, Maximilian", country: "ger", avg: 77.94, co: 45.1, fav: 16},
+  {name: "Madgwick, John", country: "eng", avg: 77.93, co: 43.31, fav: 16},
+  {name: "Moravcik, Dominik", country: "cze", avg: 77.91, co: 44.71, fav: 20},
+  {name: "Znutins, Edgar", country: "lat", avg: 77.87, co: 52.89, fav: 20},
+  {name: "Barkhausen, Jannis", country: "ger", avg: 77.8, co: 47.46, fav: 20},
+  {name: "Rollinson, Jamie", country: "eng", avg: 77.8, co: 44.4, fav: 16},
+  {name: "Milne, Kayden", country: "nzl", avg: 77.79, co: 46.64, fav: 20},
+  {name: "Remde, Leon", country: "ger", avg: 77.77, co: 49.14, fav: 16},
+  {name: "Spivey, Sam", country: "eng", avg: 77.74, co: 38.75, fav: 16},
+  {name: "Bottenberg, Jarno", country: "ger", avg: 77.73, co: 46.71, fav: 20},
+  {name: "Koch, Marvin", country: "ger", avg: 77.67, co: 40.5, fav: 20},
+  {name: "Hill, David", country: "eng", avg: 77.64, co: 34.16, fav: 20},
+  {name: "Jones, Timothy", country: "gbr", avg: 77.6, co: 57.0, fav: 16},
+  {name: "Francis, Callum", country: "eng", avg: 77.59, co: 27.63, fav: 16},
+  {name: "Mesters, Ruben", country: "eng", avg: 77.59, co: 51.82, fav: 20},
+  {name: "Hexel, Marcel", country: "ger", avg: 77.58, co: 57.17, fav: 16},
+  {name: "Lane, Harry", country: "eng", avg: 77.58, co: 45.88, fav: 16},
+  {name: "Barauskas, Mindaugas", country: "ltu", avg: 77.56, co: 47.8, fav: 16},
+  {name: "Masek, Alexander", country: "cze", avg: 77.56, co: 36.08, fav: 16},
+  {name: "McDyer, Ultan", country: "irl", avg: 77.51, co: 43.08, fav: 20},
+  {name: "Teysen, Simon", country: "bel", avg: 77.51, co: 43.97, fav: 16},
+  {name: "De Ruyter, Kirk", country: "eng", avg: 77.47, co: 47.0, fav: 20},
+  {name: "Dees, Stefan", country: "eng", avg: 77.46, co: 41.04, fav: 20},
+  {name: "Symons, Charlie", country: "eng", avg: 77.41, co: 38.57, fav: 20},
+  {name: "Knopf, Kevin", country: "ger", avg: 77.4, co: 43.44, fav: 20},
+  {name: "Schlueter, Lenny", country: "ger", avg: 77.37, co: 38.23, fav: 16},
+  {name: "Schroder, Stefan", country: "ger", avg: 77.29, co: 37.2, fav: 20},
+  {name: "Devine, Adrian", country: "nir", avg: 77.23, co: 46.78, fav: 16},
+  {name: "Ferrero, Dominic", country: "ger", avg: 77.23, co: 40.44, fav: 20},
+  {name: "Richardson, Kyle", country: "gbr", avg: 77.2, co: 62.21, fav: 16},
+  {name: "Keen, Jeffrey", country: "eng", avg: 77.17, co: 45.89, fav: 20},
+  {name: "Micheletti, Andrea", country: "ita", avg: 77.16, co: 45.15, fav: 16},
+  {name: "Camacho, Luis", country: "por", avg: 77.15, co: 36.05, fav: 20},
+  {name: "Morgan-Williams, Brett", country: "sco", avg: 77.13, co: 49.75, fav: 20},
+  {name: "Waite, James", country: "eng", avg: 77.09, co: 50.33, fav: 20},
+  {name: "Van Zeele, Stefano", country: "ned", avg: 77.04, co: 45.25, fav: 16},
+  {name: "Duerbeck, Joachim", country: "ger", avg: 77.0, co: 49.19, fav: 16},
+  {name: "Goddard, Danny", country: "eng", avg: 76.98, co: 42.82, fav: 16},
+  {name: "Callary, Andrew", country: "sco", avg: 76.95, co: 50.92, fav: 20},
+  {name: "Crouwel, Nick", country: "eng", avg: 76.86, co: 55.54, fav: 16},
+  {name: "Bulen, Patrick", country: "bel", avg: 76.82, co: 34.23, fav: 20},
+  {name: "Evans, Kieran", country: "eng", avg: 76.81, co: 45.5, fav: 16},
+  {name: "Goyer, Paul", country: "ger", avg: 76.72, co: 44.81, fav: 20},
+  {name: "Zhukov, Dmitriy", country: "lat", avg: 76.71, co: 44.62, fav: 16},
+  {name: "Steyer, Sebastian", country: "pol", avg: 76.64, co: 40.03, fav: 16},
+  {name: "Stothart, Simon", country: "eng", avg: 76.63, co: 34.43, fav: 16},
+  {name: "Deysel, Hugo Albertus", country: "rsa", avg: 76.61, co: 55.4, fav: 20},
+  {name: "Te Hennepe, Lorenzo", country: "eng", avg: 76.61, co: 36.58, fav: 16},
+  {name: "Van Peer, Carlo", country: "ned", avg: 76.61, co: 52.83, fav: 16},
+  {name: "Hall, Matthew", country: "eng", avg: 76.56, co: 37.5, fav: 20},
+  {name: "Maendl-Lawrance, Liam", country: "ger", avg: 76.54, co: 41.35, fav: 20},
+  {name: "Schmitt, Felix", country: "ger", avg: 76.52, co: 40.4, fav: 16},
+  {name: "Castelli, Riccardo", country: "ita", avg: 76.4, co: 57.4, fav: 20},
+  {name: "Bayton, Dave", country: "eng", avg: 76.36, co: 24.83, fav: 16},
+  {name: "Hitchen, Anthony Paul", country: "gbr", avg: 76.29, co: 32.73, fav: 20},
+  {name: "Scholz, Dennis", country: "ger", avg: 76.28, co: 39.11, fav: 16},
+  {name: "Dante, Massimo", country: "ita", avg: 76.27, co: 39.45, fav: 20},
+  {name: "Dueckers, Jan", country: "ger", avg: 76.26, co: 40.0, fav: 20},
+  {name: "Kemp, Charlie", country: "eng", avg: 76.15, co: 32.82, fav: 16},
+  {name: "Michiels, Michel", country: "eng", avg: 76.13, co: 50.55, fav: 20},
+  {name: "Schunke, Nico", country: "ger", avg: 76.13, co: 45.12, fav: 20},
+  {name: "Welk, Laurin", country: "ger", avg: 76.06, co: 43.61, fav: 20},
+  {name: "Evans, David", country: "eng", avg: 76.05, co: 30.56, fav: 16},
+  {name: "McKinnon, Jamie", country: "eng", avg: 76.0, co: 48.0, fav: 16},
+  {name: "Nuijten, Jurgen", country: "eng", avg: 75.83, co: 36.35, fav: 16},
+  {name: "Janowicz, Kamil", country: "pol", avg: 75.81, co: 49.92, fav: 20},
+  {name: "Zalewski, Aleksander", country: "pol", avg: 75.79, co: 54.57, fav: 16},
+  {name: "Straver, Dustin", country: "eng", avg: 75.77, co: 39.6, fav: 16},
+  {name: "Coleman, Ashley", country: "eng", avg: 75.74, co: 32.11, fav: 16},
+  {name: "Mossou, Maikel", country: "eng", avg: 75.74, co: 53.65, fav: 16},
+  {name: "Parry, Neil", country: "wal", avg: 75.74, co: 49.67, fav: 16},
+  {name: "Mcnally, Stephen", country: "eng", avg: 75.73, co: 51.11, fav: 16},
+  {name: "Trommler, Simon", country: "ger", avg: 75.72, co: 42.88, fav: 20},
+  {name: "Waclawski, Lukasz", country: "pol", avg: 75.72, co: 48.17, fav: 20},
+  {name: "Part, John", country: "can", avg: 75.64, co: 61.92, fav: 16},
+  {name: "Cocks, Nick", country: "gbr", avg: 75.61, co: 42.29, fav: 20},
+  {name: "Dicken, Matthew", country: "eng", avg: 75.61, co: 43.3, fav: 20},
+  {name: "Dalla Rosa, Massimo", country: "ita", avg: 75.53, co: 58.64, fav: 16},
+  {name: "Schlichting, David", country: "ger", avg: 75.47, co: 52.76, fav: 16},
+  {name: "Van Den Berg, Loek", country: "ned", avg: 75.43, co: 39.5, fav: 20},
+  {name: "Devroey, Pascal", country: "bel", avg: 75.42, co: 43.52, fav: 16},
+  {name: "Van Velzen, Keanu", country: "ned", avg: 75.36, co: 49.24, fav: 20},
+  {name: "Ulrych, Jindrich", country: "cze", avg: 75.35, co: 48.5, fav: 16},
+  {name: "Green, James", country: "eng", avg: 75.31, co: 48.43, fav: 20},
+  {name: "Kristensen, Tom Veje", country: "den", avg: 75.31, co: 43.62, fav: 16},
+  {name: "Whitehouse, Connor", country: "eng", avg: 75.26, co: 42.67, fav: 20},
+  {name: "McCormack, Killian", country: "irl", avg: 75.22, co: 48.82, fav: 20},
+  {name: "Hausotter, Marcel", country: "ger", avg: 75.11, co: 27.36, fav: 16},
+  {name: "Sturm, Rainer", country: "aut", avg: 75.1, co: 31.33, fav: 16},
+  {name: "Van Deest, Marvin", country: "ned", avg: 75.1, co: 47.5, fav: 20},
+  {name: "Boardman, Jack", country: "eng", avg: 74.97, co: 42.75, fav: 20},
+  {name: "Hijmans, Nick", country: "eng", avg: 74.97, co: 41.96, fav: 20},
+  {name: "Bridle, Joseph", country: "eng", avg: 74.89, co: 41.71, fav: 20},
+  {name: "Trinker, Bernhard", country: "aut", avg: 74.82, co: 43.32, fav: 20},
+  {name: "Moss, Steven", country: "eng", avg: 74.81, co: 36.93, fav: 16},
+  {name: "Lambertsen, Bent", country: "den", avg: 74.72, co: 45.85, fav: 20},
+  {name: "Toonders, Christopher", country: "ger", avg: 74.7, co: 45.9, fav: 20},
+  {name: "Kustermans, Maikel", country: "eng", avg: 74.65, co: 34.82, fav: 16},
+  {name: "McDonagh, Ronan", country: "irl", avg: 74.57, co: 50.67, fav: 16},
+  {name: "Rech, Riccardo", country: "ger", avg: 74.56, co: 46.38, fav: 16},
+  {name: "Wilson, Stu", country: "eng", avg: 74.56, co: 44.64, fav: 16},
+  {name: "Long, Robbie", country: "eng", avg: 74.54, co: 44.8, fav: 16},
+  {name: "Stecconi, Giovanni", country: "ita", avg: 74.54, co: 38.94, fav: 20},
+  {name: "Wille, Sven", country: "ger", avg: 74.52, co: 49.0, fav: 16},
+  {name: "Aldous, Bradley", country: "eng", avg: 74.5, co: 38.67, fav: 20},
+  {name: "Karcz, Lukasz", country: "pol", avg: 74.5, co: 39.43, fav: 20},
+  {name: "Schwab, Patrick", country: "ger", avg: 74.46, co: 34.63, fav: 20},
+  {name: "Van Der Vegt, Wouter", country: "ned", avg: 74.35, co: 45.43, fav: 16},
+  {name: "Brouder, Neilie", country: "irl", avg: 74.31, co: 35.4, fav: 20},
+  {name: "Mandiau, Remo", country: "bel", avg: 74.31, co: 41.83, fav: 16},
+  {name: "Jongen, Martin", country: "eng", avg: 74.3, co: 44.54, fav: 16},
+  {name: "Guener, Yasa", country: "ger", avg: 74.26, co: 48.25, fav: 20},
+  {name: "Christodoulou, Petros", country: "cyp", avg: 74.19, co: 74.5, fav: 16},
+  {name: "Grace, Lee", country: "eng", avg: 74.19, co: 43.64, fav: 20},
+  {name: "Bezjian, Alberto", country: "hun", avg: 74.18, co: 38.75, fav: 16},
+  {name: "Searle, Craig", country: "eng", avg: 74.18, co: 39.8, fav: 16},
+  {name: "Unger, Lukas", country: "cze", avg: 74.17, co: 39.58, fav: 20},
+  {name: "Valyi, Attila", country: "hun", avg: 74.12, co: 34.0, fav: 16},
+  {name: "Coleman, Karl", country: "eng", avg: 74.11, co: 54.09, fav: 16},
+  {name: "Moeller, Christopher", country: "ger", avg: 74.06, co: 47.22, fav: 20},
+  {name: "Abelmann, Ralf", country: "ger", avg: 73.94, co: 39.91, fav: 20},
+  {name: "Bohrmann, Moritz", country: "ger", avg: 73.93, co: 41.3, fav: 16},
+  {name: "Knudsen, Mikkel Devantie", country: "den", avg: 73.92, co: 32.4, fav: 16},
+  {name: "Vermeersch, Gino", country: "bel", avg: 73.91, co: 49.56, fav: 16},
+  {name: "Kuhlig, Elias", country: "ger", avg: 73.87, co: 38.92, fav: 20},
+  {name: "Rogov, Dmitrii", country: "isr", avg: 73.86, co: 39.44, fav: 20},
+  {name: "Inkpen, Steven", country: "wal", avg: 73.85, co: 59.56, fav: 20},
+  {name: "James, Gavin", country: "wal", avg: 73.84, co: 31.83, fav: 16},
+  {name: "Ryan, Sean", country: "sco", avg: 73.79, co: 37.36, fav: 20},
+  {name: "Diller, Danny", country: "ger", avg: 73.78, co: 38.9, fav: 16},
+  {name: "Bihl, Fabian", country: "ger", avg: 73.74, co: 39.11, fav: 16},
+  {name: "Kitchen, Liam", country: "eng", avg: 73.74, co: 41.13, fav: 16},
+  {name: "Rajnoha, Miroslav", country: "svk", avg: 73.74, co: 48.92, fav: 20},
+  {name: "Kirchmann, Marcus", country: "ger", avg: 73.73, co: 49.04, fav: 16},
+  {name: "Procter, Tony", country: "eng", avg: 73.73, co: 75.8, fav: 20},
+  {name: "Van Put, Born", country: "bel", avg: 73.68, co: 43.51, fav: 20},
+  {name: "Kobylarz, Jerzy", country: "pol", avg: 73.67, co: 64.23, fav: 16},
+  {name: "Heath, Geoffrey", country: "gbr", avg: 73.66, co: 49.54, fav: 20},
+  {name: "Hurtz, Michael", country: "ger", avg: 73.65, co: 42.06, fav: 16},
+  {name: "Bota Ramos, Pau", country: "esp", avg: 73.63, co: 31.86, fav: 20},
+  {name: "Sheppard, Jack Anthony", country: "nzl", avg: 73.58, co: 40.88, fav: 20},
+  {name: "Limburg, Jan Luca", country: "ger", avg: 73.56, co: 47.05, fav: 20},
+  {name: "Delgado, Dani", country: "esp", avg: 73.54, co: 49.62, fav: 16},
+  {name: "Scheurwater, Donny", country: "ger", avg: 73.52, co: 44.76, fav: 20},
+  {name: "Radosavljevic, Mladen", country: "srb", avg: 73.5, co: 43.08, fav: 16},
+  {name: "Gater, Thomas", country: "eng", avg: 73.49, co: 61.4, fav: 16},
+  {name: "Rollo, Gabriel", country: "ita", avg: 73.48, co: 41.44, fav: 16},
+  {name: "Phillips, Cavan", country: "wal", avg: 73.43, co: 40.21, fav: 20},
+  {name: "Rosi, David", country: "cze", avg: 73.42, co: 37.33, fav: 16},
+  {name: "White, Bailey", country: "eng", avg: 73.37, co: 38.6, fav: 20},
+  {name: "Michalczyk, Alexander", country: "ger", avg: 73.34, co: 41.65, fav: 16},
+  {name: "Smith (Chester), Luke", country: "eng", avg: 73.33, co: 42.5, fav: 20},
+  {name: "Boardman, Mark", country: "eng", avg: 73.28, co: 64.7, fav: 20},
+  {name: "Jorgensen, Andreas Toft", country: "den", avg: 73.24, co: 33.83, fav: 20},
+  {name: "Adams, Ben", country: "wal", avg: 73.23, co: 50.5, fav: 20},
+  {name: "Smith, Alfie", country: "eng", avg: 73.23, co: 35.55, fav: 20},
+  {name: "Sewell, Steve", country: "gbr", avg: 73.21, co: 38.63, fav: 16},
+  {name: "Lindour, Kieran", country: "ger", avg: 73.2, co: 55.93, fav: 20},
+  {name: "Patel, Bhav", country: "eng", avg: 73.19, co: 26.43, fav: 16},
+  {name: "Richter, Moritz", country: "ger", avg: 73.19, co: 38.32, fav: 16},
+  {name: "Fridriksson, Matthias Orn", country: "isl", avg: 73.18, co: 51.63, fav: 20},
+  {name: "Jungwirth, Marco", country: "aut", avg: 73.17, co: 36.89, fav: 16},
+  {name: "Baulcomb, Max", country: "eng", avg: 73.13, co: 44.75, fav: 16},
+  {name: "Schweder, Philipp", country: "ger", avg: 73.13, co: 36.05, fav: 16},
+  {name: "Holroyd, Rob", country: "eng", avg: 73.11, co: 52.5, fav: 16},
+  {name: "Burt, Simon", country: "eng", avg: 73.1, co: 44.4, fav: 16},
+  {name: "Robijns, Davy", country: "bel", avg: 73.09, co: 38.67, fav: 20},
+  {name: "Fink, Domenik", country: "ger", avg: 73.06, co: 41.32, fav: 20},
+  {name: "Parradine, Tom", country: "eng", avg: 73.06, co: 38.12, fav: 16},
+  {name: "Poulsen, Ivan Springborg", country: "den", avg: 73.06, co: 41.82, fav: 16},
+  {name: "Rosenauer, Michael", country: "ger", avg: 73.03, co: 38.74, fav: 20},
+  {name: "Dispa, Jan-Willem", country: "cze", avg: 72.95, co: 63.63, fav: 20},
+  {name: "Yildiz, Halil Can", country: "tur", avg: 72.94, co: 34.63, fav: 16},
+  {name: "Bennett, Stuart", country: "eng", avg: 72.93, co: 43.0, fav: 16},
+  {name: "Brogan, James", country: "irl", avg: 72.86, co: 44.15, fav: 20},
+  {name: "Trutalli, Paolo", country: "ita", avg: 72.82, co: 39.89, fav: 20},
+  {name: "Tonks, Martin", country: "eng", avg: 72.81, co: 33.42, fav: 20},
+  {name: "Ozbolt, Danijel", country: "cro", avg: 72.8, co: 37.93, fav: 16},
+  {name: "Spoolder, Clemens", country: "eng", avg: 72.71, co: 38.84, fav: 20},
+  {name: "Bereths, Paul", country: "ger", avg: 72.66, co: 39.64, fav: 16},
+  {name: "Atellinghusen, Justin", country: "eng", avg: 72.64, co: 49.63, fav: 20},
+  {name: "Szlanyina, Jozsef", country: "hun", avg: 72.6, co: 33.9, fav: 20},
+  {name: "Rizzo, Giuseppe", country: "ita", avg: 72.52, co: 39.84, fav: 16},
+  {name: "Ungethuem, Ronny", country: "ger", avg: 72.51, co: 47.3, fav: 16},
+  {name: "Scholing, Rob", country: "ger", avg: 72.44, co: 45.84, fav: 16},
+  {name: "Kelly, Michael", country: "irl", avg: 72.43, co: 46.0, fav: 20},
+  {name: "Zadach, Daniel", country: "ger", avg: 72.42, co: 39.9, fav: 16},
+  {name: "Hermann, Joshua", country: "ger", avg: 72.4, co: 37.09, fav: 16},
+  {name: "Moreira, Stevie", country: "eng", avg: 72.39, co: 49.5, fav: 20},
+  {name: "Burmeister, Marc", country: "ger", avg: 72.38, co: 41.85, fav: 20},
+  {name: "Di Poce, Stefano", country: "ita", avg: 72.38, co: 33.2, fav: 20},
+  {name: "Heard, Robert", country: "wal", avg: 72.32, co: 46.92, fav: 16},
+  {name: "Ziman, Martin", country: "svk", avg: 72.31, co: 48.0, fav: 16},
+  {name: "Borzsei, Janos", country: "hun", avg: 72.3, co: 41.87, fav: 16},
+  {name: "Watkins, Craig", country: "gbr", avg: 72.25, co: 32.75, fav: 16},
+  {name: "Nelson, Robert", country: "sco", avg: 72.19, co: 35.91, fav: 20},
+  {name: "Saxon, Liam", country: "eng", avg: 72.13, co: 40.0, fav: 20},
+  {name: "Harms, Kevin", country: "eng", avg: 72.09, co: 33.8, fav: 20},
+  {name: "Rodriguez, Angel", country: "esp", avg: 72.04, co: 36.0, fav: 16},
+  {name: "Tuik, Niek", country: "eng", avg: 72.04, co: 47.76, fav: 20},
+  {name: "Baughan, Tom", country: "eng", avg: 72.02, co: 40.17, fav: 16},
+  {name: "Ham, Ricardo", country: "eng", avg: 72.0, co: 51.14, fav: 20},
+  {name: "Radford, Ellis", country: "eng", avg: 71.98, co: 43.2, fav: 16},
+  {name: "Lageweg, Martijn", country: "eng", avg: 71.96, co: 47.68, fav: 16},
+  {name: "Gomula, Marcel", country: "ger", avg: 71.9, co: 47.0, fav: 16},
+  {name: "Selby-Rivas, Jaikob", country: "eng", avg: 71.88, co: 44.44, fav: 20},
+  {name: "Hamrozi, Tomas", country: "cze", avg: 71.85, co: 28.0, fav: 16},
+  {name: "Fredriksen, Bastiaan", country: "eng", avg: 71.83, co: 45.33, fav: 20},
+  {name: "Barnard, Michael", country: "eng", avg: 71.78, co: 37.91, fav: 16},
+  {name: "Bereza, Filip", country: "pol", avg: 71.78, co: 45.14, fav: 16},
+  {name: "Hesse, Stefan", country: "ger", avg: 71.77, co: 35.17, fav: 16},
+  {name: "Weaver, Ashley", country: "eng", avg: 71.75, co: 40.0, fav: 20},
+  {name: "Konterman, Arjan", country: "cze", avg: 71.68, co: 49.45, fav: 20},
+  {name: "Van Der Ende, Dennis", country: "ned", avg: 71.56, co: 40.75, fav: 16},
+  {name: "Castle, Stephen", country: "wal", avg: 71.53, co: 56.25, fav: 20},
+  {name: "Hill, Janek", country: "eng", avg: 71.52, co: 48.07, fav: 16},
+  {name: "Garcia, Kevin", country: "eng", avg: 71.5, co: 36.0, fav: 20},
+  {name: "Elzinga, Luitsen", country: "eng", avg: 71.48, co: 40.22, fav: 16},
+  {name: "Evans-Bradford, James", country: "eng", avg: 71.47, co: 43.18, fav: 16},
+  {name: "Barham, Paul", country: "eng", avg: 71.46, co: 24.86, fav: 20},
+  {name: "Worsley, Jack", country: "gbr", avg: 71.39, co: 60.17, fav: 16},
+  {name: "Testroote, Jordy", country: "eng", avg: 71.35, co: 49.57, fav: 20},
+  {name: "Twist, Mark", country: "eng", avg: 71.32, co: 47.93, fav: 16},
+  {name: "Price, Lee", country: "eng", avg: 71.26, co: 30.56, fav: 20},
+  {name: "Hogg, Chris", country: "eng", avg: 71.22, co: 15.0, fav: 16},
+  {name: "Redhead, Terry", country: "eng", avg: 71.21, co: 32.33, fav: 16},
+  {name: "Acar, Baris", country: "ger", avg: 71.17, co: 44.8, fav: 20},
+  {name: "Wellinger, Roman", country: "sui", avg: 71.11, co: 44.0, fav: 16},
+  {name: "Yamada, Yuki", country: "jpn", avg: 71.09, co: 33.39, fav: 16},
+  {name: "Ehlers, Thomas", country: "ger", avg: 71.07, co: 28.79, fav: 20},
+  {name: "Smith, Daniel", country: "eng", avg: 71.07, co: 40.92, fav: 20},
+  {name: "Lewandowski, Witold", country: "pol", avg: 71.06, co: 46.35, fav: 16},
+  {name: "Jeske, David", country: "ger", avg: 71.05, co: 41.42, fav: 20},
+  {name: "Ling, Ash", country: "gbr", avg: 70.92, co: 61.45, fav: 16},
+  {name: "Lakatos, Gergely", country: "hun", avg: 70.81, co: 39.33, fav: 16},
+  {name: "Arsenijevic, Max", country: "ger", avg: 70.75, co: 52.06, fav: 16},
+  {name: "Stuhlemmer, Sascha", country: "ger", avg: 70.6, co: 45.17, fav: 16},
+  {name: "Menzel, Bryan", country: "ger", avg: 70.57, co: 44.39, fav: 16},
+  {name: "Gutgesell, Maurice", country: "ger", avg: 70.54, co: 38.35, fav: 20},
+  {name: "Watts, Steven", country: "eng", avg: 70.54, co: 37.0, fav: 16},
+  {name: "Enxuto, Nuno", country: "por", avg: 70.52, co: 37.62, fav: 20},
+  {name: "Kniest, Jens", country: "ger", avg: 70.45, co: 41.8, fav: 20},
+  {name: "Nowak, Boris", country: "ger", avg: 70.44, co: 47.0, fav: 16},
+  {name: "Hein, Felix", country: "ger", avg: 70.42, co: 31.46, fav: 16},
+  {name: "Mulder, Bert Jan", country: "cze", avg: 70.37, co: 27.33, fav: 20},
+  {name: "Olar, Gabriel Florin", country: "rou", avg: 70.23, co: 48.33, fav: 16},
+  {name: "Tobback, Jody", country: "bel", avg: 70.21, co: 51.93, fav: 16},
+  {name: "Hertig, Roger", country: "sui", avg: 70.18, co: 56.0, fav: 20},
+  {name: "Balogh, Richard", country: "hun", avg: 70.14, co: 53.71, fav: 16},
+  {name: "Harrison, Michael", country: "gbr", avg: 70.13, co: 49.75, fav: 16},
+  {name: "Horvat, Dragutin", country: "ger", avg: 70.07, co: 63.33, fav: 16},
+  {name: "Grochotzky, Daniel", country: "ger", avg: 70.02, co: 45.11, fav: 16},
+  {name: "Heuberger, Juergen", country: "aut", avg: 69.98, co: 48.6, fav: 20},
+  {name: "Graversen, Jonas", country: "den", avg: 69.95, co: 44.33, fav: 16},
+  {name: "Gustorf, Mitja", country: "ger", avg: 69.93, co: 34.5, fav: 16},
+  {name: "Hyllgaardhus, Andreas", country: "den", avg: 69.92, co: 24.85, fav: 20},
+  {name: "Nicolai, Calvin", country: "eng", avg: 69.9, co: 31.89, fav: 16},
+  {name: "Gutjahr, Manuel", country: "ger", avg: 69.89, co: 30.0, fav: 20},
+  {name: "Boelen, Jan", country: "cze", avg: 69.84, co: 50.2, fav: 20},
+  {name: "Jozee, Jordy", country: "eng", avg: 69.84, co: 48.0, fav: 16},
+  {name: "Sutton, Ashley", country: "eng", avg: 69.81, co: 32.09, fav: 20},
+  {name: "Uguz, Nazmi", country: "tur", avg: 69.79, co: 37.53, fav: 20},
+  {name: "Whyte, George", country: "eng", avg: 69.79, co: 35.83, fav: 20},
+  {name: "Lang, Frieder", country: "ger", avg: 69.77, co: 40.71, fav: 16},
+  {name: "Hartung, Pascal", country: "ger", avg: 69.72, co: 36.13, fav: 16},
+  {name: "McKirdy, Jimmy", country: "sco", avg: 69.69, co: 39.8, fav: 16},
+  {name: "Purgy, Marek", country: "svk", avg: 69.69, co: 39.79, fav: 16},
+  {name: "Nielsen, Niels Aagaard", country: "den", avg: 69.67, co: 33.85, fav: 16},
+  {name: "Booth, Sam", country: "eng", avg: 69.66, co: 35.36, fav: 20},
+  {name: "Pfaff, Luca", country: "ger", avg: 69.61, co: 31.7, fav: 16},
+  {name: "Flueckiger, Mika", country: "sui", avg: 69.56, co: 46.5, fav: 20},
+  {name: "Peters, Frank", country: "ger", avg: 69.56, co: 36.4, fav: 20},
+  {name: "Jeske, Cedric", country: "ger", avg: 69.51, co: 54.75, fav: 16},
+  {name: "Nentjes, Geert", country: "eng", avg: 69.5, co: 48.86, fav: 20},
+  {name: "Jacobi, Tim", country: "ger", avg: 69.41, co: 28.56, fav: 16},
+  {name: "Zwick, Hilger", country: "ger", avg: 69.4, co: 37.94, fav: 20},
+  {name: "Hauser, Dylan", country: "eng", avg: 69.37, co: 47.11, fav: 16},
+  {name: "Blagden, Ronnie", country: "gbr", avg: 69.36, co: 28.0, fav: 20},
+  {name: "Goncalves, Joaquim", country: "por", avg: 69.26, co: 46.37, fav: 20},
+  {name: "Barker, Kristian", country: "eng", avg: 69.25, co: 50.0, fav: 20},
+  {name: "Sarens, Kristof", country: "bel", avg: 69.21, co: 39.67, fav: 16},
+  {name: "Sennikov, Denys", country: "ukr", avg: 69.18, co: 56.17, fav: 20},
+  {name: "Humphries, Daniel", country: "gbr", avg: 69.12, co: 41.3, fav: 20},
+  {name: "Fraulob, Lukas", country: "ger", avg: 69.09, co: 33.29, fav: 16},
+  {name: "Newton, Ryan", country: "eng", avg: 69.09, co: 31.45, fav: 20},
+  {name: "Olejnik, Miguel", country: "ger", avg: 69.07, co: 27.63, fav: 16},
+  {name: "Newton, Josh", country: "eng", avg: 68.98, co: 82.0, fav: 16},
+  {name: "Borbely, Andras", country: "hun", avg: 68.94, co: 35.94, fav: 20},
+  {name: "Schockaert, Mathias", country: "bel", avg: 68.89, co: 23.83, fav: 16},
+  {name: "Ozdemir, Ceyhan", country: "aut", avg: 68.88, co: 31.14, fav: 20},
+  {name: "Ameel, Rino", country: "bel", avg: 68.86, co: 72.5, fav: 20},
+  {name: "Hubrich, Dennis", country: "ger", avg: 68.85, co: 58.78, fav: 20},
+  {name: "Carr, David", country: "eng", avg: 68.82, co: 21.0, fav: 16},
+  {name: "Wagenaar, Richard", country: "eng", avg: 68.81, co: 34.32, fav: 20},
+  {name: "Van Trijp, Wesley", country: "ned", avg: 68.74, co: 35.29, fav: 20},
+  {name: "Bendoni, Fabio", country: "ita", avg: 68.67, co: 32.2, fav: 20},
+  {name: "Aulich, Marcel", country: "ger", avg: 68.65, co: 31.67, fav: 20},
+  {name: "Nebe, Dominik", country: "ger", avg: 68.51, co: 39.23, fav: 16},
+  {name: "Cibula, Vojtech", country: "cze", avg: 68.47, co: 41.17, fav: 20},
+  {name: "Antunes, Alexandre", country: "por", avg: 68.35, co: 35.33, fav: 16},
+  {name: "De Vries, Hans", country: "ned", avg: 68.28, co: 38.26, fav: 20},
+  {name: "Hessing, Rick", country: "eng", avg: 68.27, co: 37.0, fav: 16},
+  {name: "Marquardt, Hendrik", country: "ger", avg: 68.26, co: 30.75, fav: 16},
+  {name: "Van Hove - Speltincx, Kevin", country: "bel", avg: 68.23, co: 43.11, fav: 16},
+  {name: "Gugger, Marcel", country: "sui", avg: 68.17, co: 49.86, fav: 16},
+  {name: "Babik, Miroslav", country: "svk", avg: 68.11, co: 32.28, fav: 20},
+  {name: "Heinsoe, Niels", country: "den", avg: 68.11, co: 32.8, fav: 16},
+  {name: "Moore, Danny", country: "eng", avg: 68.1, co: 28.0, fav: 20},
+  {name: "Scheffler, Steffen", country: "ger", avg: 68.09, co: 48.0, fav: 20},
+  {name: "Bracke, Xavier", country: "bel", avg: 68.06, co: 54.63, fav: 20},
+  {name: "Behrens, Finn", country: "ger", avg: 68.03, co: 45.0, fav: 16},
+  {name: "Pedersen, Jonny", country: "nor", avg: 68.0, co: 52.18, fav: 16},
+  {name: "Clari, Mark", country: "ger", avg: 67.92, co: 48.67, fav: 20},
+  {name: "Heinz, Simeon", country: "ger", avg: 67.84, co: 42.64, fav: 16},
+  {name: "Van De Putte, Roger", country: "ned", avg: 67.81, co: 60.89, fav: 16},
+  {name: "Parvaneh, Jonathan", country: "ger", avg: 67.76, co: 44.5, fav: 20},
+  {name: "Dietrich, Matthias", country: "sui", avg: 67.69, co: 34.75, fav: 20},
+  {name: "Egli, Sandro", country: "sui", avg: 67.64, co: 43.44, fav: 16},
+  {name: "Beretta, Sergio", country: "ita", avg: 67.58, co: 67.83, fav: 20},
+  {name: "Klasens, Martijn", country: "eng", avg: 67.57, co: 40.64, fav: 20},
+  {name: "Taylor, Sean", country: "gbr", avg: 67.52, co: 39.75, fav: 20},
+  {name: "Maranhao, Lionel", country: "fra", avg: 67.47, co: 42.11, fav: 20},
+  {name: "Roberts, Conor", country: "gbr", avg: 67.45, co: 26.0, fav: 20},
+  {name: "Andrews, Lee", country: "eng", avg: 67.42, co: 43.93, fav: 16},
+  {name: "Bos, Robin", country: "eng", avg: 67.41, co: 42.0, fav: 20},
+  {name: "Pigache, Sebastian", country: "ger", avg: 67.4, co: 40.33, fav: 20},
+  {name: "Moscelli, Michele", country: "ita", avg: 67.18, co: 36.0, fav: 16},
+  {name: "Willems, Frederic", country: "bel", avg: 67.16, co: 47.79, fav: 20},
+  {name: "Maranelli, Samuele", country: "ita", avg: 67.07, co: 49.67, fav: 16},
+  {name: "Fey, Sebastian", country: "ger", avg: 66.92, co: 50.89, fav: 16},
+  {name: "Perak, Igor", country: "cro", avg: 66.9, co: 60.89, fav: 16},
+  {name: "Karbowiak, Sylwester", country: "pol", avg: 66.88, co: 36.84, fav: 16},
+  {name: "Ascsillan, Gergo", country: "hun", avg: 66.87, co: 42.1, fav: 16},
+  {name: "Backer, Tim", country: "ger", avg: 66.86, co: 33.35, fav: 16},
+  {name: "Stocker, Mark", country: "gbr", avg: 66.68, co: 81.0, fav: 16},
+  {name: "Timmers, Max", country: "eng", avg: 66.67, co: 30.57, fav: 16},
+  {name: "Callis, Josh", country: "eng", avg: 66.6, co: 50.86, fav: 16},
+  {name: "Claeys, Jason", country: "bel", avg: 66.45, co: 40.33, fav: 20},
+  {name: "Beasley, Steven", country: "eng", avg: 66.32, co: 69.4, fav: 20},
+  {name: "Watson, Spencer", country: "gbr", avg: 66.22, co: 41.83, fav: 20},
+  {name: "Guyot, Jessy", country: "bel", avg: 66.18, co: 29.15, fav: 16},
+  {name: "Woraczek, Michael", country: "aut", avg: 66.09, co: 40.38, fav: 16},
+  {name: "Bahor, Rok", country: "svn", avg: 66.07, co: 39.86, fav: 16},
+  {name: "Lucas-Carter, Louis", country: "gbr", avg: 66.04, co: 34.33, fav: 16},
+  {name: "Taylor, Steven", country: "eng", avg: 66.04, co: 31.63, fav: 20},
+  {name: "Schoenmakers, Martijn", country: "ger", avg: 66.03, co: 36.43, fav: 16},
+  {name: "Rickner, Ronnie", country: "eng", avg: 65.99, co: 49.75, fav: 20},
+  {name: "Schoonheydt, Zeno", country: "bel", avg: 65.95, co: 64.67, fav: 16},
+  {name: "Singh Nagi, Coni", country: "ind", avg: 65.95, co: 29.17, fav: 16},
+  {name: "Windeck, Stefan", country: "ger", avg: 65.94, co: 38.0, fav: 20},
+  {name: "Coleman, Tommie", country: "eng", avg: 65.88, co: 16.0, fav: 20},
+  {name: "Tomczak, Roman", country: "pol", avg: 65.86, co: 48.05, fav: 20},
+  {name: "Flohr, Alex", country: "lux", avg: 65.84, co: 33.6, fav: 16},
+  {name: "Luft, Viktor", country: "ger", avg: 65.79, co: 38.0, fav: 20},
+  {name: "Paesschesoone, Steven", country: "bel", avg: 65.74, co: 49.0, fav: 16},
+  {name: "Schmitz, Martin", country: "ger", avg: 65.68, co: 29.33, fav: 20},
+  {name: "Kern, Rene", country: "aut", avg: 65.66, co: 41.63, fav: 20},
+  {name: "Roeschlein, Noah", country: "ger", avg: 65.66, co: 24.67, fav: 16},
+  {name: "Kaehler, Rene", country: "ger", avg: 65.62, co: 39.95, fav: 20},
+  {name: "Schor, Fabian", country: "sui", avg: 65.6, co: 43.81, fav: 20},
+  {name: "Bervoets, Ferre", country: "bel", avg: 65.38, co: 37.26, fav: 16},
+  {name: "Egilsson, Hallgrimur", country: "isl", avg: 65.36, co: 37.8, fav: 20},
+  {name: "Labbozzetta, Daniel", country: "ita", avg: 65.19, co: 33.13, fav: 16},
+  {name: "Jonsson, Karl", country: "isl", avg: 65.01, co: 38.47, fav: 16},
+  {name: "Steernberg, Kai", country: "ger", avg: 64.96, co: 41.67, fav: 16},
+  {name: "Krekacs, Barna", country: "hun", avg: 64.95, co: 43.25, fav: 20},
+  {name: "Pijpers, Robert", country: "eng", avg: 64.92, co: 32.07, fav: 20},
+  {name: "Fritz, Dominic", country: "ger", avg: 64.84, co: 54.57, fav: 16},
+  {name: "Seghers, Diederik", country: "bel", avg: 64.79, co: 45.56, fav: 16},
+  {name: "Secular, Jack", country: "irl", avg: 64.78, co: 32.4, fav: 16},
+  {name: "Materna, Tomas", country: "cze", avg: 64.76, co: 30.96, fav: 20},
+  {name: "Vanhorenbeek, Bram", country: "bel", avg: 64.73, co: 39.11, fav: 16},
+  {name: "De Veth, Rubin", country: "ned", avg: 64.71, co: 64.25, fav: 16},
+  {name: "Vanlaer, David", country: "bel", avg: 64.64, co: 46.63, fav: 20},
+  {name: "Teixeira Rodrigues, Pedro", country: "por", avg: 64.58, co: 29.78, fav: 20},
+  {name: "Taferner, Stefan", country: "aut", avg: 64.57, co: 38.67, fav: 20},
+  {name: "Koehler, Maik", country: "ger", avg: 64.37, co: 33.5, fav: 20},
+  {name: "Clarke, Ashley", country: "eng", avg: 64.23, co: 28.0, fav: 16},
+  {name: "Wierling, Niclas", country: "ger", avg: 64.23, co: 71.0, fav: 16},
+  {name: "Bishop, Jack", country: "eng", avg: 64.15, co: 36.4, fav: 16},
+  {name: "Dallmann, Lukas", country: "ger", avg: 64.13, co: 29.71, fav: 20},
+  {name: "Hoentsch, Marcel", country: "ger", avg: 64.11, co: 66.0, fav: 20},
+  {name: "Filippi, Dominik", country: "ger", avg: 64.09, co: 51.33, fav: 20},
+  {name: "Sorensen, Jonas", country: "den", avg: 63.99, co: 39.71, fav: 16},
+  {name: "Verhelst, Brian", country: "bel", avg: 63.62, co: 31.5, fav: 20},
+  {name: "Germonpre, Bjorn", country: "bel", avg: 63.61, co: 42.07, fav: 20},
+  {name: "Ellwart, Julian", country: "ger", avg: 63.6, co: 21.89, fav: 20},
+  {name: "Kaya, Fetih", country: "tur", avg: 63.53, co: 27.62, fav: 20},
+  {name: "Mayoh, Jack", country: "eng", avg: 63.5, co: 15.0, fav: 20},
+  {name: "Rangel, Bruno", country: "bra", avg: 63.46, co: 32.8, fav: 20},
+  {name: "Balfoort, Ronald", country: "eng", avg: 63.42, co: 61.0, fav: 20},
+  {name: "Varga, Sasa", country: "cro", avg: 63.29, co: 39.33, fav: 16},
+  {name: "Meijer, Raoul", country: "eng", avg: 63.24, co: 26.75, fav: 16},
+  {name: "Jennings, Chris", country: "eng", avg: 63.23, co: 68.5, fav: 20},
+  {name: "Elia, Alexander", country: "cyp", avg: 63.04, co: 70.0, fav: 16},
+  {name: "Tvorogov, Egor", country: "ger", avg: 63.04, co: 32.75, fav: 16},
+  {name: "Medema, Damon", country: "eng", avg: 62.94, co: 29.67, fav: 20},
+  {name: "Warren, Michael", country: "eng", avg: 62.88, co: 26.0, fav: 20},
+  {name: "Mielke, Gerrit", country: "ger", avg: 62.8, co: 27.57, fav: 20},
+  {name: "Klein, Oliver", country: "ger", avg: 62.77, co: 40.41, fav: 16},
+  {name: "Ough, Terry", country: "eng", avg: 62.77, co: 22.4, fav: 20},
+  {name: "Berben, Cois", country: "bel", avg: 62.51, co: 37.22, fav: 16},
+  {name: "Roland, Brandon", country: "bel", avg: 62.45, co: 15.0, fav: 16},
+  {name: "Hendriks, Raoul", country: "eng", avg: 62.36, co: 54.44, fav: 16},
+  {name: "Dierckx, Wim", country: "bel", avg: 62.18, co: 38.15, fav: 16},
+  {name: "Vandewalle, Dylan", country: "bel", avg: 62.06, co: 48.14, fav: 16},
+  {name: "Mus, Mike", country: "bel", avg: 61.98, co: 45.62, fav: 20},
+  {name: "Wolter, Fabian", country: "ger", avg: 61.97, co: 27.13, fav: 20},
+  {name: "Hoare, Andrew", country: "eng", avg: 61.83, co: 8.0, fav: 16},
+  {name: "Drewes, Daniel", country: "ger", avg: 61.45, co: 43.75, fav: 20},
+  {name: "Bacu00edk, Radek", country: "eng", avg: 61.39, co: 38.0, fav: 16},
+  {name: "Gosch, Frank", country: "ger", avg: 61.3, co: 63.33, fav: 16},
+  {name: "Stahlhut, Nils", country: "ger", avg: 61.29, co: 56.89, fav: 16},
+  {name: "Giles, Justin", country: "eng", avg: 61.27, co: 56.0, fav: 20},
+  {name: "Schoen, Fabian", country: "sui", avg: 61.15, co: 43.0, fav: 16},
+  {name: "Mollink, Rik", country: "eng", avg: 61.06, co: 34.0, fav: 20},
+  {name: "Zimmermann, Janick", country: "ger", avg: 60.84, co: 33.2, fav: 20},
+  {name: "Quidousse, Kurt", country: "bel", avg: 60.67, co: 47.78, fav: 16},
+  {name: "Paunoch, Martin", country: "hun", avg: 60.66, co: 29.27, fav: 20},
+  {name: "Wilanowski, Przemyslaw", country: "pol", avg: 60.63, co: 54.0, fav: 16},
+  {name: "Alan, Ersan", country: "ger", avg: 60.11, co: 24.0, fav: 16},
+  {name: "Alukic, Alen", country: "aut", avg: 60.06, co: 15.0, fav: 16},
+  {name: "Heimann, Andreas", country: "ger", avg: 59.96, co: 41.2, fav: 16},
+  {name: "Bernhardt, Christian", country: "ger", avg: 59.94, co: 47.5, fav: 16},
+  {name: "Fanning, Stephen", country: "gbr", avg: 59.73, co: 47.0, fav: 20},
+  {name: "Allard, Thomas", country: "bel", avg: 59.59, co: 55.5, fav: 16},
+  {name: "Thiel, Dominik", country: "ger", avg: 59.53, co: 38.75, fav: 16},
+  {name: "Nees, Dimitri", country: "bel", avg: 59.45, co: 39.83, fav: 16},
+  {name: "Daemen, Ruben", country: "bel", avg: 59.43, co: 37.0, fav: 16},
+  {name: "Debaus, Matthias", country: "bel", avg: 59.39, co: 32.0, fav: 16},
+  {name: "Kalashnikov, Paul", country: "nl", avg: 59.31, co: 27.71, fav: 20},
+  {name: "Meulenmeesters, Erik", country: "eng", avg: 59.16, co: 39.17, fav: 20},
+  {name: "Reschke, Bjorn", country: "ger", avg: 58.94, co: 32.0, fav: 20},
+  {name: "Sanderson, Andrew", country: "wal", avg: 58.88, co: 15.0, fav: 16},
+  {name: "Sato, Naoya", country: "jpn", avg: 58.85, co: 57.0, fav: 20},
+  {name: "Massilge, Chris", country: "ger", avg: 58.83, co: 24.17, fav: 16},
+  {name: "Moeller, Fabian", country: "ger", avg: 58.77, co: 41.0, fav: 16},
+  {name: "Bonsch, Bartholomaus", country: "ger", avg: 58.62, co: 42.08, fav: 20},
+  {name: "Reichenpfader, Marco", country: "aut", avg: 58.59, co: 28.33, fav: 16},
+  {name: "O'Neill, Kalen", country: "irl", avg: 58.27, co: 36.0, fav: 16},
+  {name: "Brisset, Serge", country: "fra", avg: 57.96, co: 24.5, fav: 16},
+  {name: "Rehak, Jiri", country: "cze", avg: 57.95, co: 31.0, fav: 16},
+  {name: "Fukar, Jan", country: "cze", avg: 57.42, co: 15.0, fav: 16},
+  {name: "Harbert, Steven", country: "eng", avg: 56.97, co: 32.0, fav: 20},
+  {name: "Sperling, James", country: "eng", avg: 56.81, co: 42.0, fav: 16},
+  {name: "Vaisar, Zdenek", country: "cze", avg: 56.48, co: 78.0, fav: 20},
+  {name: "Elsenheimer, Lars", country: "ger", avg: 56.45, co: 59.0, fav: 20},
+  {name: "Dupke, Sascha", country: "ger", avg: 56.41, co: 15.0, fav: 16},
+  {name: "Hrbek, Bohuslav", country: "cze", avg: 56.4, co: 74.0, fav: 20},
+  {name: "Hofmann, Jan", country: "ger", avg: 56.21, co: 44.0, fav: 20},
+  {name: "Van Meer, Dennis", country: "ned", avg: 55.81, co: 76.75, fav: 20},
+  {name: "Rosted, Gustav Valdemar", country: "den", avg: 55.57, co: 22.0, fav: 16},
+  {name: "Link, Patrick", country: "ger", avg: 54.98, co: 35.0, fav: 20},
+  {name: "Schmiedlau, Clemens", country: "ger", avg: 54.65, co: 40.0, fav: 16},
+  {name: "Till, Christian", country: "aut", avg: 54.57, co: 15.0, fav: 16},
+  {name: "Rosenberger, Colin", country: "ger", avg: 54.24, co: 39.0, fav: 20},
+  {name: "Schroeder, Frank", country: "sui", avg: 54.08, co: 25.0, fav: 20},
+  {name: "Quiel, Niko", country: "ger", avg: 53.51, co: 15.0, fav: 20},
+  {name: "Houf, Andreas", country: "ger", avg: 52.92, co: 34.0, fav: 20},
+  {name: "Vekemans, Stijn", country: "bel", avg: 52.66, co: 29.67, fav: 16},
+  {name: "Heinrich, Angela", country: "sui", avg: 52.13, co: 38.0, fav: 20},
+  {name: "Reetz, Maurice", country: "ger", avg: 51.97, co: 33.33, fav: 16},
+  {name: "Kaynarcalidan, Guerkan", country: "ger", avg: 51.83, co: 32.67, fav: 20},
+  {name: "Tran, Chi-Minh", country: "sui", avg: 51.11, co: 40.0, fav: 16},
+  {name: "Blum, Daniel", country: "ger", avg: 50.77, co: 15.0, fav: 20},
+  {name: "Castrovinci, Maurizio", country: "ita", avg: 50.43, co: 15.0, fav: 20},
+  {name: "Jansen, Ulrich", country: "ger", avg: 49.0, co: 19.33, fav: 20},
+  {name: "Frese, Tobias", country: "ger", avg: 48.9, co: 15.0, fav: 20},
+  {name: "Schroeder, Stefan", country: "ger", avg: 48.17, co: 24.0, fav: 20},
+  {name: "Csato, Laszlo B", country: "hun", avg: 47.92, co: 15.0, fav: 20},
+  {name: "Buergin, Benjamin", country: "sui", avg: 47.81, co: 15.0, fav: 16},
+  {name: "Baines, Ross", country: "eng", avg: 47.55, co: 21.0, fav: 20},
+  {name: "Whitehead, Bradley", country: "eng", avg: 47.37, co: 20.0, fav: 16},
+  {name: "Rubes, Helena", country: "cze", avg: 47.3, co: 44.0, fav: 20},
+  {name: "Coussaert, Ulrich", country: "bel", avg: 46.78, co: 15.0, fav: 20},
+  {name: "Bailey, Joe", country: "eng", avg: 45.14, co: 15.0, fav: 20},
+  {name: "Winkelmann, Dennis", country: "ger", avg: 44.9, co: 15.0, fav: 16},
+  {name: "Kammann, Sven", country: "ger", avg: 44.75, co: 9.4, fav: 16},
+  {name: "Walchshaeusl, Markus", country: "ger", avg: 42.45, co: 36.0, fav: 16},
+  {name: "Kilian, Marciano", country: "eng", avg: 42.05, co: 20.0, fav: 16},
+  {name: "Foster, Jamie", country: "eng", avg: 41.89, co: 15.0, fav: 20},
+  {name: "Allen, Benjamin", country: "eng", avg: 41.73, co: 15.0, fav: 16},
+  {name: "Bout, Marco", country: "ned", avg: 40.32, co: 15.0, fav: 16}
+        ];
+      
+
+        // Updated Flag Map
+        const FLAG_MAP = {
+  "hun":"hu",
+  "eng":"gb-eng",
+  "sco":"gb-sct",
+  "wal":"gb-wls",
+  "nir":"gb-nir",
+  "gbr":"gb",
+
+  "aus":"au",
+  "bel":"be",
+  "ger":"de",
+  "de":"de",
+  "ned":"nl",
+  "nl":"nl",
+  "pol":"pl",
+  "usa":"us",
+  "esp":"es",
+  "ind":"in",
+  "jpn":"jp",
+  "sgp":"sg",
+  "swe":"se",
+  "cro":"hr",
+  "fra":"fr",
+  "ita":"it",
+  "irl":"ie",
+  "fin":"fi",
+  "can":"ca",
+  "cze":"cz",
+  "den":"dk",
+  "phi":"ph",
+  "hkg":"hk",
+  "chn":"cn",
+  "aut":"at",
+  "lat":"lv",
+  "nzl":"nz",
+  "sui":"ch",
+  "lit":"lt",
+  "ltu":"lt",
+  "por":"pt",
+  "arg":"ar",
+  "bra":"br",
+
+  "tur":"tr",
+  "ukr":"ua",
+  "rsa":"za",
+  "rou":"ro",
+  "svk":"sk",
+  "slo":"si",
+  "svn":"si",
+  "gre":"gr",
+  "isl":"is",
+  "isr":"il",
+  "lux":"lu",
+  "cyp":"cy",
+  "ken":"ke",
+  "uga":"ug",
+
+  "nor":"no",
+  "est":"ee",
+  "mex":"mx",
+  "kor":"kr",
+  "tha":"th",
+  "vie":"vn",
+  "gbr":"uk", 
+  "ken":"ke"
+};
+        const FLAG_URL = "https://flagcdn.com/w80/"; 
+
+        let PLAYERS_DB = [];
+
+        // ================= ENGINE =================
+        const Engine = {
+            // Updated to be smarter and prevent infinite loops in setups
+            getTarget: (score) => {
+                if (score > 170) return 60; // T20
+                // Bogey numbers where you can't leave a finish
+                if ([169, 168, 166, 165, 163, 162, 159].includes(score)) return 60; 
+                
+                // Finishable
+                if (score <= 40 && score % 2 === 0 && score > 0) return score; // Aim at double
+                if (score === 50) return 50; // Bull
+
+                // Setup shots logic
+                // If odd and low, switch to setup
+                if (score <= 40 && score % 2 !== 0) return 1; // e.g. 9 -> Aim 1 to leave D4 (8)
+                
+                // Big checkouts setup
+                if (score === 170) return 60; // T20
+                if (score === 167) return 60; // T20
+                if (score === 164) return 60; 
+                if (score === 161) return 60;
+                
+                // General scoring
+                if (score > 60) return 60;
+
+                // Setup under 60
+                // If 59, hit 19 to leave 40. If 55, hit 15 to leave 40.
+                if (score > 50) return score - 40; 
+                if (score > 40) return score - 32;
+                
+                return 20; // Default fallback
+            },
+
+            throwDart: (target, playerAvg, isDouble, isPressure) => {
+                let accuracy = (playerAvg / 110);
+                if (isPressure) accuracy *= 0.95;
+
+                // Hitting Doubles
+                if (isDouble) {
+                    let coRate = playerAvg / 250; 
+                    if (Math.random() < coRate * (isPressure ? 0.9 : 1.0)) return target; 
+                    if (Math.random() < 0.6) return target / 2; // Miss inside
+                    return 0; // Miss outside
+                }
+
+                // Hitting Trebles (Scoring)
+                if (target === 60) {
+                    const rand = Math.random();
+                    if (rand < (0.35 * accuracy)) return 60; // T20
+                    if (rand < (0.85 * accuracy)) return 20; // S20
+                    if (rand < 0.95) return (Math.random() < 0.5 ? 1 : 5); // Neighbors
+                    return (Math.random() < 0.5 ? 3 : 15); // Treble neighbors
+                }
+
+                // Hitting Bull
+                if (target === 50) {
+                     if (Math.random() < (0.15 * accuracy)) return 50;
+                     if (Math.random() < 0.6) return 25;
+                     return (Math.random() * 20) | 0; 
+                }
+
+                // Hitting Singles (Setups)
+                if (Math.random() < 0.90) return target;
+                return 0; // Miss
+            },
+
+            checkBust: (score, hitVal) => {
+                let rem = score - hitVal;
+                // Bust conditions:
+                // 1. Negative score
+                // 2. Score is 1 (cannot checkout)
+                // 3. Score is 0 but checkout wasn't a double (handled in logic but double check here)
+                if (rem < 0 || rem === 1) return true;
+                return false;
+            }
+        };
+
+        const Logic = {
+            processVisit: (player, oppScore, isDecider) => {
+                let startScore = player.score;
+                let currentScore = startScore;
+                let visitTotal = 0;
+                let dartsUsed = 0;
+                
+                const isPressure = (oppScore <= 50) || isDecider;
+
+                for (let d = 1; d <= 3; d++) {
+                    dartsUsed = d;
+                    
+                    let targetVal = 0;
+                    let isDoubleAttempt = false;
+
+                    // Check for immediate checkout
+                    if (currentScore <= 40 && currentScore % 2 === 0 && currentScore > 0) {
+                        targetVal = currentScore; 
+                        isDoubleAttempt = true;
+                    } else if (currentScore === 50) {
+                        targetVal = 50;
+                        isDoubleAttempt = true; // Treated like double for game winning context
+                    } else {
+                        targetVal = Engine.getTarget(currentScore);
+                    }
+
+                    // Throw
+                    let hitVal = Engine.throwDart(targetVal, player.avg, isDoubleAttempt, isPressure);
+                    
+                    // Validate
+                    // Special case: If aiming for Bull (50) and hitting 25, it's valid if score remains >= 2
+                    // If aiming for Double and hitting Single, valid if score >= 2
+
+                    if (Engine.checkBust(currentScore, hitVal)) {
+                        return { points: 0, endLeg: false, dartsThrown: 3, bust: true };
+                    }
+
+                    // Check valid checkout
+                    if (currentScore - hitVal === 0) {
+                        // Must be double or Bull(50)
+                        // Engine.throwDart handles logic, but let's confirm
+                        if (isDoubleAttempt && hitVal === targetVal) {
+                             return { points: visitTotal + hitVal, endLeg: true, dartsThrown: d, bust: false };
+                        }
+                        // If we aimed for double but hit something else that reduced to 0 (impossible with standard board math usually, but strictly speaking bust)
+                        return { points: 0, endLeg: false, dartsThrown: 3, bust: true };
+                    }
+
+                    currentScore -= hitVal;
+                    visitTotal += hitVal;
+                }
+                return { points: visitTotal, endLeg: false, dartsThrown: 3, bust: false };
+            }
+        };
+
+        // ================= APP STATE =================
+        const App = {
+            config: { mode: 'sets', target: 3, setLegs: 3 },
+            players: [],
+            matchState: { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 },
+            
+            init: () => {
+                // CLEAN AND PREPARE DATABASE
+                const uniquePlayers = [];
+                const seenNames = new Set();
+
+                RAW_PLAYERS.forEach(p => {
+                    let name = p.name;
+                    if (name.includes(',')) {
+                        const parts = name.split(',');
+                        name = parts[1].trim() + " " + parts[0].trim();
+                    }
+                    if (!seenNames.has(name)) {
+                        seenNames.add(name);
+                        uniquePlayers.push({ ...p, name: name });
+                    }
+                });
+                PLAYERS_DB.push(...uniquePlayers);
+
+                const p1sel = document.getElementById('inp-p1');
+                const p2sel = document.getElementById('inp-p2');
+                PLAYERS_DB.forEach((p, i) => {
+                    p1sel.add(new Option(p.name, i));
+                    p2sel.add(new Option(p.name, i));
+                });
+                p2sel.selectedIndex = 1;
+                Tournament.updateConfigUI(); 
+            },
+
+            switchTab: (tabName) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(`tab-btn-${tabName}`).classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+            },
+
+            filterSingleMatchPlayers: (inputId, selectId) => {
+                const input = document.getElementById(inputId);
+                const select = document.getElementById(selectId);
+                const filter = input.value.toLowerCase();
+                
+                // Clear current options
+                select.innerHTML = '';
+
+                PLAYERS_DB.forEach((p, index) => {
+                    if (p.name.toLowerCase().includes(filter)) {
+                        const option = document.createElement("option");
+                        option.value = index;
+                        option.text = p.name;
+                        select.add(option);
+                    }
+                });
+
+                if (select.options.length > 0) {
+                    select.selectedIndex = 0;
+                }
+            },
+
+            setMode: (mode) => {
+                App.config.mode = mode;
+                document.getElementById('btn-sets').className = `format-btn ${mode==='sets'?'selected':''}`;
+                document.getElementById('btn-legs').className = `format-btn ${mode==='legs'?'selected':''}`;
+                
+                document.getElementById('legs-per-set-div').style.display = (mode === 'sets') ? 'block' : 'none';
+                document.getElementById('lbl-target').innerText = (mode === 'sets') ? "First to X Sets" : "First to X Legs";
+                
+                const sel = document.getElementById('inp-target');
+                if (mode === 'legs') {
+                    sel.innerHTML = `<option>3</option><option>5</option><option>7</option><option>10</option><option>11</option><option>13</option><option>15</option><option>18</option><option>21</option>`;
+                    sel.value = 11;
+                } else {
+                    sel.innerHTML = `<option>1</option><option>3</option><option>5</option><option>7</option>`;
+                    sel.value = 3;
+                }
+            },
+
+            startMatch: (p1Override, p2Override, targetOverride) => {
+                if (p1Override) {
+                    App.players = [
+                        { ...p1Override, score: 501, stats: {pts:0, darts:0} },
+                        { ...p2Override, score: 501, stats: {pts:0, darts:0} }
+                    ];
+                    App.config.target = targetOverride; 
+                } else {
+                    const i1 = document.getElementById('inp-p1').value;
+                    const i2 = document.getElementById('inp-p2').value;
+                    App.config.event = document.getElementById('inp-event').value;
+                    App.config.target = parseInt(document.getElementById('inp-target').value);
+                    App.config.setLegs = parseInt(document.getElementById('inp-set-legs').value);
+                    App.config.tiebreak = document.getElementById('inp-tiebreak').checked;
+                    App.players = [
+                        { ...PLAYERS_DB[i1], score: 501, stats: {pts:0, darts:0} },
+                        { ...PLAYERS_DB[i2], score: 501, stats: {pts:0, darts:0} }
+                    ];
+                }
+
+                App.config.legsToWinSet = Math.ceil(App.config.setLegs / 2);
+
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('tournament-hub').style.display = 'none';
+                document.getElementById('match-screen').style.display = 'flex';
+                
+                let txt = App.config.event.toUpperCase();
+                if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
+                document.getElementById('txt-event-header').innerText = txt;
+
+                const p0 = App.players[0]; const p1 = App.players[1];
+                const getCode = (c) => FLAG_URL + (FLAG_MAP[c.toLowerCase()] || c.toLowerCase()) + ".png";
+                
+                document.getElementById('name-p0').innerText = p0.name;
+                document.getElementById('name-p1').innerText = p1.name;
+                document.getElementById('flag-p0').src = getCode(p0.country);
+                document.getElementById('flag-p1').src = getCode(p1.country);
+                document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
+                document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
+
+                if (App.config.mode === 'legs') {
+                    document.getElementById('lbl-score-type').innerHTML = "LEGS";
+                    document.getElementById('bot-sets-p0').style.display = "none";
+                    document.getElementById('bot-sets-p1').style.display = "none";
+                    document.getElementById('bot-legs-p0').className = "main-score";
+                    document.getElementById('bot-legs-p1').className = "main-score";
+                } else {
+                    document.getElementById('lbl-score-type').innerHTML = "SETS";
+                    document.getElementById('bot-sets-p0').style.display = "block";
+                    document.getElementById('bot-sets-p1').style.display = "block";
+                    document.getElementById('bot-legs-p0').className = "sub-score";
+                    document.getElementById('bot-legs-p1').className = "sub-score";
+                }
+
+                App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
+                App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
+                App.matchState.starterLeg = App.matchState.starterSet;
+                
+                App.startLeg();
+            },
+
+            returnToMenu: () => {
+                document.getElementById('overlay-end').style.display = 'none';
+                if (Tournament.state.active) {
+                    const winnerIdx = (App.matchState.sets[0] > App.matchState.sets[1] || App.matchState.legs[0] > App.matchState.legs[1]) ? 0 : 1;
+                    let scoreStr = "";
+                    if (App.config.mode === 'sets') scoreStr = `${App.matchState.sets[0]} - ${App.matchState.sets[1]}`;
+                    else scoreStr = `${App.matchState.legs[0]} - ${App.matchState.legs[1]}`;
+                    
+                    Tournament.onMatchFinished(winnerIdx, scoreStr);
+                } else {
+                    location.reload();
+                }
+            },
+
+            startLeg: () => {
+                App.players[0].score = 501;
+                App.players[1].score = 501;
+                
+                document.getElementById('visit-container').innerHTML = '';
+                App.updateScoreboard();
+                
+                App.matchState.currentThrower = App.matchState.starterLeg;
+                
+                const legCount = App.matchState.legs[0] + App.matchState.legs[1] + 1;
+                const setDisplay = App.config.mode === 'sets' ? ` (Set ${App.matchState.sets[0]+App.matchState.sets[1]+1})` : '';
+                
+                document.getElementById('intro-title-txt').innerText = `LEG ${legCount}${setDisplay}`;
+                document.getElementById('intro-name-txt').innerText = App.players[App.matchState.starterLeg].name;
+                document.getElementById('overlay-intro').style.display = 'flex';
+
+                setTimeout(() => {
+                    document.getElementById('overlay-intro').style.display = 'none';
+                    App.gameLoop();
+                }, 1500);
+            },
+
+            trigger180: () => {
+                document.getElementById('overlay-180').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('overlay-180').style.display = 'none';
+                }, 1500);
+            },
+
+            gameLoop: () => {
+                const pIdx = App.matchState.currentThrower;
+                const p = App.players[pIdx];
+                const opp = App.players[1-pIdx];
+                App.ensureRow();
+
+                document.getElementById('card-p0').className = `player-card ${pIdx===0?'active':''}`;
+                document.getElementById('card-p1').className = `player-card ${pIdx===1?'active':''}`;
+
+                setTimeout(() => {
+                    const legs = App.matchState.legs;
+                    // Decider logic for sets mode
+                    const isDecider = (App.config.mode === 'sets') 
+                        ? (legs[0] === legs[1] && legs[0] === App.config.legsToWinSet - 1)
+                        : false; 
+                    
+                    const result = Logic.processVisit(p, opp.score, isDecider);
+                    
+                    if (!result.bust) {
+                        p.score -= result.points;
+                        p.stats.pts += result.points;
+                        p.stats.darts += result.dartsThrown;
+                    } 
+                    // If bust, score doesn't change, but stats might track lost darts (optional complexity)
+
+                    // Update Row
+                    const rows = document.getElementById('visit-container').children;
+                    const row = rows[rows.length-1];
+                    const dispScore = result.bust ? "BUST" : result.points;
+
+                    if (pIdx === 0) {
+                        row.querySelector('.v-left').innerText = dispScore;
+                        row.querySelector('#al').style.opacity = 0;
+                        row.querySelector('#ar').style.opacity = 1;
+                    } else {
+                        row.querySelector('.v-right').innerText = dispScore;
+                        row.querySelector('#ar').style.opacity = 0;
+                        row.querySelector('#al').style.opacity = 1;
+                    }
+
+                    App.updateScoreboard();
+
+                    if (result.points === 180 && !result.bust) {
+                        App.trigger180();
+                    }
+
+                    if (result.endLeg) {
+                        App.handleLegWin(pIdx, result.points);
+                    } else {
+                        App.matchState.currentThrower = 1 - pIdx;
+                        App.gameLoop();
+                    }
+                }, 600);
+            },
+
+            ensureRow: () => {
+                const container = document.getElementById('visit-container');
+                const last = container.lastElementChild;
+                const pIdx = App.matchState.currentThrower;
+                
+                let needNew = false;
+                if (!last) needNew = true;
+                else {
+                    if (pIdx === 0 && last.querySelector('.v-left').innerText !== "") needNew = true;
+                    if (pIdx === 1 && last.querySelector('.v-right').innerText !== "") needNew = true; 
+                }
+
+                if (needNew && pIdx === App.matchState.starterLeg) {
+                    const div = document.createElement('div');
+                    div.className = 'visit-row';
+                    const rNum = container.children.length + 1;
+                    div.innerHTML = `
+                        <div class="v-score v-left"></div>
+                        <div class="v-arrow" id="al" style="opacity:${pIdx===0?1:0}">▶</div>
+                        <div class="v-round">${rNum}</div>
+                        <div class="v-arrow" id="ar" style="opacity:${pIdx===1?1:0}">◀</div>
+                        <div class="v-score v-right"></div>
+                    `;
+                    container.appendChild(div);
+                    container.scrollTop = container.scrollHeight;
+                }
+            },
+
+            handleLegWin: (idx, checkoutScore) => {
+                const overlay = document.getElementById('overlay-shot');
+                
+                if (checkoutScore >= 100) {
+                    overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore} CHECKOUT</div>`;
+                } else {
+                    overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`;
+                }
+
+                overlay.style.display = 'flex';
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    App.matchState.legs[idx]++;
+                    let matchWon = false;
+
+                    if (App.config.mode === 'sets') {
+                        if (App.matchState.legs[idx] >= App.config.legsToWinSet) {
+                            App.matchState.sets[idx]++;
+                            App.matchState.legs = [0, 0];
+                            App.matchState.starterSet = 1 - App.matchState.starterSet;
+                            App.matchState.starterLeg = App.matchState.starterSet; 
+                            if (App.matchState.sets[idx] >= App.config.target) matchWon = true;
+                        } else {
+                            App.matchState.starterLeg = 1 - App.matchState.starterLeg;
+                        }
+                    } else {
+                        const legs = App.matchState.legs[idx];
+                        const opp = App.matchState.legs[1-idx];
+                        const target = App.config.target;
+                        if (App.config.tiebreak) {
+                            if (legs >= target && legs >= opp + 2) matchWon = true;
+                        } else {
+                            if (legs >= target) matchWon = true;
+                        }
+                        App.matchState.starterLeg = 1 - App.matchState.starterLeg;
+                    }
+
+                    App.updateScoreboard();
+
+                    if (matchWon) {
+                        const winner = App.players[idx];
+                        document.getElementById('end-winner-name').innerText = winner.name;
+                        let scoreStr = "";
+                        if (App.config.mode === 'sets') scoreStr = `${App.matchState.sets[idx]} - ${App.matchState.sets[1-idx]}`;
+                        else scoreStr = `${App.matchState.legs[idx]} - ${App.matchState.legs[1-idx]}`;
+                        document.getElementById('end-score-txt').innerText = scoreStr;
+                        document.getElementById('overlay-end').style.display = 'flex';
+                    } else {
+                        App.startLeg();
+                    }
+                }, 2000); 
+            },
+
+            updateScoreboard: () => {
+                const p0 = App.players[0]; const p1 = App.players[1];
+                document.getElementById('score-p0').innerText = p0.score;
+                document.getElementById('score-p1').innerText = p1.score;
+                
+                const avg0 = p0.stats.darts ? ((p0.stats.pts/p0.stats.darts)*3).toFixed(2) : "0.00";
+                const avg1 = p1.stats.darts ? ((p1.stats.pts/p1.stats.darts)*3).toFixed(2) : "0.00";
+                document.getElementById('avg-p0').innerText = `AVG ${avg0}`;
+                document.getElementById('avg-p1').innerText = `AVG ${avg1}`;
+
+                // DOT UPDATE
+                const starter = App.matchState.starterLeg;
+                document.getElementById('dot-p0').style.display = (starter === 0) ? 'block' : 'none';
+                document.getElementById('dot-p1').style.display = (starter === 1) ? 'block' : 'none';
+
+                if (App.config.mode === 'sets') {
+                    document.getElementById('bot-sets-p0').innerText = App.matchState.sets[0];
+                    document.getElementById('bot-sets-p1').innerText = App.matchState.sets[1];
+                    document.getElementById('bot-legs-p0').innerText = App.matchState.legs[0];
+                    document.getElementById('bot-legs-p1').innerText = App.matchState.legs[1];
+                } else {
+                    document.getElementById('bot-legs-p0').innerText = App.matchState.legs[0];
+                    document.getElementById('bot-legs-p1').innerText = App.matchState.legs[1];
+                }
+            }
+        };
+
+        // ================= TOURNAMENT LOGIC =================
+        const Tournament = {
+            config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
+            state: { active: false, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set() },
+
+            setMode: (mode) => {
+                Tournament.config.mode = mode;
+                document.getElementById('tourn-mode-sets').className = `format-btn ${mode==='sets'?'selected':''}`;
+                document.getElementById('tourn-mode-legs').className = `format-btn ${mode==='legs'?'selected':''}`;
+                Tournament.updateConfigUI();
+            },
+
+            setSelectionMethod: (method) => {
+                Tournament.config.selectionMethod = method;
+                document.getElementById('sel-random').className = `format-btn ${method==='random'?'selected':''}`;
+                document.getElementById('sel-manual').className = `format-btn ${method==='manual'?'selected':''}`;
+                document.getElementById('manual-selector').style.display = (method === 'manual') ? 'flex' : 'none';
+                if(method==='manual') Tournament.updatePlayerSelectUI();
+            },
+
+            updateConfigUI: () => {
+                const size = parseInt(document.getElementById('tourn-size').value);
+                Tournament.config.playerCount = size;
+                document.getElementById('sel-total').innerText = size;
+                const container = document.getElementById('tourn-rounds-container');
+                container.innerHTML = '';
+                
+                let roundsNeeded = Math.log2(size);
+                let roundNames = ["Final"];
+                if (roundsNeeded > 1) roundNames.unshift("Semi-Finals");
+                if (roundsNeeded > 2) roundNames.unshift("Quarter-Finals");
+                if (roundsNeeded > 3) roundNames.unshift("Last 16");
+                if (roundsNeeded > 4) roundNames.unshift("Last 32");
+                if (roundsNeeded > 5) roundNames.unshift("Last 64");
+                if (roundsNeeded > 6) roundNames.unshift("Last 128");
+                if (roundsNeeded > 7) roundNames.unshift("Last 256");
+                
+                let defaultVal = (Tournament.config.mode === 'sets') ? 3 : 11;
+                for(let i=0; i<roundsNeeded; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'tourn-input-group';
+                    let val = defaultVal + i; 
+                    if(Tournament.config.mode === 'legs') val = 11 + (i*2);
+                    div.innerHTML = `<label>${roundNames[i]}</label><input type="number" id="t-rnd-${i}" value="${val}" min="1">`;
+                    container.appendChild(div);
+                }
+            },
+
+            updatePlayerSelectUI: () => {
+                const container = document.getElementById('player-list-container');
+                if(container.children.length > 0) return;
+                let html = '';
+                PLAYERS_DB.forEach((p, idx) => {
+                    const flag = FLAG_URL + (FLAG_MAP[p.country.toLowerCase()] || p.country.toLowerCase()) + ".png";
+                    html += `<div class="player-option" id="p-opt-${idx}" onclick="Tournament.togglePlayer(${idx})">
+                            <input type="checkbox" id="chk-${idx}" style="pointer-events:none;">
+                            <img src="${flag}" class="p-flag-mini"><span>${p.name}</span></div>`;
+                });
+                container.innerHTML = html;
+            },
+
+            togglePlayer: (idx) => {
+                const set = Tournament.state.selectedPlayerIndices;
+                if(set.has(idx)) {
+                    set.delete(idx); document.getElementById(`chk-${idx}`).checked = false; document.getElementById(`p-opt-${idx}`).classList.remove('selected');
+                } else {
+                    if(set.size >= Tournament.config.playerCount) return alert(`Limit reached.`);
+                    set.add(idx); document.getElementById(`chk-${idx}`).checked = true; document.getElementById(`p-opt-${idx}`).classList.add('selected');
+                }
+                document.getElementById('sel-count').innerText = set.size;
+            },
+
+            clearSelection: () => {
+                Tournament.state.selectedPlayerIndices.clear();
+                document.querySelectorAll('.player-option').forEach(el => { el.classList.remove('selected'); el.querySelector('input').checked = false; });
+                document.getElementById('sel-count').innerText = 0;
+            },
+
+            filterPlayerList: () => {
+                const term = document.getElementById('player-search').value.toLowerCase();
+                const opts = document.getElementsByClassName('player-option');
+                for(let i=0; i<opts.length; i++) {
+                    opts[i].style.display = opts[i].innerText.toLowerCase().includes(term) ? 'flex' : 'none';
+                }
+            },
+
+            start: () => {
+                const size = parseInt(document.getElementById('tourn-size').value);
+                Tournament.config.tiebreak = document.getElementById('tourn-tiebreak').checked;
+                Tournament.config.rounds = [];
+                const numRounds = Math.log2(size);
+                for(let i=0; i<numRounds; i++) {
+                    const el = document.getElementById(`t-rnd-${i}`);
+                    Tournament.config.rounds.push({ name: el.previousElementSibling.innerText, target: parseInt(el.value) });
+                }
+
+                let participants = [];
+                if (Tournament.config.selectionMethod === 'manual') {
+                    if(Tournament.state.selectedPlayerIndices.size !== size) return alert(`Select ${size} players.`);
+                    Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({...PLAYERS_DB[idx]}));
+                } else {
+                    participants = [...PLAYERS_DB];
+                    for (let i = participants.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [participants[i], participants[j]] = [participants[j], participants[i]];
+                    }
+                    participants = participants.slice(0, size);
+                }
+                // Randomize bracket
+                for (let i = participants.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [participants[i], participants[j]] = [participants[j], participants[i]];
+                }
+
+                Tournament.state.active = true;
+                Tournament.state.currentActiveRound = 0;
+                Tournament.state.viewingRound = 0;
+                Tournament.state.bracketData = [];
+
+                const r0 = [];
+                for (let i = 0; i < participants.length; i += 2) {
+                    r0.push({ p1: participants[i], p2: participants[i+1], winner: null, score: null });
+                }
+                Tournament.state.bracketData.push(r0);
+                for(let i=1; i<numRounds; i++) Tournament.state.bracketData.push([]);
+
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
+                Tournament.renderHub();
+            },
+
+            changeViewRound: (dir) => {
+                const next = Tournament.state.viewingRound + dir;
+                if (next >= 0 && next < Tournament.config.rounds.length) {
+                    Tournament.state.viewingRound = next; Tournament.renderHub();
+                }
+            },
+
+            renderHub: () => {
+                const hub = document.getElementById('tournament-hub');
+                const bracket = document.getElementById('tourn-bracket');
+                const vRoundIdx = Tournament.state.viewingRound;
+                const roundInfo = Tournament.config.rounds[vRoundIdx];
+
+                document.getElementById('tourn-round-name').innerText = roundInfo.name;
+                document.getElementById('tourn-round-fmt').innerText = `First to ${roundInfo.target} ${Tournament.config.mode}`;
+                document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
+                document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
+                bracket.innerHTML = '';
+
+                const matches = Tournament.state.bracketData[vRoundIdx];
+                if (matches.length === 0) bracket.innerHTML = `<div style="text-align:center; color:#555; margin-top:50px;">Upcoming...</div>`;
+                else {
+                    matches.forEach((m, idx) => {
+                        const card = document.createElement('div');
+                        card.className = `bracket-match ${m.winner ? 'completed' : ''}`;
+                        let html = `
+                            <div class="bm-players">
+                                <div class="bm-row ${m.winner===m.p1?'winner':(m.winner?'loser':'')}">
+                                    <span>${m.p1?m.p1.name:'TBD'}</span><span class="bm-score">${m.score?m.score[0]:0}</span>
+                                </div>
+                                <div class="bm-row ${m.winner===m.p2?'winner':(m.winner?'loser':'')}">
+                                    <span>${m.p2?m.p2.name:'TBD'}</span><span class="bm-score">${m.score?m.score[1]:0}</span>
+                                </div>
+                            </div>`;
+                        if (!m.winner && vRoundIdx === Tournament.state.currentActiveRound && m.p1 && m.p2) {
+                            html += `<button class="btn-watch" onclick="Tournament.playMatch(${idx})">PLAY</button>`;
+                        }
+                        card.innerHTML = html;
+                        bracket.appendChild(card);
+                    });
+                }
+                hub.style.display = 'flex';
+                document.getElementById('match-screen').style.display = 'none';
+            },
+
+            playMatch: (matchIdx) => {
+                const rIdx = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[rIdx];
+                const m = matches[matchIdx];
+                const info = Tournament.config.rounds[rIdx];
+                Tournament.activeMatchIdx = matchIdx;
+
+                // Sim others
+                matches.forEach((otherM, idx) => {
+                    if (idx !== matchIdx && !otherM.winner && otherM.p1 && otherM.p2) {
+                        let s1=0, s2=0;
+                        const prob = 0.50 + ((otherM.p1.avg - otherM.p2.avg)*0.03);
+                        while(s1 < info.target && s2 < info.target) {
+                            if(Math.random() < prob) s1++; else s2++;
+                        }
+                        otherM.score = [s1, s2]; otherM.winner = (s1>s2)?otherM.p1:otherM.p2;
+                    }
+                });
+
+                App.config.event = `${document.getElementById('tourn-event-name').value} - ${info.name}`;
+                App.startMatch(m.p1, m.p2, info.target);
+            },
+
+            onMatchFinished: (winnerIdx, scoreStr) => {
+                const rIdx = Tournament.state.currentActiveRound;
+                const m = Tournament.state.bracketData[rIdx][Tournament.activeMatchIdx];
+                m.score = scoreStr.split(' - ').map(Number);
+                m.winner = (winnerIdx === 0) ? m.p1 : m.p2;
+                
+                // Check Round Completion
+                if (Tournament.state.bracketData[rIdx].every(x => x.winner)) {
+                    if (rIdx === Tournament.config.rounds.length - 1) {
+                        alert(`${m.winner.name} WINS!`);
+                        location.reload();
+                    } else {
+                        const nextR = rIdx + 1;
+                        const prevM = Tournament.state.bracketData[rIdx];
+                        const nextM = [];
+                        for(let i=0; i<prevM.length; i+=2) {
+                            nextM.push({ p1: prevM[i].winner, p2: prevM[i+1].winner, winner:null, score:null });
+                        }
+                        Tournament.state.bracketData[nextR] = nextM;
+                        Tournament.state.currentActiveRound = nextR;
+                        Tournament.state.viewingRound = nextR;
+                    }
+                }
+                Tournament.renderHub();
+            }
+        };
+
+        App.init();
+        App.setMode('sets');
+    </script>
+</body>
+</html>
