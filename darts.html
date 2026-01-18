@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Centered & Tracing)</title>
+    <title>PDC Sim 2026 (Manual Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -36,7 +36,7 @@
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-        /* ==================== SETUP SCREEN (COMPACT MOBILE) ==================== */
+        /* ==================== SETUP SCREEN ==================== */
         #setup-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #1a3c50, #000000);
@@ -60,15 +60,16 @@
         .tab-btn.active { background: rgba(255, 255, 255, 0.05); color: var(--pdc-gold); border-bottom: 3px solid var(--pdc-gold); }
 
         .tab-content { 
-            padding: 10px; /* Compact padding */
+            padding: 10px; 
             display: none; flex-direction: column; gap: 8px; 
             overflow-y: auto; flex: 1; 
+            padding-bottom: 20px; /* Extra padding at bottom for button visibility */
         }
         .tab-content.active { display: flex; }
 
         /* COMPACT INPUTS */
         input[type="text"], input[type="number"], select {
-            padding: 8px 10px; /* Smaller padding */
+            padding: 8px 10px;
             font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: bold;
             border-radius: 4px; border: 1px solid #ccc; background: var(--input-bg); color: #222; outline: none; width: 100%; box-sizing: border-box;
             height: 36px;
@@ -92,19 +93,27 @@
         }
         .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
 
+        /* FIX FOR MANUAL SELECTOR ON MOBILE */
         .player-selector-box {
             display: none; flex-direction: column; background: #111; border: 1px solid #444; 
-            margin-top: 5px; border-radius: 4px; overflow: hidden; flex: 1; min-height: 200px;
+            margin-top: 5px; border-radius: 4px; overflow: hidden;
+            /* Removed flex: 1 to prevent taking too much space */
         }
         .selector-header { padding: 8px; background: #222; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .player-list-container { flex: 1; overflow-y: auto; background: #161616; }
+        
+        .player-list-container { 
+            height: 220px; /* Fixed height allows parent scrolling */
+            overflow-y: auto; 
+            background: #161616; 
+        }
+        
         .player-option { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
         .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
 
         .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
 
         .btn-gold, .btn-blue {
-            font-weight: 900; cursor: pointer; margin-top: 5px; padding: 10px;
+            font-weight: 900; cursor: pointer; margin-top: 5px; padding: 12px;
             font-size: 16px; text-transform: uppercase; border: none; border-radius: 4px; width: 100%; flex-shrink: 0;
         }
         .btn-gold { background: var(--pdc-gold); color: #111; }
@@ -115,42 +124,26 @@
         .checkbox-row input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--pdc-gold); }
         .pc-row { display: flex; flex-direction: column; gap: 8px; }
 
-        /* ==================== HUB ==================== */
+        /* ==================== HUB (BRACKET) ==================== */
         #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 0; }
-        
-        .hub-header { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333;
-        }
+        .hub-header { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333; }
         .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
         .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; }
-        .nav-btn { 
-            background: #2a2a2a; color: white; border: 1px solid #444; 
-            padding: 5px 15px; font-size: 12px; font-weight: bold; 
-            cursor: pointer; border-radius: 4px; 
-        }
+        .nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; padding: 5px 15px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; }
         .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
         .hub-round-format { color: #8fa3ad; font-size: 12px; }
 
-        .bracket-container { 
-            flex: 1; display: flex; flex-direction: column; gap: 10px; 
-            overflow-y: auto; height: 100%; padding: 10px;
-        }
-        
-        .bracket-match { 
-            background: #1a1a1a; border-left: 4px solid #444; padding: 5px; 
-            border-radius: 4px; display: flex; align-items: center; gap: 5px;
-            transition: background 0.3s;
-        }
+        .bracket-wrapper { display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
+        .side-nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; width: 40px; height: 60px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 5; }
+        .side-nav-btn:hover { background: #444; }
+        .side-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .bracket-container { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; height: 100%; padding: 0 5px; }
+        .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 5px; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: background 0.3s; }
         .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
         .bracket-match.completed { opacity: 0.9; }
-        
-        .match-nav-btn {
-            background: transparent; border: none; color: #555; font-weight: bold; font-size: 18px; 
-            padding: 0 10px; cursor: pointer; height: 100%; display: flex; align-items: center;
-        }
+        .match-nav-btn { background: transparent; border: none; color: #555; font-weight: bold; font-size: 18px; padding: 0 10px; cursor: pointer; height: 100%; display: flex; align-items: center; }
         .match-nav-btn:hover { color: var(--pdc-gold); }
-
         .bm-content { flex: 1; padding: 5px 0; }
         .bm-row { font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .bm-row:last-child { margin-bottom: 0; }
@@ -166,50 +159,26 @@
         .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; }
         .event-bar img { height: 18px; }
         .event-bar span { font-size: 12px; font-weight: bold; color:#ccc; }
-        
         .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
         .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
-        .name-strip { 
-            height: 40px; display: flex; align-items: center; justify-content: center; /* Centered */
-            gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; 
-            padding: 0 5px; position: relative;
-        }
+        .name-strip { height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; padding: 0 5px; position: relative; }
         .score-strip { flex: 1; background: linear-gradient(to bottom, #e4eaf0, #cfd7df); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
         .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
-        
         .flag { height: 16px; width: 24px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
-        .p-name { 
-            font-size: 16px; font-weight: 900; text-transform: uppercase; color: white; 
-            text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 120px;
-        }
+        .p-name { font-size: 16px; font-weight: 900; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
         .p-score { font-size: 50px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -2px; color: #222; }
         .p-avg { font-size: 12px; font-weight: bold; margin-top: 2px; color: #333; text-transform:uppercase; }
-        
-        .starter-dot { 
-            width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; 
-            position: absolute; left: 8px; /* Absolute left to not mess up centering */
-            display: none; box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
+        .starter-dot { width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; position: absolute; left: 8px; display: none; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: rgba(0,0,0,0.5); }
         .visit-row { display: grid; grid-template-columns: 1fr 30px 80px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; padding: 0 10px; box-sizing: border-box; }
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
         
-        /* CENTERED BOTTOM BAR */
-        .bottom-bar { 
-            height: 60px; background: #111; display: flex; align-items: center; justify-content: center; 
-            border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); 
-        }
-        .legs-display { 
-            display: flex; width: 100%; justify-content: center; align-items: center; height: 100%;
-        }
+        .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+        .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
         .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
         .score-box-right { flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 15px;}
-        
         .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
         .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; font-family:'Roboto Condensed'; min-width: 25px; text-align: center;}
         .sub-score { font-size: 20px; color: white; font-weight: bold; font-family:'Roboto Condensed'; opacity: 0.7; min-width: 20px; text-align: center;}
@@ -251,11 +220,12 @@
             .p-score { font-size: 65px; }
             .flag { width: 30px; height: 20px; }
             .bracket-container { max-width: 800px; }
-            .leg-name { display: block; } /* Show names on PC */
+            .leg-name { display: block; }
         }
         @media (max-width: 600px) {
             .tourn-config-grid { grid-template-columns: 1fr; max-height: 150px; }
-            .leg-name { display: none; } /* Hide on mobile to ensure centering */
+            /* Hide names on mobile so centering is perfect */
+            .leg-name { display: none; }
             .bm-name { max-width: 100px; }
         }
         @media (max-height: 500px) and (orientation: landscape) {
@@ -402,7 +372,10 @@
                 <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT STAGE</button>
             </div>
         </div>
-        <div class="bracket-container" id="tourn-bracket"></div>
+        
+        <div class="bracket-wrapper">
+            <div class="bracket-container" id="tourn-bracket"></div>
+        </div>
     </div>
 
     <!-- MATCH SCREEN -->
@@ -529,7 +502,7 @@
 
     <script>
         // ================= DATA =================
-        const RAW_PLAYERS = [
+         const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
