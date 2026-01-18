@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (UI Update)</title>
+    <title>PDC Sim 2026 (Centered & Tracing)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -36,32 +36,32 @@
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-        /* ==================== SETUP SCREEN (COMPACT) ==================== */
+        /* ==================== SETUP SCREEN (COMPACT MOBILE) ==================== */
         #setup-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #1a3c50, #000000);
             display: flex; justify-content: center; align-items: center; z-index: 100;
-            padding: 10px; box-sizing: border-box;
+            padding: 5px; box-sizing: border-box;
         }
 
         .setup-box {
             background: rgba(14, 42, 58, 0.98); border-radius: 8px;
-            width: 100%; max-width: 500px; max-height: 98vh; /* Taller max height */
+            width: 100%; max-width: 600px; max-height: 98vh;
             border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .tabs { display: flex; background: #081b26; border-bottom: 1px solid #333; flex-shrink: 0; min-height: 45px; }
+        .tabs { display: flex; background: #081b26; border-bottom: 1px solid #333; flex-shrink: 0; min-height: 40px; }
         .tab-btn {
             flex: 1; padding: 10px; background: transparent; border: none;
-            color: #888; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 14px;
+            color: #888; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 13px;
             cursor: pointer; text-transform: uppercase;
         }
         .tab-btn.active { background: rgba(255, 255, 255, 0.05); color: var(--pdc-gold); border-bottom: 3px solid var(--pdc-gold); }
 
         .tab-content { 
-            padding: 12px; /* Reduced padding */
-            display: none; flex-direction: column; gap: 8px; /* Reduced gap */
+            padding: 10px; /* Compact padding */
+            display: none; flex-direction: column; gap: 8px; 
             overflow-y: auto; flex: 1; 
         }
         .tab-content.active { display: flex; }
@@ -69,8 +69,9 @@
         /* COMPACT INPUTS */
         input[type="text"], input[type="number"], select {
             padding: 8px 10px; /* Smaller padding */
-            font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: bold;
+            font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: bold;
             border-radius: 4px; border: 1px solid #ccc; background: var(--input-bg); color: #222; outline: none; width: 100%; box-sizing: border-box;
+            height: 36px;
         }
         input:focus, select:focus { border-color: var(--pdc-gold); background: #fff; }
 
@@ -80,14 +81,14 @@
             overflow-y: auto; background: #1a1a1a; border: 1px solid #444; border-radius: 0 0 4px 4px;
             z-index: 1000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        .search-item { padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #ddd; }
+        .search-item { padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #ddd; }
         .search-item:hover { background: #333; color: var(--pdc-gold); }
-        .search-item img { width: 20px; height: 14px; object-fit: cover; }
+        .search-item img { width: 18px; height: 12px; object-fit: cover; }
 
         .format-row { display: flex; gap: 8px; }
         .format-btn {
             flex: 1; padding: 8px; background: #222; border: 1px solid #444; color: #aaa;
-            font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; font-size: 13px;
+            font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; font-size: 12px; height: 36px;
         }
         .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
 
@@ -103,56 +104,62 @@
         .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
 
         .btn-gold, .btn-blue {
-            font-weight: 900; cursor: pointer; margin-top: 10px; padding: 12px;
+            font-weight: 900; cursor: pointer; margin-top: 5px; padding: 10px;
             font-size: 16px; text-transform: uppercase; border: none; border-radius: 4px; width: 100%; flex-shrink: 0;
         }
         .btn-gold { background: var(--pdc-gold); color: #111; }
         .btn-blue { background: #1b4dff; color: white; }
 
-        label { font-weight: bold; font-size: 11px; color: #8fa3ad; text-transform: uppercase; margin-bottom: 2px; display:block; }
+        label { font-weight: bold; font-size: 10px; color: #8fa3ad; text-transform: uppercase; margin-bottom: 2px; display:block; }
         .checkbox-row { display: flex; align-items: center; margin-top: 5px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; flex-shrink: 0; border: 1px solid #333; }
         .checkbox-row input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--pdc-gold); }
-        .pc-row { display: flex; flex-direction: column; gap: 10px; }
+        .pc-row { display: flex; flex-direction: column; gap: 8px; }
 
-        /* ==================== HUB (BRACKET SIDE NAV) ==================== */
+        /* ==================== HUB ==================== */
         #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 0; }
         
         .hub-header { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: #0e2a3a; padding: 15px; flex-shrink: 0; border-bottom: 2px solid #333;
+            background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333;
         }
         .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
+        .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; }
+        .nav-btn { 
+            background: #2a2a2a; color: white; border: 1px solid #444; 
+            padding: 5px 15px; font-size: 12px; font-weight: bold; 
+            cursor: pointer; border-radius: 4px; 
+        }
         .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
         .hub-round-format { color: #8fa3ad; font-size: 12px; }
 
-        /* BRACKET WRAPPER WITH SIDE BUTTONS */
-        .bracket-wrapper {
-            display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px;
-        }
-        .side-nav-btn {
-            background: #2a2a2a; color: white; border: 1px solid #444;
-            width: 40px; height: 60px; font-size: 20px; font-weight: bold;
-            cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center;
-            transition: 0.2s; z-index: 5;
-        }
-        .side-nav-btn:hover { background: #444; }
-        .side-nav-btn:disabled { opacity: 0.3; cursor: default; }
-
         .bracket-container { 
             flex: 1; display: flex; flex-direction: column; gap: 10px; 
-            overflow-y: auto; height: 100%; padding: 0 5px;
+            overflow-y: auto; height: 100%; padding: 10px;
         }
         
-        .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .bracket-match.completed { opacity: 0.8; }
-        .bm-content { flex: 1; }
-        .bm-row { font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .bracket-match { 
+            background: #1a1a1a; border-left: 4px solid #444; padding: 5px; 
+            border-radius: 4px; display: flex; align-items: center; gap: 5px;
+            transition: background 0.3s;
+        }
+        .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
+        .bracket-match.completed { opacity: 0.9; }
+        
+        .match-nav-btn {
+            background: transparent; border: none; color: #555; font-weight: bold; font-size: 18px; 
+            padding: 0 10px; cursor: pointer; height: 100%; display: flex; align-items: center;
+        }
+        .match-nav-btn:hover { color: var(--pdc-gold); }
+
+        .bm-content { flex: 1; padding: 5px 0; }
+        .bm-row { font-size: 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .bm-row:last-child { margin-bottom: 0; }
-        .bm-flag { width: 20px; height: 14px; object-fit: cover; }
-        .bm-name { font-weight: bold; font-family: 'Roboto Condensed'; }
-        .bm-avg { font-size: 11px; color: #777; font-family: 'Roboto Condensed'; margin-left: 5px;}
-        .bm-score { font-size: 16px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
-        .bm-action { margin-left: 10px; }
+        .bm-flag { width: 18px; height: 12px; object-fit: cover; }
+        .bm-name { font-weight: bold; font-family: 'Roboto Condensed'; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 130px; }
+        .bm-avg { font-size: 10px; color: #777; font-family: 'Roboto Condensed'; }
+        .bm-score { font-size: 14px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
+        .bm-action { margin-left: 5px; }
+        .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 4px 8px; font-size: 10px; font-weight: bold; border-radius: 2px; }
 
         /* ==================== MATCH UI ==================== */
         #match-screen { display: none; flex-direction: column; height: 100%; }
@@ -163,7 +170,6 @@
         .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
         .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* CENTERED HEADER LAYOUT FOR MOBILE */
         .name-strip { 
             height: 40px; display: flex; align-items: center; justify-content: center; /* Centered */
             gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; 
@@ -192,12 +198,22 @@
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
-        .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
-        .legs-display { display: grid; grid-template-columns: 1fr 50px 30px 80px 30px 50px 1fr; width: 95%; align-items: center; }
-        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; text-align: center; font-family:'Roboto Condensed'; }
-        .sub-score { font-size: 20px; color: white; font-weight: bold; text-align: center; font-family:'Roboto Condensed'; opacity: 0.7; }
-        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; }
+        
+        /* CENTERED BOTTOM BAR */
+        .bottom-bar { 
+            height: 60px; background: #111; display: flex; align-items: center; justify-content: center; 
+            border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); 
+        }
+        .legs-display { 
+            display: flex; width: 100%; justify-content: center; align-items: center; height: 100%;
+        }
+        .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
+        .score-box-right { flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 15px;}
+        
+        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; font-family:'Roboto Condensed'; min-width: 25px; text-align: center;}
+        .sub-score { font-size: 20px; color: white; font-weight: bold; font-family:'Roboto Condensed'; opacity: 0.7; min-width: 20px; text-align: center;}
+        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; width: 40px; }
 
         /* POST MATCH STATS */
         #post-match-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0e2a3a; z-index: 110; flex-direction: column; align-items: center; overflow-y: auto; }
@@ -235,14 +251,12 @@
             .p-score { font-size: 65px; }
             .flag { width: 30px; height: 20px; }
             .bracket-container { max-width: 800px; }
+            .leg-name { display: block; } /* Show names on PC */
         }
         @media (max-width: 600px) {
-            .tourn-config-grid { grid-template-columns: 1fr; max-height: 200px; }
-            /* Mobile Adjustments */
-            .legs-display { grid-template-columns: 1fr 40px 30px 80px 30px 40px 1fr; }
-            .leg-name { display: none; }
-            .hub-header { padding: 10px; }
-            .hub-title { font-size: 20px; }
+            .tourn-config-grid { grid-template-columns: 1fr; max-height: 150px; }
+            .leg-name { display: none; } /* Hide on mobile to ensure centering */
+            .bm-name { max-width: 100px; }
         }
         @media (max-height: 500px) and (orientation: landscape) {
             .setup-box { height: 100%; width: 100%; border-radius: 0; max-height: 100%; max-width: 100%; }
@@ -379,17 +393,16 @@
     <div id="tournament-hub">
         <div class="hub-header">
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            <div class="hub-round-info" style="margin-top:5px;">
-                <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
-                <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
+            <div class="round-nav">
+                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">PREV STAGE</button>
+                <div class="hub-round-info">
+                    <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
+                    <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
+                </div>
+                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT STAGE</button>
             </div>
         </div>
-        
-        <div class="bracket-wrapper">
-            <button class="side-nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt;</button>
-            <div class="bracket-container" id="tourn-bracket"></div>
-            <button class="side-nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">&gt;</button>
-        </div>
+        <div class="bracket-container" id="tourn-bracket"></div>
     </div>
 
     <!-- MATCH SCREEN -->
@@ -425,13 +438,17 @@
         <div class="visit-board" id="visit-container"></div>
         <div class="bottom-bar">
             <div class="legs-display">
-                <div class="leg-name" style="text-align:right;" id="bot-name-p0">NAME</div>
-                <div class="main-score" id="bot-sets-p0">0</div>
-                <div class="sub-score" id="bot-legs-p0">0</div>
+                <div class="score-box-left">
+                    <div class="leg-name" id="bot-name-p0">NAME</div>
+                    <div class="main-score" id="bot-sets-p0">0</div>
+                    <div class="sub-score" id="bot-legs-p0">0</div>
+                </div>
                 <div class="leg-label"><span id="lbl-score-type">SETS</span></div>
-                <div class="sub-score" id="bot-legs-p1">0</div>
-                <div class="main-score" id="bot-sets-p1">0</div>
-                <div class="leg-name" style="text-align:left;" id="bot-name-p1">NAME</div>
+                <div class="score-box-right">
+                    <div class="sub-score" id="bot-legs-p1">0</div>
+                    <div class="main-score" id="bot-sets-p1">0</div>
+                    <div class="leg-name" id="bot-name-p1">NAME</div>
+                </div>
             </div>
         </div>
     </div>
@@ -479,7 +496,6 @@
                 <div class="stat-label">100+ Checkouts</div>
                 <div class="stat-val" id="st-tonplus-1">0</div>
             </div>
-            <!-- Dynamic Legs Won Row will be inserted here if sets -->
             <div class="stat-row" id="row-legs-won" style="display:none;">
                 <div class="stat-val" id="st-legs-0">0</div>
                 <div class="stat-label">Legs Won</div>
@@ -1867,6 +1883,50 @@
                 const next = Tournament.state.viewingRound + dir;
                 if (next >= 0 && next < Tournament.config.rounds.length) { Tournament.state.viewingRound = next; Tournament.renderHub(); }
             },
+            
+            // TRACING LOGIC
+            traceMatch: (direction, matchIdx) => {
+                const currentRound = Tournament.state.viewingRound;
+                let targetRound, targetMatchIdx;
+
+                if (direction === -1) {
+                    // Go Back (Prior)
+                    if (currentRound === 0) return;
+                    targetRound = currentRound - 1;
+                    // Match M in R comes from M*2 and M*2+1 in R-1
+                    targetMatchIdx = matchIdx * 2; 
+                    // Highlighting 2 matches is tricky in one go, let's just go to the round and highlight both
+                    Tournament.state.viewingRound = targetRound;
+                    Tournament.renderHub();
+                    
+                    const m1 = document.getElementById(`bm-${targetMatchIdx}`);
+                    const m2 = document.getElementById(`bm-${targetMatchIdx+1}`);
+                    if(m1) { m1.classList.add('highlight'); m1.scrollIntoView({behavior: "smooth", block: "center"}); }
+                    if(m2) { m2.classList.add('highlight'); }
+                    
+                    setTimeout(() => { 
+                        if(m1) m1.classList.remove('highlight'); 
+                        if(m2) m2.classList.remove('highlight'); 
+                    }, 2000);
+
+                } else {
+                    // Go Forward (Later)
+                    if (currentRound === Tournament.config.rounds.length - 1) return;
+                    targetRound = currentRound + 1;
+                    // Match M in R goes to floor(M/2) in R+1
+                    targetMatchIdx = Math.floor(matchIdx / 2);
+                    Tournament.state.viewingRound = targetRound;
+                    Tournament.renderHub();
+                    
+                    const m = document.getElementById(`bm-${targetMatchIdx}`);
+                    if(m) { 
+                        m.classList.add('highlight'); 
+                        m.scrollIntoView({behavior: "smooth", block: "center"});
+                        setTimeout(() => m.classList.remove('highlight'), 2000);
+                    }
+                }
+            },
+
             renderHub: () => {
                 const hub = document.getElementById('tournament-hub');
                 const bracket = document.getElementById('tourn-bracket');
@@ -1877,7 +1937,6 @@
                 const typeStr = (Tournament.config.mode === 'sets') ? 'Sets' : 'Legs';
                 document.getElementById('tourn-round-fmt').innerText = `First to ${roundInfo.target} ${typeStr}`;
                 
-                // Side buttons
                 document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
                 document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
                 
@@ -1890,6 +1949,7 @@
                         const card = document.createElement('div');
                         card.className = `bracket-match ${m.winner ? 'completed' : ''}`;
                         card.style.opacity = m.winner ? '0.7' : '1';
+                        card.id = `bm-${idx}`;
                         
                         const getPHTML = (p, score, avg, isWinner) => {
                             const name = p ? p.name : 'TBD';
@@ -1908,14 +1968,22 @@
                         };
 
                         let html = `
+                            <button class="match-nav-btn" onclick="Tournament.traceMatch(-1, ${idx})">&lt;</button>
                             <div class="bm-content">
                                 ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}
                                 ${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2)}
                             </div>
                         `;
+                        
+                        // Right side container for Actions or Forward nav
+                        html += `<div style="display:flex; align-items:center;">`;
+                        
                         if (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2) {
-                            html += `<div class="bm-action"><button style="background:var(--pdc-red); color:white; border:none; padding:8px 12px; font-weight:bold; cursor:pointer; border-radius:4px;" onclick="Tournament.playMatch(${idx})">PLAY</button></div>`;
+                            html += `<div class="bm-action"><button class="btn-play-mini" onclick="Tournament.playMatch(${idx})">PLAY</button></div>`;
                         }
+                        
+                        html += `<button class="match-nav-btn" onclick="Tournament.traceMatch(1, ${idx})">&gt;</button></div>`;
+
                         card.innerHTML = html;
                         bracket.appendChild(card);
                     });
@@ -2126,7 +2194,7 @@
                 // Show/Hide Legs Won
                 const legsRow = document.getElementById('row-legs-won');
                 if (App.config.mode === 'sets') {
-                    legsRow.style.display = 'contents'; // Keep grid layout
+                    legsRow.style.display = 'contents';
                     document.getElementById('st-legs-0').innerText = p0.stats.legsWon;
                     document.getElementById('st-legs-1').innerText = p1.stats.legsWon;
                 } else {
