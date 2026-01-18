@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDC 2026 Simulator (Clean DB & Tiebreaks)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDC 2026 Simulator (Responsive)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -26,7 +26,9 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh; /* Mobile friendly height */
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* ==================== SETUP SCREEN ==================== */
@@ -38,18 +40,21 @@
             justify-content: center;
             align-items: center;
             z-index: 100;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .setup-box {
             background: rgba(14, 42, 58, 0.98);
             border-radius: 12px;
-            width: 550px;
-            max-height: 90vh;
+            width: 100%;
+            max-width: 550px;
+            max-height: 95vh;
             border: 1px solid #333;
             box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            overflow-y: auto;
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Contains the scrollable content */
         }
 
         /* TABS */
@@ -67,7 +72,7 @@
             color: #888;
             font-family: 'Roboto Condensed';
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -76,9 +81,15 @@
             color: var(--pdc-gold);
             border-bottom: 3px solid var(--pdc-gold);
         }
-        .tab-btn:hover { color: white; }
 
-        .tab-content { padding: 30px; display: none; flex-direction: column; gap: 12px; }
+        .tab-content { 
+            padding: 20px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch;
+        }
         .tab-content.active { display: flex; }
 
         /* INPUTS */
@@ -94,38 +105,27 @@
             box-sizing: border-box;
         }
 
-        /* CHECKBOX ROW FIX */
         .checkbox-row {
             display: flex;
             align-items: center;
             margin-top: 5px;
             cursor: pointer;
             background: rgba(255,255,255,0.05);
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
-            user-select: none;
         }
         .checkbox-row input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin: 0 10px 0 0;
-            cursor: pointer;
-            accent-color: var(--pdc-gold);
-        }
-        .checkbox-row label {
-            margin: 0;
-            color: white;
-            cursor: pointer;
-            text-transform: none;
-            font-size: 16px;
-            font-weight: 400;
+            width: 24px;
+            height: 24px;
+            margin: 0 15px 0 0;
+            flex-shrink: 0;
         }
 
         /* FORMAT BUTTONS */
         .format-row { display: flex; gap: 10px; }
         .format-btn {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             background: #222;
             border: 1px solid #444;
             color: #888;
@@ -133,41 +133,13 @@
             cursor: pointer;
             border-radius: 4px;
             text-align: center;
+            font-size: 14px;
         }
         .format-btn.selected {
             background: var(--pdc-gold);
             color: black;
             border-color: var(--pdc-gold);
         }
-
-        /* PLAYER SELECTOR STYLES */
-        .player-selector-box {
-            display: none; 
-            flex-direction: column;
-            gap: 5px;
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 4px;
-            background: #111;
-        }
-        .player-list-container {
-            height: 200px;
-            overflow-y: auto;
-            background: #222;
-            border: 1px solid #333;
-        }
-        .player-option {
-            display: flex;
-            align-items: center;
-            padding: 6px 10px;
-            border-bottom: 1px solid #333;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .player-option:hover { background: #333; }
-        .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
-        .player-option input { width: auto; margin-right: 10px; cursor: pointer; }
-        .p-flag-mini { width: 20px; height: 15px; margin-right: 8px; object-fit: cover; }
 
         /* TOURNAMENT CONFIG GRID */
         .tourn-config-grid {
@@ -179,53 +151,23 @@
             overflow-y: auto;
             padding-right: 5px;
         }
-        .tourn-input-group {
-            background: #222;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #333;
-        }
-        .tourn-input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--pdc-gold);
-        }
-        .tourn-input-group input {
-            padding: 5px;
-            font-size: 14px;
-            text-align: center;
-        }
 
         /* ACTION BUTTONS */
-        .btn-gold {
-            background: var(--pdc-gold);
-            color: black;
+        .btn-gold, .btn-blue {
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
-            padding: 12px;
+            margin-top: 10px;
+            padding: 14px;
             font-size: 18px;
             text-transform: uppercase;
             border: none;
             border-radius: 4px;
+            width: 100%;
         }
-        .btn-gold:hover { background: #ffd633; }
+        .btn-gold { background: var(--pdc-gold); color: black; }
+        .btn-blue { background: #1b4dff; color: white; }
 
-        .btn-blue {
-            background: #1b4dff;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            padding: 12px;
-            font-size: 18px;
-            text-transform: uppercase;
-            border: none;
-            border-radius: 4px;
-        }
-        .btn-blue:hover { background: #4d73ff; }
-
-        label { font-weight: bold; font-size: 12px; color: #ccc; text-transform: uppercase; margin-bottom: -5px; }
+        label { font-weight: bold; font-size: 12px; color: #ccc; text-transform: uppercase; margin-bottom: -5px; margin-top: 5px; }
 
         /* ==================== TOURNAMENT HUB ==================== */
         #tournament-hub {
@@ -235,7 +177,7 @@
             background: #111;
             z-index: 90;
             flex-direction: column;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
         }
 
@@ -243,104 +185,89 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
+            flex-shrink: 0;
         }
-        .hub-title { font-size: 32px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; }
+        .hub-title { font-size: 24px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; text-align: center; }
         
         .round-nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 20px;
+            justify-content: space-between;
+            gap: 10px;
             margin-top: 10px;
             width: 100%;
+            max-width: 600px;
         }
         .nav-btn {
             background: #333;
             color: white;
             border: 1px solid #555;
-            padding: 5px 15px;
+            padding: 8px 12px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: bold;
             border-radius: 4px;
+            flex-shrink: 0;
         }
-        .nav-btn:hover { background: #555; }
-        .nav-btn:disabled { opacity: 0.3; cursor: default; }
         
-        .hub-round-info { text-align: center; }
-        .hub-round-name { font-size: 24px; color: white; font-weight: bold; text-transform: uppercase;}
-        .hub-round-format { color: #888; font-size: 14px; margin-top: 2px; }
+        .hub-round-info { text-align: center; flex: 1; }
+        .hub-round-name { font-size: 18px; color: white; font-weight: bold; text-transform: uppercase;}
+        .hub-round-format { color: #888; font-size: 12px; }
 
         .bracket-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 5px;
             max-width: 800px;
             margin: 0 auto;
             width: 100%;
             flex: 1;
         }
 
-        /* BRACKET MATCH CARD */
         .bracket-match {
             background: linear-gradient(90deg, #222, #2a2a2a);
             border-left: 4px solid #444;
-            padding: 10px 15px;
+            padding: 12px;
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         
-        .bracket-match.active { border-left-color: var(--pdc-gold); background: #333; }
-        .bracket-match.completed { opacity: 0.9; border-left-color: #555; }
-
-        .bm-players { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-        
-        .bm-row { display: flex; justify-content: space-between; font-size: 16px; color: #aaa; }
-        .bm-row.winner { color: var(--pdc-gold); font-weight: 900; text-shadow: 0 0 5px rgba(255,204,0,0.2); }
-        .bm-row.loser { color: #555; text-decoration: line-through; }
-
-        .bm-score { font-family: 'Roboto Condensed'; font-weight: bold; min-width: 30px; text-align: right; }
-
-        .btn-watch {
-            background: var(--pdc-red);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-left: 20px;
-        }
-        .btn-watch:hover { background: #ff3333; }
+        .bm-row { font-size: 14px; }
+        .bm-score { font-size: 16px; margin-left: 10px; }
 
         /* ==================== MATCH UI ==================== */
         #match-screen { display: none; flex-direction: column; height: 100%; }
 
         .event-bar {
-            height: 46px;
-            background: url("bottom_bg.png") center center / cover no-repeat;
+            height: 40px;
+            background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             border-bottom: 1px solid #444;
+            flex-shrink: 0;
         }
+        .event-bar img { height: 20px; }
+        .event-bar span { font-size: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 70vw; }
 
-        .event-bar img { height: 24px; }
-        .event-bar span { font-family: 'Roboto Condensed'; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
-
-        .scoreboard-header { display: flex; height: 150px; }
-        .player-card { flex: 1; display: flex; flex-direction: column; }
+        .scoreboard-header { 
+            display: flex; 
+            height: 140px; 
+            flex-shrink: 0;
+            transition: height 0.3s;
+        }
+        .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
         .name-strip {
-            height: 44px; display: flex; align-items: center; padding: 0 20px; gap: 10px;
+            height: 40px; display: flex; align-items: center; padding: 0 10px; gap: 8px;
             background: linear-gradient(to bottom, #4c6478, #2f4254);
             border-bottom: 1px solid #000;
         }
@@ -349,84 +276,120 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666;
         }
         .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
-        .player-card.active .score-strip { background: linear-gradient(to bottom, #ffffff, #eeeeee); color: black; }
 
-        .flag { height: 20px; width: 30px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); }
-        .p-name { font-size: 22px; font-weight: bold; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black;}
-        .p-score { font-size: 60px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; }
-        .p-avg { font-size: 14px; font-weight: bold; margin-top: 5px; }
-        .starter-dot { width: 10px; height: 10px; background-color: var(--pdc-gold); border-radius: 50%; display: none; }
+        .flag { height: 18px; width: 28px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
+        .p-name { 
+            font-size: 18px; font-weight: bold; text-transform: uppercase; color: white; 
+            text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+        }
+        .p-score { font-size: 55px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -5px; }
+        .p-avg { font-size: 12px; font-weight: bold; margin-top: 5px; }
+        .starter-dot { width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; display: none; margin-right: 5px; }
 
-        .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 20px 0; }
-        .visit-row { display: grid; grid-template-columns: 1fr 40px 100px 40px 1fr; width: 100%; max-width: 600px; align-items: center; margin-bottom: 5px; opacity: 1; min-height: 42px; }
-        .v-score { font-family: 'Roboto Condensed'; font-size: 32px; font-weight: bold; color: white; }
-        .v-left { text-align: right; } .v-right { text-align: left; }
-        .v-round { color: var(--text-grey); font-size: 14px; text-align: center; font-family: 'Roboto Condensed'; }
-        .v-arrow { color: var(--pdc-gold); font-size: 20px; text-align: center; transition: opacity 0.2s; }
+        .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: rgba(0,0,0,0.5); }
+        .visit-row { 
+            display: grid; 
+            grid-template-columns: 1fr 30px 80px 30px 1fr; 
+            width: 100%; 
+            max-width: 500px; 
+            align-items: center; 
+            margin-bottom: 4px; 
+            min-height: 36px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
+        .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
+        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
 
         .bottom-bar {
-            height: 80px;
-            background: url("bottom_bg.png") center center / cover no-repeat;
+            height: 70px;
+            background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
             border-top: 2px solid #333;
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .legs-display { display: grid; grid-template-columns: 1fr 60px 40px 100px 40px 60px 1fr; width: 90%; align-items: center; }
-        .leg-name { font-weight: bold; font-size: 18px; color: #ccc; text-transform: uppercase; }
-        .main-score { font-size: 36px; color: var(--pdc-gold); font-weight: bold; text-align: center; font-family:'Roboto Condensed'; }
-        .sub-score { font-size: 24px; color: white; font-weight: bold; text-align: center; font-family:'Roboto Condensed'; opacity: 0.7; }
-        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 12px; }
+        .legs-display { display: grid; grid-template-columns: 1fr 50px 30px 80px 30px 50px 1fr; width: 95%; align-items: center; }
+        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; text-align: center; font-family:'Roboto Condensed'; }
+        .sub-score { font-size: 20px; color: white; font-weight: bold; text-align: center; font-family:'Roboto Condensed'; opacity: 0.7; }
+        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; }
 
         /* OVERLAYS */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
-        .intro-box { background: #b00000; color: white; text-align: center; padding: 30px 50px; border: 2px solid white; min-width: 300px; }
-        .end-box { background: #222; padding: 40px; text-align: center; border: 1px solid #444; width: 400px; }
-        .end-winner { font-size: 40px; color: var(--pdc-gold); font-weight: bold; margin: 20px 0; }
-        .end-score { font-size: 50px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+        
+        .intro-box { background: #b00000; color: white; text-align: center; padding: 20px; border: 2px solid white; width: 80%; max-width: 300px; }
+        
+        .end-box { background: #222; padding: 30px 20px; text-align: center; border: 1px solid #444; width: 90%; max-width: 400px; box-sizing: border-box;}
+        .end-winner { font-size: 32px; color: var(--pdc-gold); font-weight: bold; margin: 15px 0; }
+        .end-score { font-size: 40px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
 
         /* GAME SHOT / 180 BOXES */
-        .game-shot-box { 
+        .game-shot-box, .high-checkout-box { 
             background: #009900; 
             color: white; 
-            font-size: 60px; 
+            font-size: 10vw; /* Responsive font size */
+            max-font-size: 60px;
             font-weight: 900; 
-            padding: 20px 60px; 
+            padding: 20px; 
+            width: 80%;
             border: 2px solid white; 
             animation: popIn 0.3s forwards; 
             text-transform: uppercase;
             text-align: center; 
         }
-
-        .high-checkout-box {
-            background: #1b4dff; /* Blue for high finishes */
-            color: white; 
-            font-size: 60px; 
-            font-weight: 900; 
-            padding: 20px 60px; 
-            border: 2px solid white; 
-            animation: popIn 0.3s forwards; 
-            text-transform: uppercase;
-            text-align: center;
-        }
+        .high-checkout-box { background: #1b4dff; }
 
         .one-eighty-box { 
             background: var(--pdc-red); 
             color: white; 
-            font-size: 100px; 
+            font-size: 25vw; /* Huge on mobile */
             font-weight: 900; 
-            padding: 20px 80px; 
+            padding: 10px 40px; 
             border: 4px solid white; 
             animation: popIn 0.3s forwards; 
             text-transform: uppercase; 
-            transform: rotate(-5deg); /* Slight tilt like on TV */
+            transform: rotate(-5deg);
             box-shadow: 5px 5px 0px rgba(0,0,0,0.5);
             font-family: 'Roboto Condensed';
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
+
+        /* ==================== MEDIA QUERIES ==================== */
+        @media (min-width: 768px) {
+            .game-shot-box, .high-checkout-box { font-size: 60px; width: auto; padding: 20px 60px; }
+            .one-eighty-box { font-size: 100px; padding: 20px 80px; }
+            .p-name { font-size: 22px; }
+            .p-score { font-size: 65px; }
+        }
+
+        @media (max-width: 600px) {
+            .tourn-config-grid { grid-template-columns: 1fr; max-height: 200px; }
+            .scoreboard-header { height: 110px; }
+            .p-score { font-size: 44px; }
+            .p-avg { display: none; /* Hide avg on very small screens if needed, or make smaller */ }
+            .flag { width: 22px; height: 15px; }
+            
+            /* Hide names in bottom bar to save space for scores */
+            .legs-display { grid-template-columns: 1fr 40px 30px 80px 30px 40px 1fr; }
+            .leg-name { display: none; }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            /* Landscape Mobile Adjustments */
+            .setup-box { height: 100%; width: 100%; border-radius: 0; max-height: 100%; }
+            .scoreboard-header { height: 90px; }
+            .p-score { font-size: 36px; }
+            .bottom-bar { height: 50px; }
+            .visit-row { min-height: 30px; }
+            .v-score { font-size: 20px; }
+            .event-bar { display: none; } /* Hide header to save vertical space */
+        }
     </style>
 </head>
 <body>
@@ -441,40 +404,50 @@
 
             <!-- SINGLE MATCH TAB -->
             <div id="tab-single" class="tab-content active">
-                <label>Event Name</label>
-                <input type="text" id="inp-event" value="PDC MATCHPLAY">
-
-                <label>Format</label>
-                <div class="format-row">
-                    <button class="format-btn selected" id="btn-sets" onclick="App.setMode('sets')">SETS</button>
-                    <button class="format-btn" id="btn-legs" onclick="App.setMode('legs')">LEGS</button>
+                <div>
+                    <label>Event Name</label>
+                    <input type="text" id="inp-event" value="PDC MATCHPLAY">
                 </div>
 
-                <label id="lbl-target">First to X Sets</label>
-                <select id="inp-target">
-                    <option value="1">1</option>
-                    <option value="3">3</option>
-                    <option value="5">5</option>
-                    <option value="7" selected>7</option>
-                </select>
-
-                <div id="legs-per-set-div">
-                    <label>Legs per Set (Best of)</label>
-                    <select id="inp-set-legs">
-                        <option value="3">3</option>
-                        <option value="5" selected>5</option>
-                    </select>
+                <div>
+                    <label>Format</label>
+                    <div class="format-row">
+                        <button class="format-btn selected" id="btn-sets" onclick="App.setMode('sets')">SETS</button>
+                        <button class="format-btn" id="btn-legs" onclick="App.setMode('legs')">LEGS</button>
+                    </div>
                 </div>
 
-                <label>Player 1</label>
-                <select id="inp-p1"></select>
-                <label>Player 2</label>
-                <select id="inp-p2"></select>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1">
+                        <label id="lbl-target">Target</label>
+                        <select id="inp-target">
+                            <option value="1">1</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                            <option value="7" selected>7</option>
+                        </select>
+                    </div>
+                    <div style="flex:1" id="legs-per-set-div">
+                        <label>Legs/Set</label>
+                        <select id="inp-set-legs">
+                            <option value="3">3</option>
+                            <option value="5" selected>5</option>
+                        </select>
+                    </div>
+                </div>
 
-                <!-- Single Match Tiebreak -->
+                <div>
+                    <label>Player 1</label>
+                    <select id="inp-p1"></select>
+                </div>
+                <div>
+                    <label>Player 2</label>
+                    <select id="inp-p2"></select>
+                </div>
+
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="inp-tiebreak">
-                    <label for="inp-tiebreak">Tiebreak (Win by 2)</label>
+                    <label for="inp-tiebreak" style="margin:0; color:white; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
                 </div>
 
                 <button class="btn-gold" onclick="App.startMatch()">START MATCH</button>
@@ -482,53 +455,54 @@
 
             <!-- TOURNAMENT TAB -->
             <div id="tab-tourn" class="tab-content">
-                <label>Event Name</label>
-                <input type="text" id="tourn-event-name" value="CUSTOM TOURNAMENT">
+                <div>
+                    <label>Event Name</label>
+                    <input type="text" id="tourn-event-name" value="CUSTOM TOURNAMENT">
+                </div>
 
-                <label>Number of Players</label>
-                <select id="tourn-size" onchange="Tournament.updateConfigUI()">
-                    <option value="4">4 Players (Semi-Finals)</option>
-                    <option value="8">8 Players (Quarter-Finals)</option>
-                    <option value="16">16 Players (Last 16)</option>
-                    <option value="32" selected>32 Players (Last 32)</option>
-                    <option value="64">64 Players (Last 64)</option>
-                    <option value="128">128 Players (Last 128)</option>
-                    <option value="256">256 Players (Last 256)</option>
-                </select>
+                <div>
+                    <label>Players</label>
+                    <select id="tourn-size" onchange="Tournament.updateConfigUI()">
+                        <option value="4">4 (Semi-Finals)</option>
+                        <option value="8">8 (Quarter-Finals)</option>
+                        <option value="16">16 (Last 16)</option>
+                        <option value="32" selected>32 (Last 32)</option>
+                        <option value="64">64 (Last 64)</option>
+                    </select>
+                </div>
 
-                <label>Selection Method</label>
-                <div class="format-row">
-                    <button class="format-btn selected" id="sel-random" onclick="Tournament.setSelectionMethod('random')">RANDOM DRAW</button>
-                    <button class="format-btn" id="sel-manual" onclick="Tournament.setSelectionMethod('manual')">MANUAL PICK</button>
+                <div>
+                    <label>Selection</label>
+                    <div class="format-row">
+                        <button class="format-btn selected" id="sel-random" onclick="Tournament.setSelectionMethod('random')">RANDOM</button>
+                        <button class="format-btn" id="sel-manual" onclick="Tournament.setSelectionMethod('manual')">MANUAL</button>
+                    </div>
                 </div>
 
                 <!-- Manual Selection UI -->
-                <div id="manual-selector" class="player-selector-box">
+                <div id="manual-selector" class="player-selector-box" style="display:none; flex-direction:column; gap:5px; background:#111; padding:10px; border:1px solid #444; margin-top:5px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> / <span id="sel-total">32</span></label>
-                        <button onclick="Tournament.clearSelection()" style="background:#444; border:1px solid #555; color:#ccc; font-size:10px; cursor:pointer; padding:2px 6px;">CLEAR</button>
+                        <button onclick="Tournament.clearSelection()" style="background:#444; border:1px solid #555; color:#ccc; font-size:10px; cursor:pointer; padding:4px 8px;">CLEAR</button>
                     </div>
-                    <input type="text" id="player-search" placeholder="Search name..." onkeyup="Tournament.filterPlayerList()" style="padding:6px; font-size:12px;">
-                    <div class="player-list-container" id="player-list-container">
-                        <!-- Populated by JS -->
+                    <input type="text" id="player-search" placeholder="Search name..." onkeyup="Tournament.filterPlayerList()" style="padding:8px; font-size:14px;">
+                    <div class="player-list-container" id="player-list-container" style="height:150px; overflow-y:auto; background:#222; border:1px solid #333;"></div>
+                </div>
+
+                <div>
+                    <label>Format</label>
+                    <div class="format-row">
+                        <button class="format-btn selected" id="tourn-mode-sets" onclick="Tournament.setMode('sets')">SETS</button>
+                        <button class="format-btn" id="tourn-mode-legs" onclick="Tournament.setMode('legs')">LEGS</button>
                     </div>
                 </div>
 
-                <label>Format</label>
-                <div class="format-row">
-                    <button class="format-btn selected" id="tourn-mode-sets" onclick="Tournament.setMode('sets')">SETS</button>
-                    <button class="format-btn" id="tourn-mode-legs" onclick="Tournament.setMode('legs')">LEGS</button>
-                </div>
+                <label>Distances (First to X)</label>
+                <div class="tourn-config-grid" id="tourn-rounds-container"></div>
 
-                <label>Round Distances (First to X)</label>
-                <div class="tourn-config-grid" id="tourn-rounds-container">
-                    <!-- Javascript populates this -->
-                </div>
-
-                <!-- Tournament Tiebreak -->
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="tourn-tiebreak">
-                    <label for="tourn-tiebreak">Tiebreak (Win by 2)</label>
+                    <label for="tourn-tiebreak" style="margin:0; color:white; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
                 </div>
 
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
@@ -540,14 +514,13 @@
     <div id="tournament-hub">
         <div class="hub-header">
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            
             <div class="round-nav">
-                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt; PREV ROUND</button>
+                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt; PREV</button>
                 <div class="hub-round-info">
                     <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
                     <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
                 </div>
-                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT ROUND &gt;</button>
+                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT &gt;</button>
             </div>
         </div>
         <div class="bracket-container" id="tourn-bracket"></div>
@@ -603,15 +576,13 @@
     <!-- OVERLAYS -->
     <div id="overlay-intro" class="overlay">
         <div class="intro-box">
-            <div class="intro-title" id="intro-title-txt">Leg 1</div>
-            <div class="intro-name" id="intro-name-txt">Player Name</div>
+            <div class="intro-title" id="intro-title-txt" style="font-size:24px; font-weight:bold;">Leg 1</div>
+            <div class="intro-name" id="intro-name-txt" style="font-size:30px; font-weight:bold; margin:10px 0;">Player Name</div>
             <div style="margin-top:10px; font-size:14px; color:#ddd;">TO THROW FIRST</div>
         </div>
     </div>
 
-    <div id="overlay-shot" class="overlay">
-        <!-- Content injected via JS -->
-    </div>
+    <div id="overlay-shot" class="overlay"></div>
     
     <div id="overlay-180" class="overlay">
         <div class="one-eighty-box">180</div>
@@ -628,9 +599,9 @@
     </div>
 
     <script>
-
         // ================= DATA =================
-        // Original raw list containing duplicates
+        // PASTE YOUR RAW_PLAYERS ARRAY HERE
+        // Format: {name: "Name", country: "eng", avg: 90.0, co: 40.0, fav: 20}, ...
         const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
@@ -1759,7 +1730,6 @@
 };
         
         const FLAG_URL = "https://flagcdn.com/w80/"; 
-
         let PLAYERS_DB = [];
 
         // ================= ENGINE =================
@@ -1895,8 +1865,6 @@
             updateConfigUI: () => {
                 const size = parseInt(document.getElementById('tourn-size').value);
                 Tournament.config.playerCount = size;
-                
-                // Update manual selection counter
                 document.getElementById('sel-total').innerText = size;
                 Tournament.updateSelectionCount();
 
@@ -1906,15 +1874,14 @@
                 let roundsNeeded = Math.log2(size);
                 let roundNames = [];
                 
-                if (size === 256) roundNames = ["Last 256", "Last 128", "Last 64", "Last 32", "Last 16", "Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 128) roundNames = ["Last 128", "Last 64", "Last 32", "Last 16", "Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 64) roundNames = ["Last 64", "Last 32", "Last 16", "Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 32) roundNames = ["Last 32", "Last 16", "Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 16) roundNames = ["Last 16", "Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 8) roundNames = ["Quarter-Finals", "Semi-Finals", "Final"];
-                if (size === 4) roundNames = ["Semi-Finals", "Final"];
+                if (size === 256) roundNames = ["Last 256", "Last 128", "Last 64", "Last 32", "Last 16", "Q-Finals", "Semis", "Final"];
+                if (size === 128) roundNames = ["Last 128", "Last 64", "Last 32", "Last 16", "Q-Finals", "Semis", "Final"];
+                if (size === 64) roundNames = ["Last 64", "Last 32", "Last 16", "Q-Finals", "Semis", "Final"];
+                if (size === 32) roundNames = ["Last 32", "Last 16", "Q-Finals", "Semis", "Final"];
+                if (size === 16) roundNames = ["Last 16", "Q-Finals", "Semis", "Final"];
+                if (size === 8) roundNames = ["Q-Finals", "Semis", "Final"];
+                if (size === 4) roundNames = ["Semis", "Final"];
 
-                // Defaults
                 let defaultVal = (Tournament.config.mode === 'sets') ? 3 : 11;
                 
                 for(let i=0; i<roundsNeeded; i++) {
@@ -1931,7 +1898,6 @@
                 }
             },
 
-            // --- Player Selection Logic ---
             updatePlayerSelectUI: () => {
                 const container = document.getElementById('player-list-container');
                 if(container.children.length > 0) return;
@@ -1940,10 +1906,10 @@
                 PLAYERS_DB.forEach((p, idx) => {
                     const flag = FLAG_URL + (FLAG_MAP[p.country.toLowerCase()] || p.country.toLowerCase()) + ".png";
                     html += `
-                        <div class="player-option" id="p-opt-${idx}" onclick="Tournament.togglePlayer(${idx})">
-                            <input type="checkbox" id="chk-${idx}" style="pointer-events:none;">
-                            <img src="${flag}" class="p-flag-mini">
-                            <span>${p.name}</span>
+                        <div class="player-option" id="p-opt-${idx}" onclick="Tournament.togglePlayer(${idx})" style="display:flex; align-items:center; padding:6px; border-bottom:1px solid #333; cursor:pointer;">
+                            <input type="checkbox" id="chk-${idx}" style="pointer-events:none; margin-right:10px;">
+                            <img src="${flag}" style="width:20px; height:14px; margin-right:8px; object-fit:cover;">
+                            <span style="font-size:13px;">${p.name}</span>
                         </div>
                     `;
                 });
@@ -1958,15 +1924,15 @@
                 if(set.has(idx)) {
                     set.delete(idx);
                     chk.checked = false;
-                    div.classList.remove('selected');
+                    div.style.background = 'transparent';
                 } else {
                     if(set.size >= Tournament.config.playerCount) {
-                        alert(`You can only select ${Tournament.config.playerCount} players.`);
+                        alert(`Limit reached.`);
                         return;
                     }
                     set.add(idx);
                     chk.checked = true;
-                    div.classList.add('selected');
+                    div.style.background = '#0e2a3a';
                 }
                 Tournament.updateSelectionCount();
             },
@@ -1977,7 +1943,7 @@
 
             clearSelection: () => {
                 Tournament.state.selectedPlayerIndices.clear();
-                document.querySelectorAll('.player-option').forEach(el => el.classList.remove('selected'));
+                document.querySelectorAll('.player-option').forEach(el => el.style.background = 'transparent');
                 document.querySelectorAll('.player-option input').forEach(el => el.checked = false);
                 Tournament.updateSelectionCount();
             },
@@ -1991,12 +1957,10 @@
                 }
             },
 
-            // --- Start Logic ---
             start: () => {
                 const size = parseInt(document.getElementById('tourn-size').value);
                 Tournament.config.tiebreak = document.getElementById('tourn-tiebreak').checked;
                 
-                // Get distances
                 Tournament.config.rounds = [];
                 const numRounds = Math.log2(size);
                 for(let i=0; i<numRounds; i++) {
@@ -2011,18 +1975,16 @@
 
                 if (Tournament.config.selectionMethod === 'manual') {
                     if(Tournament.state.selectedPlayerIndices.size !== size) {
-                        alert(`Please select exactly ${size} players (currently ${Tournament.state.selectedPlayerIndices.size}).`);
+                        alert(`Select ${size} players.`);
                         return;
                     }
                     Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({...PLAYERS_DB[idx]}));
                 } else {
-                    // Random
                     participants = [...PLAYERS_DB];
                     if(participants.length < size) {
-                        alert("Not enough players in database.");
+                        alert("Not enough players DB.");
                         return;
                     }
-                    // Shuffle
                     for (let i = participants.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [participants[i], participants[j]] = [participants[j], participants[i]];
@@ -2030,19 +1992,16 @@
                     participants = participants.slice(0, size);
                 }
 
-                // Randomize bracket placement for manual picks too
                 for (let i = participants.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [participants[i], participants[j]] = [participants[j], participants[i]];
                 }
 
-                // Initialize Bracket State
                 Tournament.state.active = true;
                 Tournament.state.currentActiveRound = 0;
                 Tournament.state.viewingRound = 0;
                 Tournament.state.bracketData = [];
 
-                // Create Round 0 Matches
                 const r0 = [];
                 for (let i = 0; i < participants.length; i += 2) {
                     r0.push({
@@ -2054,7 +2013,6 @@
                 }
                 Tournament.state.bracketData.push(r0);
 
-                // Push empty arrays for subsequent rounds
                 for(let i=1; i<numRounds; i++) {
                     Tournament.state.bracketData.push([]);
                 }
@@ -2079,18 +2037,14 @@
                 const activeRoundIdx = Tournament.state.currentActiveRound;
                 const roundInfo = Tournament.config.rounds[vRoundIdx];
 
-                // Update Header Info
                 document.getElementById('tourn-round-name').innerText = roundInfo.name;
                 const typeStr = (Tournament.config.mode === 'sets') ? 'Sets' : 'Legs';
                 document.getElementById('tourn-round-fmt').innerText = `First to ${roundInfo.target} ${typeStr}`;
 
-                // Buttons state
                 document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
                 document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
 
                 bracket.innerHTML = '';
-
-                // Get matches for this viewing round
                 const matches = Tournament.state.bracketData[vRoundIdx];
 
                 if (matches.length === 0) {
@@ -2099,34 +2053,32 @@
                     matches.forEach((m, idx) => {
                         const card = document.createElement('div');
                         card.className = `bracket-match ${m.winner ? 'completed' : ''}`;
+                        card.style.opacity = m.winner ? '0.7' : '1';
                         
                         const p1Name = m.p1 ? m.p1.name : 'TBD';
                         const p2Name = m.p2 ? m.p2.name : 'TBD';
-
-                        // Styling winners
-                        const p1Class = (m.winner === m.p1) ? 'bm-row winner' : (m.winner ? 'bm-row loser' : 'bm-row');
-                        const p2Class = (m.winner === m.p2) ? 'bm-row winner' : (m.winner ? 'bm-row loser' : 'bm-row');
+                        
+                        const wStyle = "color: var(--pdc-gold); font-weight: 900; text-shadow: 0 0 5px rgba(255,204,0,0.2);";
+                        const lStyle = "color: #555; text-decoration: line-through;";
+                        
+                        const s1 = (m.winner === m.p1) ? wStyle : (m.winner ? lStyle : "color:#aaa");
+                        const s2 = (m.winner === m.p2) ? wStyle : (m.winner ? lStyle : "color:#aaa");
 
                         let html = `
-                            <div class="bm-players">
-                                <div class="${p1Class}">
+                            <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+                                <div style="display:flex; justify-content:space-between; ${s1}">
                                     <span>${p1Name}</span>
                                     <span class="bm-score">${m.score ? m.score[0] : 0}</span>
                                 </div>
-                                <div class="${p2Class}">
+                                <div style="display:flex; justify-content:space-between; ${s2}">
                                     <span>${p2Name}</span>
                                     <span class="bm-score">${m.score ? m.score[1] : 0}</span>
                                 </div>
                             </div>
                         `;
 
-                        // Action button only if: viewing current round, match active, players exist
                         if (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2) {
-                            html += `<button class="btn-watch" onclick="Tournament.playMatch(${idx})">WATCH</button>`;
-                        } else if (m.winner) {
-                            html += `<div style="padding:0 15px; color:#666; font-size:12px;">FT</div>`;
-                        } else {
-                            html += `<div style="padding:0 15px; color:#333; font-size:12px;">WAITING</div>`;
+                            html += `<button style="background:var(--pdc-red); color:white; border:none; padding:8px 12px; font-weight:bold; cursor:pointer; border-radius:4px; margin-left:15px;" onclick="Tournament.playMatch(${idx})">PLAY</button>`;
                         }
 
                         card.innerHTML = html;
@@ -2151,7 +2103,6 @@
                     }
                 });
 
-                // Setup App config for this match
                 App.config.event = document.getElementById('tourn-event-name').value + ` - ${roundInfo.name}`;
                 App.config.target = roundInfo.target;
                 App.config.mode = Tournament.config.mode;
@@ -2190,7 +2141,7 @@
                 
                 if (allDone) {
                     if (rIdx === Tournament.config.rounds.length - 1) {
-                        alert(`${matches[0].winner.name} WINS THE TOURNAMENT!`);
+                        alert(`${matches[0].winner.name} WINS!`);
                         location.reload();
                         return;
                     }
@@ -2209,7 +2160,6 @@
                     Tournament.state.currentActiveRound = nextRIdx;
                     Tournament.state.viewingRound = nextRIdx; 
                 }
-                
                 Tournament.renderHub();
             }
         };
@@ -2221,19 +2171,14 @@
             matchState: { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 },
             
             init: () => {
-                // CLEAN AND PREPARE DATABASE
                 const uniquePlayers = [];
                 const seenNames = new Set();
-
                 RAW_PLAYERS.forEach(p => {
                     let name = p.name;
-                    // Fix "Last, First"
                     if (name.includes(',')) {
                         const parts = name.split(',');
                         name = parts[1].trim() + " " + parts[0].trim();
                     }
-                    
-                    // Deduplicate
                     if (!seenNames.has(name)) {
                         seenNames.add(name);
                         uniquePlayers.push({ ...p, name: name });
@@ -2264,7 +2209,7 @@
                 document.getElementById('btn-legs').className = `format-btn ${mode==='legs'?'selected':''}`;
                 
                 document.getElementById('legs-per-set-div').style.display = (mode === 'sets') ? 'block' : 'none';
-                document.getElementById('lbl-target').innerText = (mode === 'sets') ? "First to X Sets" : "First to X Legs";
+                document.getElementById('lbl-target').innerText = (mode === 'sets') ? "Sets" : "Legs";
                 
                 const sel = document.getElementById('inp-target');
                 if (mode === 'legs') {
@@ -2303,7 +2248,7 @@
                 document.getElementById('match-screen').style.display = 'flex';
                 
                 let txt = App.config.event.toUpperCase();
-                if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TIEBREAK)";
+                if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
                 document.getElementById('txt-event-header').innerText = txt;
 
                 const p0 = App.players[0]; const p1 = App.players[1];
@@ -2370,7 +2315,7 @@
                 setTimeout(() => {
                     document.getElementById('overlay-intro').style.display = 'none';
                     App.gameLoop();
-                }, 2000);
+                }, 1500);
             },
 
             trigger180: () => {
@@ -2390,7 +2335,6 @@
 
                 setTimeout(() => {
                     const legs = App.matchState.legs;
-                    // Decider logic for sets mode
                     const isDecider = (App.config.mode === 'sets') 
                         ? (legs[0] === legs[1] && legs[0] === App.config.legsToWinSet - 1)
                         : false; 
@@ -2419,13 +2363,12 @@
                     }
 
                     if (result.endLeg) {
-                        // Pass checkout score (result.points) to handleLegWin
                         App.handleLegWin(pIdx, result.points);
                     } else {
                         App.matchState.currentThrower = 1 - pIdx;
                         App.gameLoop();
                     }
-                }, 800);
+                }, 600); // Speed up slightly for mobile feel
             },
 
             ensureRow: () => {
@@ -2447,7 +2390,7 @@
                     div.innerHTML = `
                         <div class="v-score v-left"></div>
                         <div class="v-arrow" id="al" style="opacity:${pIdx===0?1:0}">▶</div>
-                        <div class="v-round">R${rNum}</div>
+                        <div class="v-round">${rNum}</div>
                         <div class="v-arrow" id="ar" style="opacity:${pIdx===1?1:0}">◀</div>
                         <div class="v-score v-right"></div>
                     `;
@@ -2460,7 +2403,7 @@
                 const overlay = document.getElementById('overlay-shot');
                 
                 if (checkoutScore >= 100) {
-                    overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore} CHECKOUT</div>`;
+                    overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`;
                 } else {
                     overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`;
                 }
@@ -2520,7 +2463,6 @@
                 document.getElementById('avg-p0').innerText = `AVG ${avg0}`;
                 document.getElementById('avg-p1').innerText = `AVG ${avg1}`;
 
-                // DOT UPDATE
                 const starter = App.matchState.starterLeg;
                 document.getElementById('dot-p0').style.display = (starter === 0) ? 'block' : 'none';
                 document.getElementById('dot-p1').style.display = (starter === 1) ? 'block' : 'none';
