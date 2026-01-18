@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Slower Speed)</title>
+    <title>PDC Sim 2026 (UI Update)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -32,11 +32,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
 
-        /* ==================== SETUP SCREEN ==================== */
+        /* ==================== SETUP SCREEN (COMPACT) ==================== */
         #setup-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #1a3c50, #000000);
@@ -45,126 +45,173 @@
         }
 
         .setup-box {
-            background: rgba(14, 42, 58, 0.98); border-radius: 12px;
-            width: 100%; max-width: 500px; max-height: 95vh;
+            background: rgba(14, 42, 58, 0.98); border-radius: 8px;
+            width: 100%; max-width: 500px; max-height: 98vh; /* Taller max height */
             border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; overflow: hidden;
-            transition: max-width 0.3s ease;
         }
 
-        .tabs { display: flex; background: #081b26; border-bottom: 1px solid #333; flex-shrink: 0; }
+        .tabs { display: flex; background: #081b26; border-bottom: 1px solid #333; flex-shrink: 0; min-height: 45px; }
         .tab-btn {
-            flex: 1; padding: 18px; background: transparent; border: none;
-            color: #888; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 16px;
+            flex: 1; padding: 10px; background: transparent; border: none;
+            color: #888; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 14px;
             cursor: pointer; text-transform: uppercase;
         }
         .tab-btn.active { background: rgba(255, 255, 255, 0.05); color: var(--pdc-gold); border-bottom: 3px solid var(--pdc-gold); }
 
-        .tab-content { padding: 20px; display: none; flex-direction: column; gap: 15px; overflow-y: auto; flex: 1; }
+        .tab-content { 
+            padding: 12px; /* Reduced padding */
+            display: none; flex-direction: column; gap: 8px; /* Reduced gap */
+            overflow-y: auto; flex: 1; 
+        }
         .tab-content.active { display: flex; }
 
+        /* COMPACT INPUTS */
         input[type="text"], input[type="number"], select {
-            padding: 12px 15px; font-family: 'Roboto Condensed', sans-serif; font-size: 16px; font-weight: bold;
-            border-radius: 6px; border: 2px solid transparent; background: var(--input-bg); color: #222; outline: none; width: 100%; box-sizing: border-box;
+            padding: 8px 10px; /* Smaller padding */
+            font-family: 'Roboto Condensed', sans-serif; font-size: 14px; font-weight: bold;
+            border-radius: 4px; border: 1px solid #ccc; background: var(--input-bg); color: #222; outline: none; width: 100%; box-sizing: border-box;
         }
         input:focus, select:focus { border-color: var(--pdc-gold); background: #fff; }
 
         .search-dropdown-container { position: relative; width: 100%; }
         .search-results-list {
-            position: absolute; top: 105%; left: 0; width: 100%; max-height: 200px;
-            overflow-y: auto; background: #1a1a1a; border: 1px solid #444; border-radius: 6px;
+            position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px;
+            overflow-y: auto; background: #1a1a1a; border: 1px solid #444; border-radius: 0 0 4px 4px;
             z-index: 1000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        .search-item { padding: 12px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 15px; color: #ddd; }
+        .search-item { padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #ddd; }
         .search-item:hover { background: #333; color: var(--pdc-gold); }
-        .search-item img { width: 24px; height: 16px; object-fit: cover; }
+        .search-item img { width: 20px; height: 14px; object-fit: cover; }
 
-        .format-row { display: flex; gap: 10px; }
+        .format-row { display: flex; gap: 8px; }
         .format-btn {
-            flex: 1; padding: 12px; background: #222; border: 2px solid #444; color: #aaa;
-            font-weight: bold; cursor: pointer; border-radius: 6px; text-align: center; font-size: 15px;
+            flex: 1; padding: 8px; background: #222; border: 1px solid #444; color: #aaa;
+            font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; font-size: 13px;
         }
         .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
 
         .player-selector-box {
             display: none; flex-direction: column; background: #111; border: 1px solid #444; 
-            margin-top: 5px; border-radius: 6px; overflow: hidden; flex: 1; min-height: 250px;
+            margin-top: 5px; border-radius: 4px; overflow: hidden; flex: 1; min-height: 200px;
         }
-        .selector-header { padding: 10px 15px; background: #222; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .selector-header { padding: 8px; background: #222; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .player-list-container { flex: 1; overflow-y: auto; background: #161616; }
-        .player-option { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
+        .player-option { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
         .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
 
-        .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; max-height: 150px; overflow-y: auto; flex-shrink: 0; }
+        .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
 
         .btn-gold, .btn-blue {
-            font-weight: 900; cursor: pointer; margin-top: 15px; padding: 15px;
-            font-size: 18px; text-transform: uppercase; border: none; border-radius: 6px; width: 100%; flex-shrink: 0;
+            font-weight: 900; cursor: pointer; margin-top: 10px; padding: 12px;
+            font-size: 16px; text-transform: uppercase; border: none; border-radius: 4px; width: 100%; flex-shrink: 0;
         }
         .btn-gold { background: var(--pdc-gold); color: #111; }
         .btn-blue { background: #1b4dff; color: white; }
 
-        label { font-weight: bold; font-size: 12px; color: #8fa3ad; text-transform: uppercase; margin-bottom: 4px; display:block; }
-        .checkbox-row { display: flex; align-items: center; margin-top: 10px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px; flex-shrink: 0; border: 1px solid #333; }
-        .checkbox-row input { width: 20px; height: 20px; margin-right: 12px; accent-color: var(--pdc-gold); }
-        .pc-row { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: bold; font-size: 11px; color: #8fa3ad; text-transform: uppercase; margin-bottom: 2px; display:block; }
+        .checkbox-row { display: flex; align-items: center; margin-top: 5px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; flex-shrink: 0; border: 1px solid #333; }
+        .checkbox-row input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--pdc-gold); }
+        .pc-row { display: flex; flex-direction: column; gap: 10px; }
 
-        /* ==================== HUB ==================== */
-        #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 10px; box-sizing: border-box; }
-        .hub-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 10px; flex-shrink: 0; }
-        .hub-title { font-size: 24px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; }
-        .round-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; width: 100%; max-width: 600px; }
-        .nav-btn { background: #333; color: white; border: 1px solid #555; padding: 8px 12px; font-size: 12px; cursor: pointer; font-weight: bold; border-radius: 4px; }
-        .hub-round-info { text-align: center; flex: 1; }
-        .hub-round-name { font-size: 18px; color: white; font-weight: bold; text-transform: uppercase; }
-        .bracket-container { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: 5px; max-width: 800px; margin: 0 auto; width: 100%; flex: 1; }
-        .bracket-match { background: linear-gradient(90deg, #222, #2a2a2a); border-left: 4px solid #444; padding: 8px 12px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; }
-        .bm-row { font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .bm-flag { width: 18px; height: 12px; object-fit: cover; }
-        .bm-name { font-weight: bold; }
-        .bm-avg { font-size: 11px; color: #777; font-family: 'Roboto Condensed'; }
-        .bm-score { font-size: 16px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; }
+        /* ==================== HUB (BRACKET SIDE NAV) ==================== */
+        #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 0; }
+        
+        .hub-header { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #0e2a3a; padding: 15px; flex-shrink: 0; border-bottom: 2px solid #333;
+        }
+        .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
+        .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
+        .hub-round-format { color: #8fa3ad; font-size: 12px; }
 
-        /* ==================== MATCH ==================== */
+        /* BRACKET WRAPPER WITH SIDE BUTTONS */
+        .bracket-wrapper {
+            display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px;
+        }
+        .side-nav-btn {
+            background: #2a2a2a; color: white; border: 1px solid #444;
+            width: 40px; height: 60px; font-size: 20px; font-weight: bold;
+            cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; z-index: 5;
+        }
+        .side-nav-btn:hover { background: #444; }
+        .side-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+        .bracket-container { 
+            flex: 1; display: flex; flex-direction: column; gap: 10px; 
+            overflow-y: auto; height: 100%; padding: 0 5px;
+        }
+        
+        .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .bracket-match.completed { opacity: 0.8; }
+        .bm-content { flex: 1; }
+        .bm-row { font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .bm-row:last-child { margin-bottom: 0; }
+        .bm-flag { width: 20px; height: 14px; object-fit: cover; }
+        .bm-name { font-weight: bold; font-family: 'Roboto Condensed'; }
+        .bm-avg { font-size: 11px; color: #777; font-family: 'Roboto Condensed'; margin-left: 5px;}
+        .bm-score { font-size: 16px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
+        .bm-action { margin-left: 10px; }
+
+        /* ==================== MATCH UI ==================== */
         #match-screen { display: none; flex-direction: column; height: 100%; }
-        .event-bar { height: 40px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; }
-        .event-bar img { height: 20px; }
-        .event-bar span { font-size: 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 70vw; }
-        .scoreboard-header { display: flex; height: 140px; flex-shrink: 0; transition: height 0.3s; }
+        .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; }
+        .event-bar img { height: 18px; }
+        .event-bar span { font-size: 12px; font-weight: bold; color:#ccc; }
+        
+        .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
         .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .name-strip { height: 40px; display: flex; align-items: center; padding: 0 10px; gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; }
+        
+        /* CENTERED HEADER LAYOUT FOR MOBILE */
+        .name-strip { 
+            height: 40px; display: flex; align-items: center; justify-content: center; /* Centered */
+            gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; 
+            padding: 0 5px; position: relative;
+        }
         .score-strip { flex: 1; background: linear-gradient(to bottom, #e4eaf0, #cfd7df); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
         .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
-        .flag { height: 18px; width: 28px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
-        .p-name { font-size: 18px; font-weight: bold; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .p-score { font-size: 55px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -5px; }
-        .p-avg { font-size: 14px; font-weight: bold; margin-top: 5px; color: #333; }
-        .starter-dot { width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; display: none; margin-right: 5px; }
+        
+        .flag { height: 16px; width: 24px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
+        .p-name { 
+            font-size: 16px; font-weight: 900; text-transform: uppercase; color: white; 
+            text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 120px;
+        }
+        .p-score { font-size: 50px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -2px; color: #222; }
+        .p-avg { font-size: 12px; font-weight: bold; margin-top: 2px; color: #333; text-transform:uppercase; }
+        
+        .starter-dot { 
+            width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; 
+            position: absolute; left: 8px; /* Absolute left to not mess up centering */
+            display: none; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
         .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: rgba(0,0,0,0.5); }
         .visit-row { display: grid; grid-template-columns: 1fr 30px 80px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; padding: 0 10px; box-sizing: border-box; }
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
-        .bottom-bar { height: 70px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
         .legs-display { display: grid; grid-template-columns: 1fr 50px 30px 80px 30px 50px 1fr; width: 95%; align-items: center; }
         .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; text-align: center; font-family:'Roboto Condensed'; }
         .sub-score { font-size: 20px; color: white; font-weight: bold; text-align: center; font-family:'Roboto Condensed'; opacity: 0.7; }
         .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; }
 
-        /* POST MATCH */
+        /* POST MATCH STATS */
         #post-match-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0e2a3a; z-index: 110; flex-direction: column; align-items: center; overflow-y: auto; }
-        .stats-header { width: 100%; background: #081b26; padding: 20px; text-align: center; border-bottom: 2px solid var(--pdc-gold); box-sizing: border-box; flex-shrink: 0;}
-        .stats-title { font-size: 24px; color: var(--pdc-gold); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
-        .stats-subtitle { font-size: 14px; color: #ccc; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 120px 1fr; width: 100%; max-width: 600px; padding: 20px 10px; gap: 10px; flex-shrink: 0;}
-        .stat-label { color: #888; font-size: 12px; text-align: center; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .stat-val { font-size: 22px; font-weight: bold; text-align: center; font-family: 'Roboto Condensed'; }
+        .stats-header { width: 100%; background: #081b26; padding: 15px; text-align: center; border-bottom: 2px solid var(--pdc-gold); box-sizing: border-box; flex-shrink: 0;}
+        .stats-title { font-size: 22px; color: var(--pdc-gold); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        .stats-subtitle { font-size: 12px; color: #ccc; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 130px 1fr; width: 100%; max-width: 500px; padding: 15px 10px; gap: 8px; flex-shrink: 0;}
+        .stat-label { color: #888; font-size: 11px; text-align: center; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .stat-val { font-size: 20px; font-weight: bold; text-align: center; font-family: 'Roboto Condensed'; }
         .stat-val.winner { color: var(--pdc-gold); }
         .stat-row { display: contents; }
-        .p-head { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 20px; }
-        .p-head img { width: 40px; height: 26px; border: 1px solid #555; }
-        .p-head span { font-weight: bold; font-size: 18px; text-transform: uppercase; text-align: center;}
+        .p-head { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 15px; }
+        .p-head img { width: 36px; height: 24px; border: 1px solid #555; }
+        .p-head span { font-weight: bold; font-size: 16px; text-transform: uppercase; text-align: center;}
 
         /* OVERLAYS */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
@@ -184,18 +231,18 @@
             .pc-row > div { flex: 1; }
             .game-shot-box, .high-checkout-box { font-size: 60px; width: auto; padding: 20px 60px; }
             .one-eighty-box { font-size: 100px; padding: 20px 80px; }
-            .p-name { font-size: 22px; }
+            .p-name { font-size: 22px; max-width: none; }
             .p-score { font-size: 65px; }
+            .flag { width: 30px; height: 20px; }
+            .bracket-container { max-width: 800px; }
         }
         @media (max-width: 600px) {
             .tourn-config-grid { grid-template-columns: 1fr; max-height: 200px; }
-            .scoreboard-header { height: 135px; } 
-            .p-score { font-size: 42px; margin: 0; line-height: 1.1; }
-            .p-avg { display: block !important; font-size: 13px; color: #000; margin-top: 2px; opacity: 1; }
-            .flag { width: 22px; height: 15px; }
+            /* Mobile Adjustments */
             .legs-display { grid-template-columns: 1fr 40px 30px 80px 30px 40px 1fr; }
             .leg-name { display: none; }
-            .stat-val { font-size: 18px; }
+            .hub-header { padding: 10px; }
+            .hub-title { font-size: 20px; }
         }
         @media (max-height: 500px) and (orientation: landscape) {
             .setup-box { height: 100%; width: 100%; border-radius: 0; max-height: 100%; max-width: 100%; }
@@ -268,7 +315,7 @@
                 </div>
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="inp-tiebreak">
-                    <label for="inp-tiebreak" style="margin:0; color:#ddd; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
+                    <label for="inp-tiebreak" style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by 2)</label>
                 </div>
                 <button class="btn-gold" onclick="App.startMatch()">START MATCH</button>
             </div>
@@ -321,7 +368,7 @@
                 <div class="tourn-config-grid" id="tourn-rounds-container"></div>
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="tourn-tiebreak">
-                    <label for="tourn-tiebreak" style="margin:0; color:#ddd; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
+                    <label for="tourn-tiebreak" style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by 2)</label>
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
             </div>
@@ -332,16 +379,17 @@
     <div id="tournament-hub">
         <div class="hub-header">
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            <div class="round-nav">
-                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt; PREV</button>
-                <div class="hub-round-info">
-                    <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
-                    <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
-                </div>
-                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT &gt;</button>
+            <div class="hub-round-info" style="margin-top:5px;">
+                <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
+                <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
             </div>
         </div>
-        <div class="bracket-container" id="tourn-bracket"></div>
+        
+        <div class="bracket-wrapper">
+            <button class="side-nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">&lt;</button>
+            <div class="bracket-container" id="tourn-bracket"></div>
+            <button class="side-nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">&gt;</button>
+        </div>
     </div>
 
     <!-- MATCH SCREEN -->
@@ -430,6 +478,12 @@
                 <div class="stat-val" id="st-tonplus-0">0</div>
                 <div class="stat-label">100+ Checkouts</div>
                 <div class="stat-val" id="st-tonplus-1">0</div>
+            </div>
+            <!-- Dynamic Legs Won Row will be inserted here if sets -->
+            <div class="stat-row" id="row-legs-won" style="display:none;">
+                <div class="stat-val" id="st-legs-0">0</div>
+                <div class="stat-label">Legs Won</div>
+                <div class="stat-val" id="st-legs-1">0</div>
             </div>
         </div>
 
@@ -1585,6 +1639,7 @@
   "vie":"vn",
   "ken":"ke"
 };
+        
         const FLAG_URL = "https://flagcdn.com/w80/"; 
         let PLAYERS_DB = [];
 
@@ -1821,8 +1876,11 @@
                 document.getElementById('tourn-round-name').innerText = roundInfo.name;
                 const typeStr = (Tournament.config.mode === 'sets') ? 'Sets' : 'Legs';
                 document.getElementById('tourn-round-fmt').innerText = `First to ${roundInfo.target} ${typeStr}`;
+                
+                // Side buttons
                 document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
                 document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
+                
                 bracket.innerHTML = '';
                 const matches = Tournament.state.bracketData[vRoundIdx];
                 
@@ -1836,11 +1894,7 @@
                         const getPHTML = (p, score, avg, isWinner) => {
                             const name = p ? p.name : 'TBD';
                             const flag = p ? getFlagUrl(p.country) : '';
-                            
-                            // IF match is done, use avg from results. IF NOT, display nothing or db avg? 
-                            // User request: "averages should be present after the matches"
                             const avgTxt = (m.winner && avg) ? `(${avg})` : '';
-                            
                             const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
                             
                             return `
@@ -1854,13 +1908,13 @@
                         };
 
                         let html = `
-                            <div style="flex:1;">
+                            <div class="bm-content">
                                 ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}
                                 ${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2)}
                             </div>
                         `;
                         if (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2) {
-                            html += `<button style="background:var(--pdc-red); color:white; border:none; padding:8px 12px; font-weight:bold; cursor:pointer; border-radius:4px; margin-left:10px;" onclick="Tournament.playMatch(${idx})">PLAY</button>`;
+                            html += `<div class="bm-action"><button style="background:var(--pdc-red); color:white; border:none; padding:8px 12px; font-weight:bold; cursor:pointer; border-radius:4px;" onclick="Tournament.playMatch(${idx})">PLAY</button></div>`;
                         }
                         card.innerHTML = html;
                         bracket.appendChild(card);
@@ -1875,7 +1929,6 @@
                 const roundInfo = Tournament.config.rounds[roundIdx];
                 Tournament.activeMatchIdx = matchIdx;
                 
-                // Sim others
                 const matches = Tournament.state.bracketData[roundIdx];
                 matches.forEach((otherM, idx) => {
                     if (idx !== matchIdx && !otherM.winner && otherM.p1 && otherM.p2) { Tournament.fastSim(otherM, roundInfo.target); }
@@ -1894,7 +1947,6 @@
                 while (s1 < target && s2 < target) { if (Math.random() < winProbP1) s1++; else s2++; }
                 match.score = [s1, s2]; 
                 match.winner = (s1 > s2) ? match.p1 : match.p2;
-                // Generate fake averages for simulation
                 match.averages = [
                     (match.p1.avg + (Math.random()*10 - 5)).toFixed(2),
                     (match.p2.avg + (Math.random()*10 - 5)).toFixed(2)
@@ -1906,7 +1958,7 @@
                 const scores = scoreStr.split(' - ').map(Number);
                 m.score = scores; 
                 m.winner = (winnerIdx === 0) ? m.p1 : m.p2;
-                m.averages = avgs; // Store real averages
+                m.averages = avgs; 
                 Tournament.checkRoundComplete();
             },
             checkRoundComplete: () => {
@@ -1945,7 +1997,6 @@
                     if (!document.getElementById('list-p1').parentElement.contains(event.target)) document.getElementById('list-p1').style.display = 'none';
                     if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
                 });
-                // Attach safe listener for post match button here or dynamically
                 document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch);
             },
             renderDropdown: (id) => {
@@ -1990,7 +2041,7 @@
                 const createPlayer = (p) => ({ 
                     ...p, 
                     score: 501, 
-                    stats: { pts: 0, darts: 0, c180: 0, coAtt: 0, coHit: 0, highOut: 0, tonPlus: 0 } 
+                    stats: { pts: 0, darts: 0, c180: 0, coAtt: 0, coHit: 0, highOut: 0, tonPlus: 0, legsWon: 0 } 
                 });
 
                 if (p1Override) {
@@ -2072,6 +2123,16 @@
                 document.getElementById('st-tonplus-0').innerText = p0.stats.tonPlus;
                 document.getElementById('st-tonplus-1').innerText = p1.stats.tonPlus;
 
+                // Show/Hide Legs Won
+                const legsRow = document.getElementById('row-legs-won');
+                if (App.config.mode === 'sets') {
+                    legsRow.style.display = 'contents'; // Keep grid layout
+                    document.getElementById('st-legs-0').innerText = p0.stats.legsWon;
+                    document.getElementById('st-legs-1').innerText = p1.stats.legsWon;
+                } else {
+                    legsRow.style.display = 'none';
+                }
+
                 document.getElementById('post-match-screen').style.display = 'flex';
             },
 
@@ -2083,7 +2144,6 @@
                         ? `${App.matchState.sets[0]} - ${App.matchState.sets[1]}`
                         : `${App.matchState.legs[0]} - ${App.matchState.legs[1]}`;
                     
-                    // Calc averages to pass back
                     const avg0 = App.players[0].stats.darts ? ((App.players[0].stats.pts/App.players[0].stats.darts)*3).toFixed(2) : "0.00";
                     const avg1 = App.players[1].stats.darts ? ((App.players[1].stats.pts/App.players[1].stats.darts)*3).toFixed(2) : "0.00";
                     
@@ -2159,6 +2219,7 @@
             handleLegWin: (idx, checkoutScore) => {
                 const overlay = document.getElementById('overlay-shot');
                 const p = App.players[idx];
+                p.stats.legsWon++; // Count Legs Won
                 if (checkoutScore > p.stats.highOut) p.stats.highOut = checkoutScore;
                 if (checkoutScore >= 100) { p.stats.tonPlus++; overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`; }
                 else { overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`; }
