@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Manual Fix)</title>
+    <title>PDC Sim 2026 (Audio Added)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -188,6 +188,7 @@
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
+        
         .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
         .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
         .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
@@ -731,7 +732,7 @@
 {name: "Denis Schnetzer", country: "ger", avg: 83.00, co: 29.0, fav: 20},
 {name: "Rocco Fulciniti", country: "ita", avg: 83.00, co: 29.0, fav: 20},
 {name: "Andreas Hyllgaardhus", country: "den", avg: 83.00, co: 29.0, fav: 20},
-{name: "Levente Sarai", country: "hun", avg: 83.00, co: 29.0, fav: 20},
+
 {name: "Nandor Major", country: "hun", avg: 83.00, co: 29.0, fav: 20},
 {name: "Nandor Pres", country: "hun", avg: 83.00, co: 29.0, fav: 20},
 {name: "Filip Manak", country: "cze", avg: 83.00, co: 29.0, fav: 20},
@@ -1574,7 +1575,8 @@
   {name: "Kilian, Marciano", country: "eng", avg: 42.05, co: 20.0, fav: 16},
   {name: "Foster, Jamie", country: "eng", avg: 41.89, co: 15.0, fav: 20},
   {name: "Allen, Benjamin", country: "eng", avg: 41.73, co: 15.0, fav: 16},
-  {name: "Bout, Marco", country: "ned", avg: 40.32, co: 15.0, fav: 16},{name: "Kelemen, Peter", country: "hun", avg: 82.53, co: 53.09, fav: 20},
+  {name: "Bout, Marco", country: "ned", avg: 40.32, co: 15.0, fav: 16},
+  {name: "Kelemen, Peter", country: "hun", avg: 82.53, co: 53.09, fav: 20},
 {name: "Jagicza, Gabor", country: "hun", avg: 81.33, co: 34.50, fav: 16},
 {name: "Balogh, Richard", country: "hun", avg: 76.97, co: 21.33, fav: 20},
 {name: "Ancsin, Laszlo", country: "hun", avg: 76.95, co: 26.00, fav: 16},
@@ -1601,7 +1603,7 @@
 {name: "Uveges, Kristof", country: "hun", avg: 59.30, co: 15.0, fav: 20},
 {name: "Haluska, Benedek", country: "hun", avg: 55.67, co: 15.0, fav: 16},
 {name: "Moricz, Istvan", country: "hun", avg: 35.58, co: 15.0, fav: 20},
-
+{name: "Sarai, Levente", country: "hun", avg: 82.28, co: 56.04, fav: 20},
 {name: "Bagi, Janos", country: "hun", avg: 82.28, co: 43.00, fav: 20},
 {name: "Balogh, Bela", country: "hun", avg: 79.97, co: 40.67, fav: 16},
 {name: "Petelen, Andras", country: "hun", avg: 78.45, co: 35.00, fav: 20},
@@ -1624,7 +1626,8 @@
 {name: "Viranyi, Andras", country: "hun", avg: 58.89, co: 15.0, fav: 16},
 {name: "Papp, Gabor", country: "hun", avg: 57.38, co: 29.00, fav: 20},
 {name: "Skornyak, Daniel", country: "hun", avg: 56.88, co: 15.0, fav: 16},
-{name: "Acs, Gergely", country: "hun", avg: 53.80, co: 15.0, fav: 20}
+{name: "Acs, Gergely", country: "hun", avg: 53.80, co: 15.0, fav: 20},
+{name: "Plosz, Adam", country: "hun", avg:45.0, co:20.00, fav:20} 
         ];
 
         // Updated Flag Map with all country codes present in the massive DB
@@ -1694,6 +1697,7 @@
   "ken":"ke"
 };
         const FLAG_URL = "https://flagcdn.com/w80/"; 
+        const SOUND_180 = new Audio('180.mp3');
         let PLAYERS_DB = [];
 
         const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
@@ -2271,6 +2275,7 @@
                 setTimeout(() => { document.getElementById('overlay-intro').style.display = 'none'; App.gameLoop(); }, 1200);
             },
             trigger180: () => {
+                // SOUND_180.play().catch(e=>console.log(e)); // Uncomment if file exists
                 document.getElementById('overlay-180').style.display = 'flex';
                 setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
             },
