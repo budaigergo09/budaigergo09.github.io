@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Layout Fix)</title>
+    <title>PDC Sim 2026 (Manual Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -47,7 +47,7 @@
         .setup-box {
             background: rgba(14, 42, 58, 0.98); border-radius: 8px;
             width: 100%; max-width: 600px; 
-            max-height: 90dvh; /* Dynamic Height for Mobile Bars */
+            max-height: 95dvh; /* Max height to fit screen */
             border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; overflow: hidden;
         }
@@ -63,8 +63,8 @@
         .tab-content { 
             padding: 10px; 
             display: none; flex-direction: column; gap: 8px; 
-            overflow-y: auto; flex: 1; 
-            -webkit-overflow-scrolling: touch;
+            overflow-y: auto; flex: 1; /* Allows inner scrolling */
+            padding-bottom: 20px; /* Space for button at bottom */
         }
         .tab-content.active { display: flex; }
 
@@ -94,20 +94,40 @@
         }
         .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
 
-        /* PLAYER SELECTOR BOX */
+        /* PLAYER SELECTOR BOX - FIXED */
         .player-selector-box {
-            display: none; flex-direction: column; background: #111; border: 1px solid #444; 
-            margin-top: 5px; border-radius: 4px; overflow: hidden;
+            display: none; /* Toggled via JS */
+            flex-direction: column; 
+            background: #111; 
+            border: 1px solid #444; 
+            margin-top: 5px; 
+            border-radius: 4px; 
+            width: 100%;
+            flex-shrink: 0; /* Prevents it from shrinking to 0 height */
         }
-        .selector-header { padding: 8px; background: #222; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .player-list-container { flex: 1; overflow-y: auto; background: #161616; height: 180px; } /* Default PC height */
+        
+        .selector-header { 
+            padding: 8px; background: #222; border-bottom: 1px solid #333; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        
+        .player-list-container { 
+            height: 200px; /* Fixed height to ensure visibility */
+            overflow-y: auto; 
+            background: #161616; 
+            border-top: 1px solid #333;
+        }
+        
         .player-option { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
         .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
 
-        .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
+        .tourn-config-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; 
+            max-height: 120px; overflow-y: auto; flex-shrink: 0; 
+        }
 
         .btn-gold, .btn-blue {
-            font-weight: 900; cursor: pointer; margin-top: 5px; margin-bottom: 10px; padding: 12px;
+            font-weight: 900; cursor: pointer; margin-top: 10px; margin-bottom: 10px; padding: 12px;
             font-size: 16px; text-transform: uppercase; border: none; border-radius: 4px; width: 100%; flex-shrink: 0;
         }
         .btn-gold { background: var(--pdc-gold); color: #111; }
@@ -168,7 +188,6 @@
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
-        
         .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
         .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
         .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
@@ -218,9 +237,6 @@
         }
         @media (max-width: 600px) {
             /* Mobile Specific Fixes */
-            .player-list-container { height: 120px; } /* FORCE SMALLER LIST */
-            .tourn-config-grid { grid-template-columns: 1fr; max-height: 100px; } /* FORCE SMALLER GRID */
-            
             .leg-name { display: none; }
             .bm-name { max-width: 100px; }
         }
@@ -327,6 +343,8 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- MANUAL SELECTION UI (FIXED) -->
                 <div id="manual-selector" class="player-selector-box">
                     <div class="selector-header">
                         <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> / <span id="sel-total">32</span></label>
@@ -337,6 +355,7 @@
                     </div>
                     <div class="player-list-container" id="player-list-container"></div>
                 </div>
+                
                 <div>
                     <label>Format</label>
                     <div class="format-row">
@@ -1624,7 +1643,6 @@
   "vie":"vn",
   "ken":"ke"
 };
-        
         const FLAG_URL = "https://flagcdn.com/w80/"; 
         let PLAYERS_DB = [];
 
@@ -1859,25 +1877,34 @@
                 let targetRound, targetMatchIdx;
 
                 if (direction === -1) {
+                    // Go Back (Prior)
                     if (currentRound === 0) return;
                     targetRound = currentRound - 1;
+                    // Match M in R comes from M*2 and M*2+1 in R-1
                     targetMatchIdx = matchIdx * 2; 
+                    // Highlighting 2 matches is tricky in one go, let's just go to the round and highlight both
                     Tournament.state.viewingRound = targetRound;
                     Tournament.renderHub();
+                    
                     const m1 = document.getElementById(`bm-${targetMatchIdx}`);
                     const m2 = document.getElementById(`bm-${targetMatchIdx+1}`);
                     if(m1) { m1.classList.add('highlight'); m1.scrollIntoView({behavior: "smooth", block: "center"}); }
                     if(m2) { m2.classList.add('highlight'); }
+                    
                     setTimeout(() => { 
                         if(m1) m1.classList.remove('highlight'); 
                         if(m2) m2.classList.remove('highlight'); 
                     }, 2000);
+
                 } else {
+                    // Go Forward (Later)
                     if (currentRound === Tournament.config.rounds.length - 1) return;
                     targetRound = currentRound + 1;
+                    // Match M in R goes to floor(M/2) in R+1
                     targetMatchIdx = Math.floor(matchIdx / 2);
                     Tournament.state.viewingRound = targetRound;
                     Tournament.renderHub();
+                    
                     const m = document.getElementById(`bm-${targetMatchIdx}`);
                     if(m) { 
                         m.classList.add('highlight'); 
