@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Persistent)</title>
+    <title>PDC Sim 2026 (Resume & Sync Fix)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -170,7 +170,7 @@
         .visit-row { display: grid; grid-template-columns: 1fr 30px 80px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; padding: 0 10px; box-sizing: border-box; }
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
-        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
+        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; opacity: 0; transition: opacity 0.1s;}
         .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
         .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
         .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
@@ -498,6 +498,24 @@
     </div>
 
     <script>
+        // ================= WAKE LOCK =================
+        let wakeLock = null;
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock active');
+                } catch (err) {
+                    console.log('Wake Lock Error:', err.message);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+
         // ================= DATA =================
          const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
@@ -1691,7 +1709,6 @@
                 localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
                 
                 if (Tournament.state.active) {
-                    // Fix circular reference if any (safe serialization)
                     const cleanBracket = Tournament.state.bracketData.map(round => 
                         round.map(m => ({
                             p1: m.p1, p2: m.p2, winner: m.winner, score: m.score, averages: m.averages
@@ -1707,7 +1724,6 @@
                     localStorage.setItem('pdc_tourn_config', JSON.stringify(Tournament.config));
                 }
 
-                // Determine active screen
                 let screen = 'setup';
                 if (document.getElementById('match-screen').style.display === 'flex') screen = 'match';
                 else if (document.getElementById('tournament-hub').style.display === 'flex') screen = 'hub';
@@ -1747,7 +1763,6 @@
                     if (screen === 'match') {
                         document.getElementById('match-screen').style.display = 'flex';
                         App.updateScoreboard();
-                        // Re-hydrate match UI components (names, flags)
                         const p0 = App.players[0]; const p1 = App.players[1];
                         document.getElementById('name-p0').innerText = p0.name;
                         document.getElementById('name-p1').innerText = p1.name;
@@ -1757,10 +1772,9 @@
                         document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
                         document.getElementById('txt-event-header').innerText = App.config.event.toUpperCase();
                         
-                        // Restart game loop if mid-leg? No, wait for user input or just let it sit.
-                        // To be safe, we just render state. If in middle of animation, it might be lost, but scores are safe.
+                        // RESUME
+                        App.gameLoop();
                         
-                        // Re-render visit board? (Complex, skipping for simplicity, just show score)
                     } else if (screen === 'hub') {
                         Tournament.renderHub();
                     } else if (screen === 'stats') {
@@ -1993,7 +2007,8 @@
                 Tournament.state.bracketData.push(r0);
                 for(let i=1; i<numRounds; i++) { Tournament.state.bracketData.push([]); }
                 
-                Persistence.save(); // SAVE
+                Persistence.save(); 
+                requestWakeLock(); // Request Wake Lock
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
                 Tournament.renderHub();
@@ -2086,10 +2101,10 @@
                 }
                 hub.style.display = 'flex';
                 document.getElementById('match-screen').style.display = 'none';
-                Persistence.save(); // SAVE
+                Persistence.save(); 
             },
             playMatch: (matchIdx) => {
-                // UNLOCK AUDIO ON FIRST INTERACTION
+                requestWakeLock();
                 SOUND_180.load(); 
 
                 const roundIdx = Tournament.state.currentActiveRound;
@@ -2166,7 +2181,7 @@
                     if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
                 });
                 document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch);
-                Persistence.load(); // LOAD STATE ON INIT
+                Persistence.load(); 
             },
             renderDropdown: (id) => {
                 const list = document.getElementById(`list-${id}`);
@@ -2207,7 +2222,8 @@
                 else { sel.innerHTML = `<option>1</option><option>3</option><option>5</option><option>7</option>`; sel.value = 3; }
             },
             startMatch: (p1Override, p2Override, targetOverride) => {
-                // UNLOCK AUDIO
+                // WAKE LOCK
+                requestWakeLock();
                 SOUND_180.load();
 
                 const createPlayer = (p) => ({ 
@@ -2261,7 +2277,7 @@
                 App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
                 App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
                 App.matchState.starterLeg = App.matchState.starterSet;
-                Persistence.save(); // SAVE
+                Persistence.save(); 
                 App.startLeg();
             },
 
@@ -2306,7 +2322,7 @@
                 }
 
                 document.getElementById('post-match-screen').style.display = 'flex';
-                Persistence.save(); // SAVE
+                Persistence.save();
             },
 
             returnToMenu: () => {
@@ -2342,7 +2358,7 @@
             trigger180: () => {
                 SOUND_180.play().catch(e => console.log("Audio play blocked", e));
                 document.getElementById('overlay-180').style.display = 'flex';
-                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 2500); // Wait longer for audio
+                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 2500); // 2.5s delay
             },
             gameLoop: () => {
                 const pIdx = App.matchState.currentThrower;
@@ -2373,12 +2389,11 @@
                     else { row.querySelector('.v-right').innerText = result.points; row.querySelector('#ar').style.opacity = 0; row.querySelector('#al').style.opacity = 1; }
 
                     App.updateScoreboard();
-                    Persistence.save(); // SAVE STATE EVERY THROW
+                    Persistence.save(); 
 
                     if (result.endLeg) { App.handleLegWin(pIdx, result.points); } 
                     else { 
                         App.matchState.currentThrower = 1 - pIdx; 
-                        // Wait depending on event
                         setTimeout(App.gameLoop, delay); 
                     }
                 }, 1200);
@@ -2431,7 +2446,7 @@
                         App.matchState.starterLeg = 1 - App.matchState.starterLeg;
                     }
                     App.updateScoreboard();
-                    Persistence.save(); // SAVE
+                    Persistence.save();
 
                     if (matchWon) {
                         const winner = App.players[idx];
@@ -2456,6 +2471,11 @@
                 const starter = App.matchState.starterLeg;
                 document.getElementById('dot-p0').style.display = (starter === 0) ? 'block' : 'none';
                 document.getElementById('dot-p1').style.display = (starter === 1) ? 'block' : 'none';
+                
+                const current = App.matchState.currentThrower;
+                document.getElementById('card-p0').className = `player-card ${current === 0 ? 'active' : ''}`;
+                document.getElementById('card-p1').className = `player-card ${current === 1 ? 'active' : ''}`;
+
                 if (App.config.mode === 'sets') {
                     document.getElementById('bot-sets-p0').innerText = App.matchState.sets[0];
                     document.getElementById('bot-sets-p1').innerText = App.matchState.sets[1];
@@ -2467,6 +2487,24 @@
                 }
             }
         };
+
+        // ================= WAKE LOCK =================
+        let wakeLock = null;
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock active');
+                } catch (err) {
+                    console.log('Wake Lock Error:', err.message);
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
 
         App.init();
         App.setMode('sets'); 
