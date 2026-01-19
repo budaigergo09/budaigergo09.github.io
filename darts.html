@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Stable)</title>
+    <title>PDC Sim 2026 (Intro Added)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -151,6 +151,50 @@
         .bm-action { margin-left: 5px; }
         .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 4px 8px; font-size: 10px; font-weight: bold; border-radius: 2px; }
 
+        /* ==================== INTRO SCREEN ==================== */
+        #intro-screen {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200; flex-direction: row; 
+            font-family: 'Roboto Condensed'; overflow: hidden;
+        }
+
+        .intro-side {
+            width: 15%; background: #0000ff; /* Blue */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            gap: 10px;
+        }
+        .intro-side.left { border-right: 2px solid #333; }
+        .intro-side.right { border-left: 2px solid #333; }
+
+        .intro-flag { width: 80%; height: auto; object-fit: contain; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .intro-country { font-weight: bold; font-size: 20px; color: white; text-transform: uppercase; }
+
+        .intro-center {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle, #222, #000);
+            position: relative;
+        }
+
+        .intro-card {
+            background: rgba(14, 42, 58, 0.95);
+            border: 2px solid var(--pdc-gold);
+            padding: 40px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 204, 0, 0.3);
+            border-top: 5px solid var(--pdc-red); /* Red Line Top */
+            animation: pulseCard 3s infinite;
+        }
+
+        .intro-event { color: var(--pdc-gold); font-size: 18px; margin-bottom: 20px; letter-spacing: 2px; font-weight: bold; text-transform: uppercase;}
+        .intro-player-name { font-size: 40px; font-weight: 900; color: white; text-transform: uppercase; line-height: 1; text-shadow: 0 2px 4px black;}
+        .intro-vs { font-size: 40px; color: var(--pdc-gold); font-weight: 900; margin: 15px 0; text-shadow: 0 0 10px var(--pdc-gold); }
+        .intro-gameon { margin-top: 30px; font-size: 14px; letter-spacing: 3px; color: #888; font-weight: bold; }
+
+        @keyframes pulseCard { 0% { box-shadow: 0 0 30px rgba(255,204,0,0.2); } 50% { box-shadow: 0 0 60px rgba(255,204,0,0.5); } 100% { box-shadow: 0 0 30px rgba(255,204,0,0.2); } }
+
+
         /* ==================== MATCH UI ==================== */
         #match-screen { display: none; flex-direction: column; height: 100%; }
         .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; position:relative; }
@@ -200,7 +244,13 @@
         .end-box { background: #222; padding: 30px 20px; text-align: center; border: 1px solid #444; width: 90%; max-width: 400px; box-sizing: border-box;}
         .end-winner { font-size: 32px; color: var(--pdc-gold); font-weight: bold; margin: 15px 0; }
         .end-score { font-size: 40px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-        .game-shot-box, .high-checkout-box { background: #009900; color: white; font-size: 10vw; max-font-size: 60px; font-weight: 900; padding: 20px; width: 80%; border: 2px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; text-align: center; }
+        
+        /* FIXED CSS: Use clamp() for font size */
+        .game-shot-box, .high-checkout-box { 
+            background: #009900; color: white; 
+            font-size: clamp(20px, 10vw, 60px); 
+            font-weight: 900; padding: 20px; width: 80%; border: 2px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; text-align: center; 
+        }
         .high-checkout-box { background: #1b4dff; }
         .one-eighty-box { background: var(--pdc-red); color: white; font-size: 25vw; font-weight: 900; padding: 10px 40px; border: 4px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; transform: rotate(-5deg); box-shadow: 5px 5px 0px rgba(0,0,0,0.5); font-family: 'Roboto Condensed'; }
         @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
@@ -210,7 +260,7 @@
             .setup-box { max-width: 750px; }
             .pc-row { flex-direction: row; gap: 20px; }
             .pc-row > div { flex: 1; }
-            .game-shot-box, .high-checkout-box { font-size: 60px; width: auto; padding: 20px 60px; }
+            .game-shot-box, .high-checkout-box { width: auto; padding: 20px 60px; }
             .one-eighty-box { font-size: 100px; padding: 20px 80px; }
             .p-name { font-size: 22px; max-width: none; }
             .p-score { font-size: 65px; }
@@ -222,6 +272,8 @@
             .tourn-config-grid { grid-template-columns: 1fr; max-height: 150px; }
             .leg-name { display: none; }
             .bm-name { max-width: 100px; }
+            .intro-player-name { font-size: 28px; } /* Smaller font for mobile intro */
+            .intro-vs { font-size: 30px; }
         }
         @media (max-height: 500px) and (orientation: landscape) {
             .setup-box { height: 100%; width: 100%; border-radius: 0; max-height: 100%; max-width: 100%; }
@@ -351,6 +403,27 @@
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
             </div>
+        </div>
+    </div>
+
+    <!-- INTRO SCREEN -->
+    <div id="intro-screen">
+        <div class="intro-side left">
+            <img class="intro-flag" id="intro-p1-flag" src="" alt="">
+            <div class="intro-country" id="intro-p1-country">ENG</div>
+        </div>
+        <div class="intro-center">
+            <div class="intro-card">
+                <div class="intro-event" id="intro-event-name">TOURNAMENT - FINAL</div>
+                <div class="intro-player-name" id="intro-p1-name">PLAYER 1</div>
+                <div class="intro-vs">VS</div>
+                <div class="intro-player-name" id="intro-p2-name">PLAYER 2</div>
+                <div class="intro-gameon">GAME ON</div>
+            </div>
+        </div>
+        <div class="intro-side right">
+            <img class="intro-flag" id="intro-p2-flag" src="" alt="">
+            <div class="intro-country" id="intro-p2-country">NED</div>
         </div>
     </div>
 
@@ -517,7 +590,7 @@
         });
 
         // ================= DATA =================
-        const RAW_PLAYERS = [
+         const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
@@ -1695,8 +1768,10 @@
   "vie":"vn",
   "ken":"ke"
 };
+        
         const FLAG_URL = "https://flagcdn.com/w80/"; 
         const SOUND_180 = new Audio('180.mp3');
+        const SOUND_INTRO = new Audio('intro.mp3');
         let PLAYERS_DB = [];
 
         const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
@@ -2105,7 +2180,8 @@
             },
             playMatch: (matchIdx) => {
                 requestWakeLock();
-                SOUND_180.load(); 
+                SOUND_180.load();
+                SOUND_INTRO.load();
 
                 const roundIdx = Tournament.state.currentActiveRound;
                 const m = Tournament.state.bracketData[roundIdx][matchIdx];
@@ -2225,6 +2301,7 @@
                 // WAKE LOCK
                 requestWakeLock();
                 SOUND_180.load();
+                SOUND_INTRO.load();
 
                 const createPlayer = (p) => ({ 
                     ...p, 
@@ -2248,37 +2325,81 @@
                 App.config.legsToWinSet = Math.ceil(App.config.setLegs / 2);
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tournament-hub').style.display = 'none';
-                document.getElementById('match-screen').style.display = 'flex';
-                let txt = App.config.event.toUpperCase();
-                if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
-                document.getElementById('txt-event-header').innerText = txt;
+                
+                // === INTRO SEQUENCE START ===
+                App.playIntroSequence();
+                // ============================
+            },
 
-                const p0 = App.players[0]; const p1 = App.players[1];
-                document.getElementById('name-p0').innerText = p0.name;
-                document.getElementById('name-p1').innerText = p1.name;
-                document.getElementById('flag-p0').src = getFlagUrl(p0.country);
-                document.getElementById('flag-p1').src = getFlagUrl(p1.country);
-                document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
-                document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
+            playIntroSequence: () => {
+                const p0 = App.players[0];
+                const p1 = App.players[1];
+                
+                // Populate Intro UI
+                document.getElementById('intro-event-name').innerText = App.config.event;
+                document.getElementById('intro-p1-name').innerText = p0.name;
+                document.getElementById('intro-p1-flag').src = getFlagUrl(p0.country);
+                document.getElementById('intro-p1-country').innerText = p0.country.toUpperCase();
+                document.getElementById('intro-p2-name').innerText = p1.name;
+                document.getElementById('intro-p2-flag').src = getFlagUrl(p1.country);
+                document.getElementById('intro-p2-country').innerText = p1.country.toUpperCase();
 
-                if (App.config.mode === 'legs') {
-                    document.getElementById('lbl-score-type').innerHTML = "LEGS";
-                    document.getElementById('bot-sets-p0').style.display = "none";
-                    document.getElementById('bot-sets-p1').style.display = "none";
-                    document.getElementById('bot-legs-p0').className = "main-score";
-                    document.getElementById('bot-legs-p1').className = "main-score";
-                } else {
-                    document.getElementById('lbl-score-type').innerHTML = "SETS";
-                    document.getElementById('bot-sets-p0').style.display = "block";
-                    document.getElementById('bot-sets-p1').style.display = "block";
-                    document.getElementById('bot-legs-p0').className = "sub-score";
-                    document.getElementById('bot-legs-p1').className = "sub-score";
-                }
-                App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
-                App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
-                App.matchState.starterLeg = App.matchState.starterSet;
-                Persistence.save(); 
-                App.startLeg();
+                // Show Intro
+                const introScreen = document.getElementById('intro-screen');
+                introScreen.style.display = 'flex';
+                
+                // Play Audio
+                SOUND_INTRO.currentTime = 0;
+                SOUND_INTRO.play().catch(e => console.log("Intro audio blocked", e));
+
+                // Wait 5 seconds then start match
+                setTimeout(() => {
+                    introScreen.style.transition = 'opacity 1s';
+                    introScreen.style.opacity = 0;
+                    setTimeout(() => {
+                        introScreen.style.display = 'none';
+                        introScreen.style.opacity = 1; // reset for next time
+                        
+                        // Stop Audio
+                        SOUND_INTRO.pause();
+                        SOUND_INTRO.currentTime = 0;
+
+                        // Show Match Screen
+                        document.getElementById('match-screen').style.display = 'flex';
+                        
+                        // Init Match UI
+                        let txt = App.config.event.toUpperCase();
+                        if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
+                        document.getElementById('txt-event-header').innerText = txt;
+
+                        document.getElementById('name-p0').innerText = p0.name;
+                        document.getElementById('name-p1').innerText = p1.name;
+                        document.getElementById('flag-p0').src = getFlagUrl(p0.country);
+                        document.getElementById('flag-p1').src = getFlagUrl(p1.country);
+                        document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
+                        document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
+
+                        if (App.config.mode === 'legs') {
+                            document.getElementById('lbl-score-type').innerHTML = "LEGS";
+                            document.getElementById('bot-sets-p0').style.display = "none";
+                            document.getElementById('bot-sets-p1').style.display = "none";
+                            document.getElementById('bot-legs-p0').className = "main-score";
+                            document.getElementById('bot-legs-p1').className = "main-score";
+                        } else {
+                            document.getElementById('lbl-score-type').innerHTML = "SETS";
+                            document.getElementById('bot-sets-p0').style.display = "block";
+                            document.getElementById('bot-sets-p1').style.display = "block";
+                            document.getElementById('bot-legs-p0').className = "sub-score";
+                            document.getElementById('bot-legs-p1').className = "sub-score";
+                        }
+                        
+                        App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
+                        App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
+                        App.matchState.starterLeg = App.matchState.starterSet;
+                        Persistence.save(); 
+                        App.startLeg();
+                    }, 1000);
+                }, 5000);
             },
 
             showPostMatch: () => {
@@ -2446,7 +2567,7 @@
             handleLegWin: (idx, checkoutScore) => {
                 const overlay = document.getElementById('overlay-shot');
                 const p = App.players[idx];
-                p.stats.legsWon++; 
+                p.stats.legsWon++; // Count Legs Won
                 if (checkoutScore > p.stats.highOut) p.stats.highOut = checkoutScore;
                 if (checkoutScore >= 100) { p.stats.tonPlus++; overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`; }
                 else { overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`; }
