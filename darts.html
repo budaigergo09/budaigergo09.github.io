@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Audio Added)</title>
+    <title>PDC Sim 2026 (Persistent)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -47,7 +47,7 @@
         .setup-box {
             background: rgba(14, 42, 58, 0.98); border-radius: 8px;
             width: 100%; max-width: 600px; 
-            max-height: 95dvh; /* Max height to fit screen */
+            max-height: 90dvh; 
             border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             display: flex; flex-direction: column; overflow: hidden;
         }
@@ -63,8 +63,8 @@
         .tab-content { 
             padding: 10px; 
             display: none; flex-direction: column; gap: 8px; 
-            overflow-y: auto; flex: 1; /* Allows inner scrolling */
-            padding-bottom: 20px; /* Space for button at bottom */
+            overflow-y: auto; flex: 1; 
+            -webkit-overflow-scrolling: touch;
         }
         .tab-content.active { display: flex; }
 
@@ -94,37 +94,16 @@
         }
         .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
 
-        /* PLAYER SELECTOR BOX - FIXED */
         .player-selector-box {
-            display: none; /* Toggled via JS */
-            flex-direction: column; 
-            background: #111; 
-            border: 1px solid #444; 
-            margin-top: 5px; 
-            border-radius: 4px; 
-            width: 100%;
-            flex-shrink: 0; /* Prevents it from shrinking to 0 height */
+            display: none; flex-direction: column; background: #111; border: 1px solid #444; 
+            margin-top: 5px; border-radius: 4px; overflow: hidden; flex-shrink: 0;
         }
-        
-        .selector-header { 
-            padding: 8px; background: #222; border-bottom: 1px solid #333; 
-            display: flex; justify-content: space-between; align-items: center; 
-        }
-        
-        .player-list-container { 
-            height: 200px; /* Fixed height to ensure visibility */
-            overflow-y: auto; 
-            background: #161616; 
-            border-top: 1px solid #333;
-        }
-        
+        .selector-header { padding: 8px; background: #222; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .player-list-container { height: 200px; overflow-y: auto; background: #161616; border-top: 1px solid #333; }
         .player-option { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #2a2a2a; cursor: pointer; }
         .player-option.selected { background: #0e2a3a; color: var(--pdc-gold); }
 
-        .tourn-config-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; 
-            max-height: 120px; overflow-y: auto; flex-shrink: 0; 
-        }
+        .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
 
         .btn-gold, .btn-blue {
             font-weight: 900; cursor: pointer; margin-top: 10px; margin-bottom: 10px; padding: 12px;
@@ -140,12 +119,16 @@
 
         /* ==================== HUB ==================== */
         #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 0; }
-        .hub-header { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333; }
+        .hub-header { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333; position: relative;}
         .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
         .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; }
         .nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; padding: 5px 15px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; }
         .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
         .hub-round-format { color: #8fa3ad; font-size: 12px; }
+
+        .btn-exit-small {
+            position: absolute; top: 10px; right: 10px; background: #9a0000; color: white; border: none; font-size: 10px; padding: 4px 8px; cursor: pointer; border-radius: 4px;
+        }
 
         .bracket-wrapper { display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
         .side-nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; width: 40px; height: 60px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 5; }
@@ -170,7 +153,7 @@
 
         /* ==================== MATCH UI ==================== */
         #match-screen { display: none; flex-direction: column; height: 100%; }
-        .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; }
+        .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; position:relative; }
         .event-bar img { height: 18px; }
         .event-bar span { font-size: 12px; font-weight: bold; color:#ccc; }
         .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
@@ -188,7 +171,6 @@
         .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
         .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
         .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; }
-        
         .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
         .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
         .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
@@ -237,7 +219,7 @@
             .leg-name { display: block; }
         }
         @media (max-width: 600px) {
-            /* Mobile Specific Fixes */
+            .tourn-config-grid { grid-template-columns: 1fr; max-height: 150px; }
             .leg-name { display: none; }
             .bm-name { max-width: 100px; }
         }
@@ -344,8 +326,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- MANUAL SELECTION UI (FIXED) -->
                 <div id="manual-selector" class="player-selector-box">
                     <div class="selector-header">
                         <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> / <span id="sel-total">32</span></label>
@@ -356,7 +336,6 @@
                     </div>
                     <div class="player-list-container" id="player-list-container"></div>
                 </div>
-                
                 <div>
                     <label>Format</label>
                     <div class="format-row">
@@ -378,6 +357,7 @@
     <!-- TOURNAMENT HUB -->
     <div id="tournament-hub">
         <div class="hub-header">
+            <button class="btn-exit-small" onclick="Persistence.clear()">RESET</button>
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
             <div class="round-nav">
                 <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">PREV STAGE</button>
@@ -397,6 +377,7 @@
     <!-- MATCH SCREEN -->
     <div id="match-screen">
         <div class="event-bar">
+            <button class="btn-exit-small" style="position: absolute; left: 10px; top: 5px; right:auto;" onclick="Persistence.clear()">EXIT</button>
             <img src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
             <span id="txt-event-header">EVENT NAME</span>
         </div>
@@ -1702,6 +1683,102 @@
 
         const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
 
+        // ================= PERSISTENCE =================
+        const Persistence = {
+            save: () => {
+                if (App.players.length > 0) localStorage.setItem('pdc_players', JSON.stringify(App.players));
+                localStorage.setItem('pdc_match_state', JSON.stringify(App.matchState));
+                localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
+                
+                if (Tournament.state.active) {
+                    // Fix circular reference if any (safe serialization)
+                    const cleanBracket = Tournament.state.bracketData.map(round => 
+                        round.map(m => ({
+                            p1: m.p1, p2: m.p2, winner: m.winner, score: m.score, averages: m.averages
+                        }))
+                    );
+                    localStorage.setItem('pdc_tourn_state', JSON.stringify({
+                        active: true,
+                        bracketData: cleanBracket,
+                        currentActiveRound: Tournament.state.currentActiveRound,
+                        viewingRound: Tournament.state.viewingRound,
+                        selectedPlayerIndices: Array.from(Tournament.state.selectedPlayerIndices)
+                    }));
+                    localStorage.setItem('pdc_tourn_config', JSON.stringify(Tournament.config));
+                }
+
+                // Determine active screen
+                let screen = 'setup';
+                if (document.getElementById('match-screen').style.display === 'flex') screen = 'match';
+                else if (document.getElementById('tournament-hub').style.display === 'flex') screen = 'hub';
+                else if (document.getElementById('post-match-screen').style.display === 'flex') screen = 'stats';
+                localStorage.setItem('pdc_active_screen', screen);
+            },
+
+            load: () => {
+                try {
+                    const screen = localStorage.getItem('pdc_active_screen');
+                    if (!screen || screen === 'setup') return;
+
+                    const pData = localStorage.getItem('pdc_players');
+                    if (pData) App.players = JSON.parse(pData);
+
+                    const mData = localStorage.getItem('pdc_match_state');
+                    if (mData) App.matchState = JSON.parse(mData);
+
+                    const cData = localStorage.getItem('pdc_app_config');
+                    if (cData) App.config = JSON.parse(cData);
+
+                    const tState = localStorage.getItem('pdc_tourn_state');
+                    if (tState) {
+                        const parsed = JSON.parse(tState);
+                        Tournament.state.active = parsed.active;
+                        Tournament.state.bracketData = parsed.bracketData;
+                        Tournament.state.currentActiveRound = parsed.currentActiveRound;
+                        Tournament.state.viewingRound = parsed.viewingRound;
+                        Tournament.state.selectedPlayerIndices = new Set(parsed.selectedPlayerIndices);
+                    }
+
+                    const tConfig = localStorage.getItem('pdc_tourn_config');
+                    if (tConfig) Tournament.config = JSON.parse(tConfig);
+
+                    document.getElementById('setup-screen').style.display = 'none';
+
+                    if (screen === 'match') {
+                        document.getElementById('match-screen').style.display = 'flex';
+                        App.updateScoreboard();
+                        // Re-hydrate match UI components (names, flags)
+                        const p0 = App.players[0]; const p1 = App.players[1];
+                        document.getElementById('name-p0').innerText = p0.name;
+                        document.getElementById('name-p1').innerText = p1.name;
+                        document.getElementById('flag-p0').src = getFlagUrl(p0.country);
+                        document.getElementById('flag-p1').src = getFlagUrl(p1.country);
+                        document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
+                        document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
+                        document.getElementById('txt-event-header').innerText = App.config.event.toUpperCase();
+                        
+                        // Restart game loop if mid-leg? No, wait for user input or just let it sit.
+                        // To be safe, we just render state. If in middle of animation, it might be lost, but scores are safe.
+                        
+                        // Re-render visit board? (Complex, skipping for simplicity, just show score)
+                    } else if (screen === 'hub') {
+                        Tournament.renderHub();
+                    } else if (screen === 'stats') {
+                        App.showPostMatch();
+                    }
+
+                } catch (e) {
+                    console.error("Load failed", e);
+                    Persistence.clear();
+                }
+            },
+
+            clear: () => {
+                localStorage.clear();
+                location.reload();
+            }
+        };
+
         const Engine = {
             getScoringHit: (playerAvg, rhythmBonus, isFinishAttempt) => {
                 let effAvg = playerAvg + (rhythmBonus * 2);
@@ -1916,6 +1993,7 @@
                 Tournament.state.bracketData.push(r0);
                 for(let i=1; i<numRounds; i++) { Tournament.state.bracketData.push([]); }
                 
+                Persistence.save(); // SAVE
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
                 Tournament.renderHub();
@@ -1925,46 +2003,24 @@
                 if (next >= 0 && next < Tournament.config.rounds.length) { Tournament.state.viewingRound = next; Tournament.renderHub(); }
             },
             
-            // TRACING LOGIC
             traceMatch: (direction, matchIdx) => {
                 const currentRound = Tournament.state.viewingRound;
                 let targetRound, targetMatchIdx;
-
                 if (direction === -1) {
-                    // Go Back (Prior)
                     if (currentRound === 0) return;
-                    targetRound = currentRound - 1;
-                    // Match M in R comes from M*2 and M*2+1 in R-1
-                    targetMatchIdx = matchIdx * 2; 
-                    // Highlighting 2 matches is tricky in one go, let's just go to the round and highlight both
-                    Tournament.state.viewingRound = targetRound;
-                    Tournament.renderHub();
-                    
+                    targetRound = currentRound - 1; targetMatchIdx = matchIdx * 2; 
+                    Tournament.state.viewingRound = targetRound; Tournament.renderHub();
                     const m1 = document.getElementById(`bm-${targetMatchIdx}`);
                     const m2 = document.getElementById(`bm-${targetMatchIdx+1}`);
                     if(m1) { m1.classList.add('highlight'); m1.scrollIntoView({behavior: "smooth", block: "center"}); }
                     if(m2) { m2.classList.add('highlight'); }
-                    
-                    setTimeout(() => { 
-                        if(m1) m1.classList.remove('highlight'); 
-                        if(m2) m2.classList.remove('highlight'); 
-                    }, 2000);
-
+                    setTimeout(() => { if(m1) m1.classList.remove('highlight'); if(m2) m2.classList.remove('highlight'); }, 2000);
                 } else {
-                    // Go Forward (Later)
                     if (currentRound === Tournament.config.rounds.length - 1) return;
-                    targetRound = currentRound + 1;
-                    // Match M in R goes to floor(M/2) in R+1
-                    targetMatchIdx = Math.floor(matchIdx / 2);
-                    Tournament.state.viewingRound = targetRound;
-                    Tournament.renderHub();
-                    
+                    targetRound = currentRound + 1; targetMatchIdx = Math.floor(matchIdx / 2);
+                    Tournament.state.viewingRound = targetRound; Tournament.renderHub();
                     const m = document.getElementById(`bm-${targetMatchIdx}`);
-                    if(m) { 
-                        m.classList.add('highlight'); 
-                        m.scrollIntoView({behavior: "smooth", block: "center"});
-                        setTimeout(() => m.classList.remove('highlight'), 2000);
-                    }
+                    if(m) { m.classList.add('highlight'); m.scrollIntoView({behavior: "smooth", block: "center"}); setTimeout(() => m.classList.remove('highlight'), 2000); }
                 }
             },
 
@@ -2030,8 +2086,12 @@
                 }
                 hub.style.display = 'flex';
                 document.getElementById('match-screen').style.display = 'none';
+                Persistence.save(); // SAVE
             },
             playMatch: (matchIdx) => {
+                // UNLOCK AUDIO ON FIRST INTERACTION
+                SOUND_180.load(); 
+
                 const roundIdx = Tournament.state.currentActiveRound;
                 const m = Tournament.state.bracketData[roundIdx][matchIdx];
                 const roundInfo = Tournament.config.rounds[roundIdx];
@@ -2073,7 +2133,7 @@
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
                 if (matches.every(m => m.winner)) {
-                    if (rIdx === Tournament.config.rounds.length - 1) { alert(`${matches[0].winner.name} WINS!`); location.reload(); return; }
+                    if (rIdx === Tournament.config.rounds.length - 1) { alert(`${matches[0].winner.name} WINS!`); Persistence.clear(); return; }
                     const nextRIdx = rIdx + 1; const nextMatches = [];
                     for(let i=0; i<matches.length; i+=2) { nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); }
                     Tournament.state.bracketData[nextRIdx] = nextMatches;
@@ -2106,6 +2166,7 @@
                     if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
                 });
                 document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch);
+                Persistence.load(); // LOAD STATE ON INIT
             },
             renderDropdown: (id) => {
                 const list = document.getElementById(`list-${id}`);
@@ -2146,6 +2207,9 @@
                 else { sel.innerHTML = `<option>1</option><option>3</option><option>5</option><option>7</option>`; sel.value = 3; }
             },
             startMatch: (p1Override, p2Override, targetOverride) => {
+                // UNLOCK AUDIO
+                SOUND_180.load();
+
                 const createPlayer = (p) => ({ 
                     ...p, 
                     score: 501, 
@@ -2197,6 +2261,7 @@
                 App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
                 App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
                 App.matchState.starterLeg = App.matchState.starterSet;
+                Persistence.save(); // SAVE
                 App.startLeg();
             },
 
@@ -2231,7 +2296,6 @@
                 document.getElementById('st-tonplus-0').innerText = p0.stats.tonPlus;
                 document.getElementById('st-tonplus-1').innerText = p1.stats.tonPlus;
 
-                // Show/Hide Legs Won
                 const legsRow = document.getElementById('row-legs-won');
                 if (App.config.mode === 'sets') {
                     legsRow.style.display = 'contents';
@@ -2242,6 +2306,7 @@
                 }
 
                 document.getElementById('post-match-screen').style.display = 'flex';
+                Persistence.save(); // SAVE
             },
 
             returnToMenu: () => {
@@ -2257,7 +2322,7 @@
                     
                     Tournament.onMatchFinished(winnerIdx, scoreStr, [avg0, avg1]);
                 } else {
-                    location.reload();
+                    Persistence.clear();
                 }
             },
 
@@ -2275,9 +2340,9 @@
                 setTimeout(() => { document.getElementById('overlay-intro').style.display = 'none'; App.gameLoop(); }, 1200);
             },
             trigger180: () => {
-                SOUND_180.play().catch(e=>console.log(e)); // Uncomment if file exists
+                SOUND_180.play().catch(e => console.log("Audio play blocked", e));
                 document.getElementById('overlay-180').style.display = 'flex';
-                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
+                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 2500); // Wait longer for audio
             },
             gameLoop: () => {
                 const pIdx = App.matchState.currentThrower;
@@ -2294,7 +2359,13 @@
                     p.stats.pts += result.points;
                     p.stats.darts += result.dartsThrown;
 
-                    if (result.points === 180) { p.stats.c180++; App.trigger180(); }
+                    let delay = 1200;
+
+                    if (result.points === 180) { 
+                        p.stats.c180++; 
+                        App.trigger180(); 
+                        delay = 3000; // Pause longer for 180
+                    }
 
                     const rows = document.getElementById('visit-container').children;
                     const row = rows[rows.length-1];
@@ -2302,9 +2373,14 @@
                     else { row.querySelector('.v-right').innerText = result.points; row.querySelector('#ar').style.opacity = 0; row.querySelector('#al').style.opacity = 1; }
 
                     App.updateScoreboard();
+                    Persistence.save(); // SAVE STATE EVERY THROW
 
                     if (result.endLeg) { App.handleLegWin(pIdx, result.points); } 
-                    else { App.matchState.currentThrower = 1 - pIdx; App.gameLoop(); }
+                    else { 
+                        App.matchState.currentThrower = 1 - pIdx; 
+                        // Wait depending on event
+                        setTimeout(App.gameLoop, delay); 
+                    }
                 }, 1200);
             },
             ensureRow: () => {
@@ -2328,7 +2404,7 @@
             handleLegWin: (idx, checkoutScore) => {
                 const overlay = document.getElementById('overlay-shot');
                 const p = App.players[idx];
-                p.stats.legsWon++; // Count Legs Won
+                p.stats.legsWon++; 
                 if (checkoutScore > p.stats.highOut) p.stats.highOut = checkoutScore;
                 if (checkoutScore >= 100) { p.stats.tonPlus++; overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`; }
                 else { overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`; }
@@ -2355,6 +2431,8 @@
                         App.matchState.starterLeg = 1 - App.matchState.starterLeg;
                     }
                     App.updateScoreboard();
+                    Persistence.save(); // SAVE
+
                     if (matchWon) {
                         const winner = App.players[idx];
                         document.getElementById('end-winner-name').innerText = winner.name;
