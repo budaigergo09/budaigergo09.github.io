@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Pro Intro)</title>
+    <title>PDC Sim 2026 (Intro Fixed)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -151,67 +151,7 @@
         .bm-action { margin-left: 5px; }
         .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 4px 8px; font-size: 10px; font-weight: bold; border-radius: 2px; }
 
-        /* ==================== MATCH UI ==================== */
-        #match-screen { display: none; flex-direction: column; height: 100%; }
-        .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; position:relative; }
-        .event-bar img { height: 18px; }
-        .event-bar span { font-size: 12px; font-weight: bold; color:#ccc; }
-        .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
-        .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .name-strip { height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; padding: 0 5px; position: relative; }
-        .score-strip { flex: 1; background: linear-gradient(to bottom, #e4eaf0, #cfd7df); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
-        .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
-        .flag { height: 16px; width: 24px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
-        .p-name { font-size: 16px; font-weight: 900; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-        .p-score { font-size: 50px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -2px; color: #222; }
-        .p-avg { font-size: 12px; font-weight: bold; margin-top: 2px; color: #333; text-transform:uppercase; }
-        .starter-dot { width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; position: absolute; left: 8px; display: none; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: rgba(0,0,0,0.5); }
-        .visit-row { display: grid; grid-template-columns: 1fr 30px 80px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; padding: 0 10px; box-sizing: border-box; }
-        .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
-        .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
-        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; opacity: 0; transition: opacity 0.1s;}
-        .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
-        .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
-        .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
-        .score-box-right { flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 15px;}
-        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
-        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; font-family:'Roboto Condensed'; min-width: 25px; text-align: center;}
-        .sub-score { font-size: 20px; color: white; font-weight: bold; font-family:'Roboto Condensed'; opacity: 0.7; min-width: 20px; text-align: center;}
-        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; width: 40px; }
-
-        /* POST MATCH STATS */
-        #post-match-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0e2a3a; z-index: 110; flex-direction: column; align-items: center; overflow-y: auto; }
-        .stats-header { width: 100%; background: #081b26; padding: 15px; text-align: center; border-bottom: 2px solid var(--pdc-gold); box-sizing: border-box; flex-shrink: 0;}
-        .stats-title { font-size: 22px; color: var(--pdc-gold); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
-        .stats-subtitle { font-size: 12px; color: #ccc; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 130px 1fr; width: 100%; max-width: 500px; padding: 15px 10px; gap: 8px; flex-shrink: 0;}
-        .stat-label { color: #888; font-size: 11px; text-align: center; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        .stat-val { font-size: 20px; font-weight: bold; text-align: center; font-family: 'Roboto Condensed'; }
-        .stat-val.winner { color: var(--pdc-gold); }
-        .stat-row { display: contents; }
-        .p-head { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 15px; }
-        .p-head img { width: 36px; height: 24px; border: 1px solid #555; }
-        .p-head span { font-weight: bold; font-size: 16px; text-transform: uppercase; text-align: center;}
-
-        /* OVERLAYS */
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
-        .intro-box { background: #b00000; color: white; text-align: center; padding: 20px; border: 2px solid white; width: 80%; max-width: 300px; }
-        .end-box { background: #222; padding: 30px 20px; text-align: center; border: 1px solid #444; width: 90%; max-width: 400px; box-sizing: border-box;}
-        .end-winner { font-size: 32px; color: var(--pdc-gold); font-weight: bold; margin: 15px 0; }
-        .end-score { font-size: 40px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
-        
-        /* FIXED CSS: Use clamp() for font size */
-        .game-shot-box, .high-checkout-box { 
-            background: #009900; color: white; 
-            font-size: clamp(20px, 10vw, 60px); 
-            font-weight: 900; padding: 20px; width: 80%; border: 2px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; text-align: center; 
-        }
-        .high-checkout-box { background: #1b4dff; }
-        .one-eighty-box { background: var(--pdc-red); color: white; font-size: 25vw; font-weight: 900; padding: 10px 40px; border: 4px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; transform: rotate(-5deg); box-shadow: 5px 5px 0px rgba(0,0,0,0.5); font-family: 'Roboto Condensed'; }
-        @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
-
-        /* === PRO INTRO STYLES (SKY SPORTS) === */
+        /* ==================== INTRO SCREEN ==================== */
         #clean-intro {
           position: fixed; inset: 0; z-index: 999999; display: none; /* Toggled by JS */
           background: linear-gradient(135deg, #081a2f 0%, #000814 70%);
@@ -275,6 +215,66 @@
           transform: rotate(-15deg); animation: dartThrow 3s ease-out forwards; pointer-events: none; z-index: 0;
         }
         @keyframes dartThrow { 0% { transform: translateX(0) rotate(-20deg); opacity: 0; } 20% { opacity: .35; } 100% { transform: translateX(150vw) rotate(5deg); opacity: 0; } }
+
+        /* ==================== MATCH UI ==================== */
+        #match-screen { display: none; flex-direction: column; height: 100%; }
+        .event-bar { height: 36px; background: #111; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid #444; flex-shrink: 0; position:relative; }
+        .event-bar img { height: 18px; }
+        .event-bar span { font-size: 12px; font-weight: bold; color:#ccc; }
+        .scoreboard-header { display: flex; height: 130px; flex-shrink: 0; }
+        .player-card { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .name-strip { height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(to bottom, #4c6478, #2f4254); border-bottom: 1px solid #000; padding: 0 5px; position: relative; }
+        .score-strip { flex: 1; background: linear-gradient(to bottom, #e4eaf0, #cfd7df); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; }
+        .player-card.active .name-strip { background: linear-gradient(to bottom, #e00000, #9a0000); }
+        .flag { height: 16px; width: 24px; object-fit: cover; border: 1px solid rgba(0,0,0,0.3); flex-shrink: 0; }
+        .p-name { font-size: 16px; font-weight: 900; text-transform: uppercase; color: white; text-shadow: 1px 1px 2px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+        .p-score { font-size: 50px; font-family: 'Roboto', sans-serif; font-weight: 900; line-height: 1; margin-bottom: -2px; color: #222; }
+        .p-avg { font-size: 12px; font-weight: bold; margin-top: 2px; color: #333; text-transform:uppercase; }
+        .starter-dot { width: 8px; height: 8px; flex-shrink: 0; background-color: var(--pdc-gold); border-radius: 50%; position: absolute; left: 8px; display: none; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .visit-board { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 10px 0; background: rgba(0,0,0,0.5); }
+        .visit-row { display: grid; grid-template-columns: 1fr 30px 80px 30px 1fr; width: 100%; max-width: 500px; align-items: center; margin-bottom: 4px; min-height: 36px; padding: 0 10px; box-sizing: border-box; }
+        .v-score { font-family: 'Roboto Condensed'; font-size: 26px; font-weight: bold; color: white; }
+        .v-round { color: var(--text-grey); font-size: 12px; text-align: center; }
+        .v-arrow { color: var(--pdc-gold); font-size: 16px; text-align: center; opacity: 0; transition: opacity 0.1s;}
+        .bottom-bar { height: 60px; background: #111; display: flex; align-items: center; justify-content: center; border-top: 2px solid #333; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
+        .legs-display { display: flex; width: 100%; justify-content: center; align-items: center; height: 100%; }
+        .score-box-left { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding-right: 15px;}
+        .score-box-right { flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 15px;}
+        .leg-name { font-weight: bold; font-size: 14px; color: #ccc; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+        .main-score { font-size: 32px; color: var(--pdc-gold); font-weight: bold; font-family:'Roboto Condensed'; min-width: 25px; text-align: center;}
+        .sub-score { font-size: 20px; color: white; font-weight: bold; font-family:'Roboto Condensed'; opacity: 0.7; min-width: 20px; text-align: center;}
+        .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; width: 40px; }
+
+        /* POST MATCH STATS */
+        #post-match-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0e2a3a; z-index: 110; flex-direction: column; align-items: center; overflow-y: auto; }
+        .stats-header { width: 100%; background: #081b26; padding: 15px; text-align: center; border-bottom: 2px solid var(--pdc-gold); box-sizing: border-box; flex-shrink: 0;}
+        .stats-title { font-size: 22px; color: var(--pdc-gold); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+        .stats-subtitle { font-size: 12px; color: #ccc; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 130px 1fr; width: 100%; max-width: 500px; padding: 15px 10px; gap: 8px; flex-shrink: 0;}
+        .stat-label { color: #888; font-size: 11px; text-align: center; text-transform: uppercase; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .stat-val { font-size: 20px; font-weight: bold; text-align: center; font-family: 'Roboto Condensed'; }
+        .stat-val.winner { color: var(--pdc-gold); }
+        .stat-row { display: contents; }
+        .p-head { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-bottom: 15px; }
+        .p-head img { width: 36px; height: 24px; border: 1px solid #555; }
+        .p-head span { font-weight: bold; font-size: 16px; text-transform: uppercase; text-align: center;}
+
+        /* OVERLAYS */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 50; flex-direction: column; }
+        .intro-box { background: #b00000; color: white; text-align: center; padding: 20px; border: 2px solid white; width: 80%; max-width: 300px; }
+        .end-box { background: #222; padding: 30px 20px; text-align: center; border: 1px solid #444; width: 90%; max-width: 400px; box-sizing: border-box;}
+        .end-winner { font-size: 32px; color: var(--pdc-gold); font-weight: bold; margin: 15px 0; }
+        .end-score { font-size: 40px; background: #444; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+        
+        /* FIXED CSS: Use clamp() for font size */
+        .game-shot-box, .high-checkout-box { 
+            background: #009900; color: white; 
+            font-size: clamp(20px, 10vw, 60px); 
+            font-weight: 900; padding: 20px; width: 80%; border: 2px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; text-align: center; 
+        }
+        .high-checkout-box { background: #1b4dff; }
+        .one-eighty-box { background: var(--pdc-red); color: white; font-size: 25vw; font-weight: 900; padding: 10px 40px; border: 4px solid white; animation: popIn 0.3s forwards; text-transform: uppercase; transform: rotate(-5deg); box-shadow: 5px 5px 0px rgba(0,0,0,0.5); font-family: 'Roboto Condensed'; }
+        @keyframes popIn { from { transform: scale(0.5); } to { transform: scale(1); } }
 
         /* RESPONSIVE */
         @media (min-width: 768px) {
@@ -449,6 +449,38 @@
         </div>
     </div>
 
+    <!-- CLEAN INTRO (SKY STYLE) -->
+    <div id="clean-intro">
+        <img src="darts.png" class="dart-anim">
+        <div class="intro-bg-lines"></div>
+
+        <div class="intro-side intro-left">
+            <img class="intro-flag-img" id="ci-flag-1" src="" alt="">
+            <div class="intro-side-text" id="ci-nation-1">ENG</div>
+        </div>
+
+        <div class="intro-card">
+            <div class="intro-event" id="ci-event">EVENT NAME</div>
+            <div class="intro-vs-box">
+                <div>
+                    <div class="intro-name" id="ci-p1">PLAYER 1</div>
+                    <div class="intro-nation" id="ci-n1">ENGLAND</div>
+                </div>
+                <div class="intro-vs-text">VS</div>
+                <div>
+                    <div class="intro-name" id="ci-p2">PLAYER 2</div>
+                    <div class="intro-nation" id="ci-n2">GERMANY</div>
+                </div>
+            </div>
+            <div class="intro-sub">GAME ON</div>
+        </div>
+
+        <div class="intro-side intro-right">
+            <img class="intro-flag-img" id="ci-flag-2" src="" alt="">
+            <div class="intro-side-text" id="ci-nation-2">GER</div>
+        </div>
+    </div>
+
     <!-- MATCH SCREEN -->
     <div id="match-screen">
         <div class="event-bar">
@@ -495,38 +527,6 @@
                     <div class="leg-name" id="bot-name-p1">NAME</div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- CLEAN INTRO (SKY STYLE) -->
-    <div id="clean-intro">
-        <img src="darts.png" class="dart-anim">
-        <div class="intro-bg-lines"></div>
-
-        <div class="intro-side intro-left">
-            <img class="intro-flag-img" id="ci-flag-1" src="" alt="">
-            <div class="intro-side-text" id="ci-nation-1">ENG</div>
-        </div>
-
-        <div class="intro-card">
-            <div class="intro-event" id="ci-event">EVENT NAME</div>
-            <div class="intro-vs-box">
-                <div>
-                    <div class="intro-name" id="ci-p1">PLAYER 1</div>
-                    <div class="intro-nation" id="ci-n1">ENGLAND</div>
-                </div>
-                <div class="intro-vs-text">VS</div>
-                <div>
-                    <div class="intro-name" id="ci-p2">PLAYER 2</div>
-                    <div class="intro-nation" id="ci-n2">GERMANY</div>
-                </div>
-            </div>
-            <div class="intro-sub">GAME ON</div>
-        </div>
-
-        <div class="intro-side intro-right">
-            <img class="intro-flag-img" id="ci-flag-2" src="" alt="">
-            <div class="intro-side-text" id="ci-nation-2">GER</div>
         </div>
     </div>
 
@@ -624,7 +624,7 @@
         });
 
         // ================= DATA =================
-       const RAW_PLAYERS = [
+         const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
@@ -1805,8 +1805,10 @@
         
         const FLAG_URL = "https://flagcdn.com/w80/"; 
         const SOUND_180 = new Audio('180.mp3');
+        const SOUND_167 = new Audio('167.MP3');
+        const SOUND_BIG_CHECKOUT = new Audio('bigcheckout.MP3');
         const SOUND_INTRO = new Audio('intro.MP3');
-        
+        const SOUND_OUTRO = new Audio('outromusic.MP3');
         let PLAYERS_DB = [];
 
         const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
@@ -2374,7 +2376,10 @@
                 // WAKE LOCK & AUDIO INIT
                 requestWakeLock();
                 SOUND_180.load();
+                SOUND_167.load();
+                SOUND_BIG_CHECKOUT.load();
                 SOUND_INTRO.load();
+                SOUND_OUTRO.load();
 
                 const createPlayer = (p) => ({ 
                     ...p, 
@@ -2398,39 +2403,10 @@
                 App.config.legsToWinSet = Math.ceil(App.config.setLegs / 2);
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tournament-hub').style.display = 'none';
-                document.getElementById('match-screen').style.display = 'flex';
-                let txt = App.config.event.toUpperCase();
-                if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
-                document.getElementById('txt-event-header').innerText = txt;
-
-                const p0 = App.players[0]; const p1 = App.players[1];
-                document.getElementById('name-p0').innerText = p0.name;
-                document.getElementById('name-p1').innerText = p1.name;
-                document.getElementById('flag-p0').src = getFlagUrl(p0.country);
-                document.getElementById('flag-p1').src = getFlagUrl(p1.country);
-                document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
-                document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
-
-                if (App.config.mode === 'legs') {
-                    document.getElementById('lbl-score-type').innerHTML = "LEGS";
-                    document.getElementById('bot-sets-p0').style.display = "none";
-                    document.getElementById('bot-sets-p1').style.display = "none";
-                    document.getElementById('bot-legs-p0').className = "main-score";
-                    document.getElementById('bot-legs-p1').className = "main-score";
-                } else {
-                    document.getElementById('lbl-score-type').innerHTML = "SETS";
-                    document.getElementById('bot-sets-p0').style.display = "block";
-                    document.getElementById('bot-sets-p1').style.display = "block";
-                    document.getElementById('bot-legs-p0').className = "sub-score";
-                    document.getElementById('bot-legs-p1').className = "sub-score";
-                }
-                App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
-                App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
-                App.matchState.starterLeg = App.matchState.starterSet;
-                Persistence.save(); 
                 
-                // CALL INTRO INSTEAD OF STARTLEG
+                // === INTRO SEQUENCE START ===
                 Tournament.playIntroSequence(App.players[0], App.players[1]);
+                // ============================
             },
 
             showPostMatch: () => {
@@ -2475,9 +2451,17 @@
 
                 document.getElementById('post-match-screen').style.display = 'flex';
                 Persistence.save();
+
+                // PLAY OUTRO MUSIC
+                SOUND_OUTRO.currentTime = 0;
+                SOUND_OUTRO.play().catch(e=>console.log(e));
             },
 
             returnToMenu: () => {
+                // STOP MUSIC
+                SOUND_OUTRO.pause();
+                SOUND_OUTRO.currentTime = 0;
+
                 document.getElementById('post-match-screen').style.display = 'none';
                 if (Tournament.state.active) {
                     const winnerIdx = (App.matchState.sets[0] > App.matchState.sets[1] || App.matchState.legs[0] > App.matchState.legs[1]) ? 0 : 1;
@@ -2505,12 +2489,21 @@
                 document.getElementById('intro-title-txt').innerText = `LEG ${legCount}${setDisplay}`;
                 document.getElementById('intro-name-txt').innerText = App.players[App.matchState.starterLeg].name;
                 document.getElementById('overlay-intro').style.display = 'flex';
-                setTimeout(() => { document.getElementById('overlay-intro').style.display = 'none'; App.gameLoop(); }, 1200);
+                setTimeout(() => { 
+                    try {
+                        document.getElementById('overlay-intro').style.display = 'none'; 
+                        App.gameLoop(); 
+                    } catch(e) {
+                        console.error(e);
+                        alert("Game Crash! Returning to Menu.");
+                        Persistence.clear();
+                    }
+                }, 1200);
             },
             trigger180: () => {
-                SOUND_180.play().catch(e => console.log("Audio play blocked", e));
+                SOUND_180.play().catch(e=>console.log(e)); // Uncomment if file exists
                 document.getElementById('overlay-180').style.display = 'flex';
-                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 2500); // 2.5s delay
+                setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
             },
             gameLoop: () => {
                 const pIdx = App.matchState.currentThrower;
@@ -2548,6 +2541,10 @@
                         p.stats.c180++; 
                         App.trigger180(); 
                         delay = 3000; // Pause longer for 180
+                    } else if (result.points === 167) {
+                        // 167 Sound Effect
+                        SOUND_167.play().catch(e=>console.log(e));
+                        delay = 2000;
                     }
 
                     const rows = document.getElementById('visit-container').children;
@@ -2600,7 +2597,13 @@
                 const p = App.players[idx];
                 p.stats.legsWon++; // Count Legs Won
                 if (checkoutScore > p.stats.highOut) p.stats.highOut = checkoutScore;
-                if (checkoutScore >= 100) { p.stats.tonPlus++; overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`; }
+                
+                if (checkoutScore >= 100) { 
+                    p.stats.tonPlus++; 
+                    overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`; 
+                    // BIG CHECKOUT SOUND
+                    SOUND_BIG_CHECKOUT.play().catch(e=>console.log(e));
+                }
                 else { overlay.innerHTML = `<div class="game-shot-box">GAME SHOT</div>`; }
 
                 overlay.style.display = 'flex';
