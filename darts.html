@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Safe Mode)</title>
+    <title>PDC Sim 2026 (Auto-Sim Mode)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -16,6 +16,7 @@
             --pdc-gold: #ffcc00;
             --text-grey: #8fa3ad;
             --input-bg: #e6e6e6;
+            --pdc-green: #008000;
         }
 
         body {
@@ -121,20 +122,22 @@
         #tournament-hub { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111; z-index: 90; flex-direction: column; padding: 0; }
         .hub-header { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333; position: relative;}
         .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
-        .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; }
+        .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; margin-bottom: 5px;}
         .nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; padding: 5px 15px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; }
         .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
         .hub-round-format { color: #8fa3ad; font-size: 12px; }
 
+        /* HUB ACTIONS */
+        .hub-actions { display: flex; gap: 10px; width: 100%; max-width: 600px; margin-top: 5px; }
+        .btn-hub-action { flex: 1; border: none; padding: 8px; font-size: 12px; font-weight: bold; color: #fff; cursor: pointer; border-radius: 4px; text-transform: uppercase; font-family:'Roboto Condensed';}
+        .btn-sim { background: var(--pdc-green); }
+        .btn-watch { background: #e65100; transition: all 0.2s;}
+        
         .btn-exit-small {
             position: absolute; top: 10px; right: 10px; background: #9a0000; color: white; border: none; font-size: 10px; padding: 4px 8px; cursor: pointer; border-radius: 4px;
         }
 
         .bracket-wrapper { display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
-        .side-nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; width: 40px; height: 60px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; z-index: 5; }
-        .side-nav-btn:hover { background: #444; }
-        .side-nav-btn:disabled { opacity: 0.3; cursor: default; }
-
         .bracket-container { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; height: 100%; padding: 0 5px; }
         .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 5px; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: background 0.3s; }
         .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
@@ -150,6 +153,12 @@
         .bm-score { font-size: 14px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
         .bm-action { margin-left: 5px; }
         .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 4px 8px; font-size: 10px; font-weight: bold; border-radius: 2px; }
+
+        /* Checkbox for playlist */
+        .match-select-cb {
+            width: 20px; height: 20px; accent-color: var(--pdc-gold); 
+            cursor: pointer; margin: 0 5px; flex-shrink: 0;
+        }
 
         /* ==================== INTRO SCREEN ==================== */
         #clean-intro {
@@ -187,7 +196,6 @@
         .intro-sub { letter-spacing: 6px; opacity: .7; color: white; font-size: 12px; margin-top: 20px; font-weight: bold; }
 
         @keyframes textSlide { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
-        @keyframes fadeOut { to { opacity: 0; } }
 
         /* Sidebars */
         .intro-side {
@@ -447,12 +455,17 @@
             <button class="btn-exit-small" onclick="Persistence.clear()">RESET</button>
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
             <div class="round-nav">
-                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">PREV STAGE</button>
+                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">PREV</button>
                 <div class="hub-round-info">
                     <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
                     <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
                 </div>
-                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT STAGE</button>
+                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT</button>
+            </div>
+            <!-- HUB ACTIONS -->
+            <div class="hub-actions">
+                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateRound()">Simulate Round</button>
+                <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
             </div>
         </div>
         
@@ -461,7 +474,7 @@
         </div>
     </div>
 
-    <!-- CLEAN INTRO (SKY STYLE) -->
+    <!-- CLEAN INTRO -->
     <div id="clean-intro">
         <img src="darts.png" class="dart-anim" onerror="this.style.display='none'">
         <div class="intro-bg-lines"></div>
@@ -592,7 +605,7 @@
             </div>
         </div>
 
-        <button class="btn-gold" style="width:90%; max-width:400px; margin-bottom: 20px;" onclick="App.returnToMenu()">CONTINUE</button>
+        <button class="btn-gold" id="btn-stats-continue" style="width:90%; max-width:400px; margin-bottom: 20px;" onclick="App.returnToMenu()">CONTINUE</button>
     </div>
 
     <!-- OVERLAYS -->
@@ -636,7 +649,7 @@
         });
 
         // ================= DATA =================
-         const RAW_PLAYERS = [
+          const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
@@ -1842,7 +1855,8 @@
                         bracketData: cleanBracket,
                         currentActiveRound: Tournament.state.currentActiveRound,
                         viewingRound: Tournament.state.viewingRound,
-                        selectedPlayerIndices: Array.from(Tournament.state.selectedPlayerIndices)
+                        selectedPlayerIndices: Array.from(Tournament.state.selectedPlayerIndices),
+                        matchQueue: Tournament.state.matchQueue // Save the Queue
                     }));
                     localStorage.setItem('pdc_tourn_config', JSON.stringify(Tournament.config));
                 }
@@ -1876,6 +1890,7 @@
                         Tournament.state.currentActiveRound = parsed.currentActiveRound;
                         Tournament.state.viewingRound = parsed.viewingRound;
                         Tournament.state.selectedPlayerIndices = new Set(parsed.selectedPlayerIndices);
+                        Tournament.state.matchQueue = parsed.matchQueue || []; // Load Queue
                     }
 
                     const tConfig = localStorage.getItem('pdc_tourn_config');
@@ -2027,7 +2042,7 @@
 
         const Tournament = {
             config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
-            state: { active: false, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set() },
+            state: { active: false, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set(), matchQueue: [] },
 
             setMode: (mode) => {
                 Tournament.config.mode = mode;
@@ -2129,6 +2144,7 @@
                 Tournament.state.active = true;
                 Tournament.state.currentActiveRound = 0;
                 Tournament.state.viewingRound = 0;
+                Tournament.state.matchQueue = []; // Clear queue
                 Tournament.state.bracketData = [];
                 const r0 = [];
                 for (let i = 0; i < participants.length; i += 2) { 
@@ -2169,6 +2185,100 @@
                 }
             },
 
+            // === SIMULATION & QUEUE LOGIC ===
+            simulateRound: () => {
+                // Ensure we are simulating the active round
+                const activeR = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[activeR];
+                const roundInfo = Tournament.config.rounds[activeR];
+                
+                // Confirm action if user isn't viewing active round
+                if(Tournament.state.viewingRound !== activeR) {
+                    if(!confirm("Simulate matches in the active round (not the one you are viewing)?")) return;
+                }
+                
+                let simulatedCount = 0;
+                matches.forEach(m => {
+                    if(!m.winner && m.p1 && m.p2) {
+                        Tournament.fastSim(m, roundInfo.target);
+                        simulatedCount++;
+                    }
+                });
+
+                if(simulatedCount > 0) {
+                    Tournament.checkRoundComplete();
+                    Persistence.save();
+                    Tournament.renderHub();
+                } else {
+                    alert("No matches to simulate in this round.");
+                }
+            },
+
+            startAutoPlay: () => {
+                const activeR = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[activeR];
+                const roundInfo = Tournament.config.rounds[activeR];
+                Tournament.state.matchQueue = [];
+
+                const checkboxes = document.querySelectorAll('.match-select-cb:checked');
+                
+                if (checkboxes.length > 0) {
+                    // CASE 1: Specific matches selected
+                    // 1. Add selected to queue
+                    checkboxes.forEach(cb => {
+                        const idx = parseInt(cb.value);
+                        if(matches[idx] && !matches[idx].winner) {
+                            Tournament.state.matchQueue.push(idx);
+                        }
+                    });
+
+                    // 2. Automatically simulate everything NOT selected
+                    matches.forEach((m, idx) => {
+                        if (!m.winner && m.p1 && m.p2) {
+                            // If this index is NOT in our queue, sim it now
+                            if (!Tournament.state.matchQueue.includes(idx)) {
+                                Tournament.fastSim(m, roundInfo.target);
+                            }
+                        }
+                    });
+
+                    // Save the sim results immediately
+                    Persistence.save();
+
+                } else {
+                    // CASE 2: Nothing selected -> Watch ALL remaining (Standard behavior)
+                    matches.forEach((m, idx) => {
+                        if(!m.winner && m.p1 && m.p2) {
+                            Tournament.state.matchQueue.push(idx);
+                        }
+                    });
+                }
+
+                if(Tournament.state.matchQueue.length > 0) {
+                    Tournament.playNextInQueue();
+                } else {
+                    // If queue is empty (maybe everything was just simulated or round finished)
+                    Tournament.renderHub();
+                    Tournament.checkRoundComplete();
+                }
+            },
+
+            playNextInQueue: () => {
+                if(Tournament.state.matchQueue.length === 0) {
+                    // Queue finished
+                    Tournament.renderHub();
+                    return;
+                }
+                const nextMatchIdx = Tournament.state.matchQueue.shift(); // Get first and remove
+                Tournament.playMatch(nextMatchIdx);
+            },
+
+            updateWatchButtonState: () => {
+                const count = document.querySelectorAll('.match-select-cb:checked').length;
+                const btn = document.querySelector('.btn-watch');
+                if(btn) btn.innerText = count > 0 ? "WATCH SELECTED" : "WATCH ROUND";
+            },
+
             renderHub: () => {
                 const hub = document.getElementById('tournament-hub');
                 const bracket = document.getElementById('tourn-bracket');
@@ -2182,6 +2292,11 @@
                 document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
                 document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
                 
+                // Show Sim/Watch buttons only if viewing active round
+                const actionBtns = document.querySelector('.hub-actions');
+                if(vRoundIdx === activeRoundIdx) actionBtns.style.display = 'flex';
+                else actionBtns.style.display = 'none';
+
                 bracket.innerHTML = '';
                 const matches = Tournament.state.bracketData[vRoundIdx];
                 
@@ -2208,9 +2323,17 @@
                                 </div>
                             `;
                         };
+                        
+                        // Checkbox logic
+                        let checkbox = '';
+                        const isPlayable = (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2);
+                        if(isPlayable) {
+                             checkbox = `<input type="checkbox" class="match-select-cb" value="${idx}" onchange="Tournament.updateWatchButtonState()">`;
+                        }
 
                         let html = `
                             <button class="match-nav-btn" onclick="Tournament.traceMatch(-1, ${idx})">&lt;</button>
+                            ${checkbox}
                             <div class="bm-content">
                                 ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}
                                 ${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2)}
@@ -2219,7 +2342,7 @@
                         
                         html += `<div style="display:flex; align-items:center;">`;
                         
-                        if (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2) {
+                        if (isPlayable) {
                             html += `<div class="bm-action"><button class="btn-play-mini" onclick="Tournament.playMatch(${idx})">PLAY</button></div>`;
                         }
                         
@@ -2231,6 +2354,10 @@
                 }
                 hub.style.display = 'flex';
                 document.getElementById('match-screen').style.display = 'none';
+                
+                // Initialize button state
+                Tournament.updateWatchButtonState();
+
                 Persistence.save(); 
             },
             playMatch: (matchIdx) => {
@@ -2242,11 +2369,6 @@
                 const m = Tournament.state.bracketData[roundIdx][matchIdx];
                 const roundInfo = Tournament.config.rounds[roundIdx];
                 Tournament.activeMatchIdx = matchIdx;
-                
-                const matches = Tournament.state.bracketData[roundIdx];
-                matches.forEach((otherM, idx) => {
-                    if (idx !== matchIdx && !otherM.winner && otherM.p1 && otherM.p2) { Tournament.fastSim(otherM, roundInfo.target); }
-                });
                 
                 App.config.event = document.getElementById('tourn-event-name').value + ` - ${roundInfo.name}`;
                 App.config.target = roundInfo.target;
@@ -2312,18 +2434,36 @@
                 m.winner = (winnerIdx === 0) ? m.p1 : m.p2;
                 m.averages = avgs; 
                 Tournament.checkRoundComplete();
+
+                // CHECK QUEUE FOR AUTO-PLAY
+                if(Tournament.state.matchQueue && Tournament.state.matchQueue.length > 0) {
+                    Tournament.playNextInQueue();
+                } else {
+                    Tournament.renderHub();
+                }
             },
             checkRoundComplete: () => {
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
                 if (matches.every(m => m.winner)) {
-                    if (rIdx === Tournament.config.rounds.length - 1) { alert(`${matches[0].winner.name} WINS!`); Persistence.clear(); return; }
-                    const nextRIdx = rIdx + 1; const nextMatches = [];
-                    for(let i=0; i<matches.length; i+=2) { nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); }
-                    Tournament.state.bracketData[nextRIdx] = nextMatches;
-                    Tournament.state.currentActiveRound = nextRIdx; Tournament.state.viewingRound = nextRIdx; 
+                    // All matches done
+                    if (rIdx === Tournament.config.rounds.length - 1) { 
+                        alert(`${matches[0].winner.name} WINS THE TOURNAMENT!`); 
+                        Persistence.clear(); 
+                        return; 
+                    }
+                    // Generate Next Round
+                    const nextRIdx = rIdx + 1; 
+                    
+                    // Only generate if not already generated
+                    if(Tournament.state.bracketData.length <= nextRIdx || Tournament.state.bracketData[nextRIdx].length === 0) {
+                        const nextMatches = [];
+                        for(let i=0; i<matches.length; i+=2) { nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); }
+                        Tournament.state.bracketData[nextRIdx] = nextMatches;
+                        Tournament.state.currentActiveRound = nextRIdx; 
+                        Tournament.state.viewingRound = nextRIdx; 
+                    }
                 }
-                Tournament.renderHub();
             }
         };
 
@@ -2494,6 +2634,16 @@
                     document.getElementById('st-legs-1').innerText = p1.stats.legsWon;
                 } else {
                     legsRow.style.display = 'none';
+                }
+                
+                // UPDATE BUTTON TEXT BASED ON QUEUE
+                const btn = document.getElementById('btn-stats-continue');
+                if(Tournament.state.active && Tournament.state.matchQueue && Tournament.state.matchQueue.length > 0) {
+                    btn.innerText = "NEXT MATCH >>";
+                    btn.style.background = "#e65100";
+                } else {
+                    btn.innerText = "CONTINUE";
+                    btn.style.background = "var(--pdc-gold)";
                 }
 
                 document.getElementById('post-match-screen').style.display = 'flex';
