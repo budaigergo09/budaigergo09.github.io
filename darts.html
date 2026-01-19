@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Resume & Sync Fix)</title>
+    <title>PDC Sim 2026 (Stable)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -517,7 +517,7 @@
         });
 
         // ================= DATA =================
-         const RAW_PLAYERS = [
+        const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
@@ -2364,8 +2364,23 @@
                 const pIdx = App.matchState.currentThrower;
                 const p = App.players[pIdx];
                 App.ensureRow();
+                
+                // === SYNC UI HERE ===
+                // Update active player card (Red)
                 document.getElementById('card-p0').className = `player-card ${pIdx===0?'active':''}`;
                 document.getElementById('card-p1').className = `player-card ${pIdx===1?'active':''}`;
+                
+                // Update Arrows
+                const rows = document.getElementById('visit-container').children;
+                if(rows.length > 0) {
+                    const row = rows[rows.length-1];
+                    const al = row.querySelector('#al');
+                    const ar = row.querySelector('#ar');
+                    if(al && ar) {
+                        al.style.opacity = pIdx === 0 ? 1 : 0;
+                        ar.style.opacity = pIdx === 1 ? 1 : 0;
+                    }
+                }
 
                 setTimeout(() => {
                     const legs = App.matchState.legs;
@@ -2385,8 +2400,8 @@
 
                     const rows = document.getElementById('visit-container').children;
                     const row = rows[rows.length-1];
-                    if (pIdx === 0) { row.querySelector('.v-left').innerText = result.points; row.querySelector('#al').style.opacity = 0; row.querySelector('#ar').style.opacity = 1; } 
-                    else { row.querySelector('.v-right').innerText = result.points; row.querySelector('#ar').style.opacity = 0; row.querySelector('#al').style.opacity = 1; }
+                    if (pIdx === 0) { row.querySelector('.v-left').innerText = result.points; } 
+                    else { row.querySelector('.v-right').innerText = result.points; }
 
                     App.updateScoreboard();
                     Persistence.save(); 
@@ -2398,24 +2413,36 @@
                     }
                 }, 1200);
             },
+            
+            // FIXED ensureRow Logic for Refresh
             ensureRow: () => {
                 const container = document.getElementById('visit-container');
                 const last = container.lastElementChild;
                 const pIdx = App.matchState.currentThrower;
                 let needNew = false;
-                if (!last) needNew = true;
-                else {
+                
+                if (!last) {
+                    needNew = true;
+                } else {
                     if (pIdx === 0 && last.querySelector('.v-left').innerText !== "") needNew = true;
                     if (pIdx === 1 && last.querySelector('.v-right').innerText !== "") needNew = true; 
                 }
-                if (needNew && pIdx === App.matchState.starterLeg) {
+
+                // Force create row if board is empty, even if pIdx doesn't match starterLeg
+                // This handles the "Resume after refresh" case where P2 might be throwing first visually
+                if (needNew && (pIdx === App.matchState.starterLeg || container.children.length === 0)) {
                     const div = document.createElement('div');
                     div.className = 'visit-row';
                     const rNum = container.children.length + 1;
-                    div.innerHTML = `<div class="v-score v-left"></div><div class="v-arrow" id="al" style="opacity:${pIdx===0?1:0}">▶</div><div class="v-round">${rNum}</div><div class="v-arrow" id="ar" style="opacity:${pIdx===1?1:0}">◀</div><div class="v-score v-right"></div>`;
+                    // Initial arrows state
+                    const oL = pIdx === 0 ? 1 : 0;
+                    const oR = pIdx === 1 ? 1 : 0;
+                    
+                    div.innerHTML = `<div class="v-score v-left"></div><div class="v-arrow" id="al" style="opacity:${oL}">▶</div><div class="v-round">${rNum}</div><div class="v-arrow" id="ar" style="opacity:${oR}">◀</div><div class="v-score v-right"></div>`;
                     container.appendChild(div); container.scrollTop = container.scrollHeight;
                 }
             },
+            
             handleLegWin: (idx, checkoutScore) => {
                 const overlay = document.getElementById('overlay-shot');
                 const p = App.players[idx];
@@ -2472,9 +2499,7 @@
                 document.getElementById('dot-p0').style.display = (starter === 0) ? 'block' : 'none';
                 document.getElementById('dot-p1').style.display = (starter === 1) ? 'block' : 'none';
                 
-                const current = App.matchState.currentThrower;
-                document.getElementById('card-p0').className = `player-card ${current === 0 ? 'active' : ''}`;
-                document.getElementById('card-p1').className = `player-card ${current === 1 ? 'active' : ''}`;
+                // Removed the arrow/red card logic from here because it's now handled instantly in gameLoop
 
                 if (App.config.mode === 'sets') {
                     document.getElementById('bot-sets-p0').innerText = App.matchState.sets[0];
@@ -2487,24 +2512,6 @@
                 }
             }
         };
-
-        // ================= WAKE LOCK =================
-        let wakeLock = null;
-        const requestWakeLock = async () => {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock active');
-                } catch (err) {
-                    console.log('Wake Lock Error:', err.message);
-                }
-            }
-        };
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-        });
 
         App.init();
         App.setMode('sets'); 

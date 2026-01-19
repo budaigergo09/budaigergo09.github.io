@@ -1106,7 +1106,7 @@
 {name: "Viranyi, Andras", country: "hun", avg: 58.89, co: 15.0, fav: 16},
 {name: "Papp, Gabor", country: "hun", avg: 57.38, co: 29.00, fav: 20},
 {name: "Skornyak, Daniel", country: "hun", avg: 56.88, co: 15.0, fav: 16},
-{name: "Acs, Gergely", country: "hun", avg: 53.80, co: 15.0, fav: 20}
+{name: "Acs, Gergely", country: "hun", avg: 53.80, co: 15.0, fav: 20},
 {name: "Plosz, Adam", country: "hun", avg:45.0, co:20.00, fav:20} 
         ];
 
