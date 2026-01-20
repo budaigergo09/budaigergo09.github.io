@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Auto-Sim Mode)</title>
+    <title>PDC Sim 2026 (Stable)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -325,6 +325,9 @@
             font-weight: bold; cursor: pointer; animation: fadeOutReset 5s forwards;
         }
         @keyframes fadeOutReset { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; pointer-events: none; } }
+        
+        .btn-icon { background:transparent; border:none; color:white; font-size:18px; cursor:pointer; padding:5px 10px; font-weight:bold; }
+        .btn-icon:hover { color:var(--pdc-gold); }
     </style>
 </head>
 <body>
@@ -512,6 +515,7 @@
             <button class="btn-exit-small" style="position: absolute; left: 10px; top: 5px; right:auto;" onclick="Persistence.clear()">EXIT</button>
             <img src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
             <span id="txt-event-header">EVENT NAME</span>
+            <button class="btn-icon" onclick="App.togglePause()" style="position: absolute; right: 10px; top: 0px; height: 36px;">⏸</button>
         </div>
         <div class="scoreboard-header">
             <div class="player-card" id="card-p0">
@@ -629,6 +633,16 @@
         </div>
     </div>
 
+    <!-- PAUSE / RESUME OVERLAY -->
+    <div id="overlay-resume" class="overlay">
+        <div class="end-box">
+            <div style="font-size:20px; font-weight:bold; margin-bottom:10px; color:var(--pdc-gold);">MATCH PAUSED</div>
+            <div id="pause-info-text" style="color:white; font-size:14px; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">FORMAT INFO</div>
+            <div style="color:#888; font-size:12px; margin-bottom:20px;">Click Resume to continue and enable audio.</div>
+            <button class="btn-gold" onclick="App.resumeFromReload()">RESUME MATCH</button>
+        </div>
+    </div>
+
     <script>
         // ================= WAKE LOCK =================
         let wakeLock = null;
@@ -649,7 +663,7 @@
         });
 
         // ================= DATA =================
-          const RAW_PLAYERS = [
+        const RAW_PLAYERS = [
 {name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20},
@@ -1900,6 +1914,21 @@
 
                     if (screen === 'match') {
                         document.getElementById('match-screen').style.display = 'flex';
+                        // Force update of Sets vs Legs label immediately based on LOADED config
+                        document.getElementById('lbl-score-type').innerText = (App.config.mode === 'sets') ? "SETS" : "LEGS";
+                        
+                        if (App.config.mode === 'legs') {
+                            document.getElementById('bot-sets-p0').style.display = "none";
+                            document.getElementById('bot-sets-p1').style.display = "none";
+                            document.getElementById('bot-legs-p0').className = "main-score";
+                            document.getElementById('bot-legs-p1').className = "main-score";
+                        } else {
+                            document.getElementById('bot-sets-p0').style.display = "block";
+                            document.getElementById('bot-sets-p1').style.display = "block";
+                            document.getElementById('bot-legs-p0').className = "sub-score";
+                            document.getElementById('bot-legs-p1').className = "sub-score";
+                        }
+
                         App.updateScoreboard();
                         // Safe hydration of UI
                         if (App.players && App.players[0] && App.players[1]) {
@@ -1915,8 +1944,10 @@
                             // Re-init row
                             App.ensureRow();
                             
-                            // Resume Loop
-                            setTimeout(App.gameLoop, 1000);
+                            // SHOW RESUME OVERLAY (Paused by default on reload)
+                            App.isPaused = true;
+                            App.updatePauseInfo();
+                            document.getElementById('overlay-resume').style.display = 'flex';
                         } else {
                             throw new Error("Corrupt player data");
                         }
@@ -2471,7 +2502,8 @@
             config: { mode: 'sets', target: 3, setLegs: 3 },
             players: [],
             matchState: { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 },
-            selectedPlayers: { p1: 0, p2: 1 }, 
+            selectedPlayers: { p1: 0, p2: 1 },
+            isPaused: false, 
 
             init: () => {
                 const uniquePlayers = []; const seenNames = new Set();
@@ -2574,14 +2606,15 @@
                 document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
                 document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
 
+                // FORCE UPDATE LABEL
+                document.getElementById('lbl-score-type').innerText = (App.config.mode === 'sets') ? "SETS" : "LEGS";
+
                 if (App.config.mode === 'legs') {
-                    document.getElementById('lbl-score-type').innerHTML = "LEGS";
                     document.getElementById('bot-sets-p0').style.display = "none";
                     document.getElementById('bot-sets-p1').style.display = "none";
                     document.getElementById('bot-legs-p0').className = "main-score";
                     document.getElementById('bot-legs-p1').className = "main-score";
                 } else {
-                    document.getElementById('lbl-score-type').innerHTML = "SETS";
                     document.getElementById('bot-sets-p0').style.display = "block";
                     document.getElementById('bot-sets-p1').style.display = "block";
                     document.getElementById('bot-legs-p0').className = "sub-score";
@@ -2590,6 +2623,8 @@
                 App.matchState = { sets: [0, 0], legs: [0, 0], starterLeg: 0, starterSet: 0, currentThrower: 0 };
                 App.matchState.starterSet = Math.random() < 0.5 ? 0 : 1; 
                 App.matchState.starterLeg = App.matchState.starterSet;
+                
+                App.isPaused = false;
                 Persistence.save(); 
                 
                 // CALL INTRO INSTEAD OF STARTLEG
@@ -2703,6 +2738,8 @@
                 setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
             },
             gameLoop: () => {
+                if(App.isPaused) return;
+
                 const pIdx = App.matchState.currentThrower;
                 const p = App.players[pIdx];
                 App.ensureRow();
@@ -2725,6 +2762,8 @@
                 }
 
                 setTimeout(() => {
+                    if(App.isPaused) return;
+
                     const legs = App.matchState.legs;
                     const isDecider = (App.config.mode === 'sets') ? (legs[0] === legs[1] && legs[0] === App.config.legsToWinSet - 1) : false; 
                     const result = Logic.processVisit(p, isDecider);
@@ -2876,11 +2915,55 @@
                     document.getElementById('bot-legs-p0').innerText = App.matchState.legs[0];
                     document.getElementById('bot-legs-p1').innerText = App.matchState.legs[1];
                 }
+            },
+            
+            // === PAUSE & RESUME ===
+            togglePause: () => {
+                App.isPaused = !App.isPaused;
+                if(App.isPaused) {
+                    App.updatePauseInfo();
+                    document.getElementById('overlay-resume').style.display = 'flex';
+                } else {
+                    document.getElementById('overlay-resume').style.display = 'none';
+                    App.gameLoop();
+                }
+            },
+            resumeFromReload: () => {
+                // User gesture unlock for Audio
+                SOUND_180.load();
+                SOUND_167.load();
+                SOUND_BIG_CHECKOUT.load();
+                SOUND_INTRO.load();
+                SOUND_OUTRO.load();
+
+                App.isPaused = false;
+                document.getElementById('overlay-resume').style.display = 'none';
+                setTimeout(App.gameLoop, 500);
+            },
+            updatePauseInfo: () => {
+                let info = "";
+                if(App.config.mode === 'sets') {
+                    info = `First to ${App.config.target} Sets`;
+                } else {
+                    const tb = App.config.tiebreak ? "(Tiebreak: ON)" : "";
+                    info = `First to ${App.config.target} Legs ${tb}`;
+                }
+                document.getElementById('pause-info-text').innerText = info;
             }
         };
 
-        App.init();
-        App.setMode('sets'); 
+        // FIXED INITIALIZATION ORDER
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+                App.setMode('sets'); // 1. Set Defaults
+                App.init();          // 2. Load
+            } catch (e) {
+                console.error("Critical Error on startup:", e);
+                alert("App failed to start. Resetting...");
+                localStorage.clear();
+                location.reload();
+            }
+        });
     </script>
 </body>
 </html>
