@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Clean DB)</title>
+    <title>PDC Sim 2026 (Compact Brackets)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -120,10 +120,10 @@
         .checkbox-row input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--pdc-gold); }
         .pc-row { display: flex; flex-direction: column; gap: 8px; }
 
-        /* ==================== SEASON MODE (RESIZED) ==================== */
+        /* ==================== SEASON MODE ==================== */
         .season-list { 
             display: flex; flex-direction: column; gap: 10px; 
-            flex: 1; /* This makes it fill available space */
+            flex: 1; 
             min-height: 0; 
             overflow-y: auto; 
         }
@@ -135,7 +135,7 @@
         .s-winner { font-size: 11px; color: var(--pdc-gold); }
         
         .oom-container { 
-            height: 120px; /* FIXED SMALLER HEIGHT */
+            height: 120px; 
             flex-shrink: 0; 
             overflow-y: auto; 
             margin-top: 10px; 
@@ -170,30 +170,30 @@
         }
 
         .bracket-wrapper { display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
-        .bracket-container { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; height: 100%; padding: 0 5px; }
+        .bracket-container { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; height: 100%; padding: 0 5px; }
         
-        /* Bigger Bracket Items */
-        .bracket-match { background: #1a1a1a; border-left: 5px solid #444; padding: 10px; border-radius: 6px; display: flex; align-items: center; gap: 10px; transition: background 0.3s; min-height: 70px; }
-        .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        /* Compact Bracket Items */
+        .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 6px; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: background 0.3s; min-height: 50px; }
+        .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
         .bracket-match.completed { opacity: 0.9; }
         
-        .match-nav-btn { background: transparent; border: none; color: #555; font-weight: bold; font-size: 24px; padding: 0 15px; cursor: pointer; height: 100%; display: flex; align-items: center; }
+        .match-nav-btn { background: transparent; border: none; color: #555; font-weight: bold; font-size: 16px; padding: 0 8px; cursor: pointer; height: 100%; display: flex; align-items: center; }
         .match-nav-btn:hover { color: var(--pdc-gold); }
         
         .bm-content { flex: 1; padding: 0; }
-        .bm-row { font-size: 15px; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .bm-row { font-size: 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
         .bm-row:last-child { margin-bottom: 0; }
-        .bm-flag { width: 22px; height: 15px; object-fit: cover; }
-        .bm-name { font-weight: bold; font-family: 'Roboto Condensed'; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 160px; font-size: 16px; }
-        .bm-avg { font-size: 11px; color: #777; font-family: 'Roboto Condensed'; }
-        .bm-score { font-size: 18px; margin-left: auto; font-weight: 900; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
-        .bm-action { margin-left: 10px; }
-        .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 3px; }
+        .bm-flag { width: 18px; height: 12px; object-fit: cover; }
+        .bm-name { font-weight: bold; font-family: 'Roboto Condensed'; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 130px; font-size: 13px; }
+        .bm-avg { font-size: 10px; color: #777; font-family: 'Roboto Condensed'; }
+        .bm-score { font-size: 14px; margin-left: auto; font-weight: bold; font-family:'Roboto Condensed'; color: var(--pdc-gold); }
+        .bm-action { margin-left: 5px; }
+        .btn-play-mini { background: var(--pdc-red); color: white; border: none; padding: 4px 8px; font-size: 10px; font-weight: bold; border-radius: 2px; }
 
         /* Checkbox for playlist */
         .match-select-cb {
-            width: 24px; height: 24px; accent-color: var(--pdc-gold); 
-            cursor: pointer; margin: 0 10px; flex-shrink: 0;
+            width: 20px; height: 20px; accent-color: var(--pdc-gold); 
+            cursor: pointer; margin: 0 5px; flex-shrink: 0;
         }
 
         /* ==================== INTRO SCREEN ==================== */
@@ -2164,6 +2164,7 @@
                     `;
                 });
 
+                // FULL OOM - No slicing
                 const oomList = Object.entries(Season.state.orderOfMerit)
                     .sort((a,b) => b[1] - a[1]);
                 
