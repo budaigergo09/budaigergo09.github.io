@@ -1749,9 +1749,16 @@
 
         // ================= PRIZE MONEY STRUCTURE =================
         const PRIZE_STRUCTURE = {
-            'minor': { 128: 0, 64: 1000, 32: 2500, 16: 4000, 8: 6000, 4: 10000, 2: 15000, 1: 25000 },
+            //MASTERS
+            'masters':{16: 1000, 8: 3000, 4: 5000, 2: 8000, 1: 12000},
+            //MASTERS-Final
+            'masters-final':{32: 5000, 16: 10000, 8: 17500, 4: 30000, 2:60000, 1: 100000},
+            //Q-School
+            'q-school': {256: 0, 128: 0, 64: 0, 32: 0, 16: 0, 8:0 , 4: 0, 2:0, 1: 0},
+            // European tour
+            'minor': { 32: 2500, 16: 4000, 8: 6000, 4: 8500, 2: 12000, 1: 30000 },
             'major': { 128: 0, 64: 2500, 32: 5000, 16: 10000, 8: 20000, 4: 40000, 2: 80000, 1: 150000 },
-            'world': { 128: 7500, 64: 15000, 32: 25000, 16: 40000, 8: 60000, 4: 100000, 2: 200000, 1: 500000 }
+            'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000}
         };
 
         // ================= PERSISTENCE =================
@@ -1978,16 +1985,38 @@
 
         const Season = {
             events: [
-                { id: 1, name: "Q-SCHOOL", date: "Jan 12", format: "legs", dist: 6, players: 128, type: 'minor', cardRequired: false },
-                { id: 2, name: "THE MASTERS", date: "Feb 02", format: "legs", dist: 10, players: 32, type: 'major', cardRequired: true },
-                { id: 3, name: "UK OPEN", date: "Mar 03", format: "legs", dist: 10, players: 64, type: 'major', cardRequired: false },
-                { id: 4, name: "PREMIER LEAGUE", date: "May 25", format: "legs", dist: 11, players: 8, type: 'major', cardRequired: true },
-                { id: 5, name: "WORLD CUP", date: "Jun 15", format: "legs", dist: 8, players: 32, type: 'minor', cardRequired: true },
-                { id: 6, name: "MATCHPLAY", date: "Jul 20", format: "legs", dist: 18, players: 32, type: 'major', cardRequired: true },
-                { id: 7, name: "WORLD GRAND PRIX", date: "Oct 06", format: "sets", dist: 3, players: 32, type: 'major', cardRequired: true },
-                { id: 8, name: "GRAND SLAM", date: "Nov 11", format: "legs", dist: 16, players: 32, type: 'major', cardRequired: true },
-                { id: 9, name: "PLAYERS CHAMP", date: "Nov 24", format: "legs", dist: 11, players: 64, type: 'major', cardRequired: true },
-                { id: 10, name: "WORLD CHAMPIONSHIP", date: "Dec 15", format: "sets", dist: 5, players: 64, type: 'world', cardRequired: true }
+                { id: 1, name: "Q-SCHOOL", date: "Jan 12", format: "legs", dist: 6, players: 256, type: 'q-school', cardRequired: false },
+                { id: 2, name: "Q-SCHOOL", date: "Jan 13", format: "legs", dist: 6, players: 256, type: 'q-school', cardRequired: false },
+                { id: 3, name: "BAHRAIN MASTERS", date: "Jan 16", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true},
+                { id: 4, name: "RIYADH DARTS MASTERS", date: "Jan 19", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 5, name: "POLAND DARTS OPEN", date: "Febr 22", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 6, name: "UK OPEN", date: "Mar 03", format: "legs", dist: 10, players: 128, type: 'major', cardRequired: false },
+                { id: 7, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", dist: 6, players: 32, type: 'major', cardRequired: true },
+                { id: 8, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 9, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 10, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 11, name: "AUSTRIAN DARTS TROPHY", date: "May 10", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 12, name: "INTERNATIONAL DARTS OPEN", date: "May 24", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 13, name: "PREMIER LEAGUE", date: "May 28", format: "legs", dist: 11, players: 8, type: 'major', cardRequired: true },
+                { id: 14, name: "BALTIC SEA DARTS OPEN", date: "May 31", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 15, name: "NORDIC DARTS MASTERS", date: "Jun 06", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 16, name: "SLOVAK DARTS OPEN", date: "Jun 19", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 17, name: "US MASTERS", date: "Jun 26", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 18, name: "EUROPEAN DARTS OPEN", date: "Jul 12", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 19, name: "MATCHPLAY", date: "Jul 26", format: "legs", dist: 18, players: 32, type: 'major', cardRequired: true },
+                { id: 20, name: "NEW ZEALAND MASTERS", date: "Aug 15", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 21, name: "AUSTRALIAN DARTS MASTERS", date: "Aug 22", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 22, name: "HUNGARIAN DARTS TROPHY", date: "Aug 30", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 23, name: "CZECH DARTS OPEN", date: "Sep 04", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 24, name: "FLANDER DARTS OPEN", date: "Sep 13", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 25, name: "WORLD SERIES OF DARTS FINALS", date: "Sep 17", format: "legs", dist: 6, players: 32, type: 'masters-final', cardRequired: true },
+                { id: 26, name: "WORLD GRAND PRIX", date: "Oct 06", format: "sets", dist: 3, players: 32, type: 'major', cardRequired: true },
+                { id: 27, name: "SWISS DARTS TROPHY", date: "Oct 11", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 28, name: "DUTCH  DARTS CHAMPIONSHIP", date: "Oct 18", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 29, name: "MACHINESEEKER EUROPEAN CHMAPIONSHIP", date: "Oct 18", format: "legs", dist: 8, players: 32, type: 'major', cardRequired: true },
+                /*{ id: 8, name: "GRAND SLAM", date: "Nov 11", format: "legs", dist: 16, players: 32, type: 'major', cardRequired: true },*/
+                { id: 30, name: "PLAYERS CHAMP", date: "Nov 24", format: "legs", dist: 11, players: 64, type: 'major', cardRequired: true },
+                { id: 31, name: "WORLD CHAMPIONSHIP", date: "Dec 15", format: "sets", dist: 5, players: 128, type: 'world', cardRequired: true}
             ],
             state: { activeEventIndex: 0, orderOfMerit: {}, completedEvents: [], inProgress: false, year: 2026 },
 
@@ -2177,7 +2206,7 @@
                 }
                 
                 // If Q-School, assign Tour Cards to winner (simplified)
-                if(ev.name === "Q-SCHOOL" && finalMatch.winner) {
+                if((ev.name === "Q-SCHOOL" || ev.name === "Q-SCHOOL 2") && finalMatch.winner) {
                     const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.winner.name);
                     if(pIdx > -1) {
                          PLAYERS_DB[pIdx].tourCard = true;
