@@ -136,10 +136,11 @@ class MainActivity : AppCompatActivity() {
             // Enable hardware acceleration
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
             
-            // Dark theme support for compatible WebViews (API 32+)
+            // DISABLED: Algorithmic darkening causes flag images to get color-inverted
+            // The website already has a dark theme, so we don't need WebView's dark mode
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
-                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, true)
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(settings, false)
                 }
             }
             
