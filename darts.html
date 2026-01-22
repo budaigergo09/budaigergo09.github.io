@@ -390,9 +390,20 @@
                 <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
                 <div class="oom-container">
-                    <label>ORDER OF MERIT</label>
-                    <table class="oom-table" id="season-oom"></table>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                    <label id="oom-title">ORDER OF MERIT</label>
+                    <div>
+                        <button id="btn-main-oom" class="btn-gold" style="padding:4px 8px;">Main</button>
+                        <button id="btn-protour-oom" class="btn-gold" style="padding:4px 8px; opacity:0.6;">Pro Tour</button>
+                        <button id="btn-challenge-oom" class="btn-gold" style="opacity:0.6;">Challenge</button>
+                        <button id="btn-ws-oom" class="btn-gold" style="opacity:0.6;">WORLD SERIES</button>
+                    </div>
                 </div>
+
+                <table class="oom-table" id="season-oom"></table>
+            </div>
+
+                
                 <div id="season-controls" style="margin-top:10px;">
                     <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
                 </div>
@@ -591,6 +602,26 @@
     </div>
 
     <script>
+        function getBestFromCountry(code) {
+    return [...PLAYERS_DB]
+        .filter(p => p.country === code)
+        .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0))[0];
+}
+
+function getBestFromRegion(region) {
+    return [...PLAYERS_DB]
+        .filter(p => REGION_MAP[region]?.includes(p.country))
+        .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0))[0];
+}
+
+function getTopFromOOM(source, count, skipSet) {
+    return Object.entries(source)
+        .sort((a,b) => b[1] - a[1])
+        .map(e => e[0])
+        .filter(n => !skipSet.has(n))
+        .slice(0, count);
+}
+
         // ================= WAKE LOCK =================
         let wakeLock = null;
         const requestWakeLock = async () => {
@@ -1737,6 +1768,24 @@
   "tur":"tr", "ukr":"ua", "rsa":"za", "rou":"ro", "svk":"sk", "slo":"si", "svn":"si", "gre":"gr", "isl":"is", "isr":"il", "lux":"lu", "cyp":"cy", "ken":"ke", "uga":"ug",
   "nor":"no", "est":"ee", "mex":"mx", "kor":"kr", "tha":"th", "vie":"vn", "ken":"ke"
 };
+        // Regionális 8
+   const REGION_MAP = {
+    asia: ["jpn","chn","hkg","tha","sin","mas","ind","phi","kor","uae","qat","ksa"],
+    nordic: ["den","swe","nor","fin","isl","est","lat","ltu"],
+    america: ["usa","can","mex"],
+    oceania: ["aus","nzl"],
+    europe: ["eng","ger","nl","bel","fra","aut","cze","pol","sui","esp","ita","sco","wal","irl", "svk"]
+};
+REGION_MAP.east = ["hun","cze","svk","pol","rou","bul","srb","cro"];
+const WORLD_SERIES_POINTS = {
+    16: 1,   // R1
+    8: 2,    // QF
+    4: 3,    // SF
+    2: 5,    // Final
+    1: 8     // Winner
+};
+
+
         const FLAG_URL = "https://flagcdn.com/w80/"; 
         const SOUND_180 = new Audio('180.mp3');
         const SOUND_167 = new Audio('167.MP3');
@@ -1744,6 +1793,24 @@
         const SOUND_INTRO = new Audio('intro.MP3');
         const SOUND_OUTRO = new Audio('outromusic.MP3');
         let PLAYERS_DB = [];
+        const HOST_NATION = {
+    5: "pol",
+    8: "bel",
+    9: "ger",
+    10: "ger",
+    11: "aut",
+    12: "ger",
+    14: "den",
+    16: "svk",
+    18: "ger",
+    22: "hun",
+    23: "cze",
+    24: "bel",
+    27: "sui",
+    28: "ned"
+};
+
+
 
         const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
 
@@ -1758,9 +1825,18 @@
             // European tour
             'minor': { 32: 2500, 16: 4000, 8: 6000, 4: 8500, 2: 12000, 1: 30000 },
             'major': { 128: 0, 64: 2500, 32: 5000, 16: 10000, 8: 20000, 4: 40000, 2: 80000, 1: 150000 },
-            'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000}
-        };
-
+            'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000},
+            'players': { 128: 0, 64:1000, 32:2000, 16: 3000, 8: 5000, 4: 7500, 2: 10000, 1: 15000 },
+            'challenge': {128: 0,64: 100,32: 250, 16: 350, 8: 750,4: 1000,2: 2000,1: 3000 },
+            'uk-open': {160:1000, 80:2500, 40: 4000, 32: 6000, 16:10000, 8:15000, 4:25000, 2:50000, 1:110000},
+            'winmaudm': {32: 5000, 16: 10000, 8:17500, 4:30000, 2: 50000, 1:100000 },
+            'matchplay': {32: 10000, 16: 15000, 8: 30000, 4:50000, 2: 100000, 1:200000},
+            'europeanf':  {32: 7500, 16: 15000, 8:25000, 4: 40000, 2: 60000, 1: 120000},
+            'grandprix':  {32: 7500, 16: 15000, 8:25000, 4: 40000, 2: 60000, 1: 120000},
+            'playersf':  {64: 3000, 32: 6500, 16: 10000, 8:20000, 4: 30000, 2: 60000, 1: 120000},
+            'grandslam':  {64: 5000, 32: 5000, 16: 12500, 8:25000, 4: 50000, 2: 70000, 1: 150000},
+            
+        }
         // ================= PERSISTENCE =================
         const Persistence = {
             save: () => {
@@ -1825,6 +1901,12 @@
 
                     const sState = localStorage.getItem('pdc_season_state');
                     if (sState) Season.state = JSON.parse(sState);
+                    // ===== PRO TOUR OOM SAFETY INIT =====
+                    if(!Season.state.proTourOOM) Season.state.proTourOOM = {};
+                    if(!Season.state.proTourHistory) Season.state.proTourHistory = [];
+                    if(!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
+                    if(!Season.state.challengeTourHistory) Season.state.challengeTourHistory = [];
+
 
                     document.getElementById('setup-screen').style.display = 'none';
 
@@ -1987,38 +2069,249 @@
             events: [
                 { id: 1, name: "Q-SCHOOL", date: "Jan 12", format: "legs", dist: 6, players: 256, type: 'q-school', cardRequired: false },
                 { id: 2, name: "Q-SCHOOL", date: "Jan 13", format: "legs", dist: 6, players: 256, type: 'q-school', cardRequired: false },
-                { id: 3, name: "BAHRAIN MASTERS", date: "Jan 16", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true},
-                { id: 4, name: "RIYADH DARTS MASTERS", date: "Jan 19", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 3, name: "BAHRAIN MASTERS", date: "Jan 16", format: "legs", dist: 6, players: 16, region: "asia", type: 'masters', cardRequired: false},
+                { id: 201, name: "CHALLENGE TOUR 01", date: "Jan 16", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 202, name: "CHALLENGE TOUR 02", date: "Jan 16", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 203, name: "CHALLENGE TOUR 03", date: "Jan 17", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 204, name: "CHALLENGE TOUR 04", date: "Jan 17", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 205, name: "CHALLENGE TOUR 05", date: "Jan 18", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 4, name: "RIYADH DARTS MASTERS", date: "Jan 19", format: "legs", dist: 6, players: 16, region: "asia", type: 'masters', cardRequired: false},
+                { id: 101, name: "WINMAU DARTS MASTERS", date: "Feb 02", format: "sets", dist: 5, players: 32, type: 'winmaudm', cardRequired: true },
+                { id: 101, name: "PLAYERS CHAMPIONSHIP 1", date: "Feb 09", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 102, name: "PLAYERS CHAMPIONSHIP 2", date: "Feb 10", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 103, name: "PLAYERS CHAMPIONSHIP 3", date: "Feb 16", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 104, name: "PLAYERS CHAMPIONSHIP 4", date: "Feb 17", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 105, name: "PLAYERS CHAMPIONSHIP 5", date: "Feb 24", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 106, name: "PLAYERS CHAMPIONSHIP 6", date: "Feb 25", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 5, name: "POLAND DARTS OPEN", date: "Febr 22", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
-                { id: 6, name: "UK OPEN", date: "Mar 03", format: "legs", dist: 10, players: 128, type: 'major', cardRequired: false },
+                { id: 6, name: "UK OPEN", date: "Mar 03", format: "legs", dist: 6, players: 128, type: 'uk-open', cardRequired: false },
                 { id: 7, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", dist: 6, players: 32, type: 'major', cardRequired: true },
                 { id: 8, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 206, name: "CHALLENGE TOUR 06", date: "Mar 27", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 207, name: "CHALLENGE TOUR 07", date: "Mar 27", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 208, name: "CHALLENGE TOUR 08", date: "Mar 28", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 209, name: "CHALLENGE TOUR 09", date: "Mar 28", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 210, name: "CHALLENGE TOUR 10", date: "Mar 29", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 107, name: "PLAYERS CHAMPIONSHIP 7", date: "Mar 30", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 108, name: "PLAYERS CHAMPIONSHIP 8", date: "Mar 31", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 9, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 109, name: "PLAYERS CHAMPIONSHIP 9", date: "Apr 13", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 110, name: "PLAYERS CHAMPIONSHIP 10", date: "Apr 14", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 10, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 111, name: "PLAYERS CHAMPIONSHIP 11", date: "Apr 27", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 112, name: "PLAYERS CHAMPIONSHIP 12", date: "Apr 28", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 211, name: "CHALLENGE TOUR 11", date: "May 01", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 212, name: "CHALLENGE TOUR 12", date: "May 01", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 213, name: "CHALLENGE TOUR 13", date: "May 02", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 214, name: "CHALLENGE TOUR 14", date: "May 02", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 215, name: "CHALLENGE TOUR 15", date: "May 03", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 113, name: "PLAYERS CHAMPIONSHIP 13", date: "May 04", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 114, name: "PLAYERS CHAMPIONSHIP 14", date: "May 05", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 11, name: "AUSTRIAN DARTS TROPHY", date: "May 10", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
+                { id: 115, name: "PLAYERS CHAMPIONSHIP 15", date: "May 12", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 116, name: "PLAYERS CHAMPIONSHIP 16", date: "May 13", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 117, name: "PLAYERS CHAMPIONSHIP 17", date: "May 18", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 118, name: "PLAYERS CHAMPIONSHIP 18", date: "May 19", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 12, name: "INTERNATIONAL DARTS OPEN", date: "May 24", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
                 { id: 13, name: "PREMIER LEAGUE", date: "May 28", format: "legs", dist: 11, players: 8, type: 'major', cardRequired: true },
                 { id: 14, name: "BALTIC SEA DARTS OPEN", date: "May 31", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
-                { id: 15, name: "NORDIC DARTS MASTERS", date: "Jun 06", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 119, name: "PLAYERS CHAMPIONSHIP 19", date: "Jun 02", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 120, name: "PLAYERS CHAMPIONSHIP 20", date: "Jun 03", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 15, name: "NORDIC DARTS MASTERS", date: "Jun 06", format: "legs", dist: 6, players: 16, region: "nordic", type: 'masters', cardRequired: false },
+                { id: 121, name: "PLAYERS CHAMPIONSHIP 21", date: "Jun 16", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 122, name: "PLAYERS CHAMPIONSHIP 22", date: "Jun 17", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 16, name: "SLOVAK DARTS OPEN", date: "Jun 19", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
-                { id: 17, name: "US MASTERS", date: "Jun 26", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 17, name: "US MASTERS", date: "Jun 26", format: "legs", dist: 6, players: 16, region: "america" , type: 'masters', cardRequired: false },
+                {id: 123, name: "PLAYERS CHAMPIONSHIP 23", date: "Jul 06", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 124, name: "PLAYERS CHAMPIONSHIP 24", date: "Jul 07", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 18, name: "EUROPEAN DARTS OPEN", date: "Jul 12", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
-                { id: 19, name: "MATCHPLAY", date: "Jul 26", format: "legs", dist: 18, players: 32, type: 'major', cardRequired: true },
-                { id: 20, name: "NEW ZEALAND MASTERS", date: "Aug 15", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
-                { id: 21, name: "AUSTRALIAN DARTS MASTERS", date: "Aug 22", format: "legs", dist: 6, players: 16, type: 'masters', cardRequired: true },
+                { id: 19, name: "MATCHPLAY", date: "Jul 26", format: "legs", dist: 18, players: 32, type: 'matchplay', cardRequired: true },
+                { id: 125, name: "PLAYERS CHAMPIONSHIP 25", date: "Jul 28", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 126, name: "PLAYERS CHAMPIONSHIP 26", date: "Jul 29", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                {id: 216, name: "CHALLENGE TOUR 16", date: "Aug 14", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 217, name: "CHALLENGE TOUR 17", date: "Aug 14", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 218, name: "CHALLENGE TOUR 18", date: "Aug 15", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 219, name: "CHALLENGE TOUR 19", date: "Aug 15", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 220, name: "CHALLENGE TOUR 20", date: "Aug 16", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 20, name: "NEW ZEALAND MASTERS", date: "Aug 15", format: "legs", dist: 6, players: 16, region: "oceania", type: 'masters', cardRequired: false },
+                { id: 21, name: "AUSTRALIAN DARTS MASTERS", date: "Aug 22", format: "legs", dist: 6, players: 16, region: "oceania", type: 'masters', cardRequired: false },
+                { id: 127, name: "PLAYERS CHAMPIONSHIP 27", date: "Aug 25", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 128, name: "PLAYERS CHAMPIONSHIP 28", date: "Aug 26", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
                 { id: 22, name: "HUNGARIAN DARTS TROPHY", date: "Aug 30", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
                 { id: 23, name: "CZECH DARTS OPEN", date: "Sep 04", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
                 { id: 24, name: "FLANDER DARTS OPEN", date: "Sep 13", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
                 { id: 25, name: "WORLD SERIES OF DARTS FINALS", date: "Sep 17", format: "legs", dist: 6, players: 32, type: 'masters-final', cardRequired: true },
-                { id: 26, name: "WORLD GRAND PRIX", date: "Oct 06", format: "sets", dist: 3, players: 32, type: 'major', cardRequired: true },
+                { id: 129, name: "PLAYERS CHAMPIONSHIP 29", date: "Sep 22", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 130, name: "PLAYERS CHAMPIONSHIP 30", date: "Sep 23", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 221, name: "CHALLENGE TOUR 21", date: "Sep 26", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 222, name: "CHALLENGE TOUR 22", date: "Sep 26", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 223, name: "CHALLENGE TOUR 23", date: "Sep 27", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 224, name: "CHALLENGE TOUR 24", date: "Sep 27", format: "legs", dist: 5, players: 128, type: "challenge", cardRequired: false },
+                { id: 26, name: "WORLD GRAND PRIX", date: "Oct 06", format: "sets", dist: 3, players: 32, type: 'grandprix', cardRequired: true },
                 { id: 27, name: "SWISS DARTS TROPHY", date: "Oct 11", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
                 { id: 28, name: "DUTCH  DARTS CHAMPIONSHIP", date: "Oct 18", format: "legs", dist: 6, players: 32, type: 'minor', cardRequired: true },
-                { id: 29, name: "MACHINESEEKER EUROPEAN CHMAPIONSHIP", date: "Oct 18", format: "legs", dist: 8, players: 32, type: 'major', cardRequired: true },
-                /*{ id: 8, name: "GRAND SLAM", date: "Nov 11", format: "legs", dist: 16, players: 32, type: 'major', cardRequired: true },*/
-                { id: 30, name: "PLAYERS CHAMP", date: "Nov 24", format: "legs", dist: 11, players: 64, type: 'major', cardRequired: true },
+                { id: 29, name: "MACHINESEEKER EUROPEAN CHAMPIONSHIP", date: "Oct 22", format: "legs", dist: 8, players: 32, type: 'europeanf', cardRequired: true },
+                { id: 131, name: "PLAYERS CHAMPIONSHIP 31", date: "Oct 28", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 132, name: "PLAYERS CHAMPIONSHIP 32", date: "Oct 29", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 88, name: "GRAND SLAM OF DARTS", date: "Nov 01", format: "legs", dist: 16, players: 32, type: "grandslam", cardRequired: true },
+                { id: 133, name: "PLAYERS CHAMPIONSHIP 33", date: "Nov 04", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 134, name: "PLAYERS CHAMPIONSHIP 34", date: "Nov 05", format: "legs", dist: 6, players: 128, type: "players", cardRequired: true },
+                { id: 30, name: "PLAYERS CHAMPIONSHIP FINALS", date: "Nov 24", format: "legs", dist: 11, players: 64, type: 'playersf', cardRequired: true },
                 { id: 31, name: "WORLD CHAMPIONSHIP", date: "Dec 15", format: "sets", dist: 5, players: 128, type: 'world', cardRequired: true}
             ],
-            state: { activeEventIndex: 0, orderOfMerit: {}, completedEvents: [], inProgress: false, year: 2026 },
+           state: {
+     activeEventIndex: 0,
+    year: 2026,
+    inProgress: false,
+
+    orderOfMerit: {},
+    proTourOOM: {},
+    challengeTourOOM: {},
+
+    proTourHistory: [],
+    challengeTourHistory: [],
+
+    activeOOMView: "main",
+    completedEvents: [],
+
+    worldSeriesOOM: {},
+worldSeriesHistory: [],
+
+wcQualified: {
+    qualifiers: new Set()
+},
+ukOpenQualifiers: [],
+
+winmauQualifiers: []
+
+
+   
+},
+
+    buildGrandSlamQualifiers: () => {
+    const qualified = new Set();
+
+    const add = (name) => {
+        if(name && qualified.size < 32) qualified.add(name);
+    };
+
+    // 1️⃣ Major győztesek + döntősök
+    [
+        "WORLD CHAMPIONSHIP",
+        "MATCHPLAY",
+        "GRAND PRIX",
+        "UK OPEN",
+        "EUROPEAN CHAMPIONSHIP",
+        "PLAYERS CHAMPIONSHIP FINALS",
+        "WORLD SERIES OF DARTS FINALS"
+    ].forEach(eventName => {
+        const ev = Season.state.completedEvents.find(e => e.name === eventName);
+        if(ev?.winner) add(ev.winner);
+        if(ev?.runnerUp) add(ev.runnerUp);
+    });
+
+    // 2️⃣ Challenge Tour top 3
+    Object.entries(Season.state.challengeTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0,3)
+        .forEach(e => add(e[0]));
+
+    // 3️⃣ European Tour winners
+    Season.events
+        .filter(e => e.type === "minor")
+        .forEach(ev => {
+            const res = Season.state.completedEvents.find(c => c.id === ev.id);
+            if(res?.winner) add(res.winner);
+        });
+
+    // 4️⃣ Players Championship winners
+    Season.events
+        .filter(e => e.type === "players")
+        .forEach(ev => {
+            const res = Season.state.completedEvents.find(c => c.id === ev.id);
+            if(res?.winner) add(res.winner);
+        });
+
+    // 5️⃣ Tour Card qualifier (OOM top TC)
+    Object.entries(Season.state.orderOfMerit)
+        .filter(([n]) => PLAYERS_DB.find(p => p.name === n)?.tourCard)
+        .sort((a,b) => b[1] - a[1])
+        .forEach(e => add(e[0]));
+
+    return [...qualified];
+},
+
+
+            simulateUKOpenQuali: () => {
+
+                // --- játékosok kiválasztása ---
+                let selected = new Set();
+
+                // Challenge Tour top 32
+                Object.entries(Season.state.challengeTourOOM)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, 32)
+                    .forEach(e => selected.add(e[0]));
+
+                // Tour Card OOM 97–128
+                Object.entries(Season.state.orderOfMerit)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(96, 128)
+                    .forEach(e => selected.add(e[0]));
+
+                // safety fill
+                const pool = PLAYERS_DB
+                    .map(p => p.name)
+                    .filter(n => !selected.has(n));
+
+                while(selected.size < 64) {
+                    selected.add(pool[Math.floor(Math.random() * pool.length)]);
+                }
+
+                // --- szimuláció (egyszerű, gyors) ---
+                const players = [...selected];
+
+                // top32 = random fele továbbjut (mint első kör)
+                const qualified = players
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 32);
+
+                Season.state.ukOpenQualifiers = qualified;
+
+                console.log("UK Open Qualifiers:", qualified);
+            },
+
+            simulateWinmauQuali: () => {
+    let selected = new Set();
+
+    // 1️⃣ Challenge Tour top 32
+    Object.entries(Season.state.challengeTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 32)
+        .forEach(e => selected.add(e[0]));
+
+    // 2️⃣ PDC OOM (17–48, mert top16 már bent van)
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(16, 48)
+        .forEach(e => selected.add(e[0]));
+
+    // safety fill 64-re
+    const pool = PLAYERS_DB.map(p => p.name).filter(n => !selected.has(n));
+    while(selected.size < 64) {
+        selected.add(pool[Math.floor(Math.random() * pool.length)]);
+    }
+
+    // Top 8 továbbjut (random, mint kvali)
+    const qualified = [...selected]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 8);
+
+    Season.state.winmauQualifiers = qualified;
+
+    console.log("Winmau Masters qualifiers:", qualified);
+},
+
 
             init: () => {
                 // Initialize OOM if empty
@@ -2027,6 +2320,32 @@
                          Season.state.orderOfMerit[p.name] = p.money || 0;
                      });
                 }
+                if(Object.keys(Season.state.proTourOOM).length === 0) {
+                    RAW_PLAYERS.forEach(p => {
+                        Season.state.proTourOOM[p.name] = 0;
+                    });
+                    }
+                // ============================
+                // VB QUALIFIERS BUILD
+                // ============================
+                Season.state.wcQualified.qualifiers.clear();
+
+                // A) Dev + női + CT
+                getTopFromOOM(Season.state.challengeTourOOM, 14, Season.state.wcQualified.qualifiers)
+                    .forEach(n => Season.state.wcQualified.qualifiers.add(n));
+
+                // B) Országos kvalik
+                ["jpn","chn","ind","bel","esp","cro","cze","pol","ger","hun","wal","fin","ken"].forEach(c => {
+                    const p = getBestFromCountry(c);
+                    if(p) Season.state.wcQualified.qualifiers.add(p.name);
+                });
+
+                // C) Regionális kvalik
+                ["asia","nordic","oceania","america"].forEach(r => {
+                    const p = getBestFromRegion(r);
+                    if(p) Season.state.wcQualified.qualifiers.add(p.name);
+                });
+    
                 Season.renderUI();
             },
             reset: () => {
@@ -2037,198 +2356,880 @@
                 Persistence.save();
             },
             startNewYear: () => {
-                if(!confirm("Start new season? Rankings will carry over.")) return;
-                Season.state.year++;
-                Season.state.activeEventIndex = 0;
-                Season.state.completedEvents = [];
-                // Simple money decay: lose 50% of money over 2 years (approx)
-                for(let p in Season.state.orderOfMerit) {
-                    Season.state.orderOfMerit[p] = Math.floor(Season.state.orderOfMerit[p] * 0.75); 
+            if(!confirm("Start new season? Rankings will carry over.")) return;
+
+            // kiosztás CSAK EZUTÁN
+            const sorted = Object.entries(Season.state.challengeTourOOM || {})
+                .sort((a,b) => b[1] - a[1]);
+
+            const winners = sorted.slice(0, 2).map(e => e[0]);
+
+            winners.forEach(name => {
+                const idx = PLAYERS_DB.findIndex(x => x.name === name);
+                if (idx !== -1) {
+                    PLAYERS_DB[idx].tourCard = true;
                 }
-                Season.renderUI();
-                Persistence.save();
-            },
-            renderUI: () => {
-                const list = document.getElementById('season-event-list');
-                list.innerHTML = '';
-                document.getElementById('season-year-disp').innerText = Season.state.year;
-                
-                // Show "Start Next Season" if all events done
-                const allDone = Season.state.activeEventIndex >= Season.events.length;
-                if(allDone) {
-                    document.getElementById('season-controls').innerHTML = `
-                        <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year+1}</button>
-                        <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
-                    `;
-                } else {
-                    document.getElementById('season-controls').innerHTML = `<button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>`;
-                }
+            });
 
-                Season.events.forEach((ev, idx) => {
-                    const isActive = idx === Season.state.activeEventIndex;
-                    const isDone = idx < Season.state.activeEventIndex;
-                    const completedData = Season.state.completedEvents.find(c => c.id === ev.id);
-                    
-                    let statusClass = isActive ? 'active' : (isDone ? 'completed' : '');
-                    let action = '';
-                    
-                    if(isActive) {
-                        action = `<button class="btn-play-mini" onclick="Season.startEvent(${idx}, false)">PLAY</button>
-                                  <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="Season.startEvent(${idx}, true)">SIM</button>`;
-                    } else if (isDone && completedData) {
-                        action = `<span class="s-winner">🏆 ${completedData.winner}</span>`;
-                    }
 
-                    list.innerHTML += `
-                        <div class="season-event ${statusClass}">
-                            <div>
-                                <div class="s-date">${ev.date}</div>
-                                <div class="s-name">${ev.name}</div>
-                            </div>
-                            <div>${action}</div>
-                        </div>
-                    `;
-                });
-
-                // Create a DocumentFragment to improve performance
-                const frag = document.createDocumentFragment();
-                const oomList = Object.entries(Season.state.orderOfMerit)
-                    .sort((a,b) => b[1] - a[1]);
-                
-                // Add Headers
-                const headerRow = document.createElement('tr');
-                headerRow.innerHTML = `<th>Pos</th><th>Player</th><th>Prize Money</th>`;
-                frag.appendChild(headerRow);
-
-                oomList.forEach((entry, i) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td class="oom-pos">${i+1}</td><td>${entry[0]}</td><td class="oom-money">£${entry[1].toLocaleString()}</td>`;
-                    frag.appendChild(row);
-                });
-
-                const table = document.getElementById('season-oom');
-                table.innerHTML = '';
-                table.appendChild(frag);
-            },
-            startEvent: (idx, isSim) => {
-                const ev = Season.events[idx];
-                
-                document.getElementById('tourn-event-name').value = ev.name;
-                document.getElementById('tourn-size').value = ev.players;
-                Tournament.setMode(ev.format);
-                
-                Tournament.state.selectedPlayerIndices.clear();
-
-                // 1. FILTER POOL
-                let pool = PLAYERS_DB;
-                
-                if(ev.name === "Q-SCHOOL") {
-                     // For Q-School, strictly EXCLUDE tour card holders
-                     pool = PLAYERS_DB.filter(p => !p.tourCard);
-                } else if(ev.cardRequired) {
-                     // For Majors, strictly REQUIRE tour card
-                     pool = PLAYERS_DB.filter(p => p.tourCard);
-                } else {
-                     // Open events (e.g. UK Open if set to open, or World Cup) - allow all
-                     pool = PLAYERS_DB;
-                }
-                
-                // 2. SELECTION
-                if(ev.type !== 'minor' && ev.name !== "Q-SCHOOL") {
-                    // Seed by OOM for big events
-                    pool.sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
-                    
-                    const topPlayers = pool.slice(0, ev.players);
-                    topPlayers.forEach(tp => {
-                        const originalIdx = PLAYERS_DB.indexOf(tp);
-                        if(originalIdx > -1) Tournament.state.selectedPlayerIndices.add(originalIdx);
-                    });
-                } 
-                
-                // Fill remaining spots randomly if pool allows
-                let attempts = 0;
-                while(Tournament.state.selectedPlayerIndices.size < ev.players && attempts < 2000) {
-                    if(pool.length === 0) break; // Safety
-                    const randInPool = Math.floor(Math.random() * pool.length);
-                    const originalIdx = PLAYERS_DB.indexOf(pool[randInPool]);
-                    Tournament.state.selectedPlayerIndices.add(originalIdx);
-                    attempts++;
-                }
-
-                Tournament.setSelectionMethod('manual'); 
-                Tournament.updateConfigUI(); 
-                
-                const numRounds = Math.log2(ev.players);
-                for(let i=0; i<numRounds; i++) {
-                    const el = document.getElementById(`t-rnd-${i}`);
-                    if(el) el.value = ev.dist; 
-                }
-
-                Season.state.inProgress = true;
-                Persistence.save();
-
-                Tournament.start(); 
-
-                if(isSim) {
-                    while(Tournament.state.active) {
-                        Tournament.simulateRound();
-                    }
-                } else {
-                    App.switchTab('tourn');
-                }
-            },
-            completeEvent: (finalBracket) => {
-                // Determine payouts based on result
-                const idx = Season.state.activeEventIndex;
-                const ev = Season.events[idx];
-                const structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
-                
-                // Calculate Payouts
-                finalBracket.forEach((roundMatches, roundIdx) => {
-                    const playersInRound = ev.players / Math.pow(2, roundIdx);
-                    const loserMoney = structure[playersInRound] || 0;
-                    
-                    roundMatches.forEach(m => {
-                        if(m.winner) {
-                            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
-                            if(loser && Season.state.orderOfMerit[loser.name] !== undefined) {
-                                Season.state.orderOfMerit[loser.name] += loserMoney;
-                            }
-                        }
-                    });
-                });
-
-                // Winner Money
-                const finalMatch = finalBracket[finalBracket.length - 1][0];
-                const winnerMoney = structure[1]; // Pos 1
-                if(finalMatch.winner && Season.state.orderOfMerit[finalMatch.winner.name] !== undefined) {
-                    Season.state.orderOfMerit[finalMatch.winner.name] += winnerMoney;
-                }
-                
-                // If Q-School, assign Tour Cards to winner (simplified)
-                if((ev.name === "Q-SCHOOL" || ev.name === "Q-SCHOOL 2") && finalMatch.winner) {
-                    const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.winner.name);
-                    if(pIdx > -1) {
-                         PLAYERS_DB[pIdx].tourCard = true;
-                         alert(`${finalMatch.winner.name} has won a Tour Card!`);
-                    }
-                }
-
-                Season.state.completedEvents.push({ id: ev.id, winner: finalMatch.winner.name });
-                Season.state.activeEventIndex++;
-                Season.state.inProgress = false; 
-                
-                Tournament.state.active = false; // Kill tournament flag
-                Persistence.save();
-                
-                document.getElementById('setup-screen').style.display = 'flex';
-                document.getElementById('match-screen').style.display = 'none';
-                document.getElementById('tournament-hub').style.display = 'none';
-                
-                App.switchTab('season');
-                Season.renderUI();
+            if(winners.length) {
+                alert(`🏆 Tour Card won via Challenge Tour: ${winners.join(", ")}`);
             }
+            Season.state = {
+            activeEventIndex: 0,
+            year: Season.state.year + 1,
+            inProgress: false,
+
+            orderOfMerit: Season.state.orderOfMerit,
+            proTourOOM: {},
+            challengeTourOOM: {},
+
+            proTourHistory: [],
+            challengeTourHistory: [],
+
+            activeOOMView: "main",
+            completedEvents: [],
+
+            worldSeriesOOM: {},
+            worldSeriesHistory: [],
+
+            wcQualified: { qualifiers: new Set() },
+            ukOpenQualifiers: []
         };
+
+
+            Season.state.year++;
+            Season.state.activeEventIndex = 0;
+            Season.state.completedEvents = [];
+
+            for(let p in Season.state.orderOfMerit) {
+                Season.state.orderOfMerit[p] = Math.floor(Season.state.orderOfMerit[p] * 0.75);
+            }
+
+            Season.renderUI();
+            Persistence.save();
+        },
+
+            renderUI: () => {
+
+    // ============================
+    // 1️⃣ OOM VÁLTÓ UI (MAIN / PRO / CHALLENGE)
+    // ============================
+    const title = document.getElementById("oom-title");
+    const mainBtn = document.getElementById("btn-main-oom");
+    const proBtn = document.getElementById("btn-protour-oom");
+    const chalBtn = document.getElementById("btn-challenge-oom");
+    
+
+    if(title && mainBtn && proBtn) {
+        if(Season.state.activeOOMView === "pro") {
+            title.innerText = "PRO TOUR ORDER OF MERIT";
+            mainBtn.style.opacity = "0.6";
+            proBtn.style.opacity = "1";
+            if(chalBtn) chalBtn.style.opacity = "0.6";
+        }
+        else if(Season.state.activeOOMView === "challenge") {
+            title.innerText = "CHALLENGE TOUR ORDER OF MERIT";
+            mainBtn.style.opacity = "0.6";
+            proBtn.style.opacity = "0.6";
+            if(chalBtn) chalBtn.style.opacity = "1";
+        }
+        else if(Season.state.activeOOMView === "worldseries") {
+        title.innerText = "WORLD SERIES ORDER OF MERIT";
+        mainBtn.style.opacity = "0.6";
+        proBtn.style.opacity = "0.6";
+        chalBtn.style.opacity = "0.6";
+        }
+
+        else {
+            title.innerText = "ORDER OF MERIT";
+            mainBtn.style.opacity = "1";
+            proBtn.style.opacity = "0.6";
+            if(chalBtn) chalBtn.style.opacity = "0.6";
+        }
+    }
+
+    // ============================
+    // 2️⃣ EVENT LISTA
+    // ============================
+    const list = document.getElementById('season-event-list');
+    list.innerHTML = '';
+    document.getElementById('season-year-disp').innerText = Season.state.year;
+
+    const allDone = Season.state.activeEventIndex >= Season.events.length;
+    if(allDone) {
+        document.getElementById('season-controls').innerHTML = `
+            <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year+1}</button>
+            <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
+        `;
+    } else {
+        document.getElementById('season-controls').innerHTML = `
+            <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
+        `;
+    }
+
+    Season.events.forEach((ev, idx) => {
+        const isActive = idx === Season.state.activeEventIndex;
+        const isDone = idx < Season.state.activeEventIndex;
+        const completedData = Season.state.completedEvents.find(c => c.id === ev.id);
+
+        let statusClass = isActive ? 'active' : (isDone ? 'completed' : '');
+        let action = '';
+
+        if(isActive) {
+            action = `
+                <button class="btn-play-mini" onclick="Season.startEvent(${idx}, false)">PLAY</button>
+                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="Season.startEvent(${idx}, true)">SIM</button>
+            `;
+        }
+        else if (isDone && completedData) {
+            action = `<span class="s-winner">🏆 ${completedData.winner}</span>`;
+        }
+
+        list.innerHTML += `
+            <div class="season-event ${statusClass}">
+                <div>
+                    <div class="s-date">${ev.date}</div>
+                    <div class="s-name">${ev.name}</div>
+                </div>
+                <div>${action}</div>
+            </div>
+        `;
+    });
+
+// 3️⃣ OOM TÁBLA
+// ============================
+const source =
+    Season.state.activeOOMView === "pro" ? Season.state.proTourOOM :
+    Season.state.activeOOMView === "challenge" ? Season.state.challengeTourOOM :
+    Season.state.activeOOMView === "worldseries" ? Season.state.worldSeriesOOM :
+    Season.state.orderOfMerit;
+
+
+    const oomList = Object.entries(source).sort((a,b) => b[1] - a[1]);
+
+    const table = document.getElementById('season-oom');
+    table.innerHTML = '';
+
+    const header = document.createElement('tr');
+    header.innerHTML = `<th>Pos</th><th>Player</th><th>Prize Money</th>`;
+    table.appendChild(header);
+
+    oomList.forEach((entry, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="oom-pos">${i+1}</td>
+            <td>${entry[0]}</td>
+            <td class="oom-money">£${entry[1].toLocaleString()}</td>
+        `;
+        table.appendChild(row);
+    });
+},
+
+
+           startEvent: (idx, isSim) => {
+     Season.state.inProgress = false;
+     Tournament.state.active = false;
+
+    if (Season.state.inProgress) {
+        console.warn("Event already in progress");
+        return;
+    }
+
+    Tournament.clearSelection();
+    Tournament.state.selectedPlayerIndices.clear();
+
+    // 🔥 EV ITT JÖN LÉTRE
+    const ev = Season.events[idx];
+
+    // ✅ CSAK EZUTÁN HASZNÁLJUK
+    if (ev.type === "uk-open" && Season.state.ukOpenQualifiers.length === 0) {
+        Season.simulateUKOpenQuali();
+    }
+
+    document.getElementById('tourn-event-name').value = ev.name;
+    document.getElementById('tourn-size').value = ev.players;
+    Tournament.setMode(ev.format);
+
+
+
+
+    // =======================
+// PLAYER POOL
+// =======================
+let pool = PLAYERS_DB;
+
+// Challenge Tour → csak nem Tour Cardos
+if(ev.type === "challenge") {
+    pool = PLAYERS_DB.filter(p => !p.tourCard);
+}
+
+// Q-School → csak nem Tour Cardos
+else if(ev.type === "q-school") {
+    pool = PLAYERS_DB.filter(p => !p.tourCard);
+}
+
+// Pro Tour (PC, ET, Major ahol kell)
+else if(ev.cardRequired) {
+    pool = PLAYERS_DB.filter(p => p.tourCard);
+}
+
+if(ev.type === "grandslam") {
+    const list = Season.buildGrandSlamQualifiers();
+    list.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+    });
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+// ========================
+// WORLD SERIES FINALS QUALIFICATION
+// ========================
+if (ev.type === "masters-final") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 1️⃣ Top 22 World Series OOM
+    const wsTop22 = Object.entries(Season.state.worldSeriesOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 22)
+        .map(e => e[0]);
+
+    wsTop22.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // 2️⃣ Top 4 Pro Tour OOM (akik még nincsenek bent)
+    const proTop4 = Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .map(e => e[0])
+        .filter(name => !selected.has(PLAYERS_DB.findIndex(p => p.name === name)))
+        .slice(0, 4);
+
+    proTop4.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // 3️⃣ 6 random Tour Card (akik még nincsenek bent)
+    const tourCardPool = PLAYERS_DB.filter(p =>
+        p.tourCard && !selected.has(PLAYERS_DB.indexOf(p))
+    );
+
+    let attempts = 0;
+    while(selected.size < 32 && attempts < 2000) {
+        const r = tourCardPool[Math.floor(Math.random() * tourCardPool.length)];
+        if(r) selected.add(PLAYERS_DB.indexOf(r));
+        attempts++;
+    }
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+if (ev.type === "world") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const all = new Set();
+
+    // Top 40 OOM
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 40)
+        .forEach(e => all.add(e[0]));
+
+    // Top 40 Pro Tour OOM
+    Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .forEach(e => {
+            if(all.size < 80) all.add(e[0]);
+        });
+
+    // Qualifiers
+    Season.state.wcQualified.qualifiers.forEach(n => {
+        if(all.size < 128) all.add(n);
+    });
+
+   // TOUR CARD QUALIFIER (ha még hiányzik hely)
+Object.entries(Season.state.orderOfMerit)
+    .map(e => {
+        const p = PLAYERS_DB.find(x => x.name === e[0]);
+        return { name: e[0], money: e[1], tc: p?.tourCard };
+    })
+    .filter(p => p.tc)
+    .sort((a,b) => b.money - a.money)
+    .forEach(p => {
+        if(all.size < 128 && !all.has(p.name)) {
+            all.add(p.name);
+        }
+    });
+
+    // Safety fill
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .forEach(e => {
+            if(all.size < 128) all.add(e[0]);
+        });
+
+    all.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+
+
+
+// ========================
+// UK OPEN SPECIAL
+// ========================
+if(ev.type === "uk-open") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 1️⃣ Top 96 OOM
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 96)
+        .forEach(e => {
+            const p = PLAYERS_DB.find(x => x.name === e[0]);
+            if(p) selected.add(PLAYERS_DB.indexOf(p));
+        });
+
+    // 2️⃣ +32 Quali továbbjutó
+    Season.state.ukOpenQualifiers.forEach(name => {
+    const p = PLAYERS_DB.find(x => x.name === name);
+    if(p) selected.add(PLAYERS_DB.indexOf(p));
+});
+
+// 🔒 SAFETY FILL – ha átfedés volt
+const used = new Set([...selected]);
+
+const pool = PLAYERS_DB
+    .map((p, i) => i)
+    .filter(i => !used.has(i));
+
+let attempts = 0;
+while (selected.size < 128 && attempts < 5000) {
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    selected.add(r);
+    attempts++;
+}
+    
+    Tournament.updateConfigUI();
+    Tournament.state.currentActiveRound = 0;
+Tournament.state.viewingRound = 0;
+Tournament.start();
+}
+
+
+// ========================
+// PLAYERS CHAMPIONSHIP FINALS QUALIFICATION
+// ========================
+if (ev.name === "PLAYERS CHAMPIONSHIP FINALS") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const top64 = Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 64)
+        .map(e => e[0]);
+
+    top64.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+
+// ========================
+// EUROPEAN CHAMPIONSHIP QUALIFICATION
+// ========================
+if (ev.name === "MACHINESEEKER EUROPEAN CHAMPIONSHIP") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const top32 = Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 32)
+        .map(e => e[0]);
+
+    top32.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+// ========================
+// WORLD MATCHPLAY
+// ========================
+if ((ev.name === "MATCHPLAY" || ev.type === "matchplay") || ev.type === 'grandprix') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 1️⃣ Top 16 MAIN OOM
+    const topMain = [...PLAYERS_DB]
+        .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0))
+        .slice(0, 16);
+
+    topMain.forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
+
+    // 2️⃣ Top 16 PRO TOUR OOM (duplázás nélkül)
+    const proSorted = [...PLAYERS_DB]
+        .filter(p => p.tourCard)
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0));
+
+    for (let p of proSorted) {
+        if (selected.size >= 32) break;
+        selected.add(PLAYERS_DB.indexOf(p));
+    }
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+// ========================
+    // WINMAU DARTS MASTERS
+    // ========================
+    if(ev.type === 'winmaudm') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 🔥 QUALI lefuttatása
+    Season.simulateWinmauQuali();
+
+    // 1️⃣ Top 16 PDC OOM
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 24)
+        .forEach(e => {
+            const p = PLAYERS_DB.find(x => x.name === e[0]);
+            if(p) selected.add(PLAYERS_DB.indexOf(p));
+        });
+
+    // 2️⃣ +8 quali továbbjutó
+    Season.state.winmauQualifiers.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    let attempts = 0;
+    while(selected.size < 32 && attempts < 2000) {
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        selected.add(PLAYERS_DB.indexOf(r));
+        attempts++;
+    }
+
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+    // ========================
+    // 2. MASTERS EVENTS
+    // ========================
+    if(ev.type === 'masters') {
+
+        const oomSorted = [...PLAYERS_DB]
+            .filter(p => p.tourCard)
+            .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+
+        const regionSorted = [...PLAYERS_DB]
+            .filter(p => REGION_MAP[ev.region]?.includes(p.country))
+            .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+
+        // Top 8 OOM
+        oomSorted.slice(0, 8).forEach(p =>
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+        );
+
+        // Top 8 region
+        regionSorted.slice(0, 8).forEach(p =>
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+        );
+
+        // Fill up 16-ra
+        const allSorted = [...PLAYERS_DB].sort(
+            (a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0)
+        );
+
+        allSorted.forEach(p => {
+            if(Tournament.state.selectedPlayerIndices.size < ev.players) {
+                Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+            }
+        });
+    }
+       // ========================
+        // Players Championship
+    // ========================
+    else if(ev.type === "players") {
+    pool = PLAYERS_DB.filter(p => p.tourCard);
+
+    pool.sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+    pool.slice(0, 128).forEach(p =>
+        Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+    );
+}
+    // ========================
+    // 3. EUROPEAN TOUR (MINOR)
+    // ========================
+    else if(ev.type === 'minor') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+
+    // ============================
+    // 1️⃣ TOP 16 PRO TOUR OOM (SEEDS)
+    // ============================
+    const proTourSorted = [...PLAYERS_DB]
+        .filter(p => p.tourCard)
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0));
+
+    proTourSorted.forEach(p => {
+        if(selected.size < 16) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // ============================
+    // 2️⃣ 17–26 TOUR CARD HOLDERS
+    // ============================
+    proTourSorted.forEach(p => {
+        if(selected.size < 26) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // ============================
+    // 3️⃣ HOST NATION QUALIFIERS (4)
+    // ============================
+    const hostCode = HOST_NATION[ev.id];
+    if(hostCode) {
+        PLAYERS_DB
+            .filter(p => p.country === hostCode)
+            .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))
+            .slice(0, 4)
+            .forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
+    }
+
+    // ============================
+    // 4️⃣ NORDIC & BALTIC QUALIFIER
+    // ============================
+    const nordic = PLAYERS_DB
+        .filter(p => REGION_MAP.nordic.includes(p.country))
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))[0];
+
+    if(nordic) selected.add(PLAYERS_DB.indexOf(nordic));
+
+    // ============================
+    // 5️⃣ EASTERN EUROPE QUALIFIER
+    // ============================
+    const east = PLAYERS_DB
+        .filter(p => REGION_MAP.europe.includes(p.country)) // kelet-európa külön listád ha van, ide tedd
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))[0];
+
+    if(east) selected.add(PLAYERS_DB.indexOf(east));
+
+    // ============================
+    // 6️⃣ SAFETY FILL (ha kevesebb mint 32)
+    // ============================
+    const allSorted = [...PLAYERS_DB].sort(
+        (a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0)
+    );
+
+    allSorted.forEach(p => {
+        if(selected.size < 32) selected.add(PLAYERS_DB.indexOf(p));
+    });
+}
+
+
+// =======================
+// CHALLENGE TOUR FILL
+// =======================
+else if(ev.type === "challenge") {
+    let attempts = 0;
+    while(Tournament.state.selectedPlayerIndices.size < ev.players && attempts < 5000) {
+        const rand = pool[Math.floor(Math.random() * pool.length)];
+        Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(rand));
+        attempts++;
+    }
+}
+    // ========================
+    // 4. MINDEN MÁS EVENT
+    // ========================
+    else {
+        pool.sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+        pool.slice(0, ev.players).forEach(p => {
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+        });
+
+        let attempts = 0;
+        while(Tournament.state.selectedPlayerIndices.size < ev.players && attempts < 2000) {
+            const rand = pool[Math.floor(Math.random() * pool.length)];
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(rand));
+            attempts++;
+        }
+    }
+
+    // ========================
+    // 5. FINAL SETUP
+    // ========================
+if (ev.type !== "uk-open") {
+    Tournament.setSelectionMethod('manual');
+    Tournament.updateConfigUI();
+}
+
+    Season.state.inProgress = true;
+    Persistence.save();
+
+    Tournament.start();
+
+    if(isSim) {
+        while(Tournament.state.active) {
+            Tournament.simulateRound();
+        }
+    } else {
+        App.switchTab('tourn');
+    }
+},
+
+           completeEvent: (finalBracket) => {
+    const idx = Season.state.activeEventIndex;
+    const ev = Season.events[idx];
+    const structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
+   
+    // ===============================
+// UK OPEN QUALI – TOP 32 ELMENTÉS
+// ===============================
+if (ev.type === "uk-open-quali") {
+
+    const qualified = new Set();
+
+    // TOP 32 = round 1 győztesei
+    finalBracket[0].forEach(m => {
+        if(m.winner) qualified.add(m.winner.name);
+    });
+
+    Season.state.ukOpenQualifiers = [...qualified];
+
+    Season.state.completedEvents.push({
+        id: ev.id,
+        winner: "Qualifiers decided"
+    });
+
+    Season.state.activeEventIndex++;
+    Season.state.inProgress = false;
+    Tournament.state.active = false;
+
+    Persistence.save();
+
+    // 🔥 UI RESET (EZ HIÁNYZOTT)
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('match-screen').style.display = 'none';
+    document.getElementById('tournament-hub').style.display = 'none';
+
+    App.switchTab('season');
+    Season.renderUI();
+    return;
+}
+
+
+
+    
+    // ================= WORLD SERIES OOM =================
+if (ev.type === "masters" || ev.type === "masters-final") {
+
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const pts = WORLD_SERIES_POINTS[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser) {
+               Season.state.worldSeriesOOM[loser.name] =
+                (Season.state.worldSeriesOOM[loser.name] || 0) + pts;
+            }
+        });
+    });
+
+    // Winner extra
+    const finalMatch = finalBracket.at(-1)[0];
+    if(finalMatch.winner) {
+       Season.state.worldSeriesOOM[finalMatch.winner.name] =
+        (Season.state.worldSeriesOOM[finalMatch.winner.name] || 0) + WORLD_SERIES_POINTS[1];
+
+    }
+
+    // History
+    Season.state.worldSeriesHistory.push({
+        date: ev.date,
+        event: ev.name,
+        bracket: finalBracket
+    });
+}
+
+
+    // ================= MAIN OOM PAYOUT =================
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const loserMoney = structure[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser && Season.state.orderOfMerit[loser.name] !== undefined) {
+                Season.state.orderOfMerit[loser.name] += loserMoney;
+            }
+        });
+    });
+    
+    // Winner money (MAIN OOM)
+    const finalMatch = finalBracket.at(-1)[0];
+    if(finalMatch.winner && Season.state.orderOfMerit[finalMatch.winner.name] !== undefined) {
+        Season.state.orderOfMerit[finalMatch.winner.name] += structure[1];
+    }
+
+    // ================= PRO TOUR OOM =================
+    if(ev.type === "players" || ev.type === "minor") {
+
+        const payouts = {};
+
+        finalBracket.forEach((roundMatches, roundIdx) => {
+            const playersInRound = ev.players / Math.pow(2, roundIdx);
+            const money = PRIZE_STRUCTURE[ev.type][playersInRound] || 0;
+
+            roundMatches.forEach(m => {
+                if(!m.winner) return;
+                const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+                if(loser) payouts[loser.name] = money;
+            });
+        });
+
+        // winner
+        payouts[finalMatch.winner.name] = PRIZE_STRUCTURE[ev.type][1];
+
+        Season.state.proTourHistory.push({
+            date: ev.date,
+            payouts
+        });
+
+        Season.trimProTourHistory(ev.date);
+        Season.recalculateProTourOOM();
+    }
+    // ================= CHALLENGE TOUR OOM =================
+if(ev.type === "challenge") {
+
+    const payouts = {};
+
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const money = PRIZE_STRUCTURE.challenge[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser) payouts[loser.name] = money;
+        });
+    });
+
+    // winner
+    payouts[finalMatch.winner.name] = PRIZE_STRUCTURE.challenge[1];
+
+    Season.state.challengeTourHistory.push({
+        date: ev.date,
+        payouts
+    });
+
+    Season.recalculateChallengeTourOOM();
+}
+
+    // ================= Q-SCHOOL TOUR CARD =================
+    if(ev.name === "Q-SCHOOL") {
+
+        const tourCardWinners = new Set();
+        const qfRoundIdx = 5; // 256 → QF
+        const qfRound = finalBracket[qfRoundIdx];
+
+        qfRound.forEach(m => {
+            if(m.p1) tourCardWinners.add(m.p1.name);
+            if(m.p2) tourCardWinners.add(m.p2.name);
+        });
+
+        tourCardWinners.forEach(name => {
+            const pIdx = PLAYERS_DB.findIndex(p => p.name === name);
+            if(pIdx > -1) PLAYERS_DB[pIdx].tourCard = true;
+        });
+
+        alert(`🏆 Won a tour card: ${[...tourCardWinners].join(", ")}`);
+    }
+    
+    // ================= SEASON STATE =================
+    Season.state.completedEvents.push({
+        id: ev.id,
+        winner: finalMatch.winner.name
+    });
+
+    Season.state.activeEventIndex++;
+    Season.state.inProgress = false;
+    Tournament.state.active = false;
+
+    Persistence.save();
+
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('match-screen').style.display = 'none';
+    document.getElementById('tournament-hub').style.display = 'none';
+
+    App.switchTab('season');
+    Season.renderUI();
+},
+trimProTourHistory: (date) => {
+    const cutoff = new Date(date);
+    cutoff.setMonth(cutoff.getMonth() - 12);
+
+    Season.state.proTourHistory = Season.state.proTourHistory.filter(
+        e => new Date(e.date) >= cutoff
+    );
+},
+
+recalculateProTourOOM: () => {
+    const oom = {};
+    RAW_PLAYERS.forEach(p => oom[p.name] = 0);
+
+    Season.state.proTourHistory.forEach(ev => {
+        for(let name in ev.payouts) {
+            oom[name] += ev.payouts[name];
+        }
+    });
+
+    Season.state.proTourOOM = oom;
+},
+
+recalculateChallengeTourOOM: () => {
+    const oom = {};
+    RAW_PLAYERS.forEach(p => oom[p.name] = 0);
+
+    Season.state.challengeTourHistory.forEach(ev => {
+        for(let name in ev.payouts) {
+            oom[name] += ev.payouts[name];
+        }
+    });
+
+    Season.state.challengeTourOOM = oom;
+}};
+
 
         const Tournament = {
             config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
@@ -2311,6 +3312,7 @@
                 }
             },
             start: () => {
+                
                 const size = parseInt(document.getElementById('tourn-size').value);
                 Tournament.config.tiebreak = document.getElementById('tourn-tiebreak').checked;
                 Tournament.config.rounds = [];
@@ -2380,7 +3382,10 @@
                 const matches = Tournament.state.bracketData[activeR];
                 const roundInfo = Tournament.config.rounds[activeR];
                 
-                if(Tournament.state.viewingRound !== activeR && !confirm("Simulate matches in the active round?")) return;
+                if(Tournament.state.viewingRound !== activeR) {
+                Tournament.state.viewingRound = activeR;
+            }
+
                 
                 let simulatedCount = 0;
                 matches.forEach(m => {
@@ -2611,6 +3616,7 @@
             checkRoundComplete: () => {
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
+
                 if (matches.every(m => m.winner)) {
                     if (rIdx === Tournament.config.rounds.length - 1) { 
                         alert(`${matches[0].winner.name} WINS!`); 
@@ -2674,7 +3680,34 @@
                 
                 // Initialize Season logic
                 Season.init();
-                
+                // App.init végén
+            document.getElementById("btn-main-oom").onclick = () => {
+                Season.state.activeOOMView = "main";
+                Season.renderUI();
+            };
+            document.getElementById("btn-protour-oom").onclick = () => {
+                Season.state.activeOOMView = "pro";
+                Season.renderUI();
+            };
+            document.getElementById("btn-challenge-oom").onclick = () => {
+                Season.state.activeOOMView = "challenge";
+                Season.renderUI();
+            };
+            document.getElementById("btn-ws-oom").onclick = () => {
+             Season.state.activeOOMView = "worldseries";
+            Season.renderUI();
+            };
+            if(!Season.state.worldSeriesOOM) {
+            Season.state.worldSeriesOOM = {};
+            }
+
+            RAW_PLAYERS.forEach(p => {
+                if(Season.state.worldSeriesOOM[p.name] === undefined) {
+                    Season.state.worldSeriesOOM[p.name] = 0;
+                }
+            });
+
+
                 document.addEventListener('click', function(event) {
                     if (!document.getElementById('list-p1').parentElement.contains(event.target)) document.getElementById('list-p1').style.display = 'none';
                     if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
