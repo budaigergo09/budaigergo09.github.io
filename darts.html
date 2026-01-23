@@ -60,6 +60,9 @@
 
         .tab-content { padding: 10px; display: none; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
         .tab-content.active { display: flex; }
+        
+        .qschool-view, .oom-view { display: none; width: 100%; }
+        .qschool-view.active, .oom-view.active { display: block; }
 
         /* CONTROLS */
         input, select {
@@ -120,11 +123,14 @@
         .s-winner { font-size: 11px; color: var(--pdc-gold); }
         
         .oom-container { height: 120px; flex-shrink: 0; overflow-y: auto; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px; background: #0a0a0a; border-radius: 4px; }
-        .oom-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .oom-table th { text-align: left; color: #888; border-bottom: 1px solid #444; padding: 5px; position: sticky; top: 0; background: #1a1a1a; z-index: 2; }
-        .oom-table td { padding: 4px 5px; border-bottom: 1px solid #222; }
-        .oom-pos { width: 25px; font-weight: bold; color: var(--pdc-gold); }
-        .oom-money { text-align: right; color: #ccc; }
+        .oom-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #ddd; }
+        .oom-table thead tr { background: #0a0a0a; }
+        .oom-table th { text-align: left; color: var(--pdc-gold); border-bottom: 2px solid var(--pdc-gold); padding: 10px 8px; position: sticky; top: 0; background: #0a0a0a; z-index: 2; font-weight: bold; }
+        .oom-table tbody tr:hover { background: #1a1a1a; }
+        .oom-table td { padding: 8px 8px; border-bottom: 1px solid #222; color: #ddd; }
+        .oom-pos { width: 30px; font-weight: bold; color: var(--pdc-gold); text-align: center; }
+        .oom-money { text-align: right; color: #ccc; font-weight: bold; }
+        .oom-view { max-height: 600px; overflow-y: auto; padding: 10px; background: #0a0a0a; border-radius: 4px; }
 
         /* HUB & BRACKET */
         #tournament-hub { background: #111; z-index: 90; padding: 0; }
@@ -277,6 +283,8 @@
                 <button class="tab-btn" onclick="App.switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
                 <button class="tab-btn" onclick="App.switchTab('season')" id="tab-btn-season">SEASON</button>
                 <button class="tab-btn" onclick="App.switchTab('premier')" id="tab-btn-premier">PREMIER LEAGUE</button>
+                <button class="tab-btn" onclick="App.switchTab('qschool')" id="tab-btn-qschool">Q-SCHOOL</button>
+                <button class="tab-btn" onclick="App.switchTab('oom')" id="tab-btn-oom">ORDER OF MERIT</button>
             </div>
 
             <!-- SINGLE MATCH TAB -->
@@ -390,19 +398,6 @@
             <div id="tab-season" class="tab-content">
                 <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
-                <div class="oom-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <label id="oom-title">ORDER OF MERIT</label>
-                    <div>
-                        <button id="btn-main-oom" class="btn-gold" style="padding:4px 8px;">Main</button>
-                        <button id="btn-protour-oom" class="btn-gold" style="padding:4px 8px; opacity:0.6;">Pro Tour</button>
-                        <button id="btn-challenge-oom" class="btn-gold" style="opacity:0.6;">Challenge</button>
-                        <button id="btn-ws-oom" class="btn-gold" style="opacity:0.6;">WORLD SERIES</button>
-                    </div>
-                </div>
-
-                <table class="oom-table" id="season-oom"></table>
-            </div>
 
                 
                 <div id="season-controls" style="margin-top:10px;">
@@ -414,6 +409,28 @@
             <div id="tab-premier" class="tab-content">
                 <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">PREMIER LEAGUE STANDINGS</div>
                 <div id="premier-league-standings"></div>
+            </div>
+            <div id="tab-qschool" class="tab-content">
+                <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">Q-SCHOOL ORDER OF MERIT</div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button class="tab-btn active" onclick="App.switchQSchoolView('uk')" id="qschool-btn-uk" style="flex:1; padding:8px;">UK Q-SCHOOL</button>
+                    <button class="tab-btn" onclick="App.switchQSchoolView('eu')" id="qschool-btn-eu" style="flex:1; padding:8px;">EU Q-SCHOOL</button>
+                </div>
+                <div id="qschool-standings-uk" class="qschool-view active"></div>
+                <div id="qschool-standings-eu" class="qschool-view"></div>
+            </div>
+            <div id="tab-oom" class="tab-content">
+                <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">ORDER OF MERIT HUB</div>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button class="tab-btn active" onclick="App.switchOOMView('main')" id="oom-btn-main" style="flex:1; padding:8px;">ORDER OF MERIT</button>
+                    <button class="tab-btn" onclick="App.switchOOMView('pro')" id="oom-btn-pro" style="flex:1; padding:8px;">PRO TOUR</button>
+                    <button class="tab-btn" onclick="App.switchOOMView('challenge')" id="oom-btn-challenge" style="flex:1; padding:8px;">CHALLENGE TOUR</button>
+                    <button class="tab-btn" onclick="App.switchOOMView('ws')" id="oom-btn-ws" style="flex:1; padding:8px;">WORLD SERIES</button>
+                </div>
+                <div class="oom-view active" id="oom-view-main"><table class="oom-table" id="oom-hub-main"></table></div>
+                <div class="oom-view" id="oom-view-pro"><table class="oom-table" id="oom-hub-pro"></table></div>
+                <div class="oom-view" id="oom-view-challenge"><table class="oom-table" id="oom-hub-challenge"></table></div>
+                <div class="oom-view" id="oom-view-ws"><table class="oom-table" id="oom-hub-ws"></table></div>
             </div>
         </div>
     </div>
@@ -2138,29 +2155,41 @@ const WORLD_SERIES_POINTS = {
 
         const Season = {
             events: [
-                { id: 1, name: "Q-SCHOOL", date: "Jan 12", format: "legs", players: 256, type: 'q-school', cardRequired: false },
-                { id: 2, name: "Q-SCHOOL", date: "Jan 13", format: "legs", players: 256, type: 'q-school', cardRequired: false },
-                { id: 3, name: "BAHRAIN MASTERS", date: "Jan 16", format: "legs", players: 16, region: "asia", type: 'masters', cardRequired: false },
-                { id: 201, name: "CHALLENGE TOUR 01", date: "Jan 16", format: "legs", players: 128, type: "challenge", cardRequired: false },
-                { id: 202, name: "CHALLENGE TOUR 02", date: "Jan 16", format: "legs", players: 128, type: "challenge", cardRequired: false },
-                { id: 203, name: "CHALLENGE TOUR 03", date: "Jan 17", format: "legs", players: 128, type: "challenge", cardRequired: false },
-                { id: 204, name: "CHALLENGE TOUR 04", date: "Jan 17", format: "legs", players: 128, type: "challenge", cardRequired: false },
-                { id: 205, name: "CHALLENGE TOUR 05", date: "Jan 18", format: "legs", players: 128, type: "challenge", cardRequired: false },
-                { id: 4, name: "RIYADH DARTS MASTERS", date: "Jan 19", format: "legs", players: 16, region: "asia", type: 'masters', cardRequired: false },
-                { id: 101, name: "WINMAU DARTS MASTERS", date: "Feb 02", format: "sets", players: 32, type: 'winmaudm', cardRequired: true },
-                { id: 13, name: "PREMIER LEAGUE - Night 1", date: "Feb 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 1 },
-                { id: 101, name: "PLAYERS CHAMPIONSHIP 1", date: "Feb 09", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 130, name: "PREMIER LEAGUE - Night 2", date: "Feb 12", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 2 },
-                { id: 102, name: "PLAYERS CHAMPIONSHIP 2", date: "Feb 10", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 103, name: "PLAYERS CHAMPIONSHIP 3", date: "Feb 16", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 5, name: "POLAND DARTS OPEN", date: "Feb 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
-                { id: 104, name: "PLAYERS CHAMPIONSHIP 4", date: "Feb 17", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 105, name: "PLAYERS CHAMPIONSHIP 5", date: "Feb 24", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 106, name: "PLAYERS CHAMPIONSHIP 6", date: "Feb 25", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 131, name: "PREMIER LEAGUE - Night 3", date: "Feb 19", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 3 },
-                { id: 132, name: "PREMIER LEAGUE - Night 4", date: "Feb 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 4 },
-                { id: 6, name: "UK OPEN", date: "Mar 03", format: "legs", players: 128, type: 'uk-open', cardRequired: false },
-                { id: 133, name: "PREMIER LEAGUE - Night 5", date: "Mar 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 5 },
+                { id: 1, name: "Q-SCHOOL UK - First Stage Day 1", date: "Jan 05", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 2, name: "Q-SCHOOL UK - First Stage Day 2", date: "Jan 06", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 3, name: "Q-SCHOOL UK - First Stage Day 3", date: "Jan 07", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 10, name: "Q-SCHOOL EU - First Stage Day 1", date: "Jan 05", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 11, name: "Q-SCHOOL EU - First Stage Day 2", date: "Jan 06", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 12, name: "Q-SCHOOL EU - First Stage Day 3", date: "Jan 07", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 4, name: "Q-SCHOOL UK - Final Stage Day 1", date: "Jan 08", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 5, name: "Q-SCHOOL UK - Final Stage Day 2", date: "Jan 09", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 6, name: "Q-SCHOOL UK - Final Stage Day 3", date: "Jan 10", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 7, name: "Q-SCHOOL UK - Final Stage Day 4", date: "Jan 11", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
+                { id: 13, name: "Q-SCHOOL EU - Final Stage Day 1", date: "Jan 08", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 14, name: "Q-SCHOOL EU - Final Stage Day 2", date: "Jan 09", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 15, name: "Q-SCHOOL EU - Final Stage Day 3", date: "Jan 10", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 16, name: "Q-SCHOOL EU - Final Stage Day 4", date: "Jan 11", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 17, name: "BAHRAIN MASTERS", date: "Jan 16", format: "legs", players: 16, region: "asia", type: 'masters', cardRequired: false },
+                { id: 101, name: "CHALLENGE TOUR 01", date: "Jan 16", format: "legs", players: 128, type: "challenge", cardRequired: false },
+                { id: 102, name: "CHALLENGE TOUR 02", date: "Jan 16", format: "legs", players: 128, type: "challenge", cardRequired: false },
+                { id: 103, name: "CHALLENGE TOUR 03", date: "Jan 17", format: "legs", players: 128, type: "challenge", cardRequired: false },
+                { id: 104, name: "CHALLENGE TOUR 04", date: "Jan 17", format: "legs", players: 128, type: "challenge", cardRequired: false },
+                { id: 105, name: "CHALLENGE TOUR 05", date: "Jan 18", format: "legs", players: 128, type: "challenge", cardRequired: false },
+                { id: 9, name: "RIYADH DARTS MASTERS", date: "Jan 19", format: "legs", players: 16, region: "asia", type: 'masters', cardRequired: false },
+                { id: 206, name: "WINMAU DARTS MASTERS", date: "Feb 02", format: "sets", players: 32, type: 'winmaudm', cardRequired: true },
+                { id: 18, name: "PREMIER LEAGUE - Night 1", date: "Feb 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 1 },
+                { id: 201, name: "PLAYERS CHAMPIONSHIP 1", date: "Feb 09", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 19, name: "PREMIER LEAGUE - Night 2", date: "Feb 12", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 2 },
+                { id: 202, name: "PLAYERS CHAMPIONSHIP 2", date: "Feb 10", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 203, name: "PLAYERS CHAMPIONSHIP 3", date: "Feb 16", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 20, name: "POLAND DARTS OPEN", date: "Feb 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 204, name: "PLAYERS CHAMPIONSHIP 4", date: "Feb 17", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 205, name: "PLAYERS CHAMPIONSHIP 5", date: "Feb 24", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 206, name: "PLAYERS CHAMPIONSHIP 6", date: "Feb 25", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 21, name: "PREMIER LEAGUE - Night 3", date: "Feb 19", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 3 },
+                { id: 22, name: "PREMIER LEAGUE - Night 4", date: "Feb 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 4 },
+                { id: 23, name: "UK OPEN", date: "Mar 03", format: "legs", players: 128, type: 'uk-open', cardRequired: false },
+                { id: 24, name: "PREMIER LEAGUE - Night 5", date: "Mar 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 5 },
                 { id: 7, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 134, name: "PREMIER LEAGUE - Night 6", date: "Mar 12", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 6 },
                 { id: 8, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
@@ -2272,6 +2301,21 @@ const WORLD_SERIES_POINTS = {
         matchResults: [],
         currentNight: 0,
         playoffQualifiers: []
+    },
+
+    qSchool: {
+        ukOOM: {},  // Order of Merit for UK Q-School (accumulated points from matches)
+        euOOM: {},  // Order of Merit for EU Q-School (accumulated points from matches)
+        ukFinalStageWinners: [],  // Daily finalists from UK Q-School Final Stage
+        euFinalStageWinners: [],  // Daily finalists from EU Q-School Final Stage
+        ukFinalStageQualified: [],  // Players qualified for UK Final Stage (top 16 from First Stage)
+        euFinalStageQualified: [],  // Players qualified for EU Final Stage (top 16 from First Stage)
+        ukParticipants: [],  // Players who have participated in UK Q-School (any day)
+        euParticipants: [],  // Players who have participated in EU Q-School (any day)
+        ukTourCards: 0,  // Tour cards awarded in UK Q-School (max 13)
+        euTourCards: 0,   // Tour cards awarded in EU Q-School (max 16)
+        ukTourCardWinners: [], // Names who earned tour cards via UK Q-School
+        euTourCardWinners: []  // Names who earned tour cards via EU Q-School
     },
 
 wcQualified: {
@@ -2411,17 +2455,27 @@ winmauQualifiers: []
 
 
             init: () => {
-                // Initialize OOM if empty
+                // Initialize main OOM with only tour card holders
                 if(Object.keys(Season.state.orderOfMerit).length === 0) {
-                     RAW_PLAYERS.forEach(p => {
-                         Season.state.orderOfMerit[p.name] = p.money || 0;
+                     PLAYERS_DB.forEach(p => {
+                         if (p.tourCard) {
+                             Season.state.orderOfMerit[p.name] = p.money || 0;
+                         }
                      });
                 }
-                if(Object.keys(Season.state.proTourOOM).length === 0) {
-                    RAW_PLAYERS.forEach(p => {
-                        Season.state.proTourOOM[p.name] = 0;
-                    });
-                    }
+                // Pro Tour, Challenge Tour, and World Series OOMs are empty initially
+                // They get populated when players compete in those events
+                if(!Season.state.proTourOOM) Season.state.proTourOOM = {};
+                if(!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
+                if(!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
+
+                // Ensure season events are ordered by calendar date (keeps Q-School in chronological order)
+                const year = Season.state.year || 2026;
+                Season.events.sort((a, b) => {
+                    const da = new Date(`${year} ${a.date}`);
+                    const db = new Date(`${year} ${b.date}`);
+                    return da - db;
+                });
                 // ============================
                 // VB QUALIFIERS BUILD
                 // ============================
@@ -2448,7 +2502,8 @@ winmauQualifiers: []
             reset: () => {
                 if(!confirm("Reset Career Mode completely?")) return;
                 Season.state = { activeEventIndex: 0, orderOfMerit: {}, completedEvents: [], inProgress: false, year: 2026 };
-                RAW_PLAYERS.forEach(p => Season.state.orderOfMerit[p.name] = p.money || 0);
+                // Initialize order of merit with all players - all should be visible even with £0
+                PLAYERS_DB.forEach(p => Season.state.orderOfMerit[p.name] = p.money || 0);
                 Season.renderUI();
                 Persistence.save();
             },
@@ -2580,43 +2635,6 @@ winmauQualifiers: []
             renderUI: () => {
 
     // ============================
-    // 1️⃣ OOM VÁLTÓ UI (MAIN / PRO / CHALLENGE)
-    // ============================
-    const title = document.getElementById("oom-title");
-    const mainBtn = document.getElementById("btn-main-oom");
-    const proBtn = document.getElementById("btn-protour-oom");
-    const chalBtn = document.getElementById("btn-challenge-oom");
-    
-
-    if(title && mainBtn && proBtn) {
-        if(Season.state.activeOOMView === "pro") {
-            title.innerText = "PRO TOUR ORDER OF MERIT";
-            mainBtn.style.opacity = "0.6";
-            proBtn.style.opacity = "1";
-            if(chalBtn) chalBtn.style.opacity = "0.6";
-        }
-        else if(Season.state.activeOOMView === "challenge") {
-            title.innerText = "CHALLENGE TOUR ORDER OF MERIT";
-            mainBtn.style.opacity = "0.6";
-            proBtn.style.opacity = "0.6";
-            if(chalBtn) chalBtn.style.opacity = "1";
-        }
-        else if(Season.state.activeOOMView === "worldseries") {
-        title.innerText = "WORLD SERIES ORDER OF MERIT";
-        mainBtn.style.opacity = "0.6";
-        proBtn.style.opacity = "0.6";
-        chalBtn.style.opacity = "0.6";
-        }
-
-        else {
-            title.innerText = "ORDER OF MERIT";
-            mainBtn.style.opacity = "1";
-            proBtn.style.opacity = "0.6";
-            if(chalBtn) chalBtn.style.opacity = "0.6";
-        }
-    }
-
-    // ============================
     // 2️⃣ EVENT LISTA
     // ============================
     const list = document.getElementById('season-event-list');
@@ -2663,35 +2681,77 @@ winmauQualifiers: []
             </div>
         `;
     });
-
-// 3️⃣ OOM TÁBLA
-// ============================
-const source =
-    Season.state.activeOOMView === "pro" ? Season.state.proTourOOM :
-    Season.state.activeOOMView === "challenge" ? Season.state.challengeTourOOM :
-    Season.state.activeOOMView === "worldseries" ? Season.state.worldSeriesOOM :
-    Season.state.orderOfMerit;
-
-
-    const oomList = Object.entries(source).sort((a,b) => b[1] - a[1]);
-
-    const table = document.getElementById('season-oom');
-    table.innerHTML = '';
-
-    const header = document.createElement('tr');
-    header.innerHTML = `<th>Pos</th><th>Player</th><th>Prize Money</th>`;
-    table.appendChild(header);
-
-    oomList.forEach((entry, i) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td class="oom-pos">${i+1}</td>
-            <td>${entry[0]}</td>
-            <td class="oom-money">£${entry[1].toLocaleString()}</td>
-        `;
-        table.appendChild(row);
-    });
 },
+
+// 3️⃣ OOM TÁBLÁK (ALL VISIBLE)
+// ============================
+        renderOOMTable: (tableId, data) => {
+            console.log('renderOOMTable called with tableId:', tableId, 'data keys:', Object.keys(data || {}).length);
+            
+            // Get all entries from the data object
+            const allEntries = Object.entries(data || {});
+            console.log('All entries:', allEntries.length);
+            
+            // Filter and sort - only show players who have actually competed or have tour cards
+            const list = allEntries
+                .map(([name, money]) => {
+                    const p = PLAYERS_DB.find(x => x.name === name);
+                    if (!p) {
+                        console.log('Player not found in DB:', name);
+                        return null;
+                    }
+                    return [name, money || 0, p.tourCard || false];
+                })
+                .filter(entry => entry !== null)  // Only filter out null entries
+                .sort((a,b) => b[1] - a[1]);  // Sort by money descending
+            
+            console.log('After filtering:', list.length, 'entries');
+            
+            const table = document.getElementById(tableId);
+            if(!table) {
+                console.warn('Table not found:', tableId);
+                return;
+            }
+            table.innerHTML = '';
+            table.style.visibility = 'visible';
+            table.style.display = 'table';
+
+            // Add table header
+            const thead = document.createElement('thead');
+            const header = document.createElement('tr');
+            header.innerHTML = `<th>Pos</th><th>Player</th><th style="text-align:center;">Tour Card</th><th style="text-align:right;">Prize Money</th>`;
+            thead.appendChild(header);
+            table.appendChild(thead);
+
+            // Add table body
+            const tbody = document.createElement('tbody');
+            
+            if(list.length === 0) {
+                console.log('No entries to display');
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" style="text-align:center; color:#aaa; padding:16px; background:#1a1a1a; font-style:italic;">No players have competed yet</td>`;
+                tbody.appendChild(row);
+            } else {
+                console.log('Adding', list.length, 'rows');
+                list.forEach((entry, i) => {
+                    const row = document.createElement('tr');
+                    const [name, money, hasTC] = entry;
+                    const tourCardBadge = hasTC 
+                        ? '<span style="background: var(--pdc-gold); color: black; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; display:inline-block;">✓</span>' 
+                        : '<span style="color: #666; font-size:12px;">-</span>';
+                    
+                    row.innerHTML = `
+                        <td class="oom-pos">${i+1}</td>
+                        <td style="font-weight: bold; color: #ddd;">${name}</td>
+                        <td style="text-align:center;">${tourCardBadge}</td>
+                        <td class="oom-money">£${money.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            table.appendChild(tbody);
+        },
 
 
           startEvent: (idx, isSim) => {
@@ -2775,7 +2835,7 @@ else if(ev.cardRequired) {
 // PREMIER LEAGUE
 // ========================
 if(ev.type === "premier-league" || ev.type === "premier-league-playoff") {
-    Season.initializePremierLeague(idx, ev);
+    Season.initializePremierLeague(idx, ev, isSim);
     return;
 }
 
@@ -3549,23 +3609,118 @@ if(ev.type === "challenge") {
 }
 
     // ================= Q-SCHOOL TOUR CARD =================
-    if(ev.name === "Q-SCHOOL") {
-
-        const tourCardWinners = new Set();
-        const qfRoundIdx = 5; // 256 → QF
-        const qfRound = finalBracket[qfRoundIdx];
-
-        qfRound.forEach(m => {
-            if(m.p1) tourCardWinners.add(m.p1.name);
-            if(m.p2) tourCardWinners.add(m.p2.name);
+    if(ev.type === "q-school") {
+        const location = ev.location; // 'uk' or 'eu'
+        const eventName = ev.name;
+        const isFinalStage = eventName.includes("Final Stage");
+        const isFirstStage = eventName.includes("First Stage");
+        const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+        const finalStageWinners = location === 'uk' ? Season.state.qSchool.ukFinalStageWinners : Season.state.qSchool.euFinalStageWinners;
+        const qualified = location === 'uk' ? Season.state.qSchool.ukFinalStageQualified : Season.state.qSchool.euFinalStageQualified;
+        const participants = location === 'uk' ? Season.state.qSchool.ukParticipants : Season.state.qSchool.euParticipants;
+        const tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+        
+        // Track all players who participated in this event (for both First and Final Stage)
+        finalBracket.forEach((round) => {
+            round.forEach(match => {
+                if(match.p1 && !participants.includes(match.p1.name)) participants.push(match.p1.name);
+                if(match.p2 && !participants.includes(match.p2.name)) participants.push(match.p2.name);
+            });
         });
-
-        tourCardWinners.forEach(name => {
-            const pIdx = PLAYERS_DB.findIndex(p => p.name === name);
-            if(pIdx > -1) PLAYERS_DB[pIdx].tourCard = true;
+        
+        // If this is first Final Stage event, re-add qualified players to OOM with 0 points
+        if(isFinalStage && qualified.length > 0 && Object.keys(oom).length < qualified.length) {
+            qualified.forEach(playerName => {
+                if(!(playerName in oom)) {
+                    oom[playerName] = 0;
+                }
+            });
+        }
+        
+        // Award 1 point per match win for ALL rounds
+        finalBracket.forEach((round, roundIdx) => {
+            round.forEach(match => {
+                if(match.winner) {
+                    const winnerName = match.winner.name;
+                    oom[winnerName] = (oom[winnerName] || 0) + 1; // 1 point per match win
+                }
+            });
         });
+        
+        let firstStageMadeIt = [];
+        let tourCardAwarded = [];
+        
+        // If Final Stage, both finalists get Tour Cards
+        if(isFinalStage) {
+            const finalMatch = finalBracket[finalBracket.length - 1][0];
+            if(finalMatch.p1) {
+                const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.p1.name);
+                if(pIdx > -1) {
+                    PLAYERS_DB[pIdx].tourCard = true;
+                    tourCardAwarded.push(finalMatch.p1.name);
+                }
+                finalStageWinners.push(finalMatch.p1.name);
+                if(!tourCardWinners.includes(finalMatch.p1.name)) tourCardWinners.push(finalMatch.p1.name);
+            }
+            if(finalMatch.p2) {
+                const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.p2.name);
+                if(pIdx > -1) {
+                    PLAYERS_DB[pIdx].tourCard = true;
+                    tourCardAwarded.push(finalMatch.p2.name);
+                }
+                finalStageWinners.push(finalMatch.p2.name);
+                if(!tourCardWinners.includes(finalMatch.p2.name)) tourCardWinners.push(finalMatch.p2.name);
+            }
+            
+            // Update counters
+            if(location === 'uk') Season.state.qSchool.ukTourCards += tourCardAwarded.length;
+            else Season.state.qSchool.euTourCards += tourCardAwarded.length;
+            
+            alert(`🏆 TOUR CARDS AWARDED:\n${tourCardAwarded.join("\n")}\n\nTotal ${location.toUpperCase()} Tour Cards: ${location === 'uk' ? Season.state.qSchool.ukTourCards : Season.state.qSchool.euTourCards}`);
 
-        alert(`🏆 Won a tour card: ${[...tourCardWinners].join(", ")}`);
+            // After the final day of Final Stage, award OOM tour cards (UK: top 5, EU: top 8) excluding existing tour-card winners/finalists
+            if(eventName.includes("Final Stage Day 4")) {
+                const extraWinners = [];
+                const taken = new Set([...finalStageWinners, ...tourCardWinners]);
+                const maxExtras = location === 'eu' ? 8 : 5;
+
+                Object.entries(oom)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([name]) => {
+                        if(extraWinners.length >= maxExtras) return;
+                        if(taken.has(name)) return;
+                        const idx = PLAYERS_DB.findIndex(p => p.name === name);
+                        if(idx > -1 && !PLAYERS_DB[idx].tourCard) {
+                            PLAYERS_DB[idx].tourCard = true;
+                            extraWinners.push(name);
+                            taken.add(name);
+                            if(!tourCardWinners.includes(name)) tourCardWinners.push(name);
+                        }
+                    });
+
+                if(extraWinners.length > 0) {
+                    if(location === 'uk') Season.state.qSchool.ukTourCards += extraWinners.length;
+                    else Season.state.qSchool.euTourCards += extraWinners.length;
+
+                    alert(`🎟️ OOM TOUR CARDS (${location.toUpperCase()}):\n${extraWinners.map((n,i)=>`${i+1}. ${n}`).join("\n")}\n\nTotal ${location.toUpperCase()} Tour Cards: ${location === 'uk' ? Season.state.qSchool.ukTourCards : Season.state.qSchool.euTourCards}`);
+                }
+            }
+        } else if(isFirstStage) {
+            // Get top 16 by points from OOM - these qualify for Final Stage
+            const topQualifiers = Object.entries(oom)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 16)
+                .map(entry => entry[0]);
+            
+            // Store qualified players
+            if(location === 'uk') Season.state.qSchool.ukFinalStageQualified = topQualifiers;
+            else Season.state.qSchool.euFinalStageQualified = topQualifiers;
+            
+            // Reset OOM points for Final Stage
+            Object.keys(oom).forEach(player => oom[player] = 0);
+            
+            alert(`✅ TOP 16 QUALIFY TO FINAL STAGE (${location.toUpperCase()}):\n\n${topQualifiers.map((name, idx) => `${idx + 1}. ${name}`).join("\n")}\n\nPoints reset for Final Stage!`);
+        }
     }
     
     // ================= SEASON STATE =================
@@ -3622,7 +3777,7 @@ recalculateChallengeTourOOM: () => {
     Season.state.challengeTourOOM = oom;
 },
 
-initializePremierLeague: (eventIdx, ev) => {
+initializePremierLeague: (eventIdx, ev, isSim) => {
     Season.state.inProgress = true;
     Tournament.state.active = true;
     
@@ -3764,9 +3919,18 @@ initializePremierLeague: (eventIdx, ev) => {
     
     Persistence.save();
     requestWakeLock();
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('tourn-hub-title').innerText = ev.name;
-    Tournament.renderHub();
+    
+    if(isSim) {
+        // Simulate all rounds for Premier League night
+        while(Tournament.state.currentActiveRound < Tournament.config.rounds.length && Tournament.state.active) {
+            Tournament.simulateRound();
+        }
+        // Event should complete automatically after final is done
+    } else {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('tourn-hub-title').innerText = ev.name;
+        Tournament.renderHub();
+    }
 },
 
 recordPremierLeagueNight: (bracketData) => {
@@ -3793,7 +3957,7 @@ recordPremierLeagueNight: (bracketData) => {
         const loser1 = sf.winner === sf.p1 ? sf.p2 : sf.p1;
         const loser2 = sf.winner === sf.p2 ? sf.p1 : sf.p2;
         
-        if (loser1 && !finalLoser.name === loser1.name) {
+        if (loser1 && finalLoser.name !== loser1.name) {
             Season.state.premierLeague.standings[loser1.name].points += 2;
             Season.state.premierLeague.standings[loser1.name].semiFinalFinishes += 1;
         }
@@ -3856,8 +4020,77 @@ renderPremierLeagueStandings: () => {
     infoDiv.style.cssText = 'text-align: center; margin-top: 10px; color: #aaa; font-size: 11px;';
     infoDiv.innerText = `Night ${Season.state.premierLeague.currentNight} / 16`;
     container.appendChild(infoDiv);
-}};
+    },
 
+    renderQSchoolStandings: () => {
+    Season.renderQSchoolStandingsForLocation('uk');
+    Season.renderQSchoolStandingsForLocation('eu');
+    },
+    
+    renderQSchoolStandingsForLocation: (location) => {
+    const containerId = `qschool-standings-${location}`;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+    const tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+    
+    // Sort by points descending
+    const standings = Object.entries(oom).sort((a, b) => b[1] - a[1]);
+    
+    if (standings.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">No players yet</div>';
+        return;
+    }
+    
+    const table = document.createElement('table');
+    table.style.cssText = 'width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 10px;';
+    
+    // Header
+    const headerRow = table.insertRow();
+    headerRow.style.cssText = 'background: #222; border-bottom: 1px solid #444;';
+    ['Pos', 'Player', 'Points', 'Status'].forEach(h => {
+        const cell = headerRow.insertCell();
+        cell.innerText = h;
+        cell.style.cssText = 'padding: 5px; text-align: center; color: #aaa; font-weight: bold;';
+    });
+    
+    // Rows
+    standings.forEach(([name, points], idx) => {
+        const row = table.insertRow();
+        const isTourCard = tourCardWinners.includes(name);
+
+        let status = '';
+        let bgColor = '#1a1a1a';
+        let textColor = '#aaa';
+
+        if (isTourCard) {
+            status = '🏆 TOUR CARD';
+            bgColor = '#0a3a0a';
+            textColor = 'var(--pdc-gold)';
+        }
+
+        row.style.cssText = `background: ${bgColor}; border-bottom: 1px solid #333;`;
+        
+        const data = [idx + 1, name, points, status];
+        data.forEach((d, i) => {
+            const cell = row.insertCell();
+            cell.innerText = d;
+            cell.style.cssText = `padding: 5px; text-align: ${i === 1 ? 'left' : 'center'}; color: ${textColor};`;
+        });
+    });
+    
+    container.appendChild(table);
+    
+    // Show location info
+    const infoDiv = document.createElement('div');
+    infoDiv.style.cssText = 'text-align: center; margin-top: 10px; color: #aaa; font-size: 11px;';
+    infoDiv.innerText = `${location.toUpperCase()} Q-SCHOOL - ${standings.length} Players`;
+    container.appendChild(infoDiv);
+    }
+};
 
         const Tournament = {
             config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
@@ -4101,15 +4334,65 @@ renderPremierLeagueStandings: () => {
                     });
                 }
                 let participants = [];
+                const eligibleRegions = ev.eligibleRegions || [];
                 if (Tournament.config.selectionMethod === 'manual') {
                     if(Tournament.state.selectedPlayerIndices.size !== size) { alert(`Select ${size} players.`); return; }
                     Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({...PLAYERS_DB[idx]}));
                 } else {
-                    participants = [...PLAYERS_DB];
+                    if (ev.type === 'q-school') {
+                        participants = PLAYERS_DB.filter(p => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country)));
+                    } else {
+                        participants = [...PLAYERS_DB];
+                    }
                     if(participants.length < size) { alert("Not enough players DB."); return; }
                     for (let i = participants.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [participants[i], participants[j]] = [participants[j], participants[i]]; }
                     participants = participants.slice(0, size);
                 }
+                
+                // Q-SCHOOL: Exclude players from other venue, exclude qualified, and backfill replacements
+                if (ev.type === 'q-school') {
+                    const location = ev.location; // 'uk' or 'eu'
+                    const otherVenueParticipants = location === 'uk' ? Season.state.qSchool.euParticipants : Season.state.qSchool.ukParticipants;
+                    const eligibleRegions = ev.eligibleRegions || [];
+
+                    // Exclude players who have already participated in the other venue
+                    participants = participants.filter(p => !otherVenueParticipants.includes(p.name));
+
+                    // For First Stage, also exclude already qualified players for Final Stage
+                    let qualified = [];
+                    if (ev.name.includes('First Stage')) {
+                        qualified = location === 'uk' ? Season.state.qSchool.ukFinalStageQualified : Season.state.qSchool.euFinalStageQualified;
+                        participants = participants.filter(p => !qualified.includes(p.name));
+
+                        // Remove qualified players from OOM so they don't show in standings
+                        const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+                        qualified.forEach(playerName => delete oom[playerName]);
+                    }
+
+                    // Backfill to maintain bracket size using eligible, unused players
+                    const isEligible = (p) => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country));
+                    const currentNames = new Set(participants.map(p => p.name));
+                    const replacementPool = PLAYERS_DB
+                        .filter(p => isEligible(p))
+                        .filter(p => !otherVenueParticipants.includes(p.name))
+                        .filter(p => !qualified.includes(p.name))
+                        .filter(p => !currentNames.has(p.name));
+
+                    // Shuffle replacement pool
+                    for (let i = replacementPool.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [replacementPool[i], replacementPool[j]] = [replacementPool[j], replacementPool[i]];
+                    }
+
+                    while (participants.length < size && replacementPool.length > 0) {
+                        participants.push({ ...replacementPool.pop() });
+                    }
+
+                    if (participants.length < size) {
+                        alert(`Warning: Only ${participants.length} eligible players available after exclusions. Bracket will proceed with byes.`);
+                    }
+                }
+                
                 for (let i = participants.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [participants[i], participants[j]] = [participants[j], participants[i]]; }
                 
                 Tournament.state.active = true;
@@ -4207,7 +4490,12 @@ renderPremierLeagueStandings: () => {
                 });
 
                 if(simulatedCount > 0) {
-                    Tournament.checkRoundComplete();
+                    // For Premier League: only check round complete but don't auto-advance
+                    if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                        Tournament.checkRoundCompleteNoAutoAdvance();
+                    } else {
+                        Tournament.checkRoundComplete();
+                    }
                     Persistence.save();
                     if (!Season.silentSimulation) {
                         Tournament.renderHub();
@@ -4507,12 +4795,22 @@ renderPremierLeagueStandings: () => {
                             const flag = p ? getFlagUrl(p.country) : '';
                             const avgTxt = (m.winner && avg) ? `(${avg})` : '';
                             const seedTxt = p && p.seed ? `(${p.seed})` : '';
+                            
+                            // Add Q-School points if applicable
+                            const currentEvent = Season.events[Season.state.activeEventIndex];
+                            let pointsTxt = '';
+                            if (currentEvent && currentEvent.type === 'q-school' && p) {
+                                const oom = currentEvent.location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+                                const pts = oom[p.name] || 0;
+                                pointsTxt = ` [${pts}pts]`;
+                            }
+                            
                             const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
                             
                             return `
                                 <div class="bm-row" style="${style}">
                                     ${p ? `<img src="${flag}" class="bm-flag">` : ''}
-                                    <span class="bm-name">${name}${seedTxt && !m.winner ? ' ' + seedTxt : ''}</span>
+                                    <span class="bm-name">${name}${seedTxt && !m.winner ? ' ' + seedTxt : ''}${pointsTxt}</span>
                                     <span class="bm-avg">${avgTxt}</span>
                                     <span class="bm-score">${score !== null ? score : ''}</span>
                                 </div>
@@ -4746,6 +5044,40 @@ renderPremierLeagueStandings: () => {
                         Tournament.state.viewingRound = nextRIdx; 
                     }
                 }
+            },
+            
+            checkRoundCompleteNoAutoAdvance: () => {
+                const rIdx = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[rIdx];
+
+                if (matches.every(m => m.winner)) {
+                    if (rIdx === Tournament.config.rounds.length - 1) { 
+                        alert(`${matches[0].winner.name} WINS THE NIGHT!`);
+                        Tournament.state.active = false;
+                        Persistence.save();
+                        
+                        if(Season.state.inProgress) {
+                            Season.completeEvent(Tournament.state.bracketData);
+                            return;
+                        } else {
+                            Persistence.clear();
+                            return;
+                        } 
+                    }
+                    // For Premier League: prepare next round and advance to it
+                    const nextRIdx = rIdx + 1; 
+                    if(Tournament.state.bracketData.length <= nextRIdx || Tournament.state.bracketData[nextRIdx].length === 0) {
+                        const nextMatches = [];
+                        for(let i=0; i<matches.length; i+=2) { 
+                            nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); 
+                        }
+                        Tournament.state.bracketData[nextRIdx] = nextMatches;
+                    }
+                    // Update both active and viewing round to automatically show next round
+                    Tournament.state.currentActiveRound = nextRIdx;
+                    Tournament.state.viewingRound = nextRIdx;
+                    Persistence.save();
+                }
             }
         };
 
@@ -4757,8 +5089,16 @@ renderPremierLeagueStandings: () => {
             isPaused: false, 
 
             init: () => {
-                // Initialize Players
+                // Initialize Players (deduplicate by normalized name)
                 const uniquePlayers = []; const seenNames = new Set();
+                const normalizeName = (raw) => {
+                    let name = raw || "";
+                    if (name.includes(',')) {
+                        const parts = name.split(',');
+                        name = `${parts[1].trim()} ${parts[0].trim()}`;
+                    }
+                    return name.trim().replace(/\s+/g, ' ');
+                };
                 
                 // IF RAW_PLAYERS IS EMPTY, GENERATE DUMMIES
                 if(RAW_PLAYERS.length === 0) {
@@ -4776,9 +5116,12 @@ renderPremierLeagueStandings: () => {
                 }
 
                 RAW_PLAYERS.forEach(p => {
-                    let name = p.name;
-                    if (name.includes(',')) { const parts = name.split(','); name = parts[1].trim() + " " + parts[0].trim(); }
-                    if (!seenNames.has(name)) { seenNames.add(name); uniquePlayers.push({ ...p, name: name }); }
+                    const cleanName = normalizeName(p.name);
+                    const key = cleanName.toLowerCase();
+                    if (!seenNames.has(key)) {
+                        seenNames.add(key);
+                        uniquePlayers.push({ ...p, name: cleanName });
+                    }
                 });
                 PLAYERS_DB.push(...uniquePlayers);
 
@@ -4789,32 +5132,7 @@ renderPremierLeagueStandings: () => {
                 
                 // Initialize Season logic
                 Season.init();
-                // App.init végén
-            document.getElementById("btn-main-oom").onclick = () => {
-                Season.state.activeOOMView = "main";
-                Season.renderUI();
-            };
-            document.getElementById("btn-protour-oom").onclick = () => {
-                Season.state.activeOOMView = "pro";
-                Season.renderUI();
-            };
-            document.getElementById("btn-challenge-oom").onclick = () => {
-                Season.state.activeOOMView = "challenge";
-                Season.renderUI();
-            };
-            document.getElementById("btn-ws-oom").onclick = () => {
-             Season.state.activeOOMView = "worldseries";
-            Season.renderUI();
-            };
-            if(!Season.state.worldSeriesOOM) {
-            Season.state.worldSeriesOOM = {};
-            }
-
-            RAW_PLAYERS.forEach(p => {
-                if(Season.state.worldSeriesOOM[p.name] === undefined) {
-                    Season.state.worldSeriesOOM[p.name] = 0;
-                }
-            });
+                // World Series OOM is populated when players compete in masters events
 
 
                 document.addEventListener('click', function(event) {
@@ -4857,7 +5175,47 @@ renderPremierLeagueStandings: () => {
                 
                 if (tabName === 'premier') {
                     Season.renderPremierLeagueStandings();
+                } else if (tabName === 'qschool') {
+                    Season.renderQSchoolStandings();
+                } else if (tabName === 'oom') {
+                    // Pre-render all OOM tables to ensure data is present
+                    // Initialize MAIN OOM - only tour card holders
+                    if(Object.keys(Season.state.orderOfMerit).length === 0) {
+                        PLAYERS_DB.forEach(p => {
+                            // Only add tour card holders to main OOM
+                            if (p.tourCard) {
+                                Season.state.orderOfMerit[p.name] = p.money || 0;
+                            }
+                        });
+                    }
+                    
+                    // Note: Pro Tour, Challenge Tour, and World Series OOMs are populated
+                    // automatically when players compete in those events
+
+                    console.log('OOM initialized - orderOfMerit:', Object.keys(Season.state.orderOfMerit).length, 'proTour:', Object.keys(Season.state.proTourOOM).length);
+                    Season.renderOOMTable('oom-hub-main', Season.state.orderOfMerit);
+                    Season.renderOOMTable('oom-hub-pro', Season.state.proTourOOM);
+                    Season.renderOOMTable('oom-hub-challenge', Season.state.challengeTourOOM);
+                    Season.renderOOMTable('oom-hub-ws', Season.state.worldSeriesOOM);
+                    App.switchOOMView('main');
                 }
+            },
+            switchOOMView: (view) => {
+                document.querySelectorAll('#oom-btn-main, #oom-btn-pro, #oom-btn-challenge, #oom-btn-ws').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.oom-view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`oom-btn-${view}`).classList.add('active');
+                document.getElementById(`oom-view-${view}`).classList.add('active');
+
+                if(view === 'main') Season.renderOOMTable('oom-hub-main', Season.state.orderOfMerit);
+                else if(view === 'pro') Season.renderOOMTable('oom-hub-pro', Season.state.proTourOOM);
+                else if(view === 'challenge') Season.renderOOMTable('oom-hub-challenge', Season.state.challengeTourOOM);
+                else if(view === 'ws') Season.renderOOMTable('oom-hub-ws', Season.state.worldSeriesOOM);
+            },
+            switchQSchoolView: (location) => {
+                document.querySelectorAll('#qschool-btn-uk, #qschool-btn-eu').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.qschool-view').forEach(v => v.classList.remove('active'));
+                document.getElementById(`qschool-btn-${location}`).classList.add('active');
+                document.getElementById(`qschool-standings-${location}`).classList.add('active');
             },
             setMode: (mode) => {
                 App.config.mode = mode;
