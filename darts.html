@@ -416,13 +416,13 @@
                 <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
                 
-                <div class="oom-nav">
+                <div class="oom-nav" style="display:none;">
                     <button id="btn-main-oom" class="oom-nav-btn active">Main Order of Merit</button>
                     <button id="btn-protour-oom" class="oom-nav-btn">Pro Tour</button>
                     <button id="btn-challenge-oom" class="oom-nav-btn">Challenge</button>
                     <button id="btn-ws-oom" class="oom-nav-btn">World Series</button>
                 </div>
-                <div class="oom-container">
+                <div class="oom-container" style="display:none;">
                     <table class="oom-table" id="season-oom"></table>
                 </div>
 
@@ -2221,9 +2221,9 @@ const WORLD_SERIES_POINTS = {
                 { id: 22, name: "PREMIER LEAGUE - Night 4", date: "Feb 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 4 },
                 { id: 23, name: "UK OPEN", date: "Mar 03", format: "legs", players: 128, type: 'uk-open', cardRequired: false },
                 { id: 24, name: "PREMIER LEAGUE - Night 5", date: "Mar 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 5 },
-                { id: 7, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 25, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 134, name: "PREMIER LEAGUE - Night 6", date: "Mar 12", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 6 },
-                { id: 8, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 26, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 135, name: "PREMIER LEAGUE - Night 7", date: "Mar 19", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 7 },
                 { id: 206, name: "CHALLENGE TOUR 06", date: "Mar 27", format: "legs", players: 128, type: "challenge", cardRequired: false },
                 { id: 207, name: "CHALLENGE TOUR 07", date: "Mar 27", format: "legs", players: 128, type: "challenge", cardRequired: false },
@@ -2233,12 +2233,12 @@ const WORLD_SERIES_POINTS = {
                 { id: 107, name: "PLAYERS CHAMPIONSHIP 7", date: "Mar 30", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 136, name: "PREMIER LEAGUE - Night 8", date: "Mar 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 8 },
                 { id: 108, name: "PLAYERS CHAMPIONSHIP 8", date: "Mar 31", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 9, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 27, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 137, name: "PREMIER LEAGUE - Night 9", date: "Apr 02", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 9 },
                 { id: 109, name: "PLAYERS CHAMPIONSHIP 9", date: "Apr 13", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 138, name: "PREMIER LEAGUE - Night 10", date: "Apr 09", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 10 },
                 { id: 110, name: "PLAYERS CHAMPIONSHIP 10", date: "Apr 14", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 10, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 28, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 139, name: "PREMIER LEAGUE - Night 11", date: "Apr 16", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 11 },
                 { id: 111, name: "PLAYERS CHAMPIONSHIP 11", date: "Apr 27", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 140, name: "PREMIER LEAGUE - Night 12", date: "Apr 23", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 12 },
@@ -2302,7 +2302,7 @@ const WORLD_SERIES_POINTS = {
                 { id: 132, name: "PLAYERS CHAMPIONSHIP 32", date: "Oct 29", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 88, name: "GRAND SLAM OF DARTS", date: "Nov 01", format: "legs", players: 32, type: "grandslam", cardRequired: true },
                 { id: 133, name: "PLAYERS CHAMPIONSHIP 33", date: "Nov 04", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 134, name: "PLAYERS CHAMPIONSHIP 34", date: "Nov 05", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 135, name: "PLAYERS CHAMPIONSHIP 34", date: "Nov 05", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 30, name: "PLAYERS CHAMPIONSHIP FINALS", date: "Nov 24", format: "legs", players: 64, type: 'playersf', cardRequired: true },
                 { id: 31, name: "WORLD CHAMPIONSHIP", date: "Dec 15", format: "sets", players: 128, type: 'world', cardRequired: true }
 
@@ -2447,6 +2447,38 @@ winmauQualifiers: []
                 console.log("UK Open Qualifiers:", qualified);
             },
 
+            simulateWinmauQuali: () => {
+                // Winmau Darts Masters Qualifiers
+                let selected = new Set();
+
+                // Pro Tour top 24
+                Object.entries(Season.state.proTourOOM)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, 24)
+                    .forEach(e => selected.add(e[0]));
+
+                // Safety fill from tour card holders
+                const pool = PLAYERS_DB
+                    .filter(p => p.tourCard)
+                    .map(p => p.name)
+                    .filter(n => !selected.has(n));
+
+                while(selected.size < 32) {
+                    if(pool.length === 0) break;
+                    selected.add(pool[Math.floor(Math.random() * pool.length)]);
+                }
+
+                const players = [...selected];
+                // Simulate qualifiers (top 8 advance from 32)
+                const qualified = players
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 8);
+
+                Season.state.winmauQualifiers = qualified;
+
+                console.log("Winmau Qualifiers:", qualified);
+            },
+
             startNewYear: () => {
                 Season.state.year++;
                 Season.state.activeEventIndex = 0;
@@ -2528,44 +2560,6 @@ winmauQualifiers: []
                         </div>
                     `;
                 });
-
-                // ============================
-                // 3️⃣ OOM TABLE with FILTERING
-                // ============================
-                const source =
-                    Season.state.activeOOMView === "pro" ? Season.state.proTourOOM :
-                    Season.state.activeOOMView === "challenge" ? Season.state.challengeTourOOM :
-                    Season.state.activeOOMView === "worldseries" ? Season.state.worldSeriesOOM :
-                    Season.state.orderOfMerit;
-
-                // Filter logic: Must have money > 0 OR have a Tour Card
-                const oomList = Object.entries(source)
-                    .filter(([name, money]) => {
-                        const p = PLAYERS_DB.find(x => x.name === name);
-                        if (!p) return false;
-                        return money > 0 || p.tourCard;
-                    })
-                    .sort((a,b) => b[1] - a[1]);
-
-                const table = document.getElementById('season-oom');
-                table.innerHTML = '';
-
-                // Header
-                const header = document.createElement('thead');
-                header.innerHTML = `<tr><th>Pos</th><th>Player</th><th>Prize Money</th></tr>`;
-                table.appendChild(header);
-
-                const tbody = document.createElement('tbody');
-                oomList.forEach((entry, i) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="oom-pos">${i+1}</td>
-                        <td style="color:#ddd; font-weight:bold;">${entry[0]}</td>
-                        <td class="oom-money">£${entry[1].toLocaleString()}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                table.appendChild(tbody);
             },
             
             // ... (keep the rest of the existing Season functions: startEvent, completeEvent, etc.)
@@ -2761,50 +2755,8 @@ winmauQualifiers: []
                     const db = new Date(`${year} ${b.date}`);
                     return da - db;
                 });
-    list.innerHTML = '';
-    document.getElementById('season-year-disp').innerText = Season.state.year;
-
-    const allDone = Season.state.activeEventIndex >= Season.events.length;
-    if(allDone) {
-        document.getElementById('season-controls').innerHTML = `
-            <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year+1}</button>
-            <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
-        `;
-    } else {
-        document.getElementById('season-controls').innerHTML = `
-            <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
-        `;
-    }
-
-    Season.events.forEach((ev, idx) => {
-        const isActive = idx === Season.state.activeEventIndex;
-        const isDone = idx < Season.state.activeEventIndex;
-        const completedData = Season.state.completedEvents.find(c => c.id === ev.id);
-
-        let statusClass = isActive ? 'active' : (isDone ? 'completed' : '');
-        let action = '';
-
-        if(isActive) {
-            action = `
-                <button class="btn-play-mini" onclick="Season.startEvent(${idx}, false)">PLAY</button>
-                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="Season.startEvent(${idx}, true)">SIM</button>
-            `;
-        }
-        else if (isDone && completedData) {
-            action = `<span class="s-winner">🏆 ${completedData.winner}</span>`;
-        }
-
-        list.innerHTML += `
-            <div class="season-event ${statusClass}">
-                <div>
-                    <div class="s-date">${ev.date}</div>
-                    <div class="s-name">${ev.name}</div>
-                </div>
-                <div>${action}</div>
-            </div>
-        `;
-    });
-},
+                Season.renderUI();
+            },
 
 // 3️⃣ OOM TÁBLÁK (ALL VISIBLE)
 // ============================
@@ -5837,11 +5789,16 @@ renderPremierLeagueStandings: () => {
         // INITIALIZATION f
         document.addEventListener("DOMContentLoaded", () => {
             try {
+                console.log("App starting, RAW_PLAYERS length:", RAW_PLAYERS.length);
+                console.log("PLAYERS_DB length:", PLAYERS_DB.length);
                 App.setMode('sets');
-                App.init();          
+                console.log("setMode completed");
+                App.init();
+                console.log("App initialized successfully");          
             } catch (e) {
                 console.error("Critical Error on startup:", e);
-                alert("App failed to start. Resetting...");
+                console.error("Stack:", e.stack);
+                alert("App failed to start. Error: " + e.message + "\n\nCheck console for details.");
                 localStorage.clear();
                 location.reload();
             }
