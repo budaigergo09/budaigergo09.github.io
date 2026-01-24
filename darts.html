@@ -13,24 +13,37 @@
             --pdc-red: #d50000;
             --pdc-dark-red: #9a0000;
             --pdc-blue: #0e2a3a;
-            --pdc-bg: #000000;
-            --pdc-gold: #ffcc00;
+            --pdc-bg: #0a0e1a;
+            --pdc-gold: #ffd700;
             --text-grey: #8fa3ad;
-            --input-bg: #e6e6e6;
-            --pdc-green: #008000;
+            --input-bg: #f5f5f5;
+            --pdc-green: #00b359;
+            --card-bg: linear-gradient(145deg, #1a1f35, #0f1525);
+            --hover-glow: rgba(255, 215, 0, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
         body {
-            margin: 0; background-color: var(--pdc-bg); color: white;
+            margin: 0; 
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            background-attachment: fixed;
+            color: white;
             font-family: 'Roboto', sans-serif; overflow: hidden;
             display: flex; flex-direction: column; height: 100dvh;
             user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
         /* SCROLLBARS */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #111; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(180deg, var(--pdc-gold), #cc9900); 
+            border-radius: 10px; 
+            transition: all 0.3s;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--pdc-gold); }
 
         /* ==================== LAYOUT COMPONENTS ==================== */
         #setup-screen, #tournament-hub, #post-match-screen, #match-screen {
@@ -39,25 +52,44 @@
         }
 
         #setup-screen {
-            background: radial-gradient(circle at center, #1a3c50, #000000);
+            background: linear-gradient(135deg, #0f1729 0%, #1a2642 50%, #0f1729 100%);
+            backdrop-filter: blur(10px);
             justify-content: center; align-items: center; z-index: 100;
             padding: 5px; box-sizing: border-box;
         }
 
         .setup-box {
-            background: rgba(14, 42, 58, 0.98); border-radius: 8px;
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.95));
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
             width: 100%; max-width: 600px; height: 90dvh; max-height: 900px;
-            border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 215, 0, 0.3);
             display: flex; flex-direction: column; overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .tabs { display: flex; background: #081b26; border-bottom: 1px solid #333; flex-shrink: 0; min-height: 40px; }
+        .tabs { 
+            display: flex; 
+            background: linear-gradient(180deg, rgba(12, 16, 28, 0.9), rgba(8, 11, 20, 0.95)); 
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2); 
+            flex-shrink: 0; min-height: 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
         .tab-btn {
             flex: 1; padding: 10px; background: transparent; border: none;
-            color: #888; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 13px;
+            color: #999; font-family: 'Roboto Condensed'; font-weight: bold; font-size: 13px;
             cursor: pointer; text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
         }
-        .tab-btn.active { background: rgba(255, 255, 255, 0.05); color: var(--pdc-gold); border-bottom: 3px solid var(--pdc-gold); }
+        .tab-btn:hover { color: #ccc; background: rgba(255, 215, 0, 0.05); }
+        .tab-btn.active { 
+            background: rgba(255, 215, 0, 0.08); 
+            color: var(--pdc-gold); 
+            border-bottom: 3px solid var(--pdc-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
 
         .tab-content { padding: 10px; display: none; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
         .tab-content.active { display: flex; }
@@ -67,39 +99,122 @@
 
         /* CONTROLS */
         input, select {
-            padding: 8px 10px; font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: bold;
-            border-radius: 4px; border: 1px solid #ccc; background: var(--input-bg); color: #222; 
-            outline: none; width: 100%; box-sizing: border-box; height: 36px;
+            padding: 10px 14px; font-family: 'Roboto Condensed', sans-serif; font-size: 13px; font-weight: 600;
+            border-radius: 8px; 
+            border: 2px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(255, 255, 255, 0.95); 
+            color: #222; 
+            outline: none; width: 100%; box-sizing: border-box; height: 40px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
-        input:focus, select:focus { border-color: var(--pdc-gold); background: #fff; }
+        input:hover, select:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        input:focus, select:focus { 
+            border-color: var(--pdc-gold); 
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1), var(--shadow-md);
+            transform: translateY(-1px);
+        }
 
-        .format-row { display: flex; gap: 8px; }
+        .format-row { display: flex; gap: 10px; }
         .format-btn {
-            flex: 1; padding: 8px; background: #222; border: 1px solid #444; color: #aaa;
-            font-weight: bold; cursor: pointer; border-radius: 4px; text-align: center; font-size: 12px; height: 36px;
+            flex: 1; padding: 10px; 
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 2px solid rgba(255, 255, 255, 0.1); 
+            color: #aaa;
+            font-weight: bold; cursor: pointer; 
+            border-radius: 8px; 
+            text-align: center; font-size: 12px; height: 40px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
-        .format-btn.selected { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); }
+        .format-btn:hover {
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #ddd;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .format-btn.selected { 
+            background: linear-gradient(135deg, var(--pdc-gold), #cc9900); 
+            color: #000; 
+            border-color: var(--pdc-gold);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
 
         .btn-gold, .btn-blue, .btn-hub-action {
-            font-weight: 900; cursor: pointer; padding: 10px; font-size: 14px; 
-            text-transform: uppercase; border: none; border-radius: 4px; width: 100%; flex-shrink: 0;
+            font-weight: 900; cursor: pointer; padding: 12px 20px; font-size: 14px; 
+            text-transform: uppercase; border: none; border-radius: 10px; width: 100%; flex-shrink: 0;
             font-family: 'Roboto Condensed';
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-gold { background: var(--pdc-gold); color: #111; margin: 5px 0; }
-        .btn-blue { background: #1b4dff; color: white; margin: 10px 0; }
+        .btn-gold { 
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #111; margin: 5px 0;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+        .btn-gold:active { transform: translateY(0); }
+        .btn-blue { 
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+            color: white; margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.5);
+        }
         .btn-hub-action { font-size: 12px; color: white; flex: 1; }
-        .btn-sim { background: var(--pdc-green); }
-        .btn-watch { background: #e65100; }
+        .btn-sim { 
+            background: linear-gradient(135deg, var(--pdc-green), #009647);
+            box-shadow: 0 4px 15px rgba(0, 179, 89, 0.3);
+        }
+        .btn-sim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 179, 89, 0.5);
+        }
+        .btn-watch { 
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        .btn-watch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+        }
 
         /* LISTS */
         .search-dropdown-container { position: relative; width: 100%; }
         .search-results-list {
-            position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px;
-            overflow-y: auto; background: #1a1a1a; border: 1px solid #444; border-radius: 0 0 4px 4px;
-            z-index: 1000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: absolute; top: calc(100% + 5px); left: 0; width: 100%; max-height: 220px;
+            overflow-y: auto; 
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 1px solid rgba(255, 215, 0, 0.2); 
+            border-radius: 8px;
+            z-index: 1000; display: none; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
         }
-        .search-item { padding: 8px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #ddd; }
-        .search-item:hover { background: #333; color: var(--pdc-gold); }
+        .search-item { 
+            padding: 10px 12px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            cursor: pointer; display: flex; align-items: center; gap: 10px; 
+            font-size: 12px; color: #ddd;
+            transition: all 0.2s ease;
+        }
+        .search-item:hover { 
+            background: rgba(255, 215, 0, 0.1); 
+            color: var(--pdc-gold);
+            padding-left: 16px;
+        }
         .search-item img { width: 18px; height: 12px; object-fit: cover; }
 
         .player-selector-box { display: none; flex-direction: column; background: #111; border: 1px solid #444; margin-top: 5px; border-radius: 4px; overflow: hidden; flex-shrink: 0; }
@@ -109,16 +224,45 @@
         .tc-badge { font-size: 9px; background: var(--pdc-gold); color: black; padding: 2px 4px; border-radius: 2px; margin-left: auto; font-weight: bold; }
 
         .tourn-config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; max-height: 120px; overflow-y: auto; flex-shrink: 0; }
-        .checkbox-row { display: flex; align-items: center; margin-top: 5px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 4px; flex-shrink: 0; border: 1px solid #333; }
+        .checkbox-row { 
+            display: flex; align-items: center; margin-top: 5px; 
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)); 
+            padding: 12px; border-radius: 8px; flex-shrink: 0; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+        .checkbox-row:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: rgba(255, 215, 0, 0.2);
+            transform: translateX(3px);
+        }
         .checkbox-row input { width: 18px; height: 18px; margin-right: 10px; accent-color: var(--pdc-gold); }
         .pc-row { display: flex; flex-direction: column; gap: 8px; }
         label { font-weight: bold; font-size: 10px; color: #8fa3ad; text-transform: uppercase; margin-bottom: 2px; display:block; }
 
         /* SEASON UI */
-        .season-list { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; overflow-y: auto; }
-        .season-event { background: #1a1a1a; padding: 12px; border-radius: 4px; border-left: 4px solid #444; display: flex; justify-content: space-between; align-items: center; opacity: 0.6; }
-        .season-event.active { opacity: 1; border-left-color: var(--pdc-gold); background: #222; box-shadow: 0 0 10px rgba(255,204,0,0.1); }
-        .season-event.completed { opacity: 0.5; border-left-color: var(--pdc-green); text-decoration: line-through; }
+        .season-list { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 2px; padding-bottom: 16px; }
+        .season-event { 
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            padding: 14px; border-radius: 10px; 
+            border-left: 4px solid rgba(255, 255, 255, 0.2); 
+            display: flex; justify-content: space-between; align-items: center; 
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .season-event:hover { opacity: 0.85; transform: translateX(4px); }
+        .season-event.active { 
+            opacity: 1; 
+            border-left-color: var(--pdc-gold); 
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2), inset 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+        .season-event.completed { 
+            opacity: 0.5; 
+            border-left-color: var(--pdc-green); 
+            text-decoration: line-through;
+        }
         .s-date { font-size: 10px; color: #888; font-weight: bold; text-transform: uppercase; }
         .s-name { font-size: 14px; font-weight: bold; color: white; margin: 2px 0; }
         .s-winner { font-size: 11px; color: var(--pdc-gold); }
@@ -126,16 +270,23 @@
         /* UPDATED OOM STYLES */
         .oom-container { 
             height: 200px; flex-shrink: 0; overflow-y: auto; margin-top: 10px; 
-            border: 1px solid #333; background: #000; border-radius: 4px; 
+            border: 1px solid rgba(255, 215, 0, 0.2); 
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.6), rgba(10, 14, 26, 0.8));
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
         }
         .oom-table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed;}
         /* Sticky header with solid background so content doesn't show under it */
         .oom-table th { 
             text-align: left; color: #fff; 
             border-bottom: 2px solid var(--pdc-gold); 
-            padding: 8px; position: sticky; top: 0; 
-            background: #081b26; z-index: 5; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            padding: 10px; position: sticky; top: 0; 
+            background: linear-gradient(180deg, #1a1f35, #12172a);
+            backdrop-filter: blur(10px);
+            z-index: 5; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            font-weight: 700;
         }
         .oom-table td { padding: 6px 8px; border-bottom: 1px solid #222; }
         .oom-pos { width: 30px; font-weight: bold; color: var(--pdc-gold); text-align: center; }
@@ -151,22 +302,394 @@
         .oom-nav-btn.active { background: #081b26; color: white; border-bottom: 3px solid var(--pdc-gold); }
 
         /* HUB & BRACKET */
-        #tournament-hub { background: #111; z-index: 90; padding: 0; }
-        .hub-header { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e2a3a; padding: 10px; flex-shrink: 0; border-bottom: 2px solid #333; position: relative;}
-        .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold; margin-bottom: 5px;}
-        .round-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; gap: 10px; margin-bottom: 5px;}
-        .nav-btn { background: #2a2a2a; color: white; border: 1px solid #444; padding: 5px 15px; font-size: 12px; font-weight: bold; cursor: pointer; border-radius: 4px; }
-        .hub-round-name { font-size: 16px; color: white; font-weight: bold; text-transform: uppercase; }
-        .hub-round-format { color: #8fa3ad; font-size: 12px; }
-        .hub-actions { display: flex; gap: 10px; width: 100%; max-width: 600px; margin-top: 5px; }
+        #tournament-hub { 
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            z-index: 90; padding: 0; 
+        }
+        .hub-header { 
+            display: flex; flex-direction: row; align-items: center; justify-content: space-between; 
+            background: linear-gradient(180deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.9));
+            backdrop-filter: blur(10px);
+            padding: 15px 20px; flex-shrink: 0; 
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2); 
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .hub-title { font-size: 20px; color: var(--pdc-gold); font-family: 'Roboto Condensed'; font-weight: bold;}
+        .hub-actions { display: flex; gap: 10px; }
+        .btn-reset-hub {
+            background: linear-gradient(145deg, #9a0000, #7a0000);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .btn-reset-hub:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(154, 0, 0, 0.4);
+        }
 
-        .bracket-wrapper { display: flex; flex: 1; align-items: center; overflow: hidden; padding: 5px; gap: 5px; }
-        .bracket-container { flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; height: 100%; padding: 0 5px; }
+        .bracket-wrapper { 
+            display: flex; 
+            flex: 1; 
+            overflow-x: auto; 
+            overflow-y: auto; 
+            padding: 30px 20px; 
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+        .bracket-round-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 320px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .round-column-header {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.6), rgba(15, 21, 37, 0.6));
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+        }
+        .round-column-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--pdc-gold);
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .round-column-format {
+            font-size: 11px;
+            color: #8fa3ad;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .bracket-wrapper {
+                padding: 15px 10px;
+            }
+            .bracket-round-column {
+                min-width: 280px;
+            }
+            .bracket-match {
+                min-height: 50px;
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            .bm-flag {
+                width: 16px;
+                height: 12px;
+            }
+            .bm-name {
+                font-size: 12px;
+            }
+            .bm-score {
+                font-size: 14px;
+                min-width: 18px;
+            }
+            .bm-avg {
+                font-size: 10px;
+            }
+            .round-column-header {
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+            .round-column-name {
+                font-size: 14px;
+            }
+            .round-column-format {
+                font-size: 10px;
+            }
+            .btn-play-mini {
+                padding: 4px 8px;
+                font-size: 10px;
+                min-height: 28px;
+            }
+            .match-nav-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+            .hub-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            .hub-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .hub-actions button {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+            .advancement-container {
+                max-width: 95%;
+                padding: 20px;
+            }
+            .advancement-title {
+                font-size: 24px;
+            }
+            .advancement-player {
+                min-width: 120px;
+            }
+            .advancement-player-name {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .bracket-round-column {
+                min-width: 240px;
+            }
+            .bracket-match {
+                font-size: 12px;
+            }
+            .bm-name {
+                font-size: 11px;
+                max-width: 130px;
+            }
+            .round-column-name {
+                font-size: 12px;
+            }
+            .match-select-cb {
+                width: 14px;
+                height: 14px;
+            }
+        }
+        .bracket-matches-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+            position: relative;
+        }
+        
+        /* Tournament Bracket Lines - Single Side */
+        .bracket-match-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        /* Horizontal line extending right from each match */
+        .bracket-match-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 30px;
+            height: 2px;
+            background: rgba(255, 215, 0, 0.7);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        /* Vertical line connecting odd match (top of pair) downward */
+        .bracket-match-wrapper:nth-child(odd):not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: calc(100% + 30px);
+            top: 50%;
+            width: 2px;
+            height: calc(50% + 30px);
+            background: rgba(255, 215, 0, 0.7);
+            z-index: 1;
+        }
+        
+        /* Vertical line connecting even match (bottom of pair) upward */
+        .bracket-match-wrapper:nth-child(even)::after {
+            content: '';
+            position: absolute;
+            left: calc(100% + 30px);
+            bottom: 50%;
+            width: 2px;
+            height: calc(50% + 30px);
+            background: rgba(255, 215, 0, 0.7);
+            z-index: 1;
+        }
+        
+        /* Last round - no lines */
+        .bracket-round-column:last-child .bracket-match-wrapper::before,
+        .bracket-round-column:last-child .bracket-match-wrapper::after {
+            display: none;
+        }
+        
+        /* Completed match highlighting */
+        .bracket-match-wrapper.completed::before {
+            background: var(--pdc-gold);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            height: 3px;
+        }
+        
+        .bracket-match-wrapper.completed:nth-child(odd):not(:last-child)::after,
+        .bracket-match-wrapper.completed:nth-child(even)::after {
+            background: var(--pdc-gold);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            width: 3px;
+        }
         
         /* Compact Bracket Match */
-        .bracket-match { background: #1a1a1a; border-left: 4px solid #444; padding: 6px; border-radius: 4px; display: flex; align-items: center; gap: 5px; transition: background 0.3s; min-height: 50px; }
-        .bracket-match.highlight { background: #333; border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255,204,0,0.2); }
-        .bracket-match.completed { opacity: 0.9; }
+        .bracket-match { 
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-left: 4px solid rgba(255, 215, 0, 0.4); 
+            padding: 10px 14px; border-radius: 10px; 
+            display: flex; align-items: center; gap: 8px; 
+            transition: all 0.3s ease; min-height: 58px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        .bracket-match:hover {
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            transform: scale(1.02);
+            border-color: rgba(255, 215, 0, 0.3);
+            border-left-color: rgba(255, 215, 0, 0.6);
+            box-shadow: var(--shadow-md);
+        }
+        .bracket-match.completed { 
+            border-left-color: var(--pdc-gold);
+            border-color: rgba(255, 215, 0, 0.3);
+            opacity: 1;
+        }
+        .bracket-match.completed:hover {
+            border-left-color: var(--pdc-gold);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+        
+        /* Player advancement animation */
+        .bracket-match.just-won {
+            animation: matchWinPulse 0.8s ease-out;
+        }
+        @keyframes matchWinPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+            100% { transform: scale(1); }
+        }
+
+        /* ADVANCEMENT ANIMATION */
+        #advancement-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            animation: overlayFadeIn 0.3s ease-out;
+        }
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .advancement-container {
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid var(--pdc-gold);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 100px rgba(255, 215, 0, 0.3);
+            animation: advancementSlideIn 0.5s ease-out;
+        }
+        @keyframes advancementSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .advancement-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--pdc-gold);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+        .advancement-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #8fa3ad;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        .advancement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .advancement-player {
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: playerSlideIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        @keyframes playerSlideIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .advancement-player:nth-child(1) { animation-delay: 0.1s; }
+        .advancement-player:nth-child(2) { animation-delay: 0.15s; }
+        .advancement-player:nth-child(3) { animation-delay: 0.2s; }
+        .advancement-player:nth-child(4) { animation-delay: 0.25s; }
+        .advancement-player:nth-child(5) { animation-delay: 0.3s; }
+        .advancement-player:nth-child(6) { animation-delay: 0.35s; }
+        .advancement-player:nth-child(7) { animation-delay: 0.4s; }
+        .advancement-player:nth-child(8) { animation-delay: 0.45s; }
+        .advancement-player:nth-child(n+9) { animation-delay: 0.5s; }
+        .advancement-flag {
+            width: 36px;
+            height: 24px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+        .advancement-player-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            flex: 1;
+        }
+        .advancement-player-avg {
+            font-size: 12px;
+            color: var(--pdc-gold);
+            font-weight: bold;
+        }
+        .advancement-continue {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--pdc-gold), #ffed4e);
+            color: #111;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        .advancement-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+        }
+
         .match-nav-btn { background: transparent; border: none; color: #555; font-weight: bold; font-size: 16px; padding: 0 8px; cursor: pointer; height: 100%; display: flex; align-items: center; }
         .match-nav-btn:hover { color: var(--pdc-gold); }
         .bm-content { flex: 1; padding: 0; }
@@ -209,8 +732,20 @@
         .leg-label { color: #888; text-align: center; font-weight: bold; font-size: 10px; width: 40px; }
 
         /* POST MATCH STATS */
-        #post-match-screen { display: none; background: #0e2a3a; z-index: 110; align-items: center; overflow-y: auto; }
-        .stats-header { width: 100%; background: #081b26; padding: 15px; text-align: center; border-bottom: 2px solid var(--pdc-gold); box-sizing: border-box; flex-shrink: 0;}
+        #post-match-screen { 
+            display: none; 
+            background: linear-gradient(135deg, #0f1729 0%, #1a2642 50%, #0f1729 100%);
+            z-index: 110; align-items: center; overflow-y: auto; 
+        }
+        .stats-header { 
+            width: 100%; 
+            background: linear-gradient(180deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.9));
+            backdrop-filter: blur(10px);
+            padding: 20px; text-align: center; 
+            border-bottom: 2px solid var(--pdc-gold); 
+            box-sizing: border-box; flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
         .stats-title { font-size: 22px; color: var(--pdc-gold); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
         .stats-subtitle { font-size: 12px; color: #ccc; }
         .stats-grid { display: grid; grid-template-columns: 1fr 130px 1fr; width: 100%; max-width: 500px; padding: 15px 10px; gap: 8px; flex-shrink: 0;}
@@ -417,13 +952,13 @@
                 <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
                 
-                <div class="oom-nav">
+                <div class="oom-nav" style="display:none;">
                     <button id="btn-main-oom" class="oom-nav-btn active">Main Order of Merit</button>
                     <button id="btn-protour-oom" class="oom-nav-btn">Pro Tour</button>
                     <button id="btn-challenge-oom" class="oom-nav-btn">Challenge</button>
                     <button id="btn-ws-oom" class="oom-nav-btn">World Series</button>
                 </div>
-                <div class="oom-container">
+                <div class="oom-container" style="display:none;">
                     <table class="oom-table" id="season-oom"></table>
                 </div>
 
@@ -465,25 +1000,15 @@
     <!-- TOURNAMENT HUB -->
     <div id="tournament-hub">
         <div class="hub-header">
-            <button class="btn-exit-small" onclick="Persistence.clear()">RESET</button>
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            <div class="round-nav">
-                <button class="nav-btn" id="btn-prev-round" onclick="Tournament.changeViewRound(-1)">PREV</button>
-                <div class="hub-round-info">
-                    <div class="hub-round-name" id="tourn-round-name">LAST 32</div>
-                    <div class="hub-round-format" id="tourn-round-fmt">First to 3 Sets</div>
-                </div>
-                <button class="nav-btn" id="btn-next-round" onclick="Tournament.changeViewRound(1)">NEXT</button>
-            </div>
             <div class="hub-actions">
-                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateRound()">Simulate Round</button>
+                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current Round</button>
                 <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
+                <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
             </div>
         </div>
         
-        <div class="bracket-wrapper">
-            <div class="bracket-container" id="tourn-bracket"></div>
-        </div>
+        <div class="bracket-wrapper" id="tourn-bracket"></div>
     </div>
 
     <!-- CLEAN INTRO -->
@@ -650,6 +1175,16 @@
             <div id="pause-info-text" style="color:white; font-size:14px; font-weight:bold; margin-bottom:5px; text-transform:uppercase;">FORMAT INFO</div>
             <div style="color:#888; font-size:12px; margin-bottom:20px;">Click Resume to continue and enable audio.</div>
             <button class="btn-gold" onclick="App.resumeFromReload()">RESUME MATCH</button>
+        </div>
+    </div>
+
+    <!-- ADVANCEMENT ANIMATION -->
+    <div id="advancement-overlay">
+        <div class="advancement-container">
+            <div class="advancement-title" id="adv-title">PLAYERS ADVANCING</div>
+            <div class="advancement-subtitle" id="adv-subtitle">TO QUARTER-FINALS</div>
+            <div class="advancement-grid" id="adv-grid"></div>
+            <button class="advancement-continue" onclick="Tournament.closeAdvancementOverlay()">CONTINUE</button>
         </div>
     </div>
 
@@ -1933,7 +2468,7 @@ const WORLD_SERIES_POINTS = {
             'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000},
             'players': { 128: 0, 64:1000, 32:2000, 16: 3000, 8: 5000, 4: 7500, 2: 10000, 1: 15000 },
             'challenge': {128: 0,64: 100,32: 250, 16: 350, 8: 750,4: 1000,2: 2000,1: 3000 },
-            'uk-open': {128:1000, 64:2500, 32: 6000, 16:10000, 8:15000, 4:25000, 2:50000, 1:110000},
+            'uk-open': {160: 0, 128: 1000, 96: 1500, 64: 2500, 32: 5000, 16: 10000, 8: 15000, 4: 30000, 2: 50000, 1: 110000},
             'winmaudm': {32: 5000, 16: 10000, 8:17500, 4:30000, 2: 50000, 1:100000 },
             'matchplay': {32: 10000, 16: 15000, 8: 30000, 4:50000, 2: 100000, 1:200000},
             'europeanf':  {32: 7500, 16: 15000, 8:25000, 4: 40000, 2: 60000, 1: 120000},
@@ -1963,6 +2498,7 @@ const WORLD_SERIES_POINTS = {
                 localStorage.setItem('pdc_match_state', JSON.stringify(App.matchState));
                 localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
                 
+                // Only save tournament state if it's active
                 if (Tournament.state.active) {
                     const cleanBracket = Tournament.state.bracketData.map(round => 
                         round.map(m => ({
@@ -1978,6 +2514,10 @@ const WORLD_SERIES_POINTS = {
                         matchQueue: Tournament.state.matchQueue 
                     }));
                     localStorage.setItem('pdc_tourn_config', JSON.stringify(Tournament.config));
+                } else {
+                    // Clear tournament state if not active
+                    localStorage.removeItem('pdc_tourn_state');
+                    localStorage.removeItem('pdc_tourn_config');
                 }
 
                 // Season Save
@@ -1985,13 +2525,26 @@ const WORLD_SERIES_POINTS = {
 
                 let screen = 'setup';
                 if (document.getElementById('match-screen').style.display === 'flex') screen = 'match';
-                else if (document.getElementById('tournament-hub').style.display === 'flex') screen = 'hub';
+                else if (document.getElementById('tournament-hub').style.display === 'flex' && Tournament.state.active) screen = 'hub';
                 else if (document.getElementById('post-match-screen').style.display === 'flex') screen = 'stats';
                 localStorage.setItem('pdc_active_screen', screen);
            },
 
             load: () => {
                 try {
+                    // Always load Season state regardless of screen
+                    const sState = localStorage.getItem('pdc_season_state');
+                    if (sState) {
+                        Season.state = JSON.parse(sState);
+                        console.log('Season state loaded successfully');
+                    }
+                    
+                    // If no tournament is active but inProgress is true, reset it
+                    if (!Tournament.state.active && Season.state.inProgress) {
+                        Season.state.inProgress = false;
+                        console.log('Reset inProgress flag since no tournament is active');
+                    }
+                    
                     const screen = localStorage.getItem('pdc_active_screen');
                     if (!screen || screen === 'setup') return;
 
@@ -2018,13 +2571,36 @@ const WORLD_SERIES_POINTS = {
                     const tConfig = localStorage.getItem('pdc_tourn_config');
                     if (tConfig) Tournament.config = JSON.parse(tConfig);
 
-                    const sState = localStorage.getItem('pdc_season_state');
-                    if (sState) Season.state = JSON.parse(sState);
                     // ===== PRO TOUR OOM SAFETY INIT =====
                     if(!Season.state.proTourOOM) Season.state.proTourOOM = {};
                     if(!Season.state.proTourHistory) Season.state.proTourHistory = [];
                     if(!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
                     if(!Season.state.challengeTourHistory) Season.state.challengeTourHistory = [];
+                    
+                    // ===== Q-SCHOOL SAFETY INIT =====
+                    if(!Season.state.qSchool) Season.state.qSchool = {};
+                    if(!Season.state.qSchool.ukOOM) Season.state.qSchool.ukOOM = {};
+                    if(!Season.state.qSchool.euOOM) Season.state.qSchool.euOOM = {};
+                    if(!Season.state.qSchool.ukParticipants) Season.state.qSchool.ukParticipants = [];
+                    if(!Season.state.qSchool.euParticipants) Season.state.qSchool.euParticipants = [];
+                    if(!Season.state.qSchool.ukFinalStageQualified) Season.state.qSchool.ukFinalStageQualified = [];
+                    if(!Season.state.qSchool.euFinalStageQualified) Season.state.qSchool.euFinalStageQualified = [];
+                    
+                    // ===== WORLD SERIES SAFETY INIT =====
+                    if(!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
+                    if(!Season.state.worldSeriesHistory) Season.state.worldSeriesHistory = [];
+                    
+                    // ===== PREMIER LEAGUE SAFETY INIT =====
+                    if(!Season.state.premierLeague) Season.state.premierLeague = {};
+                    if(!Season.state.premierLeague.standings) Season.state.premierLeague.standings = {};
+                    if(!Season.state.premierLeague.nightResults) Season.state.premierLeague.nightResults = [];
+                    if(!Season.state.premierLeague.playoffQualifiers) Season.state.premierLeague.playoffQualifiers = [];
+                    
+                    // ===== GENERAL SAFETY INIT =====
+                    if(!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set() };
+                    if(!Season.state.wcQualified.qualifiers) Season.state.wcQualified.qualifiers = new Set();
+                    if(!Season.state.winmauQualifiers) Season.state.winmauQualifiers = [];
+                    if(!Season.state.activeOOMView) Season.state.activeOOMView = "main";
 
 
                     document.getElementById('setup-screen').style.display = 'none';
@@ -2065,20 +2641,53 @@ const WORLD_SERIES_POINTS = {
                             document.getElementById('overlay-resume').style.display = 'flex';
                         }
                     } else if (screen === 'hub') {
-                        Tournament.renderHub();
+                        if (Tournament.state.active) {
+                            // Check if tournament is actually finished (all rounds complete)
+                            const allRoundsComplete = Tournament.state.bracketData.every(round => 
+                                round.every(match => match.winner)
+                            );
+                            
+                            if (allRoundsComplete) {
+                                // Tournament is finished, return to setup
+                                console.log('Tournament complete, returning to setup screen');
+                                Persistence.clearTournamentOnly();
+                                document.getElementById('setup-screen').style.display = 'flex';
+                                document.getElementById('tournament-hub').style.display = 'none';
+                            } else {
+                                Tournament.renderHub();
+                            }
+                        } else {
+                            // Tournament is no longer active, go back to season
+                            document.getElementById('setup-screen').style.display = 'flex';
+                            document.getElementById('tournament-hub').style.display = 'none';
+                            App.switchTab('season');
+                            Season.renderUI();
+                        }
                     } else if (screen === 'stats') {
                         App.showPostMatch();
                     }
 
                 } catch (e) {
                     console.error("Load failed, resetting...", e);
-                    Persistence.clear(); 
+                    // Only clear tournament data, keep Season progress
+                    Persistence.clearTournamentOnly();
                 }
             },
 
             clear: () => {
                 localStorage.clear();
                 location.reload();
+            },
+            
+            clearTournamentOnly: () => {
+                // Only clear tournament-specific data, keep Season progress
+                localStorage.removeItem('pdc_tourn_state');
+                localStorage.removeItem('pdc_tourn_config');
+                localStorage.removeItem('pdc_players');
+                localStorage.removeItem('pdc_match_state');
+                localStorage.removeItem('pdc_app_config');
+                localStorage.setItem('pdc_active_screen', 'setup');
+                console.log('Cleared tournament data, Season data preserved');
             }
         };
 
@@ -2221,9 +2830,9 @@ const WORLD_SERIES_POINTS = {
                 { id: 22, name: "PREMIER LEAGUE - Night 4", date: "Feb 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 4 },
                 { id: 23, name: "UK OPEN", date: "Mar 03", format: "legs", players: 128, type: 'uk-open', cardRequired: false },
                 { id: 24, name: "PREMIER LEAGUE - Night 5", date: "Mar 05", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 5 },
-                { id: 7, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 25, name: "EUROPEAN DARTS TROPHY", date: "Mar 15", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 134, name: "PREMIER LEAGUE - Night 6", date: "Mar 12", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 6 },
-                { id: 8, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 26, name: "BELGIAN DARTS OPEN", date: "Mar 22", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 135, name: "PREMIER LEAGUE - Night 7", date: "Mar 19", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 7 },
                 { id: 206, name: "CHALLENGE TOUR 06", date: "Mar 27", format: "legs", players: 128, type: "challenge", cardRequired: false },
                 { id: 207, name: "CHALLENGE TOUR 07", date: "Mar 27", format: "legs", players: 128, type: "challenge", cardRequired: false },
@@ -2233,12 +2842,12 @@ const WORLD_SERIES_POINTS = {
                 { id: 107, name: "PLAYERS CHAMPIONSHIP 7", date: "Mar 30", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 136, name: "PREMIER LEAGUE - Night 8", date: "Mar 26", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 8 },
                 { id: 108, name: "PLAYERS CHAMPIONSHIP 8", date: "Mar 31", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 9, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 27, name: "GERMAN DARTS GRAND PRIX", date: "Apr 4", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 137, name: "PREMIER LEAGUE - Night 9", date: "Apr 02", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 9 },
                 { id: 109, name: "PLAYERS CHAMPIONSHIP 9", date: "Apr 13", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 138, name: "PREMIER LEAGUE - Night 10", date: "Apr 09", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 10 },
                 { id: 110, name: "PLAYERS CHAMPIONSHIP 10", date: "Apr 14", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 10, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", players: 32, type: 'minor', cardRequired: true },
+                { id: 28, name: "EUROPEAN DARTS GRAND PRIX", date: "Apr 19", format: "legs", players: 32, type: 'minor', cardRequired: true },
                 { id: 139, name: "PREMIER LEAGUE - Night 11", date: "Apr 16", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 11 },
                 { id: 111, name: "PLAYERS CHAMPIONSHIP 11", date: "Apr 27", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 140, name: "PREMIER LEAGUE - Night 12", date: "Apr 23", format: "legs", players: 8, type: 'premier-league', cardRequired: true, night: 12 },
@@ -2302,7 +2911,7 @@ const WORLD_SERIES_POINTS = {
                 { id: 132, name: "PLAYERS CHAMPIONSHIP 32", date: "Oct 29", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 88, name: "GRAND SLAM OF DARTS", date: "Nov 01", format: "legs", players: 32, type: "grandslam", cardRequired: true },
                 { id: 133, name: "PLAYERS CHAMPIONSHIP 33", date: "Nov 04", format: "legs", players: 128, type: "players", cardRequired: true },
-                { id: 134, name: "PLAYERS CHAMPIONSHIP 34", date: "Nov 05", format: "legs", players: 128, type: "players", cardRequired: true },
+                { id: 135, name: "PLAYERS CHAMPIONSHIP 34", date: "Nov 05", format: "legs", players: 128, type: "players", cardRequired: true },
                 { id: 30, name: "PLAYERS CHAMPIONSHIP FINALS", date: "Nov 24", format: "legs", players: 64, type: 'playersf', cardRequired: true },
                 { id: 31, name: "WORLD CHAMPIONSHIP", date: "Dec 15", format: "sets", players: 128, type: 'world', cardRequired: true }
 
@@ -2477,6 +3086,38 @@ const WORLD_SERIES_POINTS = {
                 Season.state.winmauQualifiers = qualified;
             },
 
+            simulateWinmauQuali: () => {
+                // Winmau Darts Masters Qualifiers
+                let selected = new Set();
+
+                // Pro Tour top 24
+                Object.entries(Season.state.proTourOOM)
+                    .sort((a,b) => b[1] - a[1])
+                    .slice(0, 24)
+                    .forEach(e => selected.add(e[0]));
+
+                // Safety fill from tour card holders
+                const pool = PLAYERS_DB
+                    .filter(p => p.tourCard)
+                    .map(p => p.name)
+                    .filter(n => !selected.has(n));
+
+                while(selected.size < 32) {
+                    if(pool.length === 0) break;
+                    selected.add(pool[Math.floor(Math.random() * pool.length)]);
+                }
+
+                const players = [...selected];
+                // Simulate qualifiers (top 8 advance from 32)n
+                const qualified = players
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 8);
+
+                Season.state.winmauQualifiers = qualified;
+
+                console.log("Winmau Qualifiers:", qualified);
+            },
+
             startNewYear: () => {
                 Season.state.year++;
                 Season.state.activeEventIndex = 0;
@@ -2554,6 +3195,7 @@ const WORLD_SERIES_POINTS = {
                         </div>
                     `;
                 });
+<<<<<<< HEAD
 
                 // 3️⃣ OOM TABLE with FILTERING
                 const source =
@@ -2587,6 +3229,8 @@ const WORLD_SERIES_POINTS = {
                     tbody.appendChild(row);
                 });
                 table.appendChild(tbody);
+=======
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
             },
 
             renderOOMTable: (tableId, data) => {
@@ -3143,6 +3787,7 @@ const WORLD_SERIES_POINTS = {
                 Season.state.challengeTourHistory.forEach(ev => { for(let name in ev.payouts) { oom[name] += ev.payouts[name]; } });
                 Season.state.challengeTourOOM = oom;
             },
+<<<<<<< HEAD
 
             initializePremierLeague: (eventIdx, ev, isSim) => {
                 Season.state.inProgress = true;
@@ -3154,6 +3799,1373 @@ const WORLD_SERIES_POINTS = {
                     Tournament.state.selectedPlayerIndices.clear();
                     const qualifiers = Season.state.premierLeague.playoffQualifiers;
                     qualifiers.forEach(name => {
+=======
+            init: () => {
+                // Only initialize if starting fresh (no existing data)
+                if(Object.keys(Season.state.orderOfMerit).length === 0) { 
+                    RAW_PLAYERS.forEach(p => { Season.state.orderOfMerit[p.name] = p.money || 0; }); 
+                }
+                if(Object.keys(Season.state.proTourOOM).length === 0) { 
+                    RAW_PLAYERS.forEach(p => { Season.state.proTourOOM[p.name] = 0; }); 
+                }
+                // Only clear qualifiers if starting fresh
+                if (!Season.state.wcQualified) {
+                    Season.state.wcQualified = { qualifiers: new Set() };
+                }
+                if (!Season.state.wcQualified.qualifiers) {
+                    Season.state.wcQualified.qualifiers = new Set();
+                }
+                Season.renderUI();
+            },
+            reset: () => {
+                if(!confirm("Reset Career Mode completely?")) return;
+                Season.state = { 
+                    activeEventIndex: 0, 
+                    orderOfMerit: {}, 
+                    completedEvents: [], 
+                    inProgress: false, 
+                    year: 2026,
+                    proTourOOM: {},
+                    proTourHistory: [],
+                    challengeTourOOM: {},
+                    challengeTourHistory: [],
+                    worldSeriesOOM: {},
+                    worldSeriesHistory: [],
+                    activeOOMView: "main",
+                    wcQualified: { qualifiers: new Set() },
+                    premierLeague: {
+                        standings: {},
+                        nightResults: [],
+                        playoffQualifiers: []
+                    },
+                    qSchool: {
+                        ukOOM: {},
+                        euOOM: {},
+                        ukParticipants: [],
+                        euParticipants: [],
+                        ukFinalStageQualified: [],
+                        euFinalStageQualified: []
+                    },
+                    winmauQualifiers: []
+                };
+                // Initialize order of merit with only tour card holders
+                PLAYERS_DB.forEach(p => {
+                    if (p.tourCard) {
+                        Season.state.orderOfMerit[p.name] = p.money || 0;
+                    }
+                });
+                Season.renderUI();
+                Persistence.save();
+            },
+            init: () => {
+                // Initialize main OOM with only tour card holders
+                if(Object.keys(Season.state.orderOfMerit).length === 0) {
+                     PLAYERS_DB.forEach(p => {
+                         if (p.tourCard) {
+                             Season.state.orderOfMerit[p.name] = p.money || 0;
+                         }
+                     });
+                }
+                // Pro Tour, Challenge Tour, and World Series OOMs are empty initially
+                // They get populated when players compete in those events
+                if(!Season.state.proTourOOM) Season.state.proTourOOM = {};
+                if(!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
+                if(!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
+
+                // Ensure season events are ordered by calendar date (keeps Q-School in chronological order)
+                const year = Season.state.year || 2026;
+                Season.events.sort((a, b) => {
+                    const da = new Date(`${year} ${a.date}`);
+                    const db = new Date(`${year} ${b.date}`);
+                    return da - db;
+                });
+                Season.renderUI();
+            },
+
+// 3️⃣ OOM TÁBLÁK (ALL VISIBLE)
+// ============================
+        renderOOMTable: (tableId, data) => {
+            console.log('renderOOMTable called with tableId:', tableId, 'data keys:', Object.keys(data || {}).length);
+            
+            // Get all entries from the data object
+            const allEntries = Object.entries(data || {});
+            console.log('All entries:', allEntries.length);
+            
+            // For main OOM, only show tour card holders
+            const isMainOOM = tableId === 'oom-hub-main';
+            
+            // Filter and sort
+            const list = allEntries
+                .map(([name, money]) => {
+                    const p = PLAYERS_DB.find(x => x.name === name);
+                    if (!p) {
+                        console.log('Player not found in DB:', name);
+                        return null;
+                    }
+                    // For main OOM, only include tour card holders
+                    if (isMainOOM && !p.tourCard) {
+                        return null;
+                    }
+                    return [name, money || 0, p.tourCard || false];
+                })
+                .filter(entry => entry !== null)
+                .sort((a,b) => b[1] - a[1]);  // Sort by money descending
+            
+            console.log('After filtering:', list.length, 'entries');
+            
+            const table = document.getElementById(tableId);
+            if(!table) {
+                console.warn('Table not found:', tableId);
+                return;
+            }
+            table.innerHTML = '';
+            table.style.visibility = 'visible';
+            table.style.display = 'table';
+
+            // Add table header
+            const thead = document.createElement('thead');
+            const header = document.createElement('tr');
+            header.innerHTML = `<th>Pos</th><th>Player</th><th style="text-align:center;">Tour Card</th><th style="text-align:right;">Prize Money</th>`;
+            thead.appendChild(header);
+            table.appendChild(thead);
+
+            // Add table body
+            const tbody = document.createElement('tbody');
+            
+            if(list.length === 0) {
+                console.log('No entries to display');
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="4" style="text-align:center; color:#aaa; padding:16px; background:#1a1a1a; font-style:italic;">No players have competed yet</td>`;
+                tbody.appendChild(row);
+            } else {
+                console.log('Adding', list.length, 'rows');
+                list.forEach((entry, i) => {
+                    const row = document.createElement('tr');
+                    const [name, money, hasTC] = entry;
+                    const tourCardBadge = hasTC 
+                        ? '<span style="background: var(--pdc-gold); color: black; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; display:inline-block;">✓</span>' 
+                        : '<span style="color: #666; font-size:12px;">-</span>';
+                    
+                    row.innerHTML = `
+                        <td class="oom-pos">${i+1}</td>
+                        <td style="font-weight: bold; color: var(--pdc-gold); cursor: pointer;" onclick="Season.showPlayerAchievements('${name}')">${name}</td>
+                        <td style="text-align:center;">${tourCardBadge}</td>
+                        <td class="oom-money">£${money.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            table.appendChild(tbody);
+        },
+        
+        showPlayerAchievements: (playerName) => {
+            const player = PLAYERS_DB.find(p => p.name === playerName);
+            if (!player) return;
+            
+            // Collect all tournament participations from completedEvents
+            const tournaments = Season.state.completedEvents
+                .filter(ev => ev.participations && ev.participations[playerName])
+                .sort((a, b) => {
+                    const dateA = new Date(a.date || 0);
+                    const dateB = new Date(b.date || 0);
+                    return dateB - dateA;
+                });
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 300;
+                padding: 20px;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: linear-gradient(145deg, #1a1f35, #12172a);
+                border: 2px solid var(--pdc-gold);
+                border-radius: 16px;
+                padding: 30px;
+                max-width: 700px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+            `;
+            
+            let achievementsHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid rgba(255,215,0,0.3); padding-bottom: 15px;">
+                    <img src="${getFlagUrl(player.country)}" style="width: 40px; height: 30px; border-radius: 3px;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 900; color: var(--pdc-gold);">${playerName}</div>
+                        <div style="font-size: 12px; color: #8fa3ad;">${player.country.toUpperCase()}</div>
+                    </div>
+                </div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--pdc-gold); margin-bottom: 15px;">Tournament Results</div>
+            `;
+            
+            if (tournaments.length === 0) {
+                achievementsHTML += `<div style="color: #aaa; text-align: center; padding: 20px; font-style: italic;">No tournament participations yet</div>`;
+            } else {
+                tournaments.forEach(ev => {
+                    const result = ev.participations[playerName];
+                    
+                    // Convert position to proper display format with round names
+                    let positionDisplay;
+                    if (result.position === 1) {
+                        positionDisplay = 'CHAMPION';
+                    } else if (result.position === 2) {
+                        positionDisplay = 'Runner-up (F)';
+                    } else if (result.position === 4) {
+                        positionDisplay = 'Semi-Final (SF)';
+                    } else if (result.position === 8) {
+                        positionDisplay = 'Quarter-Final (QF)';
+                    } else if (result.position === 16) {
+                        positionDisplay = 'Last 16 (L16)';
+                    } else if (result.position === 32) {
+                        positionDisplay = 'Last 32 (L32)';
+                    } else if (result.position === 64) {
+                        positionDisplay = 'Last 64 (L64)';
+                    } else if (result.position === 128) {
+                        positionDisplay = 'Last 128 (L128)';
+                    } else if (result.position === 256) {
+                        positionDisplay = 'Last 256 (L256)';
+                    } else {
+                        // Fallback for unusual positions
+                        const suffix = result.position === 3 ? 'rd' : 'th';
+                        positionDisplay = `${result.position}${suffix} Place`;
+                    }
+                    
+                    const medal = result.position === 1 ? '🏆' : result.position === 2 ? '🥈' : result.position <= 4 ? '🥉' : '📊';
+                    
+                    achievementsHTML += `
+                        <div style="background: rgba(255,215,0,0.05); padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid ${result.position === 1 ? 'var(--pdc-gold)' : '#999'};">
+                            <div style="color: var(--pdc-gold); font-weight: bold; font-size: 14px;">${ev.name || 'Tournament ' + ev.id}</div>
+                            <div style="color: #ccc; font-size: 13px; margin-top: 4px;">${medal} ${positionDisplay}${result.money ? ` - £${result.money.toLocaleString()}` : ''}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            achievementsHTML += `
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    background: linear-gradient(145deg, #d4af37, #aa8c2e);
+                    color: black;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    margin-top: 20px;
+                    width: 100%;
+                ">Close</button>
+            `;
+            
+            content.innerHTML = achievementsHTML;
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        },
+
+        startEvent: (idx, isSim) => {
+            Tournament.config.lockRounds = true;
+            Season.state.activeEventIndex = idx;
+
+            if (Season.state.inProgress) {
+                console.warn("Event already in progress");
+        return;
+    }
+    
+    Season.state.inProgress = true;
+    Tournament.state.active = true;
+
+    Tournament.clearSelection();
+    Tournament.state.selectedPlayerIndices.clear();
+
+    const ev = Season.events[idx];
+
+    // ==============================
+    // EVENT BASIC CONFIG
+    // ==============================
+    Tournament.config.eventType = ev.type;
+    Tournament.config.eventPlayers = ev.players;
+    Tournament.setMode(ev.format);
+
+    document.getElementById('tourn-event-name').value = ev.name;
+    document.getElementById('tourn-size').value = ev.players;
+
+    // ==============================
+// 🔥 ROUND TARGETS (FIXED)
+// ==============================
+const formats = ROUND_FORMATS[ev.type] || {};
+Tournament.config.rounds = [];
+
+let players = ev.players;
+
+while (players >= 2) {
+    const roundName =
+        players === 2 ? "F" :
+        players === 4 ? "SF" :
+        players === 8 ? "QF" :
+        players === 16 ? "L16" :
+        players === 32 ? "L32" :
+        players === 64 ? "L64" :
+        players === 128 ? "L128" :
+        players === 256 ? "L256" :
+        `L${players}`;
+
+    const target = formats[roundName] ?? ev.dist ?? 6;
+
+    Tournament.config.rounds.push({
+        name: roundName,
+        target: target
+    });
+
+    players /= 2;
+}
+
+    // =======================
+// PLAYER POOL
+// =======================
+let pool = PLAYERS_DB;
+
+// Challenge Tour → csak nem Tour Cardos
+if(ev.type === "challenge") {
+    pool = PLAYERS_DB.filter(p => !p.tourCard);
+}
+
+// Q-School → csak nem Tour Cardos
+else if(ev.type === "q-school") {
+    pool = PLAYERS_DB.filter(p => !p.tourCard);
+}
+
+// Pro Tour (PC, ET, Major ahol kell)
+else if(ev.cardRequired) {
+    pool = PLAYERS_DB.filter(p => p.tourCard);
+}
+
+// ========================
+// PREMIER LEAGUE
+// ========================
+if(ev.type === "premier-league" || ev.type === "premier-league-playoff") {
+    Season.initializePremierLeague(idx, ev, isSim);
+    return;
+}
+
+if(ev.type === "grandslam") {
+    const list = Season.buildGrandSlamQualifiers();
+    list.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+    });
+    
+    // Grand Slam uses group stage format
+    Tournament.config.isGroupStage = true;
+    Tournament.config.groupStageRound = true;
+    
+    Tournament.startGrandSlamGroupStage();
+    return;
+}
+
+// ========================
+// WORLD SERIES FINALS QUALIFICATION
+// ========================
+if (ev.type === "masters-final") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 1️⃣ Top 22 World Series OOM
+    const wsTop22 = Object.entries(Season.state.worldSeriesOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 22)
+        .map(e => e[0]);
+
+    wsTop22.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // 2️⃣ Top 4 Pro Tour OOM (akik még nincsenek bent)
+    const proTop4 = Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .map(e => e[0])
+        .filter(name => !selected.has(PLAYERS_DB.findIndex(p => p.name === name)))
+        .slice(0, 4);
+
+    proTop4.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // 3️⃣ 6 random Tour Card (akik még nincsenek bent)
+    const tourCardPool = PLAYERS_DB.filter(p =>
+        p.tourCard && !selected.has(PLAYERS_DB.indexOf(p))
+    );
+
+    let attempts = 0;
+    while(selected.size < 32 && attempts < 2000) {
+        const r = tourCardPool[Math.floor(Math.random() * tourCardPool.length)];
+        if(r) selected.add(PLAYERS_DB.indexOf(r));
+        attempts++;
+    }
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+if (ev.type === "world") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const all = new Set();
+
+    // Top 40 OOM
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 40)
+        .forEach(e => all.add(e[0]));
+
+    // Top 40 Pro Tour OOM
+    Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .forEach(e => {
+            if(all.size < 80) all.add(e[0]);
+        });
+
+    // Qualifiers
+    Season.state.wcQualified.qualifiers.forEach(n => {
+        if(all.size < 128) all.add(n);
+    });
+
+   // TOUR CARD QUALIFIER (ha még hiányzik hely)
+Object.entries(Season.state.orderOfMerit)
+    .map(e => {
+        const p = PLAYERS_DB.find(x => x.name === e[0]);
+        return { name: e[0], money: e[1], tc: p?.tourCard };
+    })
+    .filter(p => p.tc)
+    .sort((a,b) => b.money - a.money)
+    .forEach(p => {
+        if(all.size < 128 && !all.has(p.name)) {
+            all.add(p.name);
+        }
+    });
+
+    // Safety fill
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .forEach(e => {
+            if(all.size < 128) all.add(e[0]);
+        });
+
+    all.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+
+
+
+// ========================
+// UK OPEN SPECIAL
+// ========================
+if (ev.type === 'uk-open') {
+    // Ensure qualifiers exist
+    if (!Season.state.ukOpenQualifiers || Season.state.ukOpenQualifiers.length < 32) {
+        Season.simulateUKOpenQuali();
+    }
+
+    // Build Tour Card sorted by Order of Merit
+    const tcPlayers = PLAYERS_DB.filter(p => p.tourCard);
+    const sortedTC = [...tcPlayers].sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+
+    const top32 = sortedTC.slice(0,32);
+    const ranks33_64 = sortedTC.slice(32,64);
+    const ranks65_96 = sortedTC.slice(64,96);
+    const ranks97_128 = sortedTC.slice(96,128);
+
+    const nameToIndex = new Map(PLAYERS_DB.map((p, i) => [p.name, i]));
+    // Map qualifiers to indices and backfill if fewer than 32
+    let qualifiersIdx = Season.state.ukOpenQualifiers
+        .map(n => nameToIndex.has(n) ? nameToIndex.get(n) : null)
+        .filter(i => i !== null);
+    const used = new Set(qualifiersIdx);
+    if (qualifiersIdx.length < 32) {
+        // Prefer non-tour card players not already used
+        const nonTC = PLAYERS_DB
+            .map((p, i) => ({ p, i }))
+            .filter(x => !x.p.tourCard && !used.has(x.i));
+        for (let j = 0; j < nonTC.length && qualifiersIdx.length < 32; j++) {
+            qualifiersIdx.push(nonTC[j].i);
+            used.add(nonTC[j].i);
+        }
+        // If still short, fill from any remaining players not used
+        if (qualifiersIdx.length < 32) {
+            for (let i = 0; i < PLAYERS_DB.length && qualifiersIdx.length < 32; i++) {
+                if (!used.has(i)) { qualifiersIdx.push(i); used.add(i); }
+            }
+        }
+    }
+    qualifiersIdx = qualifiersIdx.slice(0,32);
+
+    const dedupe = arr => Array.from(new Set(arr.filter(i => typeof i === 'number' && i >= 0)));
+    
+    // Build all pools first to track who should be in each round
+    const r4TopIdx = dedupe(top32.map(p => PLAYERS_DB.indexOf(p))).slice(0,32);
+    const r3Idx = dedupe(ranks33_64.map(p => PLAYERS_DB.indexOf(p))).slice(0,32);
+    const r2Idx = dedupe(ranks65_96.map(p => PLAYERS_DB.indexOf(p))).slice(0,32);
+    let r1Idx = dedupe(ranks97_128.map(p => PLAYERS_DB.indexOf(p)).slice(0,32).concat(qualifiersIdx));
+    
+    // Track all players reserved for later rounds
+    const reservedForLaterRounds = new Set([...r4TopIdx, ...r3Idx, ...r2Idx]);
+    
+    // Remove any reserved players from R1
+    r1Idx = r1Idx.filter(i => !reservedForLaterRounds.has(i));
+    
+    // Backfill R1 if short
+    if (r1Idx.length < 64) {
+        const usedInR1 = new Set(r1Idx);
+        for (let i = 0; i < PLAYERS_DB.length && r1Idx.length < 64; i++) {
+            if (!usedInR1.has(i) && !reservedForLaterRounds.has(i)) {
+                r1Idx.push(i);
+                usedInR1.add(i);
+            }
+        }
+    }
+    
+    Tournament.state.ukOpenEntrants = {
+        R1: r1Idx.slice(0, 64),
+        R2: r2Idx,
+        R3: r3Idx,
+        R4Top32: r4TopIdx
+    };
+
+    // Define rounds explicitly
+    Tournament.config.rounds = [
+        { name: 'R1', target: 6 },
+        { name: 'R2', target: 6 },
+        { name: 'R3', target: 6 },
+        { name: 'L64', target: 10 },
+        { name: 'L32', target: 10 },
+        { name: 'L16', target: 10 },
+        { name: 'QF', target: 10 },
+        { name: 'SF', target: 11 },
+        { name: 'F', target: 11 }
+    ];
+
+    Tournament.config.eventType = 'uk-open';
+    Tournament.config.lockRounds = true;
+
+    // Start UK Open custom flow
+    Tournament.startUkOpen();
+    Persistence.save();
+    if (isSim) {
+        while (Tournament.state.active) { Tournament.simulateRound(); }
+    }
+    return;
+}
+
+
+// ========================
+// PLAYERS CHAMPIONSHIP FINALS QUALIFICATION
+// ========================
+if (ev.name === "PLAYERS CHAMPIONSHIP FINALS") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const top64 = Object.entries(Season.state.proTourOOM)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 64)
+        .map(e => e[0]);
+
+    top64.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+
+// ========================
+// EUROPEAN CHAMPIONSHIP QUALIFICATION
+// ========================
+if (ev.name === "MACHINESEEKER EUROPEAN CHAMPIONSHIP") {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    const top32 = Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 32)
+        .map(e => e[0]);
+
+    top32.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+// ========================
+// WORLD MATCHPLAY
+// ========================
+if ((ev.name === "MATCHPLAY" || ev.type === "matchplay") || ev.type === 'grandprix') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 1️⃣ Top 16 MAIN OOM
+    const topMain = [...PLAYERS_DB]
+        .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0))
+        .slice(0, 16);
+
+    topMain.forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
+
+    // 2️⃣ Top 16 PRO TOUR OOM (duplázás nélkül)
+    const proSorted = [...PLAYERS_DB]
+        .filter(p => p.tourCard)
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0));
+
+    for (let p of proSorted) {
+        if (selected.size >= 32) break;
+        selected.add(PLAYERS_DB.indexOf(p));
+    }
+Tournament.updateConfigUI();
+Tournament.start();
+}
+
+// ========================
+    // WINMAU DARTS MASTERS
+    // ========================
+    if(ev.type === 'winmaudm') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+    selected.clear();
+
+    // 🔥 QUALI lefuttatása
+    Season.simulateWinmauQuali();
+
+    // 1️⃣ Top 16 PDC OOM
+    Object.entries(Season.state.orderOfMerit)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 24)
+        .forEach(e => {
+            const p = PLAYERS_DB.find(x => x.name === e[0]);
+            if(p) selected.add(PLAYERS_DB.indexOf(p));
+        });
+
+    // 2️⃣ +8 quali továbbjutó
+    Season.state.winmauQualifiers.forEach(name => {
+        const p = PLAYERS_DB.find(x => x.name === name);
+        if(p) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    let attempts = 0;
+    while(selected.size < 32 && attempts < 2000) {
+        const r = pool[Math.floor(Math.random() * pool.length)];
+        selected.add(PLAYERS_DB.indexOf(r));
+        attempts++;
+    }
+
+    Tournament.updateConfigUI();
+    Tournament.start();
+}
+
+    // ========================
+    // 2. MASTERS EVENTS
+    // ========================
+    if(ev.type === 'masters') {
+
+        const oomSorted = [...PLAYERS_DB]
+            .filter(p => p.tourCard)
+            .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+
+        const regionSorted = [...PLAYERS_DB]
+            .filter(p => REGION_MAP[ev.region]?.includes(p.country))
+            .sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+
+        // Top 8 OOM
+        oomSorted.slice(0, 8).forEach(p =>
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+        );
+
+        // Top 8 region
+        regionSorted.slice(0, 8).forEach(p =>
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+        );
+
+        // Fill up 16-ra
+        const allSorted = [...PLAYERS_DB].sort(
+            (a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0)
+        );
+
+        allSorted.forEach(p => {
+            if(Tournament.state.selectedPlayerIndices.size < ev.players) {
+                Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+            }
+        });
+    }
+       // ========================
+        // Players Championship
+    // ========================
+    else if(ev.type === "players") {
+    pool = PLAYERS_DB.filter(p => p.tourCard);
+
+    pool.sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+    pool.slice(0, 128).forEach(p =>
+        Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
+    );
+}
+    // ========================
+    // 3. EUROPEAN TOUR (MINOR)
+    // ========================
+    else if(ev.type === 'minor') {
+
+    const selected = Tournament.state.selectedPlayerIndices;
+
+    // ============================
+    // 1️⃣ TOP 16 PRO TOUR OOM (SEEDS)
+    // ============================
+    const proTourSorted = [...PLAYERS_DB]
+        .filter(p => p.tourCard)
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0));
+
+    proTourSorted.forEach(p => {
+        if(selected.size < 16) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // ============================
+    // 2️⃣ 17–26 TOUR CARD HOLDERS
+    // ============================
+    proTourSorted.forEach(p => {
+        if(selected.size < 26) selected.add(PLAYERS_DB.indexOf(p));
+    });
+
+    // ============================
+    // 3️⃣ HOST NATION QUALIFIERS (4)
+    // ============================
+    const hostCode = HOST_NATION[ev.id];
+    if(hostCode) {
+        PLAYERS_DB
+            .filter(p => p.country === hostCode)
+            .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))
+            .slice(0, 4)
+            .forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
+    }
+
+    // ============================
+    // 4️⃣ NORDIC & BALTIC QUALIFIER
+    // ============================
+    const nordic = PLAYERS_DB
+        .filter(p => REGION_MAP.nordic.includes(p.country))
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))[0];
+
+    if(nordic) selected.add(PLAYERS_DB.indexOf(nordic));
+
+    // ============================
+    // 5️⃣ EASTERN EUROPE QUALIFIER
+    // ============================
+    const east = PLAYERS_DB
+        .filter(p => REGION_MAP.europe.includes(p.country)) // kelet-európa külön listád ha van, ide tedd
+        .sort((a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0))[0];
+
+    if(east) selected.add(PLAYERS_DB.indexOf(east));
+
+    // ============================
+    // 6️⃣ SAFETY FILL (ha kevesebb mint 32)
+    // ============================
+    const allSorted = [...PLAYERS_DB].sort(
+        (a,b) => (Season.state.proTourOOM[b.name]||0) - (Season.state.proTourOOM[a.name]||0)
+    );
+
+    allSorted.forEach(p => {
+        if(selected.size < 32) selected.add(PLAYERS_DB.indexOf(p));
+    });
+}
+
+
+// =======================
+// CHALLENGE TOUR FILL
+// =======================
+else if(ev.type === "challenge") {
+    // Filter to non-tour card players
+    const challengePool = pool.filter(p => !p.tourCard);
+    
+    if(challengePool.length < ev.players) {
+        alert(`Not enough non-tour card players for Challenge Tour (need ${ev.players}, have ${challengePool.length})`);
+        Season.state.inProgress = false;
+        return;
+    }
+    
+    // Shuffle and select players
+    for (let i = challengePool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [challengePool[i], challengePool[j]] = [challengePool[j], challengePool[i]];
+    }
+    
+    // Add selected players to indices
+    challengePool.slice(0, ev.players).forEach(p => {
+        const idx = PLAYERS_DB.indexOf(p);
+        if(idx >= 0) Tournament.state.selectedPlayerIndices.add(idx);
+    });
+}
+    // ========================
+    // 4. MINDEN MÁS EVENT
+    // ========================
+    else {
+        pool.sort((a,b) => (Season.state.orderOfMerit[b.name]||0) - (Season.state.orderOfMerit[a.name]||0));
+        pool.slice(0, ev.players).forEach(p => {
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+        });
+
+        let attempts = 0;
+        while(Tournament.state.selectedPlayerIndices.size < ev.players && attempts < 2000) {
+            const rand = pool[Math.floor(Math.random() * pool.length)];
+            Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(rand));
+            attempts++;
+        }
+    }
+
+    // ========================
+    // 5. FINAL SETUP
+    // ========================
+if (ev.type !== "uk-open") {
+    Tournament.setSelectionMethod('manual');
+    Tournament.updateConfigUI();
+}
+
+    Season.state.inProgress = true;
+    Persistence.save();
+    
+    
+    // ========================
+// ROUND FORMAT FROM TYPE
+// ========================
+const roundFormats = ROUND_FORMATS[ev.type];
+
+if (roundFormats) {
+    const rounds = [];
+    let players = ev.players;
+
+    while (players >= 2) {
+        const key =
+            players === 256 ? "L256" :
+            players === 128 ? "L128" :
+            players === 64  ? "L64"  :
+            players === 32  ? "L32"  :
+            players === 16  ? "L16"  :
+            players === 8   ? "QF"   :
+            players === 4   ? "SF"   :
+            players === 2   ? "F"    : null;
+
+        if (key && roundFormats[key]) {
+            rounds.push({
+                name: key,
+                target: roundFormats[key]
+            });
+        }
+
+        players = players / 2;
+    }
+
+    Tournament.config.rounds = rounds;
+}
+
+    // ========================
+    // TOURNAMENT-SPECIFIC CONFIG
+    // ========================
+    if (ev.type === 'world' || ev.type === 'matchplay') {
+        Tournament.config.tiebreak = true;
+    }
+
+    Tournament.start();
+
+    if(isSim) {
+        // Fast sim without per-round animations, but still show final winner
+        Season.silentSimulation = true;
+        Tournament.skipAdvancementAnimation = true;
+        Tournament.forceShowFinalAnimation = true;
+        Tournament.simulateToEnd();
+        Tournament.skipAdvancementAnimation = false;
+        Tournament.forceShowFinalAnimation = false;
+        Season.silentSimulation = false;
+    } else {
+        App.switchTab('tourn');
+    }
+},
+
+           completeEvent: (finalBracket) => {
+    const idx = Season.state.activeEventIndex;
+    const ev = Season.events[idx];
+    const structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
+   
+    // Helper function to extract player participations and positions
+    const getParticipations = () => {
+        const playerPositions = {};
+        
+        // First pass: track all players and their elimination round
+        finalBracket.forEach((round, roundIdx) => {
+            round.forEach(match => {
+                // Track both players in this match
+                if(match.p1 && !playerPositions[match.p1.name]) {
+                    // Calculate approximate position based on round (higher round = better position)
+                    const playersInRound = round.length * 2;
+                    playerPositions[match.p1.name] = { 
+                        position: playersInRound, 
+                        money: structure[playersInRound] || 0,
+                        roundIdx: roundIdx
+                    };
+                }
+                if(match.p2 && !playerPositions[match.p2.name]) {
+                    const playersInRound = round.length * 2;
+                    playerPositions[match.p2.name] = { 
+                        position: playersInRound, 
+                        money: structure[playersInRound] || 0,
+                        roundIdx: roundIdx
+                    };
+                }
+                
+                // Winner advances, update their position to the next round
+                if(match.winner && roundIdx < finalBracket.length - 1) {
+                    const nextRoundPlayers = round.length;
+                    playerPositions[match.winner.name] = {
+                        position: nextRoundPlayers,
+                        money: structure[nextRoundPlayers] || 0,
+                        roundIdx: roundIdx + 1
+                    };
+                }
+            });
+        });
+        
+        // Final round special handling
+        const finalMatch = finalBracket[finalBracket.length - 1]?.[0];
+        if(finalMatch) {
+            if(finalMatch.winner) {
+                playerPositions[finalMatch.winner.name] = { 
+                    position: 1, 
+                    money: structure[1] || 0,
+                    roundIdx: finalBracket.length - 1
+                };
+            }
+            const loser = (finalMatch.winner === finalMatch.p1) ? finalMatch.p2 : finalMatch.p1;
+            if(loser) {
+                playerPositions[loser.name] = { 
+                    position: 2, 
+                    money: structure[2] || 0,
+                    roundIdx: finalBracket.length - 1
+                };
+            }
+        }
+        
+        return playerPositions;
+    };
+   
+    // ===============================
+    // PREMIER LEAGUE – Special handling
+    // ===============================
+    if (ev.type === "premier-league") {
+        Season.recordPremierLeagueNight(finalBracket);
+        
+        // Check if this was the last night
+        if (ev.night === 16) {
+            // Move to playoffs
+            Season.state.premierLeague.playoffQualifiers = Season.getPremierLeagueQualifiers();
+            Season.state.completedEvents.push({
+                id: ev.id,
+                name: ev.name,
+                winner: "League completed",
+                participations: getParticipations(),
+                date: ev.date
+            });
+            
+            Season.state.activeEventIndex++;
+            Season.state.inProgress = false;
+            Tournament.state.active = false;
+            
+            Persistence.save();
+            
+            document.getElementById('setup-screen').style.display = 'flex';
+            document.getElementById('match-screen').style.display = 'none';
+            document.getElementById('tournament-hub').style.display = 'none';
+            
+            App.switchTab('season');
+            Season.renderUI();
+            alert(`Premier League League Stage Complete!\n\nPlayoff Qualifiers:\n${Season.state.premierLeague.playoffQualifiers.join('\n')}`);
+        } else {
+            // Move to next night
+            Season.state.completedEvents.push({
+                id: ev.id,
+                name: ev.name,
+                winner: finalBracket[2][0].winner.name,
+                participations: getParticipations(),
+                date: ev.date
+            });
+            
+            Season.state.activeEventIndex++;
+            Season.state.inProgress = false;
+            Tournament.state.active = false;
+            
+            Persistence.save();
+            
+            document.getElementById('setup-screen').style.display = 'flex';
+            document.getElementById('match-screen').style.display = 'none';
+            document.getElementById('tournament-hub').style.display = 'none';
+            
+            App.switchTab('season');
+            Season.renderUI();
+        }
+        return;
+    }
+    
+    // ===============================
+    // PREMIER LEAGUE PLAYOFFS – Special handling
+    // ===============================
+    if (ev.type === "premier-league-playoff") {
+        const finalMatch = finalBracket.at(-1)[0];
+        
+        Season.state.completedEvents.push({
+            id: ev.id,
+            name: ev.name,
+            winner: finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown",
+            participations: getParticipations(),
+            date: ev.date
+        });
+        
+        Season.state.activeEventIndex++;
+        Season.state.inProgress = false;
+        Tournament.state.active = false;
+        
+        Persistence.save();
+        
+        document.getElementById('setup-screen').style.display = 'flex';
+        document.getElementById('match-screen').style.display = 'none';
+        document.getElementById('tournament-hub').style.display = 'none';
+        
+        App.switchTab('season');
+        Season.renderUI();
+        alert(`🏆 PREMIER LEAGUE CHAMPION: ${finalMatch.winner.name}!`);
+        return;
+    }
+    
+    // ===============================
+    // GRAND SLAM – Special handling
+    // ===============================
+    if (ev.type === "grandslam") {
+        // Grand Slam payouts: Groups (index 0 is empty), L16 (1), QF (2), SF (3), F (4)
+        const grandSlamRounds = [
+            { players: 32, name: "Group" },
+            { players: 16, name: "L16" },
+            { players: 8, name: "QF" },
+            { players: 4, name: "SF" },
+            { players: 2, name: "F" }
+        ];
+        
+        const payouts = {};
+        
+        finalBracket.forEach((roundMatches, roundIdx) => {
+            const roundInfo = grandSlamRounds[roundIdx];
+            if (!roundInfo) return;
+            const money = structure[roundInfo.players] || 0;
+            
+            roundMatches.forEach(m => {
+                if (!m.winner) return;
+                const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+                if (loser) payouts[loser.name] = money;
+            });
+        });
+        
+        // Winner prize
+        const finalMatch = finalBracket.at(-1)[0];
+        if (finalMatch && finalMatch.winner) {
+            payouts[finalMatch.winner.name] = structure[1];
+        }
+        
+        // Add to history
+        Season.state.proTourHistory.push({
+            date: ev.date,
+            payouts
+        });
+        
+        Season.trimProTourHistory(ev.date);
+        Season.recalculateProTourOOM();
+        
+        // Complete event
+        Season.state.completedEvents.push({
+            id: ev.id,
+            name: ev.name,
+            winner: finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown",
+            participations: getParticipations(),
+            date: ev.date
+        });
+        
+        Season.state.activeEventIndex++;
+        Season.state.inProgress = false;
+        Tournament.state.active = false;
+        
+        Persistence.save();
+        
+        document.getElementById('setup-screen').style.display = 'flex';
+        document.getElementById('match-screen').style.display = 'none';
+        document.getElementById('tournament-hub').style.display = 'none';
+        
+        App.switchTab('season');
+        Season.renderUI();
+        return;
+    }
+    
+    // ===============================
+// UK OPEN QUALI – TOP 32 ELMENTÉS
+// ===============================
+if (ev.type === "uk-open-quali") {
+
+    const qualified = new Set();
+
+    // TOP 32 = round 1 győztesei
+    finalBracket[0].forEach(m => {
+        if(m.winner) qualified.add(m.winner.name);
+    });
+
+    Season.state.ukOpenQualifiers = [...qualified];
+
+    Season.state.completedEvents.push({
+        id: ev.id,
+        name: ev.name,
+        winner: "Qualifiers decided",
+        participations: getParticipations(),
+        date: ev.date
+    });
+
+    Season.state.activeEventIndex++;
+    Season.state.inProgress = false;
+    Tournament.state.active = false;
+
+    Persistence.save();
+
+    // 🔥 UI RESET (EZ HIÁNYZOTT)
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('match-screen').style.display = 'none';
+    document.getElementById('tournament-hub').style.display = 'none';
+
+    App.switchTab('season');
+    Season.renderUI();
+    return;
+}
+
+
+
+    
+    // ================= WORLD SERIES OOM =================
+if (ev.type === "masters" || ev.type === "masters-final") {
+
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const pts = WORLD_SERIES_POINTS[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser) {
+               Season.state.worldSeriesOOM[loser.name] =
+                (Season.state.worldSeriesOOM[loser.name] || 0) + pts;
+            }
+        });
+    });
+
+    // Winner extra
+    const finalMatch = finalBracket.at(-1)[0];
+    if(finalMatch.winner) {
+       Season.state.worldSeriesOOM[finalMatch.winner.name] =
+        (Season.state.worldSeriesOOM[finalMatch.winner.name] || 0) + WORLD_SERIES_POINTS[1];
+
+    }
+
+    // History
+    Season.state.worldSeriesHistory.push({
+        date: ev.date,
+        event: ev.name,
+        bracket: finalBracket
+    });
+}
+
+
+    // ================= MAIN OOM PAYOUT =================
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const loserMoney = structure[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser) {
+                // Initialize if not in OOM yet (for non-tour card holders winning money)
+                if(Season.state.orderOfMerit[loser.name] === undefined) {
+                    Season.state.orderOfMerit[loser.name] = 0;
+                }
+                Season.state.orderOfMerit[loser.name] += loserMoney;
+            }
+        });
+    });
+    
+    // Winner money (MAIN OOM)
+    const finalRound = finalBracket[finalBracket.length - 1] || [];
+    const finalPlayedMatch = finalRound.find(m => m && m.winner) || finalRound[0];
+    const championName = finalPlayedMatch && finalPlayedMatch.winner ? finalPlayedMatch.winner.name : "Unknown";
+    if(finalPlayedMatch && finalPlayedMatch.winner) {
+        // Initialize if not in OOM yet (for non-tour card holders winning money)
+        if(Season.state.orderOfMerit[championName] === undefined) {
+            Season.state.orderOfMerit[championName] = 0;
+        }
+        Season.state.orderOfMerit[championName] += structure[1];
+    }
+
+    // ================= PRO TOUR OOM =================
+    if(ev.type === "players" || ev.type === "minor") {
+
+        const payouts = {};
+
+        finalBracket.forEach((roundMatches, roundIdx) => {
+            const playersInRound = ev.players / Math.pow(2, roundIdx);
+            const money = PRIZE_STRUCTURE[ev.type][playersInRound] || 0;
+
+            roundMatches.forEach(m => {
+                if(!m.winner) return;
+                const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+                if(loser) payouts[loser.name] = money;
+            });
+        });
+
+        // winner
+        payouts[championName] = PRIZE_STRUCTURE[ev.type][1];
+
+        Season.state.proTourHistory.push({
+            date: ev.date,
+            payouts
+        });
+
+        Season.trimProTourHistory(ev.date);
+        Season.recalculateProTourOOM();
+    }
+    // ================= CHALLENGE TOUR OOM =================
+if(ev.type === "challenge") {
+
+    const payouts = {};
+
+    finalBracket.forEach((roundMatches, roundIdx) => {
+        const playersInRound = ev.players / Math.pow(2, roundIdx);
+        const money = PRIZE_STRUCTURE.challenge[playersInRound] || 0;
+
+        roundMatches.forEach(m => {
+            if(!m.winner) return;
+            const loser = (m.winner === m.p1) ? m.p2 : m.p1;
+            if(loser) payouts[loser.name] = money;
+        });
+    });
+
+    // winner
+    payouts[championName] = PRIZE_STRUCTURE.challenge[1];
+
+    Season.state.challengeTourHistory.push({
+        date: ev.date,
+        payouts
+    });
+
+    Season.recalculateChallengeTourOOM();
+}
+
+    // ================= Q-SCHOOL TOUR CARD =================
+    if(ev.type === "q-school") {
+        const location = ev.location; // 'uk' or 'eu'
+        const eventName = ev.name;
+        const isFinalStage = eventName.includes("Final Stage");
+        const isFirstStage = eventName.includes("First Stage");
+        const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+        const finalStageWinners = location === 'uk' ? Season.state.qSchool.ukFinalStageWinners : Season.state.qSchool.euFinalStageWinners;
+        const qualified = location === 'uk' ? Season.state.qSchool.ukFinalStageQualified : Season.state.qSchool.euFinalStageQualified;
+        const participants = location === 'uk' ? Season.state.qSchool.ukParticipants : Season.state.qSchool.euParticipants;
+        const tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+        
+        // Track all players who participated in this event (for both First and Final Stage)
+        finalBracket.forEach((round) => {
+            round.forEach(match => {
+                if(match.p1 && !participants.includes(match.p1.name)) participants.push(match.p1.name);
+                if(match.p2 && !participants.includes(match.p2.name)) participants.push(match.p2.name);
+            });
+        });
+        
+        // If this is first Final Stage event, re-add qualified players to OOM with 0 points
+        if(isFinalStage && qualified.length > 0 && Object.keys(oom).length < qualified.length) {
+            qualified.forEach(playerName => {
+                if(!(playerName in oom)) {
+                    oom[playerName] = 0;
+                }
+            });
+        }
+        
+        // Award 1 point per match win for ALL rounds
+        finalBracket.forEach((round, roundIdx) => {
+            round.forEach(match => {
+                if(match.winner) {
+                    const winnerName = match.winner.name;
+                    oom[winnerName] = (oom[winnerName] || 0) + 1; // 1 point per match win
+                }
+            });
+        });
+        
+        let firstStageMadeIt = [];
+        let tourCardAwarded = [];
+        
+        // If Final Stage, both finalists get Tour Cards
+        if(isFinalStage) {
+            const finalMatch = finalBracket[finalBracket.length - 1][0];
+            if(finalMatch.p1) {
+                const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.p1.name);
+                if(pIdx > -1) {
+                    PLAYERS_DB[pIdx].tourCard = true;
+                    tourCardAwarded.push(finalMatch.p1.name);
+                }
+                finalStageWinners.push(finalMatch.p1.name);
+                if(!tourCardWinners.includes(finalMatch.p1.name)) tourCardWinners.push(finalMatch.p1.name);
+            }
+            if(finalMatch.p2) {
+                const pIdx = PLAYERS_DB.findIndex(p => p.name === finalMatch.p2.name);
+                if(pIdx > -1) {
+                    PLAYERS_DB[pIdx].tourCard = true;
+                    tourCardAwarded.push(finalMatch.p2.name);
+                }
+                finalStageWinners.push(finalMatch.p2.name);
+                if(!tourCardWinners.includes(finalMatch.p2.name)) tourCardWinners.push(finalMatch.p2.name);
+            }
+            
+            // Update counters
+            if(location === 'uk') Season.state.qSchool.ukTourCards += tourCardAwarded.length;
+            else Season.state.qSchool.euTourCards += tourCardAwarded.length;
+            
+            alert(`🏆 TOUR CARDS AWARDED:\n${tourCardAwarded.join("\n")}\n\nTotal ${location.toUpperCase()} Tour Cards: ${location === 'uk' ? Season.state.qSchool.ukTourCards : Season.state.qSchool.euTourCards}`);
+
+            // After the final day of Final Stage, award OOM tour cards (UK: top 5, EU: top 8) excluding existing tour-card winners/finalists
+            if(eventName.includes("Final Stage Day 4")) {
+                const extraWinners = [];
+                const taken = new Set([...finalStageWinners, ...tourCardWinners]);
+                const maxExtras = location === 'eu' ? 8 : 5;
+
+                Object.entries(oom)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([name]) => {
+                        if(extraWinners.length >= maxExtras) return;
+                        if(taken.has(name)) return;
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                         const idx = PLAYERS_DB.findIndex(p => p.name === name);
                         if (idx > -1) Tournament.state.selectedPlayerIndices.add(idx);
                     });
@@ -3368,11 +5380,415 @@ const WORLD_SERIES_POINTS = {
                 infoDiv.innerText = `${location.toUpperCase()} Q-SCHOOL - ${standings.length} Players`;
                 container.appendChild(infoDiv);
             }
+<<<<<<< HEAD
         };
 
+=======
+        } else if(isFirstStage) {
+            // Get top 16 by points from OOM - these qualify for Final Stage
+            const topQualifiers = Object.entries(oom)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 16)
+                .map(entry => entry[0]);
+            
+            // Store qualified players
+            if(location === 'uk') Season.state.qSchool.ukFinalStageQualified = topQualifiers;
+            else Season.state.qSchool.euFinalStageQualified = topQualifiers;
+            
+            // Reset OOM points for Final Stage
+            Object.keys(oom).forEach(player => oom[player] = 0);
+            
+            alert(`✅ TOP 16 QUALIFY TO FINAL STAGE (${location.toUpperCase()}):\n\n${topQualifiers.map((name, idx) => `${idx + 1}. ${name}`).join("\n")}\n\nPoints reset for Final Stage!`);
+        }
+    }
+    
+    // ================= SEASON STATE =================
+    // Replace any prior record for this event id to avoid stale winners
+    Season.state.completedEvents = Season.state.completedEvents.filter(e => e.id !== ev.id);
+    Season.state.completedEvents.push({
+        id: ev.id,
+        name: ev.name,
+        winner: championName,
+        participations: getParticipations(),
+        date: ev.date
+    });
+
+    Season.state.activeEventIndex++;
+    Season.state.inProgress = false;
+    Tournament.state.active = false;
+
+    Persistence.save();
+
+    document.getElementById('setup-screen').style.display = 'flex';
+    document.getElementById('match-screen').style.display = 'none';
+    document.getElementById('tournament-hub').style.display = 'none';
+
+    App.switchTab('season');
+    Season.renderUI();
+},
+trimProTourHistory: (date) => {
+    const cutoff = new Date(date);
+    cutoff.setMonth(cutoff.getMonth() - 12);
+
+    Season.state.proTourHistory = Season.state.proTourHistory.filter(
+        e => new Date(e.date) >= cutoff
+    );
+},
+
+recalculateProTourOOM: () => {
+    const oom = {};
+    RAW_PLAYERS.forEach(p => oom[p.name] = 0);
+
+    Season.state.proTourHistory.forEach(ev => {
+        for(let name in ev.payouts) {
+            oom[name] += ev.payouts[name];
+        }
+    });
+
+    Season.state.proTourOOM = oom;
+},
+
+recalculateChallengeTourOOM: () => {
+    const oom = {};
+    RAW_PLAYERS.forEach(p => oom[p.name] = 0);
+
+    Season.state.challengeTourHistory.forEach(ev => {
+        for(let name in ev.payouts) {
+            oom[name] += ev.payouts[name];
+        }
+    });
+
+    Season.state.challengeTourOOM = oom;
+},
+
+initializePremierLeague: (eventIdx, ev, isSim) => {
+    Season.state.inProgress = true;
+    Tournament.state.active = true;
+    if (isSim) {
+        Season.silentSimulation = true;
+        Tournament.skipAdvancementAnimation = true;
+    }
+    
+    const night = ev.night;
+    
+    // PLAYOFF VERSION
+    if (ev.type === "premier-league-playoff") {
+        // Select playoff qualifiers
+        Tournament.state.selectedPlayerIndices.clear();
+        const qualifiers = Season.state.premierLeague.playoffQualifiers;
+        
+        qualifiers.forEach(name => {
+            const idx = PLAYERS_DB.findIndex(p => p.name === name);
+            if (idx > -1) {
+                Tournament.state.selectedPlayerIndices.add(idx);
+            }
+        });
+        
+        // Set up tournament
+        Tournament.config.eventType = ev.type;
+        Tournament.config.eventPlayers = 4;
+        Tournament.setMode('legs');
+        Tournament.config.tiebreak = false;
+        
+        document.getElementById('tourn-event-name').value = ev.name;
+        document.getElementById('tourn-size').value = 4;
+        
+        // Playoff format: Best of 21 legs (First to 11) for both SF and F
+        Tournament.config.rounds = [
+            { name: "SF", target: 11 },
+            { name: "F", target: 11 }
+        ];
+        
+        // Get standings to seed playoff (1st plays 4th, 2nd plays 3rd)
+        const standings = Object.entries(Season.state.premierLeague.standings)
+            .sort((a, b) => {
+                if (b[1].points !== a[1].points) return b[1].points - a[1].points;
+                return (b[1].finalWins - a[1].finalWins) - (b[1].semiFinalFinishes - a[1].semiFinalFinishes);
+            });
+        
+        const seed1 = PLAYERS_DB.find(p => p.name === standings[0][0]);
+        const seed2 = PLAYERS_DB.find(p => p.name === standings[1][0]);
+        const seed3 = PLAYERS_DB.find(p => p.name === standings[2][0]);
+        const seed4 = PLAYERS_DB.find(p => p.name === standings[3][0]);
+        
+        Tournament.state.currentActiveRound = 0;
+        Tournament.state.viewingRound = 0;
+        Tournament.state.matchQueue = [];
+        Tournament.state.bracketData = [];
+        
+        // Playoff seeding: 1 vs 4, 2 vs 3
+        const r0 = [
+            { p1: seed1, p2: seed4, winner: null, score: null, averages: null },
+            { p1: seed2, p2: seed3, winner: null, score: null, averages: null }
+        ];
+        
+        Tournament.state.bracketData.push(r0);
+        Tournament.state.bracketData.push([]); // Final
+        
+        Persistence.save();
+        requestWakeLock();
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('tourn-hub-title').innerText = ev.name;
+        Tournament.renderHub();
+        return;
+    }
+    
+    // LEAGUE NIGHT VERSION
+    // Initialize standings on first night
+    if (night === 1) {
+        Season.state.premierLeague.currentNight = 1;
+        Season.state.premierLeague.standings = {};
+        Season.state.premierLeague.matchResults = [];
+        
+        Season.state.premierLeague.players.forEach(name => {
+            Season.state.premierLeague.standings[name] = {
+                wins: 0, losses: 0, points: 0, 
+                finalWins: 0, runnerUpFinishes: 0, semiFinalFinishes: 0,
+                money: 0
+            };
+        });
+        
+        alert(`🏆 PREMIER LEAGUE 2026\n\nLineup:\n${Season.state.premierLeague.players.join('\n')}`);
+    }
+    
+    Season.state.premierLeague.currentNight = night;
+    
+    // Select all Premier League players
+    Tournament.state.selectedPlayerIndices.clear();
+    Season.state.premierLeague.players.forEach(name => {
+        const idx = PLAYERS_DB.findIndex(p => p.name === name);
+        if (idx > -1) {
+            Tournament.state.selectedPlayerIndices.add(idx);
+        }
+    });
+    
+    // Set up tournament
+    Tournament.config.eventType = ev.type;
+    Tournament.config.eventPlayers = 8;
+    Tournament.setMode('legs');
+    Tournament.config.tiebreak = false;
+    
+    document.getElementById('tourn-event-name').value = ev.name;
+    document.getElementById('tourn-size').value = 8;
+    
+    // Premier League format: Best of 11 legs (First to 6)
+    Tournament.config.rounds = [
+        { name: "QF", target: 6 },
+        { name: "SF", target: 6 },
+        { name: "F", target: 6 }
+    ];
+    
+    // Start regular tournament
+    const participants = [];
+    Tournament.state.selectedPlayerIndices.forEach(idx => {
+        participants.push({...PLAYERS_DB[idx]});
+    });
+    
+    // Shuffle for night randomness
+    for (let i = participants.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [participants[i], participants[j]] = [participants[j], participants[i]];
+    }
+    
+    Tournament.state.currentActiveRound = 0;
+    Tournament.state.viewingRound = 0;
+    Tournament.state.matchQueue = [];
+    Tournament.state.bracketData = [];
+    
+    const r0 = [];
+    for (let i = 0; i < participants.length; i += 2) {
+        r0.push({ p1: participants[i], p2: participants[i+1], winner: null, score: null, averages: null });
+    }
+    
+    Tournament.state.bracketData.push(r0);
+    for (let i = 1; i < 3; i++) {
+        Tournament.state.bracketData.push([]);
+    }
+    
+    Persistence.save();
+    requestWakeLock();
+    
+    if(isSim) {
+        // Simulate all rounds for Premier League night
+        while(Tournament.state.currentActiveRound < Tournament.config.rounds.length && Tournament.state.active) {
+            Tournament.simulateRound();
+        }
+        // Event should complete automatically after final is done
+        Tournament.skipAdvancementAnimation = false;
+        Season.silentSimulation = false;
+    } else {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('tourn-hub-title').innerText = ev.name;
+        Tournament.renderHub();
+    }
+},
+
+recordPremierLeagueNight: (bracketData) => {
+    const finalMatch = bracketData[2][0];
+    const sf1 = bracketData[1][0];
+    const sf2 = bracketData[1][1];
+    
+    // Final winner: 5 points + £10,000
+    if (finalMatch.winner) {
+        Season.state.premierLeague.standings[finalMatch.winner.name].points += 5;
+        Season.state.premierLeague.standings[finalMatch.winner.name].finalWins += 1;
+        Season.state.premierLeague.standings[finalMatch.winner.name].money += 10000;
+    }
+    
+    // Final loser: 3 points
+    const finalLoser = finalMatch.winner === finalMatch.p1 ? finalMatch.p2 : finalMatch.p1;
+    if (finalLoser) {
+        Season.state.premierLeague.standings[finalLoser.name].points += 3;
+        Season.state.premierLeague.standings[finalLoser.name].runnerUpFinishes += 1;
+    }
+    
+    // SF finishers: 2 points each
+    [sf1, sf2].forEach(sf => {
+        const loser1 = sf.winner === sf.p1 ? sf.p2 : sf.p1;
+        const loser2 = sf.winner === sf.p2 ? sf.p1 : sf.p2;
+        
+        if (loser1 && finalLoser.name !== loser1.name) {
+            Season.state.premierLeague.standings[loser1.name].points += 2;
+            Season.state.premierLeague.standings[loser1.name].semiFinalFinishes += 1;
+        }
+    });
+},
+
+getPremierLeagueQualifiers: () => {
+    // Top 4 qualify for playoffs
+    const standings = Object.entries(Season.state.premierLeague.standings)
+        .sort((a, b) => {
+            if (b[1].points !== a[1].points) return b[1].points - a[1].points;
+            return (b[1].finalWins - a[1].finalWins) - (b[1].semiFinalFinishes - a[1].semiFinalFinishes);
+        });
+    
+    return standings.slice(0, 4).map(e => e[0]);
+},
+
+renderPremierLeagueStandings: () => {
+    const container = document.getElementById('premier-league-standings');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const standings = Object.entries(Season.state.premierLeague.standings)
+        .sort((a, b) => {
+            if (b[1].points !== a[1].points) return b[1].points - a[1].points;
+            return (b[1].finalWins - a[1].finalWins) - (b[1].semiFinalFinishes - a[1].semiFinalFinishes);
+        });
+    
+    const table = document.createElement('table');
+    table.style.cssText = 'width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 10px;';
+    
+    // Header
+    const headerRow = table.insertRow();
+    headerRow.style.cssText = 'background: #222; border-bottom: 1px solid #444;';
+    ['Pos', 'Player', 'Pts', 'Wins', 'RU', 'SF', '£'].forEach(h => {
+        const cell = headerRow.insertCell();
+        cell.innerText = h;
+        cell.style.cssText = 'padding: 5px; text-align: center; color: #aaa; font-weight: bold;';
+    });
+    
+    // Rows
+    standings.forEach(([name, stats], idx) => {
+        const row = table.insertRow();
+        const isQualified = idx < 4;
+        row.style.cssText = isQualified ? 'background: #0a2a1a; border-bottom: 1px solid #333;' : 'background: #1a1a1a; border-bottom: 1px solid #333;';
+        
+        const data = [idx + 1, name, stats.points, stats.finalWins, stats.runnerUpFinishes, stats.semiFinalFinishes, '£' + stats.money];
+        data.forEach((d, i) => {
+            const cell = row.insertCell();
+            cell.innerText = d;
+            cell.style.cssText = `padding: 5px; text-align: ${i === 1 ? 'left' : 'center'}; color: ${isQualified ? 'var(--pdc-gold)' : '#aaa'};`;
+        });
+    });
+    
+    container.appendChild(table);
+    
+    // Show current night info
+    const infoDiv = document.createElement('div');
+    infoDiv.style.cssText = 'text-align: center; margin-top: 10px; color: #aaa; font-size: 11px;';
+    infoDiv.innerText = `Night ${Season.state.premierLeague.currentNight} / 16`;
+    container.appendChild(infoDiv);
+    },
+
+    renderQSchoolStandings: () => {
+    Season.renderQSchoolStandingsForLocation('uk');
+    Season.renderQSchoolStandingsForLocation('eu');
+    },
+    
+    renderQSchoolStandingsForLocation: (location) => {
+    const containerId = `qschool-standings-${location}`;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
+    const tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+    
+    // Sort by points descending
+    const standings = Object.entries(oom).sort((a, b) => b[1] - a[1]);
+    
+    if (standings.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #aaa; padding: 20px;">No players yet</div>';
+        return;
+    }
+    
+    const table = document.createElement('table');
+    table.style.cssText = 'width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 10px;';
+    
+    // Header
+    const headerRow = table.insertRow();
+    headerRow.style.cssText = 'background: #222; border-bottom: 1px solid #444;';
+    ['Pos', 'Player', 'Points', 'Status'].forEach(h => {
+        const cell = headerRow.insertCell();
+        cell.innerText = h;
+        cell.style.cssText = 'padding: 5px; text-align: center; color: #aaa; font-weight: bold;';
+    });
+    
+    // Rows
+    standings.forEach(([name, points], idx) => {
+        const row = table.insertRow();
+        const isTourCard = tourCardWinners.includes(name);
+
+        let status = '';
+        let bgColor = '#1a1a1a';
+        let textColor = '#aaa';
+
+        if (isTourCard) {
+            status = '🏆 TOUR CARD';
+            bgColor = '#0a3a0a';
+            textColor = 'var(--pdc-gold)';
+        }
+
+        row.style.cssText = `background: ${bgColor}; border-bottom: 1px solid #333;`;
+        
+        const data = [idx + 1, name, points, status];
+        data.forEach((d, i) => {
+            const cell = row.insertCell();
+            cell.innerText = d;
+            cell.style.cssText = `padding: 5px; text-align: ${i === 1 ? 'left' : 'center'}; color: ${textColor};`;
+        });
+    });
+    
+    container.appendChild(table);
+    
+    // Show location info
+    const infoDiv = document.createElement('div');
+    infoDiv.style.cssText = 'text-align: center; margin-top: 10px; color: #aaa; font-size: 11px;';
+    infoDiv.innerText = `${location.toUpperCase()} Q-SCHOOL - ${standings.length} Players`;
+    container.appendChild(infoDiv);
+    }
+};
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
         const Tournament = {
             config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
             state: { active: false, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set(), matchQueue: [] },
+            skipAdvancementAnimation: false,
+            forceShowFinalAnimation: false,
+            roundAdvanceAnimating: false,
+            pendingAdvanceAction: null,
     
             setMode: (mode) => {
                 Tournament.config.mode = mode;
@@ -3436,6 +5852,7 @@ const WORLD_SERIES_POINTS = {
                 Tournament.renderGrandSlamGroupStage();
             },
             seedBracket: (participants) => {
+<<<<<<< HEAD
                 const totalPlayers = participants.length;
                 const seededCount = Math.floor(totalPlayers / 2);
                 const sorted = [...participants].sort((a, b) => (b.avg || 0) - (a.avg || 0));
@@ -3457,8 +5874,105 @@ const WORLD_SERIES_POINTS = {
                     bracket.push(seedOrder[i]);
                     bracket.push(unseeded[i]);
                 }
+=======
+                // ========================
+                // PROPER TOURNAMENT SEEDING
+                // Uses standard bracket seeding where:
+                // 1 vs N, 2 vs N-1, 3 vs N-2, etc.
+                // This ensures top seeds meet only in later rounds
+                // ========================
+                const totalPlayers = participants.length;
+                
+                // Sort by average rating (descending)
+                const sorted = [...participants].sort((a, b) => (b.avg || 0) - (a.avg || 0));
+                
+                // Add seed numbers to all players
+                sorted.forEach((p, idx) => {
+                    p.seed = idx + 1;
+                });
+                
+                // Standard bracket seeding pattern
+                // For power of 2, use snake pattern that distributes seeds properly
+                const bracketOrder = Tournament.generateBracketOrder(totalPlayers);
+                
+                const bracket = [];
+                bracketOrder.forEach(seedNum => {
+                    if (seedNum <= sorted.length) {
+                        bracket.push(sorted[seedNum - 1]);
+                    }
+                });
+                
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                 return bracket;
+            },
+            
+            generateBracketOrder: (size) => {
+                // Generate standard tournament bracket seeding order
+                // This creates proper matchups: 1vN, 2vN-1, 3vN-2, etc.
+                // by interleaving top and bottom seeds
+                if (size === 2) return [1, 2];
+                
+                const halfSize = size / 2;
+                const topHalf = Tournament.generateBracketOrder(halfSize);
+                const bottomHalf = [];
+                
+                topHalf.forEach(seed => {
+                    bottomHalf.push(size + 1 - seed);
+                });
+                
+                // Interleave to create proper bracket: topHalf[0], bottomHalf[0], topHalf[1], bottomHalf[1], etc.
+                const result = [];
+                for (let i = 0; i < topHalf.length; i++) {
+                    result.push(topHalf[i]);
+                    result.push(bottomHalf[i]);
+                }
+                
+                return result;
+            },
+            startUkOpen: () => {
+                const ev = Season.events[Season.state.activeEventIndex];
+                // Get R1 participants (64 players)
+                const r1Idx = Tournament.state.ukOpenEntrants?.R1 || [];
+                let participants = r1Idx.map(i => PLAYERS_DB[i] ? { ...PLAYERS_DB[i] } : null).filter(p => p && p.name);
+                
+                // Ensure even player count
+                if (participants.length % 2 !== 0) {
+                    console.warn(`UK Open R1: Odd player count (${participants.length}), removing last player`);
+                    participants = participants.slice(0, participants.length - 1);
+                }
+                
+                console.log(`🎯 UK Open R1 starting with ${participants.length} players (${participants.length / 2} matches)`);
+                
+                // Random draw for R1
+                for (let i = participants.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [participants[i], participants[j]] = [participants[j], participants[i]];
+                }
 
+                Tournament.state.active = true;
+                Tournament.state.currentActiveRound = 0;
+                Tournament.state.viewingRound = 0;
+                Tournament.state.matchQueue = [];
+                Tournament.state.bracketData = [];
+
+                // Create Round 1 matches
+                const r0 = [];
+                for (let i = 0; i < participants.length; i += 2) {
+                    if (participants[i] && participants[i+1]) {
+                        r0.push({ p1: participants[i], p2: participants[i+1], winner: null, score: null, averages: null });
+                    }
+                }
+                Tournament.state.bracketData.push(r0);
+                for (let i = 1; i < Tournament.config.rounds.length; i++) {
+                    Tournament.state.bracketData.push([]);
+                }
+
+                requestWakeLock();
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('tournament-hub').style.display = 'flex';
+                document.getElementById('tournament-hub').style.visibility = 'visible';
+                document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
+                Tournament.renderHub();
             },
             updateConfigUI: () => {
                 const size = parseInt(document.getElementById('tourn-size').value);
@@ -3556,12 +6070,20 @@ const WORLD_SERIES_POINTS = {
                 
                 // Q-SCHOOL
                 if (ev.type === 'q-school') {
+<<<<<<< HEAD
                     const location = ev.location;
                     const otherVenueParticipants = location === 'uk' ? Season.state.qSchool.euParticipants : Season.state.qSchool.ukParticipants;
+=======
+                    const location = ev.location; // 'uk' or 'eu'
+                    const otherVenueParticipants = location === 'uk' ? (Season.state.qSchool.euParticipants || []) : (Season.state.qSchool.ukParticipants || []);
+                    const eligibleRegions = ev.eligibleRegions || [];
+
+                    // Exclude players who have already participated in the other venue
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                     participants = participants.filter(p => !otherVenueParticipants.includes(p.name));
                     let qualified = [];
                     if (ev.name.includes('First Stage')) {
-                        qualified = location === 'uk' ? Season.state.qSchool.ukFinalStageQualified : Season.state.qSchool.euFinalStageQualified;
+                        qualified = location === 'uk' ? (Season.state.qSchool.ukFinalStageQualified || []) : (Season.state.qSchool.euFinalStageQualified || []);
                         participants = participants.filter(p => !qualified.includes(p.name));
                         const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
                         qualified.forEach(playerName => delete oom[playerName]);
@@ -3642,30 +6164,52 @@ const WORLD_SERIES_POINTS = {
                 }
             },
 
+<<<<<<< HEAD
             simulateRound: () => {
+=======
+            simulateCurrentRound: () => {
+                // Check if this is group stage
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                 if (Tournament.config.isGroupStage) {
                     Tournament.simulateGroupStage();
                     return;
                 }
+<<<<<<< HEAD
+=======
+                
+                // Simulate only the current active round
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                 const activeR = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[activeR];
                 const roundInfo = Tournament.config.rounds[activeR];
                 
+<<<<<<< HEAD
                 if(Tournament.state.viewingRound !== activeR) {
                 Tournament.state.viewingRound = activeR;
             }
 
+=======
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                 let simulatedCount = 0;
+                const advancingPlayers = [];
+                
                 matches.forEach(m => {
                     if(!m.winner && m.p1 && m.p2) {
                         Tournament.fastSim(m, roundInfo.target);
                         simulatedCount++;
+                        if (m.winner) {
+                            advancingPlayers.push({
+                                player: m.winner,
+                                avg: m.averages[m.winner === m.p1 ? 0 : 1]
+                            });
+                        }
                     }
                 });
 
                 if(simulatedCount > 0) {
                     if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
                         Tournament.checkRoundCompleteNoAutoAdvance();
+<<<<<<< HEAD
                     } else {
                         Tournament.checkRoundComplete();
                     }
@@ -3673,7 +6217,182 @@ const WORLD_SERIES_POINTS = {
                     Tournament.renderHub();
                 } else {
                     alert("No matches to simulate.");
+=======
+                        Persistence.save();
+                        Tournament.renderHub();
+                    } else {
+                        // Show advancement animation BEFORE advancing rounds
+                        if (advancingPlayers.length > 0 && (typeof Season === 'undefined' || (Season && !Season.silentSimulation))) {
+                            // Check if round is complete before showing animation
+                            const allMatchesComplete = matches.every(m => m.winner);
+                            
+                            if (allMatchesComplete) {
+                                // Show animation first, then advance round after it ends
+                                const animDurationMs = 1300; // match overlay auto-close timing
+                                Tournament.showAdvancementAnimation(advancingPlayers, activeR);
+                                
+                                setTimeout(() => {
+                                    const prevSkip = Tournament.skipAdvancementAnimation;
+                                    Tournament.skipAdvancementAnimation = true; // avoid double animation in checkRoundComplete
+                                    Tournament.closeAdvancementOverlay();
+                                    Tournament.checkRoundComplete();
+                                    Tournament.skipAdvancementAnimation = prevSkip;
+                                    Persistence.save();
+                                    Tournament.renderHub();
+                                }, animDurationMs);
+                            } else {
+                                // Not all matches complete, just update display
+                                Persistence.save();
+                                Tournament.renderHub();
+                            }
+                        } else {
+                            Tournament.checkRoundComplete();
+                            Persistence.save();
+                            Tournament.renderHub();
+                        }
+                    }
+                } else {
+                    // If everything is already played, advance state quietly instead of alerting
+                    const allDone = matches.every(m => m.winner);
+                    if (allDone) {
+                        if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                            Tournament.checkRoundCompleteNoAutoAdvance();
+                        } else {
+                            Tournament.checkRoundComplete();
+                        }
+                        Persistence.save();
+                        Tournament.renderHub();
+                    } else if (typeof Season === 'undefined' || !Season.silentSimulation) {
+                        alert("No matches to simulate.");
+                    }
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
                 }
+            },
+            
+            simulateToEnd: () => {
+                // Simulate all remaining rounds and show only final winner
+                let finalWinner = null;
+                
+                while (Tournament.state.currentActiveRound < Tournament.config.rounds.length - 1) {
+                    const activeR = Tournament.state.currentActiveRound;
+                    const matches = Tournament.state.bracketData[activeR];
+                    const roundInfo = Tournament.config.rounds[activeR];
+                    
+                    matches.forEach(m => {
+                        if(!m.winner && m.p1 && m.p2) {
+                            Tournament.fastSim(m, roundInfo.target);
+                        }
+                    });
+                    
+                    Tournament.skipAdvancementAnimation = true;
+                    Tournament.checkRoundComplete();
+                    Tournament.skipAdvancementAnimation = false;
+                }
+                
+                // Now simulate the finals
+                const finalRound = Tournament.state.bracketData[Tournament.config.rounds.length - 1];
+                const finalRoundInfo = Tournament.config.rounds[Tournament.config.rounds.length - 1];
+                
+                finalRound.forEach(m => {
+                    if(!m.winner && m.p1 && m.p2) {
+                        Tournament.fastSim(m, finalRoundInfo.target);
+                        if (m.winner) {
+                            finalWinner = {
+                                player: m.winner,
+                                avg: m.averages[m.winner === m.p1 ? 0 : 1]
+                            };
+                        }
+                    }
+                });
+                
+                Tournament.checkRoundComplete();
+                Persistence.save();
+                Tournament.renderHub();
+                
+                // Show only the tournament winner animation
+                if (finalWinner && (typeof Season === 'undefined' || (Season && (!Season.silentSimulation || Tournament.forceShowFinalAnimation)))) {
+                    console.log('Showing final tournament winner animation');
+                    setTimeout(() => {
+                        Tournament.showAdvancementAnimation([finalWinner], Tournament.config.rounds.length - 1);
+                    }, 500);
+                }
+            },
+            
+            showAdvancementAnimation: (players, completedRoundIdx) => {
+                console.log('showAdvancementAnimation called with', players.length, 'players, round:', completedRoundIdx);
+                const overlay = document.getElementById('advancement-overlay');
+                const grid = document.getElementById('adv-grid');
+                const title = document.getElementById('adv-title');
+                const subtitle = document.getElementById('adv-subtitle');
+                
+                if (!overlay) {
+                    console.error('Advancement overlay not found!');
+                    return;
+                }
+                
+                // Check if this is the final round
+                const isFinalRound = completedRoundIdx === Tournament.config.rounds.length - 1;
+                
+                if (isFinalRound || players.length === 1) {
+                    // Tournament winner
+                    title.textContent = 'TOURNAMENT WINNER!';
+                    subtitle.textContent = '';
+                } else {
+                    // Players advancing to next round
+                    const nextRoundIdx = completedRoundIdx + 1;
+                    const nextRoundName = Tournament.config.rounds[nextRoundIdx].name;
+                    title.textContent = 'PLAYERS ADVANCING';
+                    subtitle.textContent = `TO ${nextRoundName}`;
+                }
+                
+                grid.innerHTML = '';
+                players.forEach((p, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'advancement-player';
+                    div.style.animationDelay = `${index * 0.1}s`;
+                    const avg = p.avg ? parseFloat(p.avg).toFixed(2) : '0.00';
+                    div.innerHTML = `
+                        <img src="${getFlagUrl(p.player.country)}" class="advancement-flag">
+                        <div class="advancement-player-name">${p.player.name}</div>
+                        <div class="advancement-player-avg">${avg}</div>
+                    `;
+                    grid.appendChild(div);
+                });
+                
+                console.log('Displaying overlay...');
+                overlay.style.display = 'flex';
+                
+                // Make overlay clickable to skip
+                overlay.onclick = () => {
+                    Tournament.closeAdvancementOverlay();
+                };
+                
+                // Auto-close after animation duration
+                setTimeout(() => {
+                    if (overlay.style.display === 'flex') {
+                        Tournament.closeAdvancementOverlay();
+                    }
+                }, 1200);
+                
+                // Add visual effect to the matches
+                players.forEach(p => {
+                    const playerMatches = document.querySelectorAll('.bracket-match.completed');
+                    playerMatches.forEach(match => {
+                        if (match.textContent.includes(p.player.name)) {
+                            match.classList.add('just-won');
+                            setTimeout(() => match.classList.remove('just-won'), 800);
+                        }
+                    });
+                });
+            },
+            
+            closeAdvancementOverlay: () => {
+                document.getElementById('advancement-overlay').style.display = 'none';
+            },
+            
+            simulateRound: () => {
+                // Deprecated - use simulateCurrentRound instead
+                Tournament.simulateCurrentRound();
             },
 
             startAutoPlay: () => {
@@ -3894,30 +6613,74 @@ const WORLD_SERIES_POINTS = {
                 
                 const hub = document.getElementById('tournament-hub');
                 const bracket = document.getElementById('tourn-bracket');
-                const vRoundIdx = Tournament.state.viewingRound;
                 const activeRoundIdx = Tournament.state.currentActiveRound;
-                const roundInfo = Tournament.config.rounds[vRoundIdx];
-                document.getElementById('tourn-round-name').innerText = roundInfo.name;
-                const typeStr = (Tournament.config.mode === 'sets') ? 'Sets' : 'Legs';
-                document.getElementById('tourn-round-fmt').innerText = `First to ${roundInfo.target} ${typeStr}`;
-                
-                document.getElementById('btn-prev-round').disabled = (vRoundIdx === 0);
-                document.getElementById('btn-next-round').disabled = (vRoundIdx === Tournament.config.rounds.length - 1);
-                
-                const actionBtns = document.querySelector('.hub-actions');
-                if(vRoundIdx === activeRoundIdx) actionBtns.style.display = 'flex';
-                else actionBtns.style.display = 'none';
 
                 bracket.innerHTML = '';
-                const matches = Tournament.state.bracketData[vRoundIdx];
                 
-                if (matches.length === 0) { bracket.innerHTML = `<div style="text-align:center; color:#555; margin-top:50px;">Pairings not yet decided.</div>`; } 
-                else {
-                    matches.forEach((m, idx) => {
+                // Single-sided bracket layout
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.gap = '60px';
+                wrapper.style.flex = '1';
+                wrapper.style.overflowX = 'auto';
+                wrapper.style.overflowY = 'auto';
+                wrapper.style.alignItems = 'flex-start';
+                wrapper.style.WebkitOverflowScrolling = 'touch';
+                
+                // Mobile responsive gap
+                if (window.innerWidth <= 768) {
+                    wrapper.style.gap = '40px';
+                }
+                
+                Tournament.config.rounds.forEach((roundInfo, roundIdx) => {
+                    const matches = Tournament.state.bracketData[roundIdx];
+                    const column = Tournament.createBracketColumn(roundInfo, roundIdx, matches, activeRoundIdx, 0);
+                    wrapper.appendChild(column);
+                });
+                
+                bracket.appendChild(wrapper);
+                
+                // Scroll to keep the active round in view
+                setTimeout(() => {
+                    const activeColumn = bracket.querySelector('.bracket-round-column:nth-child(' + (activeRoundIdx + 1) + ')');
+                    if (activeColumn && activeRoundIdx > 0) {
+                        activeColumn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    }
+                }, 100);
+                
+                hub.style.display = 'flex';
+                document.getElementById('match-screen').style.display = 'none';
+                
+                Tournament.updateWatchButtonState();
+                Persistence.save(); 
+            },
+            
+            createBracketColumn: (roundInfo, roundIdx, matches, activeRoundIdx, matchIndexOffset = 0) => {
+                const column = document.createElement('div');
+                column.className = 'bracket-round-column';
+                
+                // Column header
+                const header = document.createElement('div');
+                header.className = 'round-column-header';
+                const typeStr = (Tournament.config.mode === 'sets') ? 'Sets' : 'Legs';
+                header.innerHTML = `
+                    <div class="round-column-name">${roundInfo.name}</div>
+                    <div class="round-column-format">First to ${roundInfo.target} ${typeStr}</div>
+                `;
+                column.appendChild(header);
+                
+                // Matches list
+                const matchesList = document.createElement('div');
+                matchesList.className = 'bracket-matches-list';
+                
+                if (matches.length === 0) {
+                    matchesList.innerHTML = `<div style="text-align:center; color:#555; padding:20px;">Awaiting Results</div>`;
+                } else {
+                    matches.forEach((m, localIdx) => {
+                        const idx = matchIndexOffset + localIdx; // Actual index in bracketData
                         const card = document.createElement('div');
                         card.className = `bracket-match ${m.winner ? 'completed' : ''}`;
-                        card.style.opacity = m.winner ? '0.7' : '1';
-                        card.id = `bm-${idx}`;
+                        card.id = `bm-${roundIdx}-${idx}`;
                         
                         const getPHTML = (p, score, avg, isWinner) => {
                             const name = p ? p.name : 'TBD';
@@ -3944,13 +6707,13 @@ const WORLD_SERIES_POINTS = {
                         };
                         
                         let checkbox = '';
-                        const isPlayable = (!m.winner && vRoundIdx === activeRoundIdx && m.p1 && m.p2);
+                        const isPlayable = (!m.winner && roundIdx === activeRoundIdx && m.p1 && m.p2);
                         if(isPlayable) {
-                             checkbox = `<input type="checkbox" class="match-select-cb" value="${idx}" onchange="Tournament.updateWatchButtonState()">`;
+                             checkbox = `<input type="checkbox" class="match-select-cb" value="${idx}" data-round="${roundIdx}" onchange="Tournament.updateWatchButtonState()">`;
                         }
 
                         let html = `
-                            <button class="match-nav-btn" onclick="Tournament.traceMatch(-1, ${idx})">&lt;</button>
+                            <button class="match-nav-btn" onclick="Tournament.traceMatch(-1, ${idx}, ${roundIdx})">&lt;</button>
                             ${checkbox}
                             <div class="bm-content">
                                 ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}
@@ -3958,24 +6721,48 @@ const WORLD_SERIES_POINTS = {
                             </div>
                         `;
                         html += `<div style="display:flex; align-items:center;">`;
+<<<<<<< HEAD
                         if (isPlayable) { html += `<div class="bm-action"><button class="btn-play-mini" onclick="Tournament.playMatch(${idx})">PLAY</button></div>`; }
                         html += `<button class="match-nav-btn" onclick="Tournament.traceMatch(1, ${idx})">&gt;</button></div>`;
+=======
+                        
+                        if (isPlayable) {
+                            html += `<div class="bm-action"><button class="btn-play-mini" onclick="Tournament.playMatch(${idx}, ${roundIdx})">PLAY</button></div>`;
+                        }
+                        
+                        html += `<button class="match-nav-btn" onclick="Tournament.traceMatch(1, ${idx}, ${roundIdx})">&gt;</button></div>`;
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
 
                         card.innerHTML = html;
-                        bracket.appendChild(card);
+                        
+                        // Wrap card in bracket-match-wrapper for tree lines
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'bracket-match-wrapper';
+                        if (m.winner) {
+                            wrapper.classList.add('completed');
+                            card.classList.add('completed');
+                        }
+                        wrapper.appendChild(card);
+                        matchesList.appendChild(wrapper);
                     });
                 }
+<<<<<<< HEAD
                 hub.style.display = 'flex';
                 document.getElementById('match-screen').style.display = 'none';
                 Tournament.updateWatchButtonState();
                 Persistence.save(); 
+=======
+                
+                column.appendChild(matchesList);
+                return column;
+>>>>>>> 2002c50b9f21e1121f64017a25be69e26b24dfc0
             },
-            playMatch: (matchIdx) => {
+            playMatch: (matchIdx, roundIdx = null) => {
                 requestWakeLock();
                 SOUND_180.load();
                 SOUND_INTRO.load();
 
-                const roundIdx = Tournament.state.currentActiveRound;
+                if (roundIdx === null) roundIdx = Tournament.state.currentActiveRound;
                 const m = Tournament.state.bracketData[roundIdx][matchIdx];
                 const roundInfo = Tournament.config.rounds[roundIdx];
                 Tournament.activeMatchIdx = matchIdx;
@@ -4085,6 +6872,9 @@ const WORLD_SERIES_POINTS = {
                     Persistence.save();
                     Tournament.checkRoundComplete();
 
+                    // If an advancement animation is in progress, wait for it to finish
+                    if (Tournament.roundAdvanceAnimating) return;
+
                     // Only render if tournament is still active
                     if (Tournament.state.active) {
                         if(Tournament.state.matchQueue && Tournament.state.matchQueue.length > 0) {
@@ -4140,21 +6930,9 @@ const WORLD_SERIES_POINTS = {
             checkRoundComplete: () => {
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
+                Tournament.roundAdvanceAnimating = false;
 
-                if (matches.every(m => m.winner)) {
-                    if (rIdx === Tournament.config.rounds.length - 1) { 
-                        alert(`${matches[0].winner.name} WINS!`);
-                        Tournament.state.active = false;
-                        Persistence.save();
-                        
-                        if(Season.state.inProgress) {
-                            Season.completeEvent(Tournament.state.bracketData);
-                            return;
-                        } else {
-                            Persistence.clear();
-                            return;
-                        } 
-                    }
+                const advanceToNextRound = () => {
                     const nextRIdx = rIdx + 1; 
                     if(Tournament.state.bracketData.length <= nextRIdx || Tournament.state.bracketData[nextRIdx].length === 0) {
                         const nextMatches = [];
@@ -4163,14 +6941,223 @@ const WORLD_SERIES_POINTS = {
                         Tournament.state.currentActiveRound = nextRIdx; 
                         Tournament.state.viewingRound = nextRIdx; 
                     }
+                };
+
+                if (matches.every(m => m.winner)) {
+                    // Special handling for UK Open
+                    if (Tournament.config.eventType === 'uk-open') {
+                        Tournament.checkRoundCompleteUkOpen();
+                        return;
+                    }
+
+                    if (rIdx === Tournament.config.rounds.length - 1) { 
+                        if(!Season.silentSimulation) alert(`${matches[0].winner.name} WINS!`);
+                        Tournament.state.active = false;
+                        Persistence.save();
+                        
+                        if(Season.state.inProgress) {
+                            Season.completeEvent(Tournament.state.bracketData);
+                            return;
+                        } else {
+                            Persistence.clearTournamentOnly();
+                            document.getElementById('setup-screen').style.display = 'flex';
+                            document.getElementById('tournament-hub').style.display = 'none';
+                            return;
+                        } 
+                    }
+
+                    const shouldAnimate = !Tournament.skipAdvancementAnimation && !(typeof Season !== 'undefined' && Season.silentSimulation);
+                    if (shouldAnimate) {
+                        const advancingPlayers = matches
+                            .map(m => ({ player: m.winner, avg: m.averages ? m.averages[m.winner === m.p1 ? 0 : 1] : null }))
+                            .filter(p => p && p.player);
+
+                        Tournament.roundAdvanceAnimating = true;
+                        Tournament.showAdvancementAnimation(advancingPlayers, rIdx);
+
+                        setTimeout(() => {
+                            Tournament.closeAdvancementOverlay();
+                            advanceToNextRound();
+                            Tournament.roundAdvanceAnimating = false;
+                            Persistence.save();
+                            Tournament.renderHub();
+                        }, 1300);
+                        return;
+                    }
+
+                    advanceToNextRound();
                 }
+            },
+
+            checkRoundCompleteUkOpen: () => {
+                const rIdx = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[rIdx];
+                
+                if (!matches.every(m => m.winner)) return;
+                
+                if (rIdx === Tournament.config.rounds.length - 1) {
+                    if(!Season.silentSimulation) alert(`${matches[0].winner.name} WINS THE UK OPEN!`);
+                    Tournament.state.active = false;
+                    Persistence.save();
+                    
+                    if(Season.state.inProgress) {
+                        Season.completeEvent(Tournament.state.bracketData);
+                        return;
+                    } else {
+                        Persistence.clearTournamentOnly();
+                        document.getElementById('setup-screen').style.display = 'flex';
+                        document.getElementById('tournament-hub').style.display = 'none';
+                        return;
+                    }
+                }
+                
+                Tournament.advanceUkOpenRound();
+            },
+
+            advanceUkOpenRound: () => {
+                const rIdx = Tournament.state.currentActiveRound;
+                const matches = Tournament.state.bracketData[rIdx];
+                const winners = matches.map(m => m.winner).filter(Boolean);
+                const nextRIdx = rIdx + 1;
+
+                // Get entrants for next round based on current round
+                let entrantsIdx = [];
+                if (rIdx === 0) entrantsIdx = Tournament.state.ukOpenEntrants?.R2 || [];  // Round 2 entrants (32)
+                else if (rIdx === 1) entrantsIdx = Tournament.state.ukOpenEntrants?.R3 || []; // Round 3 entrants (32)
+                else if (rIdx === 2) entrantsIdx = Tournament.state.ukOpenEntrants?.R4Top32 || []; // Last 64 seeds (32)
+
+                console.log(`🔍 UK Open R${rIdx} complete: ${winners.length} winners, ${entrantsIdx.length} entrants available`);
+                
+                const entrants = entrantsIdx.map(i => PLAYERS_DB[i] ? { ...PLAYERS_DB[i] } : null).filter(p => p && p.name);
+                
+                // Show which players are joining this round
+                if (entrants.length > 0) {
+                    const roundNames = ['R2', 'R3', 'Last 64'];
+                    const roundName = roundNames[rIdx] || `Round ${nextRIdx}`;
+                    const playerNames = entrants.map(p => p.name).join(', ');
+                    console.log(`🎯 ${entrants.length} players joining ${roundName}`);
+                    alert(`${entrants.length} players joining ${roundName}:\n\n${playerNames}`);
+                }
+                
+                let combined = winners.concat(entrants);
+                
+                // Ensure even number of players
+                if (combined.length % 2 !== 0) {
+                    combined = combined.slice(0, combined.length - 1);
+                }
+                
+                const nextMatches = [];
+                
+                // SPECIAL SEEDING for Last 64 (R3→L64): Top 32 seeds vs R3 winners
+                if (rIdx === 2) {
+                    const top32 = entrants;      // 32 seeded players in OOM order
+                    const r3Winners = winners.slice(0, 32); // R3 winners (unseeded)
+                    
+                    console.log(`🏆 Seeding Last 64: 32 seeds + 32 R3 winners = 64 players`);
+                    
+                    // Standard bracket seeding pattern
+                    const seedPairs = [
+                        [0, 31], [16, 15],  // 1v32, 17v16 → L32 match 0
+                        [8, 23], [24, 7],   // 9v24, 25v8 → L32 match 1
+                        [4, 27], [20, 11],  // 5v28, 21v12 → L32 match 2
+                        [12, 19], [28, 3],  // 13v20, 29v4 → L32 match 3
+                        [2, 29], [18, 13],  // 3v30, 19v14 → L32 match 4
+                        [10, 21], [26, 5],  // 11v22, 27v6 → L32 match 5
+                        [6, 25], [22, 9],   // 7v26, 23v10 → L32 match 6
+                        [14, 17], [30, 1],  // 15v18, 31v2 → L32 match 7
+                        [1, 30], [17, 14],  // 2v31, 18v15 → L32 match 8
+                        [9, 22], [25, 6],   // 10v23, 26v7 → L32 match 9
+                        [5, 26], [21, 10],  // 6v27, 22v11 → L32 match 10
+                        [13, 18], [29, 2],  // 14v19, 30v3 → L32 match 11
+                        [3, 28], [19, 12],  // 4v29, 20v13 → L32 match 12
+                        [11, 20], [27, 4],  // 12v21, 28v5 → L32 match 13
+                        [7, 24], [23, 8],   // 8v25, 24v9 → L32 match 14
+                        [15, 16], [31, 0]   // 16v17, 32v1 → L32 match 15
+                    ];
+                    
+                    for (const [seed1Idx, seed2Idx] of seedPairs) {
+                        if (top32[seed1Idx] && r3Winners[seed2Idx]) {
+                            nextMatches.push({
+                                p1: top32[seed1Idx],
+                                p2: r3Winners[seed2Idx],
+                                winner: null,
+                                score: null,
+                                averages: null
+                            });
+                        }
+                    }
+                } else {
+                    // R1→R2 and R2→R3: OPEN DRAW (random shuffle)
+                    for (let i = combined.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [combined[i], combined[j]] = [combined[j], combined[i]];
+                    }
+                    
+                    for (let i = 0; i < combined.length; i += 2) {
+                        if (combined[i] && combined[i+1]) {
+                            nextMatches.push({ p1: combined[i], p2: combined[i+1], winner: null, score: null, averages: null });
+                        }
+                    }
+                }
+                
+                console.log(`UK Open advancing to round ${nextRIdx}: ${winners.length} winners + ${entrants.length} entrants = ${combined.length} total → ${nextMatches.length} matches`);
+                
+                Tournament.state.bracketData[nextRIdx] = nextMatches;
+                Tournament.state.currentActiveRound = nextRIdx;
+                Tournament.state.viewingRound = nextRIdx;
+                Persistence.save();
             },
             
             checkRoundCompleteNoAutoAdvance: () => {
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
 
+                const advanceToNextRound = () => {
+                    const nextRIdx = rIdx + 1; 
+                    if(Tournament.state.bracketData.length <= nextRIdx || Tournament.state.bracketData[nextRIdx].length === 0) {
+                        const nextMatches = [];
+                        for(let i=0; i<matches.length; i+=2) { 
+                            nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); 
+                        }
+                        Tournament.state.bracketData[nextRIdx] = nextMatches;
+                    }
+                    Tournament.state.currentActiveRound = nextRIdx;
+                    Tournament.state.viewingRound = nextRIdx;
+                    Persistence.save();
+                };
+
                 if (matches.every(m => m.winner)) {
+                    const isFinal = rIdx === Tournament.config.rounds.length - 1;
+                    const shouldAnimate = !Tournament.skipAdvancementAnimation && !(typeof Season !== 'undefined' && Season.silentSimulation);
+                    const advancingPlayers = matches
+                        .map(m => ({ player: m.winner, avg: m.averages ? m.averages[m.winner === m.p1 ? 0 : 1] : null }))
+                        .filter(p => p && p.player);
+
+                    if (shouldAnimate && advancingPlayers.length > 0) {
+                        Tournament.roundAdvanceAnimating = true;
+                        Tournament.showAdvancementAnimation(advancingPlayers, rIdx);
+                        setTimeout(() => {
+                            Tournament.closeAdvancementOverlay();
+                            Tournament.roundAdvanceAnimating = false;
+                            if (isFinal) {
+                                alert(`${matches[0].winner.name} WINS THE NIGHT!`);
+                                Tournament.state.active = false;
+                                Persistence.save();
+                                if(Season.state.inProgress) {
+                                    Season.completeEvent(Tournament.state.bracketData);
+                                } else {
+                                    Persistence.clearTournamentOnly();
+                                    document.getElementById('setup-screen').style.display = 'flex';
+                                    document.getElementById('tournament-hub').style.display = 'none';
+                                }
+                                return;
+                            }
+                            advanceToNextRound();
+                            Tournament.renderHub();
+                        }, 1300);
+                        return;
+                    }
+
                     if (rIdx === Tournament.config.rounds.length - 1) { 
                         alert(`${matches[0].winner.name} WINS THE NIGHT!`);
                         Tournament.state.active = false;
@@ -4180,26 +7167,19 @@ const WORLD_SERIES_POINTS = {
                             Season.completeEvent(Tournament.state.bracketData);
                             return;
                         } else {
-                            Persistence.clear();
+                            Persistence.clearTournamentOnly();
+                            document.getElementById('setup-screen').style.display = 'flex';
+                            document.getElementById('tournament-hub').style.display = 'none';
+                            return;
+                        }
                             return;
                         } 
                     }
                     // For Premier League: prepare next round and advance to it
-                    const nextRIdx = rIdx + 1; 
-                    if(Tournament.state.bracketData.length <= nextRIdx || Tournament.state.bracketData[nextRIdx].length === 0) {
-                        const nextMatches = [];
-                        for(let i=0; i<matches.length; i+=2) { 
-                            nextMatches.push({ p1: matches[i].winner, p2: matches[i+1].winner, winner: null, score: null, averages: null }); 
-                        }
-                        Tournament.state.bracketData[nextRIdx] = nextMatches;
-                    }
-                    // Update both active and viewing round to automatically show next round
-                    Tournament.state.currentActiveRound = nextRIdx;
-                    Tournament.state.viewingRound = nextRIdx;
-                    Persistence.save();
+                    advanceToNextRound();
+                    Tournament.renderHub();
                 }
             }
-        };
 
         const App = {
             config: { mode: 'sets', target: 3, setLegs: 3 },
@@ -4250,7 +7230,10 @@ const WORLD_SERIES_POINTS = {
                 document.getElementById('inp-p2-text').value = PLAYERS_DB[1].name;
                 Tournament.updateConfigUI(); 
                 
-                // Initialize Season logic
+                // Load saved state FIRST before initializing
+                Persistence.load();
+                
+                // Initialize Season logic (will only init if no data exists)
                 Season.init();
                 
                 // OOM Tab logic
@@ -4263,8 +7246,7 @@ const WORLD_SERIES_POINTS = {
                     if (!document.getElementById('list-p1').parentElement.contains(event.target)) document.getElementById('list-p1').style.display = 'none';
                     if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
                 });
-                document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch);
-                Persistence.load(); 
+                document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch); 
             },
             renderDropdown: (id) => {
                 const list = document.getElementById(`list-${id}`);
@@ -4829,11 +7811,16 @@ const WORLD_SERIES_POINTS = {
         // INITIALIZATION
         document.addEventListener("DOMContentLoaded", () => {
             try {
+                console.log("App starting, RAW_PLAYERS length:", RAW_PLAYERS.length);
+                console.log("PLAYERS_DB length:", PLAYERS_DB.length);
                 App.setMode('sets');
-                App.init();          
+                console.log("setMode completed");
+                App.init();
+                console.log("App initialized successfully");          
             } catch (e) {
                 console.error("Critical Error on startup:", e);
-                alert("App failed to start. Resetting...");
+                console.error("Stack:", e.stack);
+                alert("App failed to start. Error: " + e.message + "\n\nCheck console for details.");
                 localStorage.clear();
                 location.reload();
             }
