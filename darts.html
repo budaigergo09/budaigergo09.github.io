@@ -1,4 +1,4 @@
-when i s
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -2284,6 +2284,45 @@ when i s
                 <button class="tab-btn" onclick="App.switchTab('season')" id="tab-btn-season">SEASON</button>
                 <!-- Merged Tab -->
                 <button class="tab-btn" onclick="App.switchTab('standings')" id="tab-btn-standings">STANDINGS</button>
+                <button class="tab-btn" onclick="App.switchTab('news')" id="tab-btn-news">NEWS</button>
+            </div>
+
+            <!-- NEWS TAB -->
+            <div id="tab-news" class="tab-content" style="padding:0;">
+                <style>
+                    .news-card {
+                        background: linear-gradient(145deg, #1f2430, #141822);
+                        padding: 12px;
+                        border-radius: 6px;
+                        border-left: 3px solid #666;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                        position: relative;
+                        transition: transform 0.2s;
+                    }
+                    .news-card:hover { transform: translateX(2px); background: linear-gradient(145deg, #252b3a, #1a1e2a); }
+                    .news-card.high { border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.1); }
+                    .news-card.medium { border-left-color: #3498db; }
+                    .news-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; }
+                    .news-title { font-size: 13px; color: #ececec; line-height: 1.4; font-weight: 500; }
+                    .news-type-icon { margin-right: 5px; opacity: 0.7; }
+                    .news-filters { display: flex; gap: 5px; flex-wrap: wrap; padding: 10px; background: rgba(0,0,0,0.2); border-bottom: 1px solid #333; }
+                    .filter-btn {
+                        background: transparent; border: 1px solid #444; color: #aaa; padding: 4px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;
+                    }
+                    .filter-btn:hover { border-color: #777; color: #fff; }
+                    .filter-btn.active { background: var(--pdc-gold); color: #000; border-color: var(--pdc-gold); font-weight: bold; }
+                </style>
+                <div class="news-filters">
+                    <button class="filter-btn active" onclick="NewsSystem.setFilter('all')">ALL</button>
+                    <button class="filter-btn" onclick="NewsSystem.setFilter('major')">MAJORS</button>
+                    <button class="filter-btn" onclick="NewsSystem.setFilter('tour')">PRO TOUR</button>
+                    <button class="filter-btn" onclick="NewsSystem.setFilter('withdrawal')">WITHDRAWALS</button>
+                    <button class="filter-btn" onclick="NewsSystem.setFilter('upset')">UPSETS</button>
+                </div>
+                <div id="news-feed" style="padding: 10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">
+                    <!-- News Item Template -->
+                    <div style="text-align:center; padding: 20px; color:#666; font-size:12px;">No news yet...</div>
+                </div>
             </div>
 
             <!-- SINGLE MATCH TAB -->
@@ -4038,6 +4077,11 @@ when i s
         // ================= PERSISTENCE =================
         const Persistence = {
             save: () => {
+                if (typeof PLAYERS_DB !== 'undefined') {
+                    const states = PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue }));
+                    localStorage.setItem('pdc_player_states', JSON.stringify(states));
+                }
+
                 if (App.players.length > 0) localStorage.setItem('pdc_players', JSON.stringify(App.players));
                 localStorage.setItem('pdc_match_state', JSON.stringify(App.matchState));
                 localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
@@ -4076,6 +4120,18 @@ when i s
 
             load: () => {
                 try {
+                    // Load Player States
+                    const pStates = JSON.parse(localStorage.getItem('pdc_player_states'));
+                    if (pStates && typeof PLAYERS_DB !== 'undefined') {
+                        pStates.forEach(s => {
+                            const p = PLAYERS_DB.find(x => x.name === s.n);
+                            if (p) {
+                                if (s.f !== undefined) p.form = s.f;
+                                if (s.ft !== undefined) p.fatigue = s.ft;
+                            }
+                        });
+                    }
+
                     // Always load Season state regardless of screen
                     const sState = localStorage.getItem('pdc_season_state');
                     if (sState) {
@@ -4201,7 +4257,29 @@ when i s
                             );
 
                             if (allRoundsComplete) {
-                                // Tournament is finished, return to setup
+                                // Tournament is finished
+                                // Generate News for Winner
+                                const finalRound = Tournament.state.bracketData[Tournament.state.bracketData.length - 1];
+                                if (finalRound && finalRound.length > 0) {
+                                    const finalMatch = finalRound[0];
+                                    const winnerObj = finalMatch.winner;
+                                    const runnerUpObj = finalMatch.p1 === winnerObj ? finalMatch.p2 : finalMatch.p1;
+                                    
+                                    // Use NAMES for strings to avoid crash
+                                    const winnerName = winnerObj ? winnerObj.name : "Unknown";
+                                    const runnerUpName = runnerUpObj ? runnerUpObj.name : "Unknown";
+
+                                    if (window.NewsSystem && winnerName !== "Unknown") {
+                                        NewsSystem.add('win', {
+                                            headline: `${winnerName.toUpperCase()} CROWNED ${Tournament.config.name.toUpperCase()} CHAMPION!`,
+                                            subtext: `In a thrilled final, ${winnerName} defeated ${runnerUpName} to lift the trophy.`,
+                                            player: winnerName,
+                                            event: Tournament.config.name || 'Tournament',
+                                            importance: 'high'
+                                        });
+                                    }
+                                }
+
                                 console.log('Tournament complete, returning to setup screen');
                                 Persistence.clearTournamentOnly();
                                 document.getElementById('setup-screen').style.display = 'flex';
@@ -4346,7 +4424,403 @@ when i s
             }
         };
 
+        // ================= PLAYER STATE SYSTEM =================
+        const PlayerState = {
+            clamp: (val, min, max) => Math.min(Math.max(val, min), max),
+
+            initPlayers: () => {
+                if (typeof PLAYERS_DB === 'undefined') return;
+
+                // Try to load saved states
+                let savedStates = null;
+                try {
+                    const json = localStorage.getItem('pdc_player_states');
+                    if (json) savedStates = JSON.parse(json);
+                } catch(e) { console.error("Error loading player states", e); }
+
+                // Map for faster lookup
+                const stateMap = new Map();
+                if (savedStates) {
+                    savedStates.forEach(s => stateMap.set(s.n, s));
+                }
+
+                PLAYERS_DB.forEach(p => {
+                    const saved = stateMap.get(p.name);
+                    if (saved) {
+                        p.form = saved.f;
+                        p.fatigue = saved.ft;
+                    }
+
+                    if (typeof p.form === 'undefined') {
+                        // Estimated form based on average
+                        if (p.avg >= 95) p.form = 80 + Math.random() * 5;
+                        else if (p.avg >= 90) p.form = 65 + Math.random() * 10;
+                        else if (p.avg >= 85) p.form = 50 + Math.random() * 10;
+                        else p.form = 40 + Math.random() * 10;
+                        // Boost for known top stars
+                        if(["Luke Humphries", "Luke Littler", "Michael van Gerwen"].includes(p.name)) p.form = 85;
+                    }
+                    if (typeof p.fatigue === 'undefined') p.fatigue = 0;
+                    p.form = PlayerState.clamp(p.form, 0, 100);
+                    p.fatigue = PlayerState.clamp(p.fatigue, 0, 100);
+                    p.confidence = 50; 
+                });
+            },
+
+            updateForm: (player, matchEffect) => {
+                if (!player) return;
+                player.form = PlayerState.clamp(player.form + matchEffect, 0, 100);
+            },
+
+            initMatchConfidence: (player) => {
+                if (!player) return;
+                player.confidence = PlayerState.clamp(player.form * 0.7 + 30, 0, 100);
+            },
+
+            updateConfidence: (player, change) => {
+                if (!player) return;
+                player.confidence = PlayerState.clamp(player.confidence + change, 0, 100);
+            },
+
+            updateFatigue: (player, amount) => {
+                if (!player) return;
+                player.fatigue = PlayerState.clamp(player.fatigue + amount, 0, 100);
+            },
+
+            getPerformanceModifier: (player) => {
+                if (!player) return 0;
+                // (form - 50) * 0.002 + (confidence - 50) * 0.003 - (fatigue * 0.002)
+                const conf = player.confidence || 50;
+                
+                // Ensure form and fatigue are numbers
+                const f = (!isNaN(player.form)) ? player.form : 50;
+                const ft = (!isNaN(player.fatigue)) ? player.fatigue : 0;
+                
+                return ((f - 50) * 0.002) + ((conf - 50) * 0.003) - (ft * 0.002);
+            },
+
+            shouldSkipEvent: (player, eventType) => {
+                // Never skip major tournaments
+                if (eventType === 'major' || eventType === 'world' || eventType === 'matchplay' || eventType === 'grandprix' || eventType === 'gs-qual-tc' || eventType === 'grandslam' || eventType === 'uk-open' || eventType === 'europeanf' || eventType === 'playersf' || eventType === 'masters' || eventType === 'masters-final' || eventType === 'winmaudm') return false;
+                if (!eventType) return false;
+                
+                // Universal threshold: 90%+ fatigue = guaranteed withdrawal for ALL players
+                if (player.fatigue >= 90) return true;
+                
+                const isTop16 = PLAYERS_DB.indexOf(player) < 16;
+                
+                // Probabilistic thresholds below 90%
+                if (isTop16) {
+                    // Top 16 players push through more often
+                    if (player.fatigue >= 80) return Math.random() < 0.80;  // 80% chance
+                    if (player.fatigue >= 70) return Math.random() < 0.50;  // 50% chance
+                    if (player.fatigue >= 60) return Math.random() < 0.25;  // 25% chance
+                    return false;
+                } else {
+                    // Lower ranked players withdraw more readily
+                    if (player.fatigue >= 80) return Math.random() < 0.95;  // 95% chance
+                    if (player.fatigue >= 70) return Math.random() < 0.85;  // 85% chance
+                    if (player.fatigue >= 60) return Math.random() < 0.60;  // 60% chance
+                    return false;
+                }
+            },
+
+            getReplacementPlayer: (currentParticipantsIndices, eventType, eventName) => {
+                const currentSet = new Set(currentParticipantsIndices);
+                const isQSchool = eventType === 'q-school';
+                const isETQualTC = eventType === 'et-qual-tc';
+                const isWCQualIntl = eventType === 'wc-qual-intl';
+                const isWCQualTC = eventType === 'wc-qual-tc';
+
+                // For ET Tour Card Qualifiers, build exclusion list (top 16 world + top 16 pro tour)
+                let excludedNames = new Set();
+                if (isETQualTC) {
+                    // Exclude top 16 by world ranking
+                    PLAYERS_DB.slice(0, 16).forEach(p => excludedNames.add(p.name));
+                    
+                    // Exclude top 16 from Pro Tour OOM
+                    const proEntries = Object.entries(Season.state.proTourOOM).filter(e => e[1] > 0);
+                    if (proEntries.length >= 16) {
+                        proEntries.sort((a, b) => b[1] - a[1]).slice(0, 16).forEach(e => excludedNames.add(e[0]));
+                    }
+                }
+                
+                // For WC Qualifiers, exclude top 40 from Main OOM and Pro Tour OOM
+                if (isWCQualIntl || isWCQualTC) {
+                    Object.entries(Season.state.orderOfMerit)
+                        .filter(([n]) => PLAYERS_DB.find(p => p.name === n)?.tourCard)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => excludedNames.add(e[0]));
+                    
+                    Object.entries(Season.state.proTourOOM)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => excludedNames.add(e[0]));
+                }
+                
+                // Regional filtering for WC International Qualifiers
+                let regionFilter = null;
+                if (isWCQualIntl && eventName) {
+                    if (eventName.includes("HUNGARIAN")) regionFilter = ["hun"];
+                    else if (eventName.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
+                    else if (eventName.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
+                    else if (eventName.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
+                    else if (eventName.includes("CZECHIA")) regionFilter = ["cze"];
+                    else if (eventName.includes("POLISH") || eventName.includes("PDO POLISH")) regionFilter = ["pol"];
+                    else if (eventName.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
+                    else if (eventName.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
+                    else if (eventName.includes("AFRICAN")) regionFilter = ["rsa", "zim"];
+                    else if (eventName.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (eventName.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
+                    else if (eventName.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (eventName.includes("CDC") || eventName.includes("CDLC")) regionFilter = REGION_MAP.america;
+                    else if (eventName.includes("ANZ") || eventName.includes("DPA") || eventName.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+                }
+
+                for(let i = 0; i < PLAYERS_DB.length; i++) {
+                    if (!currentSet.has(i)) {
+                        const p = PLAYERS_DB[i];
+                        
+                        // If it's Q-School, do NOT allow Tour Card holders to replace
+                        if (isQSchool && p.tourCard) continue;
+                        
+                        // If it's ET Tour Card Qualifier, do NOT allow top 16 players or non-tour-card holders
+                        if (isETQualTC && (excludedNames.has(p.name) || !p.tourCard)) continue;
+                        
+                        // If it's WC Tour Card Qualifier, do NOT allow non-tour-card holders or auto-qualified players
+                        if (isWCQualTC && (excludedNames.has(p.name) || !p.tourCard)) continue;
+                        
+                        // If it's WC International Qualifier, do NOT allow auto-qualified players
+                        if (isWCQualIntl && excludedNames.has(p.name)) continue;
+                        
+                        // Regional filtering for WC International Qualifiers
+                        if (regionFilter && !regionFilter.includes(p.country)) continue;
+
+                        p.form = 45;
+                        p.confidence = 50;
+                        p.fatigue = 20;
+                        p.isReplacement = true; 
+                        return i;
+                    }
+                }
+                return -1;
+            },
+            
+            applyEventFatigueReduction: () => {
+                 if (typeof PLAYERS_DB === 'undefined') return;
+                 PLAYERS_DB.forEach(p => {
+                     // Rest period between events - ensure numbers
+                     p.fatigue = (!isNaN(p.fatigue)) ? p.fatigue : 0;
+                     p.form = (!isNaN(p.form)) ? p.form : 50;
+                     
+                     PlayerState.updateFatigue(p, -10);
+                     // Form decay
+                     PlayerState.updateForm(p, -1);
+                 });
+                 Persistence.save(); // Save checking points
+            }
+        };
+
+        // ================= NEWS SYSTEM =================
+        const NewsSystem = {
+            maxItems: 200,
+            viewState: { filter: 'all' },
+            items: [],
+            
+            headlineTemplates: {
+                win: [
+                    "{player} claims victory at {event}!",
+                    "{player} crowned {event} Champion!",
+                    "Unstoppable {player} takes the title at {event}.",
+                    "{event} glory goes to {player}."
+                ],
+                rank: [
+                    "NEW WORLD NUMBER ONE!",
+                    "{player} climbs to World #1!",
+                    "Order of Merit Shake-up: {player} on top!"
+                ],
+                upset: [
+                    "SHOCK: {player} (Rank {rank}) knocks out {rival}!",
+                    "Major upset at {event} as {player} defeats {rival}.",
+                    "{rival} crashes out against {player}!",
+                    "Underdog {player} stuns {rival} at {event}."
+                ],
+                withdrawal: [
+                    "{player} withdraws from {event} due to fatigue.",
+                    "Exhausted {player} pulls out of {event}.",
+                    "{event} update: {player} withdraws."
+                ],
+                replacement: [
+                    "{player} enters {event} as a late replacement.",
+                    "{player} gets the call for {event}."
+                ],
+                milestone: [
+                    "{player} reaches the Top 16 for the first time!",
+                    "Career high ranking for {player}.",
+                    "{player} breaks into the elite!",
+                    "Historic moment for {player} at {event}."
+                ]
+            },
+
+            init: () => {
+                const saved = localStorage.getItem('pdc_news');
+                if (saved) {
+                    try { 
+                        // Ensure we always have an array
+                        const parsed = JSON.parse(saved);
+                        NewsSystem.items = Array.isArray(parsed) ? parsed : [];
+                    } 
+                    catch(e) { console.error("News load error", e); NewsSystem.items = []; }
+                } else {
+                    NewsSystem.items = [];
+                }
+            },
+
+            save: () => {
+                const toSave = NewsSystem.items.slice(0, NewsSystem.maxItems);
+                try {
+                    localStorage.setItem('pdc_news', JSON.stringify(toSave));
+                } catch (e) {
+                    console.error("Failed to save news", e);
+                }
+            },
+
+            add: (type, data) => {
+                let headline = "";
+                let text = "";
+
+                if (data.headline) {
+                    headline = data.headline;
+                    text = data.subtext || "";
+                } else if (data.overrideText) {
+                    headline = data.overrideText;
+                } else {
+                    const templates = NewsSystem.headlineTemplates[type] || ["{event}: Update regarding {player}"];
+                    const template = templates[Math.floor(Math.random() * templates.length)];
+                    headline = template;
+                    for (const [key, value] of Object.entries(data)) {
+                        headline = headline.replace(`{${key}}`, value);
+                    }
+                }
+
+                let importance = data.importance || 'medium';
+                if (!data.importance) {
+                    if (type === 'withdrawal' || type === 'replacement') importance = 'low';
+                    if (type === 'upset') importance = 'high';
+                    if (data.isMajorWin) importance = 'high';
+                }
+
+                const item = {
+                    id: Date.now() + Math.random().toString().slice(2, 6),
+                    type,
+                    headline,
+                    text: text, // Store subtext separately
+                    date: new Date().toISOString(),
+                    event: data.event || "Season Update",
+                    importance
+                };
+
+                console.log('NEWS ADDED:', type, item);
+
+                // Add to beginning
+                NewsSystem.items.unshift(item);
+                
+                // Keep size manageable
+                if (NewsSystem.items.length > NewsSystem.maxItems) {
+                    NewsSystem.items = NewsSystem.items.slice(0, NewsSystem.maxItems);
+                }
+                
+                NewsSystem.save();
+                
+                // If News tab is active, render immediately
+                const newsTab = document.getElementById('tab-news');
+                if (newsTab && newsTab.classList.contains('active')) NewsSystem.renderNews(NewsSystem.viewState.filter);
+            },
+
+            setFilter: (f) => {
+                NewsSystem.viewState.filter = f;
+                document.querySelectorAll('.news-filters .filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                    if(b.innerText.toLowerCase() === f || (f === 'tour' && b.innerText === 'PRO TOUR') || (f === 'withdrawal' && b.innerText === 'WITHDRAWALS') || (f === 'upset' && b.innerText === 'UPSETS')) {
+                        b.classList.add('active');
+                    }
+                });
+                NewsSystem.renderNews(f);
+            },
+
+            renderNews: (filter) => {
+                const container = document.getElementById('news-feed');
+                if (!container) return;
+                container.innerHTML = '';
+                
+                let filtered = NewsSystem.items;
+                if (filter === 'major') filtered = filtered.filter(i => i.event && (i.event.includes('World') || i.event.includes('Matchplay') || i.event.includes('Grand') || i.event.includes('Open') || i.event.includes('Premier') || i.event.includes('Masters')));
+                if (filter === 'tour') filtered = filtered.filter(i => i.event && (i.event.includes('Players Championship') || i.event.includes('European Tour')));
+                if (filter === 'withdrawal') filtered = filtered.filter(i => i.type === 'withdrawal');
+                if (filter === 'upset') filtered = filtered.filter(i => i.type === 'upset');
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding: 20px; color:#666; font-size:12px;">No news found.</div>`;
+                    return;
+                }
+
+                filtered.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = `news-card ${item.type} ${item.importance}`;
+                    
+                    const dateObj = new Date(item.date);
+                    const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    const icon = item.type === 'win' ? '🏆' : item.type === 'rank' ? '👑' : item.type === 'upset' ? '⚡' : item.type === 'withdrawal' ? '🚑' : item.type === 'replacement' ? '🔄' : '📰';
+                    
+                    // Fallback for old items that used 'text' properties
+                    const showHeadline = item.headline || item.text;
+                    const showSubtext = item.headline ? item.text : "";
+
+                    div.innerHTML = `
+                        <div class="news-header">
+                            <span>${icon} ${item.event ? item.event.toUpperCase() : 'NEWS'}</span>
+                            <span>${dateStr}</span>
+                        </div>
+                        <div class="news-title">${showHeadline}</div>
+                        ${showSubtext ? `<div style="font-size:0.9em; opacity:0.8; margin-top:4px;">${showSubtext}</div>` : ''}
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        };
+
         const Season = {
+            addNews: (text) => {
+                let type = 'general';
+                let data = { event: 'Season', player: '', isMajorWin: false };
+                
+                if (text.includes('withdraws from')) {
+                    type = 'withdrawal';
+                    const parts = text.split(' withdraws from ');
+                    data.player = parts[0];
+                    data.event = parts[1] ? parts[1].replace(' due to fatigue.', '') : 'Event';
+                    
+                    NewsSystem.add(type, { ...data, player: data.player, event: data.event });
+                    return;
+                } 
+                
+                if (text.includes('enters') && text.includes('as a replacement')) {
+                    type = 'replacement';
+                    const parts = text.split(' enters ');
+                    data.player = parts[0];
+                    const eventPart = parts[1] ? parts[1].split(' as a')[0] : 'Event';
+                    data.event = eventPart;
+                    
+                    NewsSystem.add(type, { ...data, player: data.player, event: data.event });
+                    return;
+                }
+
+                // Generic fallback
+                NewsSystem.add(type, { player: "", event: "Season", overrideText: text });
+            },
+
             events: [
                 { id: 1, name: "Q-SCHOOL UK - First Stage Day 1", date: "Jan 05", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 2, name: "Q-SCHOOL UK - First Stage Day 2", date: "Jan 06", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
@@ -4672,6 +5146,14 @@ when i s
                     });
                 }
                 
+                // Initialize subsystems
+                if (typeof PlayerState !== 'undefined' && PlayerState.initPlayers) {
+                    PlayerState.initPlayers();
+                }
+                if (typeof NewsSystem !== 'undefined' && NewsSystem.init) {
+                    NewsSystem.init();
+                }
+
                 if (!Season.state.proTourOOM) Season.state.proTourOOM = {};
                 if (!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
                 if (!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
@@ -4697,6 +5179,14 @@ when i s
 
             reset: () => {
                 if (!confirm("Reset Career Mode completely?")) return;
+                
+                // Reset persistence
+                localStorage.removeItem('pdc_news');
+                localStorage.removeItem('pdc_player_states');
+                localStorage.removeItem('pdc_tourn_state');
+                
+                NewsSystem.items = [];
+                
                 Season.state = {
                     activeEventIndex: 0,
                     orderOfMerit: {},
@@ -4705,12 +5195,17 @@ when i s
                     year: 2026,
                     proTourOOM: {},
                     proTourHistory: [],
-                    challengeTourOOM: {},
+                    challengeTourOOM: [], // Fix: Initialize as empty structures
                     challengeTourHistory: [],
                     worldSeriesOOM: {},
                     worldSeriesHistory: [],
                     activeOOMView: "main",
                     wcQualified: { qualifiers: new Set() },
+                    qSchool: {
+                        ukOOM: {}, euOOM: {}, ukFinalStageQualified: [], euFinalStageQualified: [],
+                        ukParticipants: [], euParticipants: [], ukTourCardWinners: [], euTourCardWinners: [],
+                        ukTourCards: 0, euTourCards: 0
+                    },
                     premierLeague: {
                         year: 2026,
                         players: ["Luke Littler", "Luke Humphries", "Gian van Veen", "Michael van Gerwen", "Jonny Clayton", "Stephen Bunting", "Josh Rock", "Gerwyn Price"],
@@ -5136,6 +5631,7 @@ when i s
             // 3️⃣ OOM TÁBLÁK (ALL VISIBLE)
             // ============================
             renderOOMTable: (tableId, data) => {
+                const activeView = (Season.state && Season.state.activeOOMView) || 'main'; // Define safe activeView
                 console.log('renderOOMTable called with tableId:', tableId, 'data keys:', Object.keys(data || {}).length);
 
                 // Get all entries from the data object
@@ -5157,10 +5653,10 @@ when i s
                         if (isMainOOM && !p.tourCard) {
                             return null;
                         }
-                        return [name, money || 0, p.tourCard || false];
+                        return { name, money: money || 0, hasTC: p.tourCard || false, p };
                     })
                     .filter(entry => entry !== null)
-                    .sort((a, b) => b[1] - a[1]);  // Sort by money descending
+                    .sort((a, b) => b.money - a.money);  // Sort by money descending
 
                 console.log('After filtering:', list.length, 'entries');
 
@@ -5173,10 +5669,15 @@ when i s
                 table.style.visibility = 'visible';
                 table.style.display = 'table';
 
+                // Check for Points vs Money based on Table ID if possible, else fallback to activeView
+                // Assumes Q-School tables have 'q-' in ID or we are in 'q-' view
+                const isPoints = (tableId.includes && (tableId.includes('q-') || tableId.includes('point'))) || activeView.includes('q-');
+                const currencyHeader = isPoints ? 'Points' : 'Prize Money';
+
                 // Add table header
                 const thead = document.createElement('thead');
                 const header = document.createElement('tr');
-                header.innerHTML = `<th>Pos</th><th>Player</th><th style="text-align:center;">Tour Card</th><th style="text-align:right;">Prize Money</th>`;
+                header.innerHTML = `<th>Pos</th><th>Player</th><th style="text-align:center;">Form / Fatigue</th><th style="text-align:center;">Tour Card</th><th style="text-align:right;">${currencyHeader}</th>`;
                 thead.appendChild(header);
                 table.appendChild(thead);
 
@@ -5186,22 +5687,31 @@ when i s
                 if (list.length === 0) {
                     console.log('No entries to display');
                     const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="4" style="text-align:center; color:#aaa; padding:16px; background:#1a1a1a; font-style:italic;">No players have competed yet</td>`;
+                    row.innerHTML = `<td colspan="5" style="text-align:center; color:#aaa; padding:16px; background:#1a1a1a; font-style:italic;">No players have competed yet</td>`;
                     tbody.appendChild(row);
                 } else {
                     console.log('Adding', list.length, 'rows');
                     list.forEach((entry, i) => {
                         const row = document.createElement('tr');
-                        const [name, money, hasTC] = entry;
+                        const { name, money, hasTC, p } = entry;
                         const tourCardBadge = hasTC
                             ? '<span style="background: var(--pdc-gold); color: black; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; display:inline-block;">✓</span>'
                             : '<span style="color: #666; font-size:12px;">-</span>';
 
+                        const formColor = p.form > 80 ? '#4caf50' : p.form > 50 ? '#ffeb3b' : '#f44336';
+                        const fatColor = p.fatigue < 30 ? '#4caf50' : p.fatigue < 70 ? '#ffeb3b' : '#f44336';
+                        
+                        const moneyDisplay = isPoints ? money + ' pts' : '£' + money.toLocaleString();
+
                         row.innerHTML = `
                         <td class="oom-pos">${i + 1}</td>
                         <td style="font-weight: bold; color: var(--pdc-gold); cursor: pointer;" onclick="Season.showPlayerAchievements('${name}')">${name}</td>
+                        <td style="text-align:center; font-size:11px;">
+                            <span style="color:${formColor}; margin-right:8px;" title="Form">🔥 ${Math.round(p.form)}</span>
+                            <span style="color:${fatColor};" title="Fatigue">⚡ ${Math.round(p.fatigue)}%</span>
+                        </td>
                         <td style="text-align:center;">${tourCardBadge}</td>
-                        <td class="oom-money">£${money.toLocaleString()}</td>
+                        <td class="oom-money">${moneyDisplay}</td>
                     `;
                         tbody.appendChild(row);
                     });
@@ -5445,6 +5955,68 @@ when i s
                 else if (ev.type === "q-school") {
                     pool = PLAYERS_DB.filter(p => !p.tourCard);
                 }
+                
+                // WC International Qualifiers → Exclude players already qualified for WC via rankings
+                else if (ev.type === "wc-qual-intl") {
+                    // Exclude top 40 from Main OOM and top 40 from Pro Tour OOM (auto-qualified for WC)
+                    const exclude = new Set();
+                    
+                    // Exclude top 40 by Main OOM
+                    Object.entries(Season.state.orderOfMerit)
+                        .filter(([n]) => PLAYERS_DB.find(p => p.name === n)?.tourCard)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => exclude.add(e[0]));
+                    
+                    // Exclude top 40 from Pro Tour OOM
+                    Object.entries(Season.state.proTourOOM)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => exclude.add(e[0]));
+                    
+                    // Apply regional filtering based on event name
+                    let regionFilter = null;
+                    if (ev.name.includes("HUNGARIAN")) regionFilter = ["hun"];
+                    else if (ev.name.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
+                    else if (ev.name.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
+                    else if (ev.name.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
+                    else if (ev.name.includes("CZECHIA")) regionFilter = ["cze"];
+                    else if (ev.name.includes("POLISH") || ev.name.includes("PDO POLISH")) regionFilter = ["pol"];
+                    else if (ev.name.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
+                    else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
+                    else if (ev.name.includes("AFRICAN")) regionFilter = ["rsa", "zim"];
+                    else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("CDC") || ev.name.includes("CDLC")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ANZ") || ev.name.includes("DPA") || ev.name.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+                    else if (ev.name.includes("CHALLENGE TOUR")) regionFilter = null; // No regional restriction
+                    
+                    if (regionFilter) {
+                        pool = PLAYERS_DB.filter(p => !exclude.has(p.name) && regionFilter.includes(p.country));
+                    } else {
+                        pool = PLAYERS_DB.filter(p => !exclude.has(p.name));
+                    }
+                }
+                
+                // WC Tour Card Holder Qualifier → For tour card holders not auto-qualified
+                else if (ev.type === "wc-qual-tc") {
+                    // Exclude top 40 from Main OOM and top 40 from Pro Tour OOM (auto-qualified for WC)
+                    const exclude = new Set();
+                    
+                    Object.entries(Season.state.orderOfMerit)
+                        .filter(([n]) => PLAYERS_DB.find(p => p.name === n)?.tourCard)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => exclude.add(e[0]));
+                    
+                    Object.entries(Season.state.proTourOOM)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 40)
+                        .forEach(e => exclude.add(e[0]));
+                    
+                    pool = PLAYERS_DB.filter(p => p.tourCard && !exclude.has(p.name));
+                }
 
                 // Pro Tour (PC, ET, Major ahol kell)
                 else if (ev.cardRequired) {
@@ -5469,14 +6041,13 @@ when i s
                     let pool = PLAYERS_DB;
 
                     if (ev.type === "et-qual-tc") {
-                        // Exclude top 16 Main OOM and top 16 Pro Tour OOM
+                        // Exclude top 16 Main OOM (by world ranking) and top 16 Pro Tour OOM
                         const exclude = new Set();
 
-                        const mainEntries = Object.entries(Season.state.orderOfMerit).filter(e => e[1] > 0);
-                        if (mainEntries.length >= 16) {
-                            mainEntries.sort((a, b) => b[1] - a[1]).slice(0, 16).forEach(e => exclude.add(e[0]));
-                        }
+                        // Exclude top 16 players by world ranking (PLAYERS_DB order)
+                        PLAYERS_DB.slice(0, 16).forEach(p => exclude.add(p.name));
 
+                        // Also exclude top 16 from Pro Tour OOM
                         const proEntries = Object.entries(Season.state.proTourOOM).filter(e => e[1] > 0);
                         if (proEntries.length >= 16) {
                             proEntries.sort((a, b) => b[1] - a[1]).slice(0, 16).forEach(e => exclude.add(e[0]));
@@ -5965,6 +6536,21 @@ when i s
                     pool.slice(0, 128).forEach(p =>
                         Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
                     );
+                    
+                    // If we don't have 128 tour card holders, backfill from best Challenge Tour players
+                    if (Tournament.state.selectedPlayerIndices.size < 128) {
+                        const challengeTop = Object.entries(Season.state.challengeTourOOM)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(e => e[0]);
+                        
+                        for (const name of challengeTop) {
+                            if (Tournament.state.selectedPlayerIndices.size >= 128) break;
+                            const p = PLAYERS_DB.find(x => x.name === name);
+                            if (p && !p.tourCard) {
+                                Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p));
+                            }
+                        }
+                    }
                 }
                 // ========================
                 // 3. EUROPEAN TOUR (MINOR)
@@ -6170,6 +6756,11 @@ when i s
             completeEvent: (finalBracket) => {
                 const stack = new Error().stack.split('\n').slice(1, 4).join('\n');
                 console.log(`[completeEvent CALLED] from:\n${stack}`);
+
+                // Capture current Number 1 for news generation
+                const prevNo1 = Object.keys(Season.state.orderOfMerit).sort((a, b) => 
+                    (Season.state.orderOfMerit[b] || 0) - (Season.state.orderOfMerit[a] || 0)
+                )[0];
                 
                 const idx = Season.state.activeEventIndex;
                 const ev = Season.events[idx];
@@ -6309,14 +6900,27 @@ when i s
                 // ===============================
                 if (ev.type === "premier-league-playoff") {
                     const finalMatch = finalBracket.at(-1)[0];
+                    const winnerName = finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown";
 
                     Season.state.completedEvents.push({
                         id: ev.id,
                         name: ev.name,
-                        winner: finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown",
+                        winner: winnerName,
                         participations: getParticipations(),
                         date: ev.date
                     });
+
+                    // Add win news
+                    if (winnerName !== "Unknown" && window.NewsSystem) {
+                        const runnerUp = finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name;
+                        NewsSystem.add('win', {
+                            headline: `${winnerName.toUpperCase()} CROWNED PREMIER LEAGUE CHAMPION!`,
+                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title.` : `${winnerName} claims the Premier League title!`,
+                            player: winnerName,
+                            event: "Premier League Darts",
+                            importance: 'high'
+                        });
+                    }
 
                     Season.state.activeEventIndex++;
                     // DON'T set inProgress to false here - let the caller handle it via setTimeout to prevent cascade
@@ -6337,7 +6941,7 @@ when i s
                     
                     Season.renderUI();
                     if (!Season.isBulkSim) {
-                        Tournament.showCelebration("PREMIER LEAGUE CHAMPION", finalMatch.winner.name, [finalMatch.winner.name]);
+                        Tournament.showCelebration("PREMIER LEAGUE CHAMPION", winnerName, [winnerName]);
                     }
                     return;
                 }
@@ -6385,13 +6989,26 @@ when i s
                     Season.recalculateProTourOOM();
 
                     // Complete event
+                    const winnerName = finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown";
                     Season.state.completedEvents.push({
                         id: ev.id,
                         name: ev.name,
-                        winner: finalMatch && finalMatch.winner ? finalMatch.winner.name : "Unknown",
+                        winner: winnerName,
                         participations: getParticipations(),
                         date: ev.date
                     });
+
+                    // Add win news
+                    if (winnerName !== "Unknown" && window.NewsSystem) {
+                        const runnerUp = finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name;
+                        NewsSystem.add('win', {
+                            headline: `${winnerName.toUpperCase()} CROWNED ${ev.name.toUpperCase()} CHAMPION!`,
+                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title.` : `${winnerName} wins!`,
+                            player: winnerName,
+                            event: ev.name,
+                            importance: 'high'
+                        });
+                    }
 
                     Season.state.activeEventIndex++;
                     // DON'T set inProgress to false - let caller manage via guard
@@ -6854,9 +7471,39 @@ when i s
                     date: ev.date
                 });
 
+                // ================= NEWS: TOURNAMENT WIN =================
+                if (championName && window.NewsSystem) {
+                    const finalMatch = finalBracket[finalBracket.length - 1]?.[0];
+                    const runnerUp = finalMatch ? (finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name) : "Unknown";
+                    
+                    NewsSystem.add('win', {
+                        headline: `${championName.toUpperCase()} CROWNED ${ev.name.toUpperCase()} CHAMPION!`,
+                        subtext: runnerUp ? `In a thrilling final, ${championName} defeated ${runnerUp} to lift the trophy.` : `${championName} claims victory!`,
+                        player: championName,
+                        event: ev.name,
+                        importance: 'high'
+                    });
+                }
+
                 Season.state.activeEventIndex++;
                 Season.state.inProgress = false;
                 Tournament.state.active = false;
+
+                // Check for Number 1 change
+                const newNo1 = Object.keys(Season.state.orderOfMerit).sort((a, b) => 
+                    (Season.state.orderOfMerit[b] || 0) - (Season.state.orderOfMerit[a] || 0)
+                )[0];
+
+                if (newNo1 && prevNo1 && newNo1 !== prevNo1) {
+                     if (window.NewsSystem) {
+                        NewsSystem.add('rank', {
+                            headline: `NEW WORLD NUMBER ONE!`,
+                            subtext: `${newNo1} has overtaken ${prevNo1} at the top of the Order of Merit following the ${ev.name}.`,
+                            player: newNo1,
+                            importance: 10
+                        });
+                    }
+                }
 
                 Persistence.save();
 
@@ -7421,6 +8068,13 @@ when i s
                 // This creates proper matchups: 1vN, 2vN-1, 3vN-2, etc.
                 // by interleaving top and bottom seeds
                 if (size === 2) return [1, 2];
+                if (size === 1) return [1];
+                
+                // Safety: ensure size is a power of 2
+                if (size <= 0 || (size & (size - 1)) !== 0) {
+                    console.error(`generateBracketOrder: size ${size} is not a power of 2`);
+                    return Array.from({length: size}, (_, i) => i + 1);
+                }
 
                 const halfSize = size / 2;
                 const topHalf = Tournament.generateBracketOrder(halfSize);
@@ -7554,8 +8208,65 @@ when i s
                 }
             },
             start: () => {
-                const ev = Season.events[Season.state.activeEventIndex];
-                const size = parseInt(document.getElementById('tourn-size')?.value) || ev.players;
+                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+
+                // ================= SKIP & REPLACEMENT SYSTEM =================
+                if (ev && Tournament.config.selectionMethod === 'manual') {
+                     const selected = Array.from(Tournament.state.selectedPlayerIndices);
+                     const toRemove = [];
+                     const toAdd = [];
+                     
+                     // Check withdrawals BEFORE applying fatigue reduction
+                     selected.forEach(idx => {
+                         const p = PLAYERS_DB[idx];
+                         if (PlayerState.shouldSkipEvent(p, ev.type)) {
+                             toRemove.push(idx);
+                             PlayerState.updateFatigue(p, -25);
+                             
+                             // Add News
+                             if (Season.addNews) Season.addNews(`${p.name} withdraws from ${ev.name} due to fatigue.`);
+                         }
+                     });
+                     
+                     // Apply fatigue reduction for everyone AFTER withdrawal checks
+                     PlayerState.applyEventFatigueReduction();
+                     
+                     // Process all replacements after identifying all withdrawals
+                     const removedSet = new Set(toRemove);
+                     toRemove.forEach(removedIdx => {
+                         // Build current list: ALL players currently in tournament (including withdrawn ones not yet removed)
+                         // plus all replacements added so far - this ensures withdrawn players can't replace themselves
+                         const currentList = Array.from(Tournament.state.selectedPlayerIndices)
+                             .concat(toAdd);
+                         
+                         const repIdx = PlayerState.getReplacementPlayer(currentList, ev.type, ev.name);
+                         if (repIdx !== -1 && !removedSet.has(repIdx)) {
+                             toAdd.push(repIdx);
+                             if (Season.addNews) Season.addNews(`${PLAYERS_DB[repIdx].name} enters ${ev.name} as a replacement.`);
+                         } else {
+                             console.warn(`Could not find replacement for ${PLAYERS_DB[removedIdx].name}`);
+                         }
+                     });
+                     
+                     toRemove.forEach(i => Tournament.state.selectedPlayerIndices.delete(i));
+                     toAdd.forEach(i => Tournament.state.selectedPlayerIndices.add(i));
+                     
+                     // Ensure we don't exceed tournament size
+                     const targetSize = ev.players;
+                     if (Tournament.state.selectedPlayerIndices.size > targetSize) {
+                         console.warn(`Too many players after replacements (${Tournament.state.selectedPlayerIndices.size}/${targetSize}), trimming excess`);
+                         const excess = Tournament.state.selectedPlayerIndices.size - targetSize;
+                         const toRemoveExcess = Array.from(Tournament.state.selectedPlayerIndices).slice(targetSize);
+                         toRemoveExcess.forEach(i => Tournament.state.selectedPlayerIndices.delete(i));
+                     }
+                     
+                     // Force update visible count if needed
+                     const size = parseInt(document.getElementById('tourn-size')?.value) || ev.players;
+                     if (toRemove.length > 0) console.log(`Skipped: ${toRemove.length} players. Replaced with qualifiers.`);
+                }
+                // =============================================================
+
+                const size = parseInt(document.getElementById('tourn-size')?.value) || (ev ? ev.players : 32);
                 const tiebreakEl = document.getElementById('tourn-tiebreak');
                 Tournament.config.tiebreak = tiebreakEl ? tiebreakEl.checked : false;
                 
@@ -7586,7 +8297,12 @@ when i s
                 let participants = [];
                 const eligibleRegions = ev.eligibleRegions || [];
                 if (Tournament.config.selectionMethod === 'manual') {
-                    if (Tournament.state.selectedPlayerIndices.size !== size) { alert(`Select ${size} players.`); return; }
+                    const actualSize = Tournament.state.selectedPlayerIndices.size;
+                    if (actualSize !== size) { 
+                        console.warn(`Size mismatch: Expected ${size}, got ${actualSize}. Proceeding with actual size.`);
+                        // Update size to match actual selection after replacement system
+                        // This handles cases where withdrawals/replacements have adjusted the count
+                    }
                     Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({ ...PLAYERS_DB[idx] }));
                 } else {
                     if (ev.type === 'q-school') {
@@ -7754,6 +8470,12 @@ when i s
 
                 let simulatedCount = 0;
                 const advancingPlayers = [];
+
+                if (!matches || !Array.isArray(matches)) {
+                    console.error('simulateCurrentRound: matches array is undefined or invalid');
+                    alert('Tournament bracket error. Please restart the tournament.');
+                    return;
+                }
 
                 matches.forEach(m => {
                     if (!m.winner && m.p1 && m.p2) {
@@ -8348,12 +9070,26 @@ when i s
                                 pointsTxt = ` [${pts}pts]`;
                             }
 
+                            let statsTxt = '';
+                            if (p && !m.winner) {
+                                const liveP = typeof PLAYERS_DB !== 'undefined' ? PLAYERS_DB.find(dbP => dbP.name === p.name) : p;
+                                if (liveP) {
+                                    const f = Math.round(liveP.form || 50);
+                                    const ft = Math.round(liveP.fatigue || 0);
+                                    const fColor = f > 80 ? '#4caf50' : f > 50 ? '#ffeb3b' : '#f44336';
+                                    const ftColor = ft < 30 ? '#4caf50' : ft < 70 ? '#ffeb3b' : '#f44336';
+                                    statsTxt = `<span style="font-size:0.8em; margin-left:6px; opacity:0.9; display:inline-block;">
+                                        <span style="color:${fColor};" title="Form">🔥${f}</span> <span style="color:${ftColor};" title="Fatigue">⚡${ft}</span>
+                                    </span>`;
+                                }
+                            }
+
                             const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
 
                             return `
                                 <div class="bm-row" style="${style}">
                                     ${p ? `<img src="${flag}" class="bm-flag">` : ''}
-                                    <span class="bm-name">${name}${seedTxt && !m.winner ? ' ' + seedTxt : ''}${pointsTxt}</span>
+                                    <span class="bm-name">${name}${seedTxt && !m.winner ? ' ' + seedTxt : ''}${pointsTxt}${statsTxt}</span>
                                     <span class="bm-avg">${avgTxt}</span>
                                     <span class="bm-score">${score !== null ? score : ''}</span>
                                 </div>
@@ -8463,16 +9199,105 @@ when i s
 
             fastSim: (match, target) => {
                 let s1 = 0, s2 = 0;
-                let winProbP1 = 0.50 + ((match.p1.avg - match.p2.avg) * 0.025);
+                
+                // Get modifiers if available (use COPIES for simulation)
+                const mod1 = (typeof PlayerState !== 'undefined' && PlayerState.getPerformanceModifier) ? PlayerState.getPerformanceModifier(match.p1) : 0;
+                const mod2 = (typeof PlayerState !== 'undefined' && PlayerState.getPerformanceModifier) ? PlayerState.getPerformanceModifier(match.p2) : 0;
+                
+                // Effective Averages
+                const eff1 = match.p1.avg * (1 + mod1);
+                const eff2 = match.p2.avg * (1 + mod2);
+
+                let winProbP1 = 0.50 + ((eff1 - eff2) * 0.025);
                 while (s1 < target && s2 < target) { if (Math.random() < winProbP1) s1++; else s2++; }
                 match.score = [s1, s2];
                 match.winner = (s1 > s2) ? match.p1 : match.p2;
                 match.averages = [
-                    (match.p1.avg + (Math.random() * 10 - 5)).toFixed(2),
-                    (match.p2.avg + (Math.random() * 10 - 5)).toFixed(2)
+                    (eff1 + (Math.random() * 10 - 5)).toFixed(2),
+                    (eff2 + (Math.random() * 10 - 5)).toFixed(2)
                 ];
+
+                // Update Form/Fatigue immediately for simulates matches
+                if (typeof PlayerState !== 'undefined' && typeof PLAYERS_DB !== 'undefined') {
+                    const diff = Math.abs(s1 - s2);
+                    const winnerCopy = match.winner;
+                    const loserCopy = (winnerCopy === match.p1) ? match.p2 : match.p1;
+                    
+                    // FIND REAL PLAYERS IN DB TO UPDATE PERSISTENT STATS
+                    const winnerReal = PLAYERS_DB.find(p => p.name === winnerCopy.name);
+                    const loserReal = PLAYERS_DB.find(p => p.name === loserCopy.name);
+
+                    if (winnerReal && loserReal) {
+                        if (diff >= 2) {
+                            PlayerState.updateForm(winnerReal, 3);
+                            PlayerState.updateForm(loserReal, -3);
+                        } else {
+                            PlayerState.updateForm(winnerReal, 1);
+                            PlayerState.updateForm(loserReal, -1);
+                        }
+                        PlayerState.updateFatigue(winnerReal, 5);
+                        PlayerState.updateFatigue(loserReal, 5);
+                        
+                        // Also update the local copies so the UI reflects it immediately within this tournament
+                        winnerCopy.form = winnerReal.form;
+                        winnerCopy.fatigue = winnerReal.fatigue;
+                        loserCopy.form = loserReal.form;
+                        loserCopy.fatigue = loserReal.fatigue;
+                    }
+                }
             },
             onMatchFinished: (winnerIdx, scoreStr, avgs) => {
+                // PLAYER STATE UPDATES
+                let matchObj = null;
+                if (Tournament.activeGroupIdx !== undefined) {
+                     matchObj = Tournament.state.groupMatches[Tournament.activeGroupIdx][Tournament.activeMatchIdx];
+                } else if (Tournament.state.bracketData && Tournament.state.bracketData[Tournament.state.currentActiveRound]) {
+                     matchObj = Tournament.state.bracketData[Tournament.state.currentActiveRound][Tournament.activeMatchIdx];
+                }
+                
+                if (matchObj && matchObj.p1 && matchObj.p2) {
+                     const winnerCopy = (winnerIdx === 0) ? matchObj.p1 : matchObj.p2;
+                     const loserCopy = (winnerIdx === 0) ? matchObj.p2 : matchObj.p1;
+                     
+                     // FIND REAL PLAYERS IN DB TO UPDATE PERSISTENT STATS
+                     const winnerReal = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.find(p => p.name === winnerCopy.name) : winnerCopy;
+                     const loserReal = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.find(p => p.name === loserCopy.name) : loserCopy;
+
+                     const scores = scoreStr.split(' - ').map(Number);
+                     const diff = Math.abs(scores[0] - scores[1]);
+                     
+                     if (diff >= 2) {
+                         PlayerState.updateForm(winnerReal, 3);
+                         PlayerState.updateForm(loserReal, -3);
+                     } else {
+                         PlayerState.updateForm(winnerReal, 1);
+                         PlayerState.updateForm(loserReal, -1);
+                     }
+                     
+                     if ((scores[0] + scores[1]) >= 10) {
+                         PlayerState.updateFatigue(winnerReal, 10);
+                         PlayerState.updateFatigue(loserReal, 10);
+                     }
+                     // Force save after manual match
+                     if (typeof PlayerState !== 'undefined' && PlayerState.savePlayers) {
+                         PlayerState.savePlayers();
+                     }
+
+                     // NEWS: Check for Upset (Rank diff > 30)
+                     // Use findIndex with name because object reference might differ
+                     const rankWin = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.findIndex(p => p.name === winnerCopy.name) + 1 : 0;
+                     const rankLose = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.findIndex(p => p.name === loserCopy.name) + 1 : 0;
+                     
+                     if (rankWin > 0 && rankLose > 0 && rankWin > rankLose + 20) {
+                          NewsSystem.add('upset', { 
+                              player: winnerCopy.name, 
+                              rank: rankWin, 
+                              rival: loserCopy.name,
+                              event: App.config.event || "Tournament"
+                          });
+                     }
+                }
+
                 // Check if this is a Grand Slam group stage match
                 if (Tournament.activeGroupIdx !== undefined) {
                     const groupIdx = Tournament.activeGroupIdx;
@@ -8969,6 +9794,11 @@ when i s
                 if(btn) btn.classList.add('active');
                 if(content) content.classList.add('active');
 
+                // Handle News Render
+                if (tabName === 'news' && typeof NewsSystem !== 'undefined') {
+                    NewsSystem.renderNews(NewsSystem.viewState.filter);
+                }
+
                 // Handle initial render for Standings
                 if (tabName === 'standings') {
                     // Default to OOM if nothing active
@@ -9197,6 +10027,10 @@ when i s
                         App.config.tiebreak = document.getElementById('inp-tiebreak').checked;
                     }
                 }
+                
+                // Initialize Confidence for this match
+                if (App.players[0]) PlayerState.initMatchConfidence(App.players[0]);
+                if (App.players[1]) PlayerState.initMatchConfidence(App.players[1]);
 
                 App.config.legsToWinSet = Math.ceil(App.config.setLegs / 2);
                 document.getElementById('setup-screen').style.display = 'none';
@@ -9381,6 +10215,13 @@ when i s
                     const legs = App.matchState.legs;
                     const isDecider = (App.config.mode === 'sets') ? (legs[0] === legs[1] && legs[0] === App.config.legsToWinSet - 1) : false;
                     const result = Logic.processVisit(p, isDecider);
+                    
+                    // Confidence Logic (Missed opportunities)
+                    const canCheckout = (p.score <= 170 && ![169, 168, 166, 165, 163, 162, 159].includes(p.score));
+                    if (canCheckout) {
+                         if (result.points === 0) PlayerState.updateConfidence(p, -4); 
+                    }
+
                     p.score -= result.points;
                     p.stats.pts += result.points;
                     p.stats.darts += result.dartsThrown;
@@ -9389,6 +10230,8 @@ when i s
 
                     if (result.points === 180) {
                         p.stats.c180++;
+                        PlayerState.updateConfidence(p, 2);
+                        PlayerState.updateConfidence(App.players[1-pIdx], -2);
                         App.trigger180();
                         delay = 3000;
                     } else if (result.points === 167) {
@@ -9440,11 +10283,21 @@ when i s
             handleLegWin: (idx, checkoutScore) => {
                 const overlay = document.getElementById('overlay-shot');
                 const p = App.players[idx];
+                const loser = App.players[1 - idx];
+                
+                // Player State Updates
+                PlayerState.updateConfidence(p, 3);
+                PlayerState.updateConfidence(loser, -3);
+                PlayerState.updateFatigue(p, 2);
+                PlayerState.updateFatigue(loser, 2);
+                if (App.matchState.starterLeg !== idx) PlayerState.updateConfidence(p, 4); // Break
+                
                 p.stats.legsWon++;
                 if (checkoutScore > p.stats.highOut) p.stats.highOut = checkoutScore;
 
                 if (checkoutScore >= 100) {
                     p.stats.tonPlus++;
+                    PlayerState.updateConfidence(p, 3);
                     overlay.innerHTML = `<div class="high-checkout-box">${checkoutScore}</div>`;
                     SOUND_BIG_CHECKOUT.play().catch(e => console.log(e));
                 }
@@ -9458,6 +10311,9 @@ when i s
                     if (App.config.mode === 'sets') {
                         if (App.matchState.legs[idx] >= App.config.legsToWinSet) {
                             App.matchState.sets[idx]++;
+                            // Set Won
+                            PlayerState.updateFatigue(p, 5);
+                            PlayerState.updateFatigue(loser, 5);
                             App.matchState.legs = [0, 0];
                             App.matchState.starterSet = 1 - App.matchState.starterSet;
                             App.matchState.starterLeg = App.matchState.starterSet;
@@ -9492,8 +10348,22 @@ when i s
                 document.getElementById('score-p1').innerText = p1.score;
                 const avg0 = p0.stats.darts ? ((p0.stats.pts / p0.stats.darts) * 3).toFixed(2) : "0.00";
                 const avg1 = p1.stats.darts ? ((p1.stats.pts / p1.stats.darts) * 3).toFixed(2) : "0.00";
-                document.getElementById('avg-p0').innerText = `AVG ${avg0}`;
-                document.getElementById('avg-p1').innerText = `AVG ${avg1}`;
+
+                // === PLAYER STATE UI ===
+                const mod0 = PlayerState.getPerformanceModifier(p0);
+                const mod1 = PlayerState.getPerformanceModifier(p1);
+                
+                const getStatusIcon = (m) => {
+                    if (m > 0.1) return "🔥";
+                    if (m > 0.05) return "⚡";
+                    if (m < -0.1) return "🧊";
+                    if (m < -0.05) return "😰";
+                    return "";
+                };
+                
+                document.getElementById('avg-p0').innerText = `AVG ${avg0} ${getStatusIcon(mod0)}`;
+                document.getElementById('avg-p1').innerText = `AVG ${avg1} ${getStatusIcon(mod1)}`;
+
                 const starter = App.matchState.starterLeg;
                 document.getElementById('dot-p0').style.display = (starter === 0) ? 'block' : 'none';
                 document.getElementById('dot-p1').style.display = (starter === 1) ? 'block' : 'none';
