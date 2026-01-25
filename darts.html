@@ -1,4 +1,4 @@
-
+when i s
 <!DOCTYPE html>
 <html lang="en">
 
@@ -169,6 +169,102 @@
             flex-direction: column;
             flex: 1;
             min-height: 0;
+        }
+
+        /* EVENT INFO MODAL */
+        #event-info-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #event-info-modal.active {
+            opacity: 1;
+        }
+
+        .event-info-box {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            color: #fff;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #event-info-modal.active .event-info-box {
+            transform: scale(1);
+        }
+
+        .event-info-header {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--pdc-gold);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .event-info-details {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .event-info-details p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        
+        .event-info-results {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .event-info-results h3 {
+             margin: 0 0 10px 0;
+             font-size: 16px;
+             color: #aaa;
+             text-transform: uppercase;
+        }
+
+        .close-event-info {
+             background: #333;
+             color: #fff;
+             border: none;
+             padding: 10px 20px;
+             border-radius: 6px;
+             font-weight: bold;
+             cursor: pointer;
+             display: block;
+             margin: 20px auto 0;
+             width: 100px;
+             transition: all 0.2s;
+        }
+
+        .close-event-info:hover {
+            background: #444;
+            color: var(--pdc-gold);
         }
 
         /* CONTROLS */
@@ -1216,7 +1312,6 @@
         .event-logo {
             height: 28px !important;
             opacity: 1 !important;
-            display: block !important;
         }
 
         .event-bar span {
@@ -1270,7 +1365,7 @@
         }
 
         .scoreboard-header.theme-premier-league .player-card.active .name-strip {
-            background: linear-gradient(to bottom, #0A1AFF, #001B5E) !important;
+            background: linear-gradient(to bottom, #FFD100, #796d02) !important;
         }
 
         .scoreboard-header.theme-matchplay .player-card.active .name-strip {
@@ -1278,7 +1373,7 @@
         }
 
         .scoreboard-header.theme-uk-open .player-card.active .name-strip {
-            background: linear-gradient(to bottom, #FFD100, #C8102E) !important;
+            background: linear-gradient(to bottom, #8402db, #C8102E) !important;
         }
 
         .scoreboard-header.theme-grand-slam .player-card.active .name-strip {
@@ -1290,7 +1385,7 @@
         }
 
         .scoreboard-header.theme-world-grandprix .player-card.active .name-strip {
-            background: linear-gradient(to bottom, #00AEEF, #0033A0) !important;
+            background: linear-gradient(to bottom, #fd0202, #000000) !important;
         }
 
         .scoreboard-header.theme-players-championship .player-card.active .name-strip {
@@ -2449,7 +2544,7 @@
             <button class="btn-exit-small" style="position: absolute; left: 10px; top: 5px; right:auto;"
                 onclick="Persistence.clear()">EXIT</button>
             <img id="pdc-logo" src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
-            <img id="event-logo" class="event-logo" src="" alt="Event" style="display:none;">
+            <img id="event-logo" class="event-logo" src="" style="display:none;">
             <span id="txt-event-header">EVENT NAME</span>
             <button class="btn-icon" onclick="App.togglePause()"
                 style="position: absolute; right: 10px; top: 0px; height: 36px;">⏸</button>
@@ -2599,6 +2694,16 @@
             <div class="advancement-subtitle" id="adv-subtitle">TO QUARTER-FINALS</div>
             <div class="advancement-grid" id="adv-grid"></div>
             <button class="advancement-continue" onclick="Tournament.closeAdvancementOverlay()">CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- EVENT INFO MODAL -->
+    <div id="event-info-modal">
+        <div class="event-info-box">
+            <div class="event-info-header" id="info-header">EVENT NAME</div>
+            <div class="event-info-details" id="info-details"></div>
+            <div id="info-results"></div>
+            <button class="close-event-info" onclick="Season.closeEventInfo()">CLOSE</button>
         </div>
     </div>
 
@@ -3979,7 +4084,8 @@
                     }
 
                     // If no tournament is active but inProgress is true, reset it
-                    if (!Tournament.state.active && Season.state.inProgress) {
+                    // BUT: Don't reset if guard is active (we're in a transition period)
+                    if (!Tournament.state.active && Season.state.inProgress && !Season.guardAgainstAutoStart) {
                         Season.state.inProgress = false;
                         console.log('Reset inProgress flag since no tournament is active');
                     }
@@ -4524,6 +4630,8 @@
                 // Helper sleep function to let UI breathe
                 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+                Season.isBulkSim = true;
+
                 try {
                     // While there are events left in the current year
                     while (Season.state.activeEventIndex < Season.events.length) {
@@ -4535,9 +4643,6 @@
 
                         // 2. Wait a tick to ensure logic processed (Sim mode inside startEvent is synchronous, but we break formatting)
                         await sleep(50);
-
-                        // Note: startEvent with isSim=true calls simulateToEnd() which calls completeEvent().
-                        // So after startEvent returns, index should be incremented and event completed.
                     }
 
                     progressDiv.innerText = "SEASON COMPLETE!";
@@ -4550,8 +4655,10 @@
 
                 } catch (e) {
                     console.error(e);
-                    document.body.removeChild(overlay);
+                    if (document.body.contains(overlay)) document.body.removeChild(overlay);
                     alert("Simulation interrupted due to error.");
+                } finally {
+                    Season.isBulkSim = false;
                 }
             },
 
@@ -4628,7 +4735,65 @@
                 location.reload();
             },
 
+            closeEventInfo: () => {
+                const modal = document.getElementById('event-info-modal');
+                modal.classList.remove('active');
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            },
+
+            showEventInfo: (idx) => {
+                const ev = Season.events[idx];
+                const completed = Season.state.completedEvents.find(c => c.id === ev.id);
+                
+                document.getElementById('info-header').innerText = ev.name;
+                
+                let details = `
+                    <p><span>Date:</span> <strong>${ev.date}</strong></p>
+                    <p><span>Type:</span> <strong>${ev.type.toUpperCase().replace(/-/g, ' ')}</strong></p>
+                    <p><span>Format:</span> <strong>${ev.format.toUpperCase()}</strong></p>
+                    <p><span>Players:</span> <strong>${ev.players}</strong></p>
+                `;
+                
+                if (ev.location) {
+                    details += `<p><span>Location:</span> <strong>${ev.location.toUpperCase()}</strong></p>`;
+                }
+
+                document.getElementById('info-details').innerHTML = details;
+                
+                const resultsDiv = document.getElementById('info-results');
+                if (completed) {
+                    let resHtml = `
+                        <div class="event-info-results">
+                            <h3>Results</h3>
+                            <p style="color:var(--pdc-gold); font-size:16px; justify-content:center; text-align:center;">🏆 ${completed.winner} wins!</p>
+                    `;
+                    
+                    // Show extra info based on event type
+                    if (ev.type === 'premier-league') {
+                        // Maybe show night winner? already shown.
+                    }
+                    
+                    resHtml += `</div>`;
+                    resultsDiv.innerHTML = resHtml;
+                } else {
+                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
+                }
+
+                const modal = document.getElementById('event-info-modal');
+                modal.style.display = 'flex';
+                // Small delay to allow display flex to apply before opacity transition
+                setTimeout(() => { modal.classList.add('active'); }, 10);
+                
+                // Close on background click
+                modal.onclick = (e) => {
+                    if (e.target === modal) Season.closeEventInfo();
+                };
+            },
+
             renderUI: () => {
+                const stack = new Error().stack.split('\n')[2];
+                console.log(`[renderUI CALLED] from: ${stack}`);
+                
                 // ============================
                 // 1️⃣ OOM TAB NAVIGATION
                 // ============================
@@ -4688,7 +4853,7 @@
                      } else if (ev.name === 'WORLD CHAMPIONSHIP') {
                             logoHTML = '<img class="season-event-logo" src="worldchampionship.png" alt="">';
 
-                    } else if (ev.name === 'WINMAU DARTS MASTERS') {
+                    } else if (ev.name === 'WINMAU WORLD MASTERS') {
                             logoHTML = '<img class="season-event-logo" src="worldmasters.png" alt="">';
 
                      } else if (ev.name.includes('WORLD GRAND PRIX')) {
@@ -4722,8 +4887,8 @@
 
                     if (isActive) {
                         action = `
-                            <button class="btn-play-mini" onclick="Season.startEvent(${idx}, false)">PLAY</button>
-                            <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="Season.startEvent(${idx}, true)">SIM</button>
+                            <button class="btn-play-mini" onclick="event.stopPropagation(); Season.startEvent(${idx}, false)">PLAY</button>
+                            <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
                         `;
                     }
                     else if (isDone && completedData) {
@@ -4731,7 +4896,7 @@
                     }
 
                     list.innerHTML += `
-                        <div class="season-event ${statusClass}">
+                        <div class="season-event ${statusClass}" onclick="Season.showEventInfo(${idx})" style="cursor:pointer;">
                             ${logoHTML}
                             <div>
                                 <div class="s-date">${ev.date}</div>
@@ -5161,32 +5326,62 @@
                     Season.guardAgainstAutoStart = false;
                 }
                 
-                console.log(`[startEvent] idx=${idx}, isSim=${isSim}, guard=${Season.guardAgainstAutoStart}, inProgress=${Season.state.inProgress}`);
+                // Get full stack trace to see where startEvent is being called from
+                const errorStack = new Error().stack;
+                const stackLines = errorStack.split('\n').slice(1, 5).map(line => line.trim()).join('\n');
+                console.log(`[startEvent CALLED] idx=${idx}, isSim=${isSim}, guard=${Season.guardAgainstAutoStart}, inProgress=${Season.state.inProgress}\nStack:\n${stackLines}`);
+                
+                // THREE-LEVEL PROTECTION: Guard + inProgress + explicit check
+                const guardActive = Season.guardAgainstAutoStart === true;
+                const inProgressActive = Season.state.inProgress === true;
+                const tournamentActive = Tournament.state.active === true;
+                
+                // Prevent accidental re-entrance during event transitions (especially Premier League nights)
+                // Check guard FIRST before doing anything else
+                if (guardActive) {
+                    console.warn(`[startEvent BLOCKED] guard is set, rejecting startEvent call`);
+                    return;
+                }
+
+                // DOUBLE CHECK: if inProgress is true, this means another event is being processed
+                // RECOVERY: If guard is NOT active, but inProgress IS active, it's likely a stuck state from a previous error.
+                // We will Log a warning but PROCEED (effectively resetting the stuck state).
+                if (inProgressActive) {
+                    console.warn(`[startEvent WARNING] inProgress was true, but guard is false. Assuming stuck state and resetting.`);
+                    Season.state.inProgress = false;
+                }
+
+                // TRIPLE CHECK: if tournament is active, we cannot start a new one
+                // RECOVERY: Same as above, if we are starting a NEW event, we should force clear the old one.
+                if (tournamentActive) {
+                    console.warn(`[startEvent WARNING] Tournament.state.active was true. Force clearing old tournament state.`);
+                    Tournament.state.active = false;
+                    Persistence.clearTournamentOnly();
+                }
+
                 Tournament.config.lockRounds = true;
                 Season.state.activeEventIndex = idx;
 
                 const autoSimIfRequested = () => {
                     if (!isSim) return false;
-                    Season.silentSimulation = true;
-                    Tournament.skipAdvancementAnimation = true;
-                    Tournament.forceShowFinalAnimation = false;
-                    Tournament.simulateToEnd();
-                    Tournament.skipAdvancementAnimation = false;
-                    Tournament.forceShowFinalAnimation = false;
-                    Season.silentSimulation = false;
-                    return true;
+                    try {
+                        Season.silentSimulation = true;
+                        Tournament.skipAdvancementAnimation = true;
+                        Tournament.forceShowFinalAnimation = false;
+                        Tournament.simulateToEnd();
+                        return true;
+                    } catch (e) {
+                        console.error("AutoSim failed:", e);
+                        alert("Simulation Error: " + e.message);
+                        Season.state.inProgress = false;
+                        Tournament.state.active = false;
+                        return false;
+                    } finally {
+                        Tournament.skipAdvancementAnimation = false;
+                        Tournament.forceShowFinalAnimation = false;
+                        Season.silentSimulation = false;
+                    }
                 };
-
-                // Prevent accidental re-entrance during event transitions (especially Premier League nights)
-                if (Season.guardAgainstAutoStart) {
-                    console.warn(`[startEvent BLOCKED] guard is set`);
-                    return;
-                }
-
-                if (Season.state.inProgress) {
-                    console.warn(`[startEvent BLOCKED] already in progress`);
-                    return;
-                }
 
                 Season.state.inProgress = true;
                 Tournament.state.active = true;
@@ -5798,17 +5993,23 @@
                         }
                     });
 
-                    // Slot 3: 16 from qualifier events (24 TC + 4 Host + 1 NB + 1 East)
-                    const addList = (names = []) => names.map(byName).filter(p => p && !used.has(p.name));
-                    const qualifierPlayerNames = [
-                        ...addList(qData.tc || []),
-                        ...addList(qData.host || []),
-                        ...addList(qData.nb || []),
-                        ...addList(qData.east || [])
-                    ];
+                    // Slot 3: 16 from qualifier events
+                    // Logic fixed to prevent duplicates within the qualifier list itself
+                    const qualifierPlayerNames = [];
+                    
+                    const tryAddQualifier = (name) => {
+                         if (!name) return;
+                         const p = byName(name);
+                         if (p && !used.has(p.name)) {
+                             qualifierPlayerNames.push(p);
+                             used.add(p.name);
+                         }
+                    };
 
-                    // Mark qualifier players as used
-                    qualifierPlayerNames.forEach(p => used.add(p.name));
+                    (qData.tc || []).forEach(tryAddQualifier);
+                    (qData.host || []).forEach(tryAddQualifier);
+                    (qData.nb || []).forEach(tryAddQualifier);
+                    (qData.east || []).forEach(tryAddQualifier);
 
                     // Fill remaining qualifier slots from Pro Tour OOM (if not enough from dedicated qualifiers)
                     rankPro(PLAYERS_DB.filter(p => p.tourCard)).forEach(p => {
@@ -5967,6 +6168,9 @@
             },
 
             completeEvent: (finalBracket) => {
+                const stack = new Error().stack.split('\n').slice(1, 4).join('\n');
+                console.log(`[completeEvent CALLED] from:\n${stack}`);
+                
                 const idx = Season.state.activeEventIndex;
                 const ev = Season.events[idx];
                 const structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
@@ -6053,7 +6257,7 @@
                         });
 
                         Season.state.activeEventIndex++;
-                        Season.state.inProgress = false;
+                        // DON'T set inProgress to false here - let the caller handle it via setTimeout to prevent cascade
                         Tournament.state.active = false;
 
                         Persistence.save();
@@ -6064,8 +6268,8 @@
 
                         App.switchTab('season');
                         Season.renderUI();
-                        if (!Season.silentSimulation) {
-                            alert(`Premier League League Stage Complete!\n\nPlayoff Qualifiers:\n${Season.state.premierLeague.playoffQualifiers.join('\n')}`);
+                        if (!Season.isBulkSim) {
+                            Tournament.showCelebration("LEAGUE STAGE COMPLETE", "PLAYOFF QUALIFIERS", Season.state.premierLeague.playoffQualifiers);
                         }
                     } else {
                         // Move to next night
@@ -6079,7 +6283,8 @@
                         });
 
                         Season.state.activeEventIndex++;
-                        Season.state.inProgress = false;
+                        // DON'T set inProgress to false here - let the caller (initializePremierLeague) handle it via setTimeout
+                        // This prevents the guard from being bypassed during the transition
                         Tournament.state.active = false;
 
                         Persistence.save();
@@ -6090,11 +6295,8 @@
 
                         App.switchTab('season');
                         
-                        // Maintain guard to prevent cascading auto-starts
-                        if (!Season.guardAgainstAutoStart) {
-                            Season.guardAgainstAutoStart = true;
-                        }
-                        
+                        // Guard is already set in initializePremierLeague
+                        console.log(`[completeEvent] Guard status: ${Season.guardAgainstAutoStart}, inProgress: ${Season.state.inProgress}`);
                         console.log(`[completeEvent] About to renderUI, next event idx=${Season.state.activeEventIndex}`);
                         Season.renderUI();
                         console.log(`[completeEvent] renderUI done`);
@@ -6117,7 +6319,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false here - let the caller handle it via setTimeout to prevent cascade
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6127,9 +6329,15 @@
                     document.getElementById('tournament-hub').style.display = 'none';
 
                     App.switchTab('season');
+                    
+                    // Set guard to prevent cascading auto-starts
+                    if (!Season.guardAgainstAutoStart) {
+                        Season.guardAgainstAutoStart = true;
+                    }
+                    
                     Season.renderUI();
-                    if (!Season.silentSimulation) {
-                        alert(`🏆 PREMIER LEAGUE CHAMPION: ${finalMatch.winner.name}!`);
+                    if (!Season.isBulkSim) {
+                        Tournament.showCelebration("PREMIER LEAGUE CHAMPION", finalMatch.winner.name, [finalMatch.winner.name]);
                     }
                     return;
                 }
@@ -6186,7 +6394,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false - let caller manage via guard
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6223,7 +6431,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false - let caller manage via guard
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6266,7 +6474,9 @@
 
                     const targetEvent = Season.events.find(e => e.id === target);
                     const targetName = targetEvent ? targetEvent.name : `Event ${target}`;
-                    alert(`✅ ${ev.name}\n\nQualified for ${targetName}:\n${qualifiedPlayers.map((n, i) => `${i + 1}. ${n}`).join('\n')}`);
+                    if (!Season.isBulkSim) {
+                        Tournament.showCelebration("QUALIFIED", targetName, qualifiedPlayers);
+                    }
 
                     Season.state.completedEvents.push({
                         id: ev.id,
@@ -6277,7 +6487,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false - let caller manage via guard
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6314,7 +6524,9 @@
 
                     const targetEvent = Season.events.find(e => e.id === target);
                     const targetName = targetEvent ? targetEvent.name : `Event ${target}`;
-                    alert(`✅ ${ev.name}\n\nQualified for ${targetName}:\n${qualifiedPlayers.map((n, i) => `${i + 1}. ${n}`).join('\n')}`);
+                    if (!Season.isBulkSim) {
+                        Tournament.showCelebration("QUALIFIED", targetName, qualifiedPlayers);
+                    }
 
                     Season.state.completedEvents.push({
                         id: ev.id,
@@ -6325,7 +6537,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false - let caller manage via guard
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6361,7 +6573,9 @@
 
                     const targetEvent = Season.events.find(e => e.id === target);
                     const targetName = targetEvent ? targetEvent.name : `Event ${target}`;
-                    alert(`✅ ${ev.name}\n\nQualified for ${targetName}:\n${qualifiedPlayers.map((n, i) => `${i + 1}. ${n}`).join('\n')}`);
+                    if (!Season.isBulkSim) {
+                        Tournament.showCelebration("QUALIFIED", targetName, qualifiedPlayers);
+                    }
 
                     Season.state.completedEvents.push({
                         id: ev.id,
@@ -6372,7 +6586,7 @@
                     });
 
                     Season.state.activeEventIndex++;
-                    Season.state.inProgress = false;
+                    // DON'T set inProgress to false - let caller manage via guard
                     Tournament.state.active = false;
 
                     Persistence.save();
@@ -6576,8 +6790,8 @@
                         if (location === 'uk') Season.state.qSchool.ukTourCards += tourCardAwarded.length;
                         else Season.state.qSchool.euTourCards += tourCardAwarded.length;
 
-                        if (!Season.silentSimulation) {
-                            alert(`🏆 TOUR CARDS AWARDED:\n${tourCardAwarded.join("\n")}\n\nTotal ${location.toUpperCase()} Tour Cards: ${location === 'uk' ? Season.state.qSchool.ukTourCards : Season.state.qSchool.euTourCards}`);
+                        if (!Season.isBulkSim) {
+                            Tournament.showCelebration("TOUR CARDS AWARDED", location.toUpperCase(), tourCardAwarded);
                         }
 
                         // After the final day of Final Stage, award OOM tour cards (UK: top 5, EU: top 8) excluding existing tour-card winners/finalists
@@ -6604,8 +6818,8 @@
                                 if (location === 'uk') Season.state.qSchool.ukTourCards += extraWinners.length;
                                 else Season.state.qSchool.euTourCards += extraWinners.length;
 
-                                if (!Season.silentSimulation) {
-                                    alert(`🎟️ OOM TOUR CARDS (${location.toUpperCase()}):\n${extraWinners.map((n, i) => `${i + 1}. ${n}`).join("\n")}\n\nTotal ${location.toUpperCase()} Tour Cards: ${location === 'uk' ? Season.state.qSchool.ukTourCards : Season.state.qSchool.euTourCards}`);
+                                if (!Season.isBulkSim) {
+                                    Tournament.showCelebration("OOM TOUR CARDS", location.toUpperCase(), extraWinners);
                                 }
                             }
                         }
@@ -6623,8 +6837,8 @@
                         // Reset OOM points for Final Stage
                         Object.keys(oom).forEach(player => oom[player] = 0);
 
-                        if (!Season.silentSimulation) {
-                            alert(`✅ TOP 16 QUALIFY TO FINAL STAGE (${location.toUpperCase()}):\n\n${topQualifiers.map((name, idx) => `${idx + 1}. ${name}`).join("\n")}\n\nPoints reset for Final Stage!`);
+                        if (!Season.isBulkSim) {
+                            Tournament.showCelebration("QUALIFIED TO FINAL STAGE", location.toUpperCase(), topQualifiers);
                         }
                     }
                 }
@@ -6692,6 +6906,9 @@
                 Season.state.inProgress = true;
                 Tournament.state.active = true;
                 if (isSim) {
+                    // Set guard IMMEDIATELY to prevent any cascade simulations
+                    Season.guardAgainstAutoStart = true;
+                    console.log(`[initializePremierLeague] Guard set to true at start of sim`);
                     Season.silentSimulation = true;
                     Tournament.skipAdvancementAnimation = true;
                 }
@@ -6776,11 +6993,9 @@
                         Tournament.skipAdvancementAnimation = false;
                         Season.silentSimulation = false;
                         
-                        // Keep inProgress true for the full guard duration
-                        setTimeout(() => { 
-                            Season.state.inProgress = false;
-                            Season.guardAgainstAutoStart = false; 
-                        }, 500);
+                        // Reset flags immediately for Sim mode to allow simulateRemainingSeason to continue
+                        Season.state.inProgress = false;
+                        Season.guardAgainstAutoStart = false; 
                     } else {
                         document.getElementById('setup-screen').style.display = 'none';
                         document.getElementById('tourn-hub-title').innerText = ev.name;
@@ -6875,7 +7090,7 @@
                     // After all rounds are done, complete the event
                     console.log(`[PL SIM] Completed simulation, calling completeEvent`);
                     Tournament.state.active = false;
-                    Season.guardAgainstAutoStart = true;
+                    // Guard is already set at the beginning of initializePremierLeague
                     const bracketToComplete = JSON.parse(JSON.stringify(Tournament.state.bracketData)); // Deep copy before clearing
                     Season.completeEvent(bracketToComplete);
                     
@@ -6886,16 +7101,14 @@
                     Tournament.state.matchQueue = [];
                     Tournament.state.selectedPlayerIndices.clear();
                     
-                    console.log(`[PL SIM] Guard set, clearing inProgress after delay`);
+                    console.log(`[PL SIM] Guard set, keeping inProgress true until guard is cleared`);
                     Tournament.skipAdvancementAnimation = false;
                     Season.silentSimulation = false;
                     
-                    // Keep inProgress true for the full guard duration
-                    setTimeout(() => { 
-                        console.log(`[PL SIM] Clearing inProgress and guard after 500ms`);
-                        Season.state.inProgress = false;
-                        Season.guardAgainstAutoStart = false; 
-                    }, 500);
+                    // Reset flags immediately for Sim mode to allow simulateRemainingSeason to continue
+                    console.log(`[PL SIM] Clearing inProgress and guard immediately`);
+                    Season.state.inProgress = false;
+                    Season.guardAgainstAutoStart = false; 
                     return;
                 } else {
                     document.getElementById('setup-screen').style.display = 'none';
@@ -7742,6 +7955,46 @@
                 });
             },
 
+            showCelebration: (title, subtitle, playerNames) => {
+                // Suppress in BULK sim only. Allow in single Event Sim (silentSimulation is true in both).
+                if (Season.isBulkSim) return;
+
+                const overlay = document.getElementById('advancement-overlay');
+                const grid = document.getElementById('adv-grid');
+                const titleEl = document.getElementById('adv-title');
+                const subtitleEl = document.getElementById('adv-subtitle');
+
+                if (!overlay) return;
+
+                titleEl.textContent = title;
+                subtitleEl.textContent = subtitle;
+                grid.innerHTML = '';
+
+                playerNames.forEach((name, index) => {
+                    const p = PLAYERS_DB.find(x => x.name === name) || { name: name, country: 'unknown' };
+                    
+                    const div = document.createElement('div');
+                    div.className = 'advancement-player';
+                    div.style.animationDelay = `${index * 0.05}s`;
+                    
+                    // Simple flag logic or fallback
+                    const flagUrl = p.country ? getFlagUrl(p.country) : 'pdc-logo.png';
+
+                    div.innerHTML = `
+                        <img src="${flagUrl}" class="advancement-flag" onerror="this.src='pdc-logo.png'">
+                        <div class="advancement-player-name">${p.name}</div>
+                    `;
+                    grid.appendChild(div);
+                });
+
+                overlay.style.display = 'flex';
+                
+                // For celebrations, we DON'T auto-close. User must click "CONTINUE" or overlay.
+                overlay.onclick = (e) => {
+                    if(e.target === overlay) Tournament.closeAdvancementOverlay();
+                };
+            },
+
             closeAdvancementOverlay: () => {
                 document.getElementById('advancement-overlay').style.display = 'none';
             },
@@ -7752,33 +8005,31 @@
             },
 
             startAutoPlay: () => {
+                const checkboxes = document.querySelectorAll('.match-select-cb:checked');
+
+                if (checkboxes.length === 0) {
+                    alert("select matches");
+                    return;
+                }
+
                 const activeR = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[activeR];
                 const roundInfo = Tournament.config.rounds[activeR];
                 Tournament.state.matchQueue = [];
 
-                const checkboxes = document.querySelectorAll('.match-select-cb:checked');
+                checkboxes.forEach(cb => {
+                    const idx = parseInt(cb.value);
+                    if (matches[idx] && !matches[idx].winner) {
+                        Tournament.state.matchQueue.push(idx);
+                    }
+                });
 
-                if (checkboxes.length > 0) {
-                    checkboxes.forEach(cb => {
-                        const idx = parseInt(cb.value);
-                        if (matches[idx] && !matches[idx].winner) {
-                            Tournament.state.matchQueue.push(idx);
-                        }
-                    });
-                    matches.forEach((m, idx) => {
-                        if (!m.winner && m.p1 && m.p2 && !Tournament.state.matchQueue.includes(idx)) {
-                            Tournament.fastSim(m, roundInfo.target);
-                        }
-                    });
-                    Persistence.save();
-                } else {
-                    matches.forEach((m, idx) => {
-                        if (!m.winner && m.p1 && m.p2) {
-                            Tournament.state.matchQueue.push(idx);
-                        }
-                    });
-                }
+                matches.forEach((m, idx) => {
+                    if (!m.winner && m.p1 && m.p2 && !Tournament.state.matchQueue.includes(idx)) {
+                        Tournament.fastSim(m, roundInfo.target);
+                    }
+                });
+                Persistence.save();
 
                 if (Tournament.state.matchQueue.length > 0) {
                     Tournament.playNextInQueue();
@@ -8353,7 +8604,20 @@
                         Tournament.state.active = false;
                         Persistence.save();
 
+                        // CRITICAL: For Premier League simulations, DO NOT call completeEvent here!
+                        // Premier League handles completion in initializePremierLeague after the simulation loop
+                        // to avoid cascading to the next night automatically
+                        if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                            console.log(`[checkRoundComplete] PL sim detected, NOT calling completeEvent (will be called by initializePremierLeague)`);
+                            return;
+                        }
+
                         if (Season.state.inProgress) {
+                            // Ensure we don't recursive call completeEvent if it's already running or completed
+                            if (Season.guardAgainstAutoStart) {
+                                console.warn('[checkRoundComplete] Guard is active, skipping auto-completeEvent');
+                                return;
+                            }
                             Season.completeEvent(Tournament.state.bracketData);
                             return;
                         } else {
@@ -8394,19 +8658,27 @@
                 if (!matches.every(m => m.winner)) return;
 
                 if (rIdx === Tournament.config.rounds.length - 1) {
-                    if (!Season.silentSimulation) alert(`${matches[0].winner.name} WINS THE UK OPEN!`);
-                    Tournament.state.active = false;
-                    Persistence.save();
-
-                    if (Season.state.inProgress) {
-                        Season.completeEvent(Tournament.state.bracketData);
-                        return;
-                    } else {
-                        Persistence.clearTournamentOnly();
-                        document.getElementById('setup-screen').style.display = 'flex';
-                        document.getElementById('tournament-hub').style.display = 'none';
-                        return;
+                    // ALERT REMOVED: Replaced with celebration overlay + auto-complete prevention
+                    if (!Season.silentSimulation && !Season.isBulkSim) {
+                        Tournament.showCelebration("TOURNAMENT WINNER", matches[0].winner.name, [matches[0].winner.name]);
                     }
+                    
+                    if (Season.isBulkSim) {
+                        Tournament.state.active = false;
+                        Persistence.save();
+                        Season.completeEvent(Tournament.state.bracketData);
+                    } else {
+                         // Interactive mode: Wait for user to dismiss overlay
+                         // The "Exit Tournament" button in Hub will handle data cleanup
+                         // But we mark tournament as inactive instantly to prevent re-sim
+                         Tournament.state.active = false;
+                         Persistence.save();
+                         // Also trigger season completion in background
+                         if (Season.state.inProgress) {
+                             Season.completeEvent(Tournament.state.bracketData);
+                         }
+                    }
+                    return;
                 }
 
                 Tournament.advanceUkOpenRound();
@@ -8557,11 +8829,19 @@
                     }
 
                     if (rIdx === Tournament.config.rounds.length - 1) {
-                        alert(`${matches[0].winner.name} WINS THE NIGHT!`);
+                        if (!Season.silentSimulation) {
+                            alert(`${matches[0].winner.name} WINS THE NIGHT!`);
+                        }
                         Tournament.state.active = false;
                         Persistence.save();
 
                         if (Season.state.inProgress) {
+                            // If this is a silent simulation (managed by initializePremierLeague loop), 
+                            // DO NOT call completeEvent here. Let the loop controller handle it.
+                            if (Season.silentSimulation && (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff')) {
+                                console.log('[checkRoundCompleteNoAutoAdvance] PL silent sim completed round, active=false, checking out to let loop finish');
+                                return;
+                            }
                             Season.completeEvent(Tournament.state.bracketData);
                             return;
                         } else {
@@ -8765,6 +9045,7 @@
                 
                 // Reset to default
                 eventBar.style.background = '#111';
+                eventLogo.src = "";
                 eventLogo.style.display = 'none';
                 pdcLogo.style.display = 'block';
                 
