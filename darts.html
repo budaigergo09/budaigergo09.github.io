@@ -8415,7 +8415,12 @@ when i s
                 App.config.mode = Tournament.config.mode;
                 App.config.tiebreak = Tournament.config.tiebreak;
                 if (Tournament.config.mode === 'sets') {
-                    App.config.setLegs = (roundInfo.target * 2) - 1;
+                    const ev = (typeof Season !== 'undefined' && Season.events) ? Season.events[Season.state.activeEventIndex] : null;
+                    if (ev && ev.type === 'winmaudm') {
+                        App.config.setLegs = 3;
+                    } else {
+                        App.config.setLegs = (roundInfo.target * 2) - 1;
+                    }
                 }
 
                 App.startMatch(m.p1, m.p2, roundInfo.target);
@@ -9132,7 +9137,7 @@ when i s
 
 } else if (eventName.includes('PLAYERS CHAMPIONSHIP')) {
     eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
-    eventLogo.src = 'betmgm-darts.png';
+    eventLogo.src = 'playersc.png';
     eventLogo.style.display = 'block';
     pdcLogo.style.display = 'none';
     scoreboardHeader.classList.add('theme-players-championship');
@@ -9148,7 +9153,7 @@ when i s
 
 } else if (eventName.includes('MASTERS')) {
     eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #D4AF37 100%)';
-    eventLogo.src = 'pdc-masters.png';
+    eventLogo.src = 'worldseries.png';
     eventLogo.style.display = 'block';
     pdcLogo.style.display = 'none';
     scoreboardHeader.classList.add('theme-masters');
