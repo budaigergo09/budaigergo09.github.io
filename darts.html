@@ -2302,6 +2302,12 @@
                     .news-card:hover { transform: translateX(2px); background: linear-gradient(145deg, #252b3a, #1a1e2a); }
                     .news-card.high { border-left-color: var(--pdc-gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.1); }
                     .news-card.medium { border-left-color: #3498db; }
+                    .news-card.win { border-left-color: #FFD700; }
+                    .news-card.rivalry { border-left-color: #e74c3c; background: linear-gradient(145deg, #2a1f1f, #1a1414); }
+                    .news-card.upset { border-left-color: #9b59b6; }
+                    .news-card.rank { border-left-color: #f39c12; }
+                    .news-card.withdrawal { border-left-color: #7f8c8d; }
+                    .news-card.replacement { border-left-color: #16a085; }
                     .news-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; color: #888; text-transform: uppercase; font-weight: bold; }
                     .news-title { font-size: 13px; color: #ececec; line-height: 1.4; font-weight: 500; }
                     .news-type-icon { margin-right: 5px; opacity: 0.7; }
@@ -2538,6 +2544,7 @@
                 <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current
                     Round</button>
                 <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
+                <button class="btn-hub-action" style="background:#3498db;" onclick="Tournament.leaveEvent()">← Leave Event</button>
                 <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
             </div>
         </div>
@@ -4269,10 +4276,11 @@
                                     const winnerName = winnerObj ? winnerObj.name : "Unknown";
                                     const runnerUpName = runnerUpObj ? runnerUpObj.name : "Unknown";
 
-                                    if (window.NewsSystem && winnerName !== "Unknown") {
+                                    if (typeof NewsSystem !== 'undefined' && winnerName !== "Unknown") {
+                                        const championQuote = NewsSystem.quotes.champion[Math.floor(Math.random() * NewsSystem.quotes.champion.length)];
                                         NewsSystem.add('win', {
                                             headline: `${winnerName.toUpperCase()} CROWNED ${Tournament.config.name.toUpperCase()} CHAMPION!`,
-                                            subtext: `In a thrilled final, ${winnerName} defeated ${runnerUpName} to lift the trophy.`,
+                                            subtext: `In a thrilled final, ${winnerName} defeated ${runnerUpName} to lift the trophy. ${championQuote}`,
                                             player: winnerName,
                                             event: Tournament.config.name || 'Tournament',
                                             importance: 'high'
@@ -4623,7 +4631,7 @@
         };
 
         // ================= NEWS SYSTEM =================
-        const NewsSystem = {
+        window.NewsSystem = {
             maxItems: 200,
             viewState: { filter: 'all' },
             items: [],
@@ -4660,6 +4668,166 @@
                     "Career high ranking for {player}.",
                     "{player} breaks into the elite!",
                     "Historic moment for {player} at {event}."
+                ],
+                rivalry: [
+                    "{player} takes aim at {rival} after heated match",
+                    "War of words erupts between {player} and {rival}",
+                    "{player} fires shots at {rival} in post-match interview",
+                    "Tensions rise as {player} criticizes {rival}",
+                    "{player} calls out {rival} after defeat",
+                    "Public feud ignites between {player} and {rival}",
+                    "{player} not impressed with {rival}'s performance",
+                    "Drama explodes as {player} speaks out",
+                    "Bad blood continues: {player} knocks out {rival}",
+                    "{rival} gets revenge on {player} at {event}",
+                    "Heated showdown as {player} faces {rival}",
+                    "{player} vs {rival}: another explosive chapter",
+                    "{player} dominates rival {rival} in statement win",
+                    "{rival} ends {player}'s run in dramatic fashion",
+                    "Old wounds reopened between {player} and {rival}",
+                    "Crowd divided as rivals meet again",
+                    "Personal rivalry explodes at {event}"
+                ],
+                tourcard: [
+                    "Dream comes true as {player} secures Tour Card",
+                    "{player} fights through Q-School to earn Tour Card",
+                    "Emotional scenes as {player} earns Tour Card",
+                    "{player} completes fairy-tale run to Tour Card",
+                    "{player} joins the PDC Tour after dramatic finish",
+                    "Career changes forever as {player} earns Tour Card",
+                    "{player} breaks down in tears after Tour Card success"
+                ],
+                heartbreak: [
+                    "Heartbreak as {player} misses Tour Card by one leg",
+                    "One leg short: {player} denied Tour Card",
+                    "Cruel end as {player} falls short at Q-School",
+                    "Dream ends for {player} after brutal defeat",
+                    "Q-School nightmare for {player}",
+                    "{player} eliminated from Tour Card race",
+                    "So close, yet so far for {player}",
+                    "Another year of waiting for {player}",
+                    "{player} collapses after missed match darts",
+                    "Unbelievable meltdown from {player}",
+                    "{player} throws away winning position",
+                    "Nightmare leg haunts {player}",
+                    "Disaster strikes as {player} loses control",
+                    "Pressure proves too much for {player}"
+                ],
+                breakout: [
+                    "Unknown name {player} stuns field with incredible run",
+                    "Fairy-tale run ends, but {player} wins hearts",
+                    "{player} announces himself on big stage",
+                    "From nowhere: {player} reaches final",
+                    "{player} shocks the tour with breakout performance",
+                    "New star born as {player} lights up {event}",
+                    "Young gun {player} sends warning to the tour",
+                    "Future star {player} impresses again",
+                    "Next generation arrives: {player} makes mark",
+                    "Teenage sensation {player} stuns crowd",
+                    "{player} shows he's the future"
+                ],
+                comeback: [
+                    "Redemption at last for {player}",
+                    "{player} silences critics with huge win",
+                    "Comeback complete as {player} lifts trophy",
+                    "{player} rises again after tough season",
+                    "From slump to success: {player} rebounds",
+                    "{player} answers doubters in style"
+                ],
+                veteran: [
+                    "Veteran {player} rolls back the years",
+                    "Experience counts as {player} shines again",
+                    "Old master still has it: {player} wins big",
+                    "Age no barrier for {player}",
+                    "Legendary performance from {player}"
+                ],
+                drama: [
+                    "Deciding leg thriller ends in heartbreak",
+                    "One dart decides epic showdown",
+                    "Last-leg drama leaves crowd stunned",
+                    "Final leg madness at {event}",
+                    "Everything on the line in deciding leg",
+                    "Mind games pay off as {player} outlasts {rival}",
+                    "Pressure overwhelms {player} in crunch moment",
+                    "{player} cracks after intense battle",
+                    "Mental strength carries {player} through thriller",
+                    "Nerves of steel from {player} under extreme pressure"
+                ],
+                grudge: [
+                    "Grudge match goes {player}'s way",
+                    "{player} gets payback on {rival}",
+                    "Sweet revenge for {player}",
+                    "{player} finally beats {rival}",
+                    "Years of frustration end for {player}"
+                ],
+                career: [
+                    "Career-defining moment for {player}",
+                    "A night {player} will never forget",
+                    "{player} writes his name into history",
+                    "Turning point in {player}'s career",
+                    "Everything changes for {player}"
+                ]
+            },
+            
+            quotes: {
+                trash_talk: [
+                    '"{rival} talks a lot, but I do the talking on the board."',
+                    '"I wasn\'t impressed at all, to be honest."',
+                    '"He got lucky. Simple as that."',
+                    '"If he plays like that again, he\'s in trouble."',
+                    '"That\'s not top-level darts."',
+                    '"I expected more from him."',
+                    '"He knows I\'m in his head now."',
+                    '"I don\'t see him as a rival."',
+                    '"He cracked under pressure."'
+                ],
+                sarcastic: [
+                    '"I guess that\'s his level."',
+                    '"Everyone has good days. Even him."',
+                    '"He should focus on himself."',
+                    '"I\'m not worried about him at all."',
+                    '"That match was easier than I expected."'
+                ],
+                salty: [
+                    '"The crowd carried him."',
+                    '"The doubles saved him."',
+                    '"Im not bothered"',
+                    '"I lost, but I know the truth."'
+                ],
+                confident: [
+                    '"I sent a message tonight."',
+                    '"That\'s what happens when I\'m focused."',
+                    '"He\'ll think twice next time."',
+                    '"I\'m just getting started."'
+                ],
+                dismissive: [
+                    '"No hard feelings, but I was better."',
+                    '"It\'s just business."',
+                    '"I wish him luck. He\'ll need it."'
+                ],
+                emotional: [
+                    '"I never stopped believing."',
+                    '"This one means everything."',
+                    '"I had nothing left in the tank."',
+                    '"I proved a lot of people wrong."'
+                ],
+                champion: [
+                    '"I just wanted to say... man the first time was so nice, i had to do it twice.',
+                    '"This is what I work for every single day."',
+                    '"The hard work has paid off. This title means the world to me."',
+                    '"I believed in myself when nobody else did."',
+                    '"This is just the beginning. I want more."',
+                    '"To win this event is a dream come true."',
+                    '"I felt unstoppable out there today."',
+                    '"My family sacrificed so much for this moment."',
+                    '"All the hours of practice, all the dedication - it was worth it."',
+                    '"I want to thank my team. We did this together."',
+                    '"This trophy is going straight in the cabinet!"',
+                    '"I peaked at the right time. Everything clicked."',
+                    '"I\'m lost for words. This is incredible."',
+                    '"The crowd was amazing. They pushed me over the line."',
+                    '"I told everyone I was going to win this - and I did."',
+                    '"This is the highlight of my career so far."'
                 ]
             },
 
@@ -4670,9 +4838,11 @@
                         // Ensure we always have an array
                         const parsed = JSON.parse(saved);
                         NewsSystem.items = Array.isArray(parsed) ? parsed : [];
+                        console.log('[NewsSystem.init] Loaded', NewsSystem.items.length, 'items from localStorage');
                     } 
                     catch(e) { console.error("News load error", e); NewsSystem.items = []; }
                 } else {
+                    console.log('[NewsSystem.init] No saved news found, starting fresh');
                     NewsSystem.items = [];
                 }
             },
@@ -4681,6 +4851,7 @@
                 const toSave = NewsSystem.items.slice(0, NewsSystem.maxItems);
                 try {
                     localStorage.setItem('pdc_news', JSON.stringify(toSave));
+                    console.log('[NewsSystem.save] Saved', toSave.length, 'items to localStorage');
                 } catch (e) {
                     console.error("Failed to save news", e);
                 }
@@ -4752,6 +4923,9 @@
             renderNews: (filter) => {
                 const container = document.getElementById('news-feed');
                 if (!container) return;
+                
+                console.log('[NewsSystem.renderNews] Total items:', NewsSystem.items.length, 'Filter:', filter);
+                
                 container.innerHTML = '';
                 
                 let filtered = NewsSystem.items;
@@ -4760,8 +4934,10 @@
                 if (filter === 'withdrawal') filtered = filtered.filter(i => i.type === 'withdrawal');
                 if (filter === 'upset') filtered = filtered.filter(i => i.type === 'upset');
 
+                console.log('[NewsSystem.renderNews] Filtered items:', filtered.length);
+
                 if (filtered.length === 0) {
-                    container.innerHTML = `<div style="text-align:center; padding: 20px; color:#666; font-size:12px;">No news found.</div>`;
+                    container.innerHTML = `<div style="text-align:center; padding: 20px; color:#666; font-size:12px;">No news found. Total in system: ${NewsSystem.items.length}</div>`;
                     return;
                 }
 
@@ -4772,7 +4948,24 @@
                     const dateObj = new Date(item.date);
                     const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
-                    const icon = item.type === 'win' ? '🏆' : item.type === 'rank' ? '👑' : item.type === 'upset' ? '⚡' : item.type === 'withdrawal' ? '🚑' : item.type === 'replacement' ? '🔄' : '📰';
+                    // Icon mapping for all news types
+                    const iconMap = {
+                        'win': '🏆',
+                        'rank': '👑',
+                        'upset': '⚡',
+                        'withdrawal': '🚑',
+                        'replacement': '🔄',
+                        'rivalry': '🔥',
+                        'tourcard': '🎫',
+                        'heartbreak': '💔',
+                        'breakout': '⭐',
+                        'comeback': '💪',
+                        'veteran': '🧓',
+                        'drama': '🎭',
+                        'grudge': '💢',
+                        'career': '📜'
+                    };
+                    const icon = iconMap[item.type] || '📰';
                     
                     // Fallback for old items that used 'text' properties
                     const showHeadline = item.headline || item.text;
@@ -4791,8 +4984,67 @@
             }
         };
 
+        // ================= RIVALRY SYSTEM =================
+        const RivalryTracker = {
+            rivalries: {}, // Track matchups between players
+            
+            recordMatch: (winner, loser, event, isUpset = false, isFinal = false) => {
+                const key = [winner, loser].sort().join('|');
+                
+                if (!RivalryTracker.rivalries[key]) {
+                    RivalryTracker.rivalries[key] = {
+                        players: [winner, loser],
+                        meetings: 0,
+                        upsets: 0,
+                        finals: 0,
+                        lastEvent: '',
+                        beefLevel: 0
+                    };
+                }
+                
+                const rivalry = RivalryTracker.rivalries[key];
+                rivalry.meetings++;
+                rivalry.lastEvent = event;
+                if (isUpset) rivalry.upsets++;
+                if (isFinal) rivalry.finals++;
+                
+                // Increase beef level based on factors
+                if (isUpset) rivalry.beefLevel += 3;
+                if (isFinal) rivalry.beefLevel += 3;
+                if (rivalry.meetings >= 2) rivalry.beefLevel += 1;
+                rivalry.beefLevel += 1; // Always add 1 for any meeting
+                
+                console.log('[RivalryTracker]', winner, 'vs', loser, '| Meetings:', rivalry.meetings, '| Beef:', rivalry.beefLevel);
+                
+                // Generate rivalry news more frequently
+                const beefThreshold = 2;
+                const shouldGenerateBeef = rivalry.beefLevel >= beefThreshold && Math.random() < 0.7;
+                
+                if (shouldGenerateBeef && NewsSystem) {
+                    console.log('[RivalryTracker] Generating beef news!');
+                    const quotes = NewsSystem.quotes;
+                    // Always use a trash talk quote for the headline
+                    const quoteArr = quotes.trash_talk;
+                    const quote = quoteArr[Math.floor(Math.random() * quoteArr.length)];
+                    const quoteText = quote.replace('{rival}', loser).replace('{player}', winner);
+                    const headline = `${winner} on ${loser}: ${quoteText}`;
+                    NewsSystem.add('rivalry', {
+                        player: winner,
+                        rival: loser,
+                        event: event,
+                        headline: headline,
+                        importance: 'medium'
+                    });
+                    
+                    // Reset beef level after news is generated
+                    rivalry.beefLevel = Math.floor(rivalry.beefLevel / 2);
+                }
+            }
+        };
+
         const Season = {
             addNews: (text) => {
+                console.log('[Season.addNews] Called with:', text);
                 let type = 'general';
                 let data = { event: 'Season', player: '', isMajorWin: false };
                 
@@ -4802,6 +5054,7 @@
                     data.player = parts[0];
                     data.event = parts[1] ? parts[1].replace(' due to fatigue.', '') : 'Event';
                     
+                    console.log('[Season.addNews] Adding withdrawal news:', data);
                     NewsSystem.add(type, { ...data, player: data.player, event: data.event });
                     return;
                 } 
@@ -4813,11 +5066,13 @@
                     const eventPart = parts[1] ? parts[1].split(' as a')[0] : 'Event';
                     data.event = eventPart;
                     
+                    console.log('[Season.addNews] Adding replacement news:', data);
                     NewsSystem.add(type, { ...data, player: data.player, event: data.event });
                     return;
                 }
 
                 // Generic fallback
+                console.log('[Season.addNews] Adding generic news');
                 NewsSystem.add(type, { player: "", event: "Season", overrideText: text });
             },
 
@@ -5381,10 +5636,20 @@
 
 
                     if (isActive) {
-                        action = `
-                            <button class="btn-play-mini" onclick="event.stopPropagation(); Season.startEvent(${idx}, false)">PLAY</button>
-                            <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
-                        `;
+                        // Check if tournament is currently in progress (left but not completed)
+                        const isInProgress = Tournament.state.active && Season.state.inProgress;
+                        
+                        if (isInProgress) {
+                            action = `
+                                <button class="btn-play-mini" style="background:#3498db; font-weight:bold;" onclick="event.stopPropagation(); Tournament.resumeEvent()">▶ RESUME</button>
+                                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
+                            `;
+                        } else {
+                            action = `
+                                <button class="btn-play-mini" onclick="event.stopPropagation(); Season.startEvent(${idx}, false)">PLAY</button>
+                                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
+                            `;
+                        }
                     }
                     else if (isDone && completedData) {
                         action = `<span class="s-winner">🏆 ${completedData.winner}</span>`;
@@ -6911,11 +7176,12 @@
                     });
 
                     // Add win news
-                    if (winnerName !== "Unknown" && window.NewsSystem) {
+                    if (winnerName !== "Unknown" && NewsSystem) {
                         const runnerUp = finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name;
+                        const championQuote = NewsSystem.quotes.champion[Math.floor(Math.random() * NewsSystem.quotes.champion.length)];
                         NewsSystem.add('win', {
                             headline: `${winnerName.toUpperCase()} CROWNED PREMIER LEAGUE CHAMPION!`,
-                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title.` : `${winnerName} claims the Premier League title!`,
+                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title. ${championQuote}` : `${winnerName} claims the Premier League title! ${championQuote}`,
                             player: winnerName,
                             event: "Premier League Darts",
                             importance: 'high'
@@ -6999,11 +7265,12 @@
                     });
 
                     // Add win news
-                    if (winnerName !== "Unknown" && window.NewsSystem) {
+                    if (winnerName !== "Unknown" && NewsSystem) {
                         const runnerUp = finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name;
+                        const championQuote = NewsSystem.quotes.champion[Math.floor(Math.random() * NewsSystem.quotes.champion.length)];
                         NewsSystem.add('win', {
                             headline: `${winnerName.toUpperCase()} CROWNED ${ev.name.toUpperCase()} CHAMPION!`,
-                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title.` : `${winnerName} wins!`,
+                            subtext: runnerUp ? `${winnerName} defeated ${runnerUp} in the final to claim the title. ${championQuote}` : `${winnerName} wins! ${championQuote}`,
                             player: winnerName,
                             event: ev.name,
                             importance: 'high'
@@ -7472,13 +7739,21 @@
                 });
 
                 // ================= NEWS: TOURNAMENT WIN =================
-                if (championName && window.NewsSystem) {
+                console.log('[completeEvent] Checking tournament win news:', {
+                    championName, 
+                    hasNewsSystem: !!NewsSystem,
+                    NewsSystemExists: typeof NewsSystem,
+                    windowNewsSystem: typeof window.NewsSystem
+                });
+                if (championName && NewsSystem) {
                     const finalMatch = finalBracket[finalBracket.length - 1]?.[0];
                     const runnerUp = finalMatch ? (finalMatch.winner === finalMatch.p1 ? finalMatch.p2?.name : finalMatch.p1?.name) : "Unknown";
                     
+                    console.log('[completeEvent] About to add win news for', championName, 'vs', runnerUp);
+                    const championQuote = NewsSystem.quotes.champion[Math.floor(Math.random() * NewsSystem.quotes.champion.length)];
                     NewsSystem.add('win', {
                         headline: `${championName.toUpperCase()} CROWNED ${ev.name.toUpperCase()} CHAMPION!`,
-                        subtext: runnerUp ? `In a thrilling final, ${championName} defeated ${runnerUp} to lift the trophy.` : `${championName} claims victory!`,
+                        subtext: runnerUp ? `In a thrilling final, ${championName} defeated ${runnerUp} to lift the trophy. ${championQuote}` : `${championName} claims victory! ${championQuote}`,
                         player: championName,
                         event: ev.name,
                         importance: 'high'
@@ -7495,7 +7770,7 @@
                 )[0];
 
                 if (newNo1 && prevNo1 && newNo1 !== prevNo1) {
-                     if (window.NewsSystem) {
+                     if (NewsSystem) {
                         NewsSystem.add('rank', {
                             headline: `NEW WORLD NUMBER ONE!`,
                             subtext: `${newNo1} has overtaken ${prevNo1} at the top of the Order of Merit following the ${ev.name}.`,
@@ -8036,6 +8311,12 @@
                 // This ensures top seeds meet only in later rounds
                 // ========================
                 const totalPlayers = participants.length;
+                
+                // Check event type to determine seeding rules
+                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const isEuropeanTour = ev && ev.type === 'european-tour';
+                const isUkOpen = ev && ev.name && ev.name.includes('UK OPEN');
+                const fullSeeding = isEuropeanTour || isUkOpen;
 
                 // Sort by average rating (descending), putting byes (null) at the end
                 const sorted = [...participants].sort((a, b) => {
@@ -8044,19 +8325,47 @@
                     return (b.avg || 0) - (a.avg || 0);
                 });
 
-                // Add seed numbers to all non-bye players
-                sorted.forEach((p, idx) => {
-                    if (p) p.seed = idx + 1;
-                });
+                // Determine how many players to seed
+                const numSeeded = fullSeeding ? totalPlayers : Math.floor(totalPlayers / 2);
+                
+                console.log(`[Seeding] Event: ${ev?.name || 'Standalone'}, Type: ${ev?.type || 'N/A'}, Seeding ${numSeeded}/${totalPlayers} players`);
 
-                // Standard bracket seeding pattern
-                // For power of 2, use snake pattern that distributes seeds properly
+                // Add seed numbers only to seeded players
+                for (let i = 0; i < sorted.length; i++) {
+                    if (sorted[i]) {
+                        sorted[i].seed = i < numSeeded ? (i + 1) : null;
+                    }
+                }
+
+                // Separate seeded and unseeded players
+                const seededPlayers = sorted.slice(0, numSeeded);
+                const unseededPlayers = sorted.slice(numSeeded);
+                
+                // Shuffle unseeded players (random draw)
+                for (let i = unseededPlayers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [unseededPlayers[i], unseededPlayers[j]] = [unseededPlayers[j], unseededPlayers[i]];
+                }
+
+                // Standard bracket seeding pattern for seeded players
                 const bracketOrder = Tournament.generateBracketOrder(totalPlayers);
 
                 const bracket = [];
+                let unseededIndex = 0;
+                
                 bracketOrder.forEach(seedNum => {
-                    if (seedNum <= sorted.length) {
-                        bracket.push(sorted[seedNum - 1]);
+                    if (seedNum <= numSeeded && seedNum <= seededPlayers.length) {
+                        // Place seeded player in their designated position
+                        bracket.push(seededPlayers[seedNum - 1]);
+                    } else {
+                        // Place unseeded player (random draw order)
+                        if (unseededIndex < unseededPlayers.length) {
+                            bracket.push(unseededPlayers[unseededIndex]);
+                            unseededIndex++;
+                        } else if (seedNum <= sorted.length) {
+                            // Fallback to remaining sorted players if we run out
+                            bracket.push(sorted[seedNum - 1]);
+                        }
                     }
                 });
 
@@ -8971,6 +9280,39 @@
 
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
+            leaveEvent: () => {
+                if (!Tournament.state.active) return;
+                
+                // Save current tournament state
+                Persistence.save();
+                
+                // Hide tournament hub and show season screen
+                document.getElementById('tournament-hub').style.display = 'none';
+                document.getElementById('setup-screen').style.display = 'flex';
+                
+                // Switch to season tab
+                App.switchTab('season');
+                Season.renderUI();
+                
+                console.log('[Tournament.leaveEvent] Event paused and saved');
+            },
+
+            resumeEvent: () => {
+                if (!Tournament.state.active) {
+                    console.warn('[Tournament.resumeEvent] No active tournament to resume');
+                    return;
+                }
+                
+                // Hide season screen and show tournament hub
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('tournament-hub').style.display = 'flex';
+                
+                // Render the current tournament state
+                Tournament.renderHub();
+                
+                console.log('[Tournament.resumeEvent] Event resumed');
+            },
+
             renderHub: () => {
                 // Check if this is group stage
                 if (Tournament.config.isGroupStage) {
@@ -9243,6 +9585,39 @@
                         winnerCopy.fatigue = winnerReal.fatigue;
                         loserCopy.form = loserReal.form;
                         loserCopy.fatigue = loserReal.fatigue;
+                        
+                        // NEWS GENERATION FOR SIMULATED MATCHES
+                        // Get proper event name
+                        const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                        const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
+                        
+                        // Check for Upset (Rank diff > 20)
+                        const rankWin = PLAYERS_DB.findIndex(p => p.name === winnerCopy.name) + 1;
+                        const rankLose = PLAYERS_DB.findIndex(p => p.name === loserCopy.name) + 1;
+                        
+                        const isUpset = rankWin > 0 && rankLose > 0 && rankWin > rankLose + 20;
+                        
+                        if (isUpset && NewsSystem) {
+                            NewsSystem.add('upset', { 
+                                player: winnerCopy.name, 
+                                rank: rankWin, 
+                                rival: loserCopy.name,
+                                event: eventName
+                            });
+                        }
+                        
+                        // Track rivalries and generate beef
+                        if (typeof RivalryTracker !== 'undefined' && eventName) {
+                            const isFinal = Tournament.state.bracketData && 
+                                           Tournament.state.currentActiveRound === Tournament.state.bracketData.length - 1;
+                            RivalryTracker.recordMatch(
+                                winnerCopy.name, 
+                                loserCopy.name, 
+                                eventName,
+                                isUpset,
+                                isFinal
+                            );
+                        }
                     }
                 }
             },
@@ -9283,18 +9658,40 @@
                          PlayerState.savePlayers();
                      }
 
-                     // NEWS: Check for Upset (Rank diff > 30)
+                     // NEWS: Check for Upset (Rank diff > 20)
                      // Use findIndex with name because object reference might differ
                      const rankWin = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.findIndex(p => p.name === winnerCopy.name) + 1 : 0;
                      const rankLose = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.findIndex(p => p.name === loserCopy.name) + 1 : 0;
                      
-                     if (rankWin > 0 && rankLose > 0 && rankWin > rankLose + 20) {
+                     // Get proper event name
+                     const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                     const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
+                     
+                     console.log('[NEWS] Match result:', winnerCopy.name, '(#' + rankWin + ') beat', loserCopy.name, '(#' + rankLose + ')');
+                     
+                     const isUpset = rankWin > 0 && rankLose > 0 && rankWin > rankLose + 20;
+                     
+                     if (isUpset) {
+                          console.log('[NEWS] UPSET DETECTED! Adding upset news');
                           NewsSystem.add('upset', { 
                               player: winnerCopy.name, 
                               rank: rankWin, 
                               rival: loserCopy.name,
-                              event: App.config.event || "Tournament"
+                              event: eventName
                           });
+                     }
+                     
+                     // Track rivalries and generate beef
+                     if (typeof RivalryTracker !== 'undefined' && eventName) {
+                         const isFinal = Tournament.state.bracketData && 
+                                        Tournament.state.currentActiveRound === Tournament.state.bracketData.length - 1;
+                         RivalryTracker.recordMatch(
+                             winnerCopy.name, 
+                             loserCopy.name, 
+                             eventName,
+                             isUpset,
+                             isFinal
+                         );
                      }
                 }
 
