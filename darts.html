@@ -4628,7 +4628,7 @@
             },
 
             generateRandomAfricanPlayer: () => {
-                // Generate a random African player with 65 average for qualifiers
+                // Generate a random African player with 65 average for African Darts Group Qualifier
                 const africanCountries = ["rsa", "zim", "ken", "uga", "moz", "tan", "bwa", "egi", "mar", "nig", "gha", "ivr", "cmr"];
                 const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick"];
                 const lastNames = ["Mthembu", "Khumalo", "Ndlela", "Dlamini", "Nkosi", "Sibiya", "Mokoena", "Ngema", "Zuma", "Masondo", "Mwale", "Banda", "Kariuki", "Okonkwo", "Mensah", "Amakye"];
@@ -4638,15 +4638,16 @@
                 const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
                 const playerName = `${randomFirst} ${randomLast}`;
                 
-                // Create new player with 65 average (qualifier level)
+                // Create new player with 65 average (African qualifier level) - no tour card for qualifiers
                 const newPlayer = {
                     name: playerName,
                     country: randomCountry,
-                    avg: 65,
-                    co: 40.0,
-                    fav: 16,
-                    money: 0,
-                    tourCard: false,
+                    avg: 65.0,
+                    co: 38.5,  // Realistic checkout for 65 average
+                    fav: 16,   // Standard favorite leg
+                    money: 0,  // No starting money
+                    tourCard: false,  // Qualifiers don't have tour cards
+                    // State properties
                     form: 45,
                     confidence: 50,
                     fatigue: 20,
@@ -4661,18 +4662,32 @@
 
             generateRandomPlayer: (eventType, region) => {
                 // Generate a random player based on event type with appropriate skill level
-                const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick", "Alexander", "George", "Edward", "Andrew"];
-                const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
+                // Ensures the player meets the eligibility criteria for the tournament
+                const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick", "Alexander", "George", "Edward", "Andrew", "Peter", "Paul", "John", "Matthew", "Mark", "Anthony"];
+                const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "White", "Harris", "Martin", "Thompson", "Knight"];
                 
-                // Determine average based on event type (qualifier events = lower avg)
+                // Determine average and tour card eligibility based on event type
                 let avgRange = { min: 75, max: 85 };
+                let shouldHaveTourCard = false;
                 
-                if (eventType === "challenge" || eventType === "q-school" || eventType === "wc-qual-intl") {
-                    avgRange = { min: 60, max: 70 };  // Lower skill for qualifiers
-                } else if (eventType === "minor" || eventType === "et-host-nation") {
-                    avgRange = { min: 70, max: 80 };  // Mid-level
-                } else if (eventType === "players" || eventType === "world") {
-                    avgRange = { min: 80, max: 95 };  // High skill
+                if (eventType === "challenge" || eventType === "q-school" || eventType === "wc-qual-intl" || eventType === "wc-qual-tc" || eventType === "et-qual-tc") {
+                    avgRange = { min: 60, max: 72 };  // Qualifier level - no tour card
+                    shouldHaveTourCard = false;
+                } else if (eventType === "minor" || eventType === "et-host-nation" || eventType === "et-east-european" || eventType === "et-nordic-baltic") {
+                    avgRange = { min: 70, max: 82 };  // ET level - tour card holders
+                    shouldHaveTourCard = true;
+                } else if (eventType === "players" || eventType === "world" || eventType === "matchplay" || eventType === "uk-open") {
+                    avgRange = { min: 85, max: 100 };  // Pro tour - high skill
+                    shouldHaveTourCard = true;
+                } else if (eventType === "winmaudm" || eventType === "masters" || eventType === "masters-final" || eventType === "wmasters-qual") {
+                    avgRange = { min: 80, max: 95 };  // Masters/Winmau level
+                    shouldHaveTourCard = true;
+                } else if (eventType === "ws-qual-tc" || eventType === "gs-qual-tc") {
+                    avgRange = { min: 75, max: 90 };  // World/Grand Slam qualifiers
+                    shouldHaveTourCard = true;
+                } else if (eventType === "premier-league") {
+                    avgRange = { min: 90, max: 105 };  // Elite level
+                    shouldHaveTourCard = true;
                 }
                 
                 // Determine country based on region
@@ -4688,6 +4703,8 @@
                     countries = REGION_MAP.oceania;
                 } else if (region === "nordic") {
                     countries = REGION_MAP.nordic;
+                } else if (region === "east") {
+                    countries = REGION_MAP.east;
                 }
                 
                 const randomCountry = countries[Math.floor(Math.random() * countries.length)];
@@ -4698,15 +4715,21 @@
                 // Generate random average within range
                 const avg = (Math.random() * (avgRange.max - avgRange.min) + avgRange.min).toFixed(2);
                 
-                // Create new player
+                // Generate realistic checkout percentage (higher for better players)
+                const avgNum = parseFloat(avg);
+                const baseCheckout = 35 + (avgNum - 60) * 0.25;  // Scale from ~35 to ~45
+                const co = Math.max(25, Math.min(50, baseCheckout + (Math.random() - 0.5) * 3)).toFixed(1);
+                
+                // Create new player with all required DB fields
                 const newPlayer = {
                     name: playerName,
                     country: randomCountry,
                     avg: parseFloat(avg),
-                    co: 40.0 + Math.random() * 10,  // Random checkout between 40-50
-                    fav: Math.random() > 0.5 ? 20 : 16,
-                    money: 0,
-                    tourCard: false,
+                    co: parseFloat(co),
+                    fav: Math.random() > 0.5 ? 20 : 16,  // Favorite leg: 16 or 20
+                    money: 0,  // Generated players start with 0 money
+                    tourCard: shouldHaveTourCard,
+                    // State properties (match player state format)
                     form: 45,
                     confidence: 50,
                     fatigue: 20,
