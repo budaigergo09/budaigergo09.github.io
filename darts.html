@@ -4798,6 +4798,20 @@
                 const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick"];
                 const lastNames = ["Mthembu", "Khumalo", "Ndlela", "Dlamini", "Nkosi", "Sibiya", "Mokoena", "Ngema", "Zuma", "Masondo", "Mwale", "Banda", "Kariuki", "Okonkwo", "Mensah", "Amakye"];
                 
+                // Country code mappings for flag URLs
+                const countryMapping = {
+                    "rsa": "za", "zim": "zw", "ken": "ke", "uga": "ug", "moz": "mz", 
+                    "tan": "tz", "bwa": "bw", "egi": "eg", "mar": "ma", "nig": "ng", 
+                    "gha": "gh", "ivr": "ci", "cmr": "cm"
+                };
+                
+                // Ensure all African countries are in FLAG_MAP
+                Object.entries(countryMapping).forEach(([code, flagCode]) => {
+                    if (!FLAG_MAP[code]) {
+                        FLAG_MAP[code] = flagCode;
+                    }
+                });
+                
                 const randomCountry = africanCountries[Math.floor(Math.random() * africanCountries.length)];
                 const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
                 const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -6889,6 +6903,7 @@
                     Tournament.config.groupStageRound = true;
 
                     Tournament.startGrandSlamGroupStage();
+                    if (autoSimIfRequested()) return;
                     return;
                 }
 
