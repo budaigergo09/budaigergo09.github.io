@@ -1411,51 +1411,51 @@
 
         /* Bottom bar theme colors */
         .bottom-bar.theme-world-championship .leg-name {
-            color: #1E7F43 !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-premier-league .leg-name {
-            color: #0A1AFF !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-matchplay .leg-name {
-            color: #B22222 !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-uk-open .leg-name {
-            color: #FFD100 !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-grand-slam .leg-name {
-            color: #FF8C00 !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-european .leg-name {
-            color: #C0C0C0 !important;
+            color: #000 !important;
         }
 
         .bottom-bar.theme-world-grandprix .leg-name {
-            color: #00AEEF !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-players-championship .leg-name {
-            color: #C8102E !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-world-series .leg-name {
-            color: #7A0000 !important;
+            color: white !important;
         }
 
         .bottom-bar.theme-winmau .leg-name {
-            color: #FFFFFF !important;
+            color: #000 !important;
         }
 
         .bottom-bar.theme-masters .leg-name {
-            color: #D4AF37 !important;
+            color: #000 !important;
         }
 
         .bottom-bar.theme-minor .leg-name {
-            color: #2E2E2E !important;
+            color: white !important;
         }
 
         .flag {
@@ -1552,13 +1552,68 @@
 
         .bottom-bar {
             height: 60px;
-            background: #111;
+            background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
             display: flex;
             align-items: center;
             justify-content: center;
-            border-top: 2px solid #333;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
             padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Theme-specific bottom bar styles */
+        .bottom-bar.theme-world-championship {
+            background: linear-gradient(135deg, #1E7F43, #0C3B2E);
+        }
+
+        .bottom-bar.theme-premier-league {
+            background: linear-gradient(135deg, #FFD100, #796d02);
+        }
+
+        .bottom-bar.theme-matchplay {
+            background: linear-gradient(135deg, #B22222, #8B0000);
+        }
+
+        .bottom-bar.theme-uk-open {
+            background: linear-gradient(135deg, #8402db, #C8102E);
+        }
+
+        .bottom-bar.theme-grand-slam {
+            background: linear-gradient(135deg, #FF8C00, #D97706);
+        }
+
+        .bottom-bar.theme-european {
+            background: linear-gradient(135deg, #C0C0C0, #5B2D8B);
+        }
+
+        .bottom-bar.theme-world-grandprix {
+            background: linear-gradient(135deg, #fd0202, #000000);
+        }
+
+        .bottom-bar.theme-players-championship {
+            background: linear-gradient(135deg, #C8102E, #111111);
+        }
+
+        .bottom-bar.theme-world-series {
+            background: linear-gradient(135deg, #000000, #7A0000);
+        }
+
+        .bottom-bar.theme-winmau {
+            background: linear-gradient(135deg, #FFFFFF, #000000);
+        }
+
+        .bottom-bar.theme-masters {
+            background: linear-gradient(135deg, #D4AF37, #000000);
+        }
+
+        .bottom-bar.theme-minor {
+            background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
+        }
+
+        /* Gold background - white text */
+        .bottom-bar.theme-premier-league .leg-name,
+        .bottom-bar.theme-masters .leg-name {
+            color: white !important;
         }
 
         .legs-display {
@@ -1590,7 +1645,7 @@
         .leg-name {
             font-weight: bold;
             font-size: 14px;
-            color: #ccc;
+            color: white;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
@@ -1600,7 +1655,7 @@
 
         .main-score {
             font-size: 32px;
-            color: var(--pdc-gold);
+            color: white;
             font-weight: bold;
             font-family: 'Roboto Condensed';
             min-width: 25px;
@@ -1618,7 +1673,7 @@
         }
 
         .leg-label {
-            color: #888;
+            color: white;
             text-align: center;
             font-weight: bold;
             font-size: 10px;
@@ -3947,7 +4002,8 @@
             nordic: ["den", "swe", "nor", "fin", "isl", "est", "lat", "ltu"],
             america: ["usa", "can", "mex"],
             oceania: ["aus", "nzl"],
-            europe: ["eng", "ger", "nl", "bel", "fra", "aut", "cze", "pol", "sui", "esp", "ita", "sco", "wal", "irl", "svk"]
+            europe: ["eng", "ger", "nl", "bel", "fra", "aut", "cze", "pol", "sui", "esp", "ita", "sco", "wal", "irl", "svk"],
+            africa: ["rsa", "zim", "ken", "uga", "moz", "tan", "bwa", "egi", "mar", "nig", "gha", "ivr", "cmr"]
         };
         REGION_MAP.east = ["hun", "cze", "svk", "pol", "rou", "bul", "srb", "cro"];
         const WORLD_SERIES_POINTS = {
@@ -4571,6 +4627,38 @@
                 }
             },
 
+            generateRandomAfricanPlayer: () => {
+                // Generate a random African player with 65 average for qualifiers
+                const africanCountries = ["rsa", "zim", "ken", "uga", "moz", "tan", "bwa", "egi", "mar", "nig", "gha", "ivr", "cmr"];
+                const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick"];
+                const lastNames = ["Mthembu", "Khumalo", "Ndlela", "Dlamini", "Nkosi", "Sibiya", "Mokoena", "Ngema", "Zuma", "Masondo", "Mwale", "Banda", "Kariuki", "Okonkwo", "Mensah", "Amakye"];
+                
+                const randomCountry = africanCountries[Math.floor(Math.random() * africanCountries.length)];
+                const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const playerName = `${randomFirst} ${randomLast}`;
+                
+                // Create new player with 65 average (qualifier level)
+                const newPlayer = {
+                    name: playerName,
+                    country: randomCountry,
+                    avg: 65,
+                    co: 40.0,
+                    fav: 16,
+                    money: 0,
+                    tourCard: false,
+                    form: 45,
+                    confidence: 50,
+                    fatigue: 20,
+                    isReplacement: true,
+                    isGenerated: true  // Mark as generated player for tracking
+                };
+                
+                // Add to PLAYERS_DB and return index
+                PLAYERS_DB.push(newPlayer);
+                return PLAYERS_DB.length - 1;
+            },
+
             getReplacementPlayer: (currentParticipantsIndices, eventType, eventName) => {
                 const currentSet = new Set(currentParticipantsIndices);
                 const isQSchool = eventType === 'q-school';
@@ -4616,7 +4704,7 @@
                     else if (eventName.includes("POLISH") || eventName.includes("PDO POLISH")) regionFilter = ["pol"];
                     else if (eventName.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
                     else if (eventName.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
-                    else if (eventName.includes("AFRICAN")) regionFilter = ["rsa", "zim"];
+                    else if (eventName.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
                     else if (eventName.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
                     else if (eventName.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
                     else if (eventName.includes("ASIAN")) regionFilter = REGION_MAP.asia;
@@ -4650,6 +4738,12 @@
                         return i;
                     }
                 }
+                
+                // Fallback: If it's an African qualifier and no eligible players found, generate one
+                if (isWCQualIntl && eventName && eventName.includes("AFRICAN")) {
+                    return PlayerState.generateRandomAfricanPlayer();
+                }
+                
                 return -1;
             },
             
@@ -5424,8 +5518,8 @@
                 Season.isBulkSim = true;
 
                 try {
-                    // Add minimal sleep to keep browser responsive (prevents Firefox from killing the page)
-                    // We need SOME sleep to allow UI updates, but keep it very small (1-2ms) for speed
+                    // Optimization: Minimal sleep every 5 events for speed while showing progress
+                    // This allows UI updates without the cumulative slowdown of 1ms per event
                     
                     // While there are events left in the current year
                     while (Season.state.activeEventIndex < Season.events.length && !shouldStop) {
@@ -5435,9 +5529,11 @@
                         // 1. Start Event (Sim Mode)
                         Season.startEvent(Season.state.activeEventIndex, true);
                         
-                        // 2. Tiny sleep (1ms) to let browser process UI updates and check for shouldStop
-                        // This is critical to prevent Firefox from marking the page as unresponsive
-                        await sleep(1);
+                        // Add micro sleep every 5 events to allow UI rendering and browser responsiveness
+                        // This is much faster than 1ms per event but still shows progress smoothly
+                        if (Season.state.activeEventIndex % 5 === 0) {
+                            await sleep(0);
+                        }
                     }
 
                     if (shouldStop) {
@@ -6380,7 +6476,7 @@
                     else if (ev.name.includes("POLISH") || ev.name.includes("PDO POLISH")) regionFilter = ["pol"];
                     else if (ev.name.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
                     else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
-                    else if (ev.name.includes("AFRICAN")) regionFilter = ["rsa", "zim", "ken", "uga"];
+                    else if (ev.name.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
                     else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
                     else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
                     else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
@@ -8750,7 +8846,7 @@
                     }
                 }
                 let participants = [];
-                const eligibleRegions = ev.eligibleRegions || [];
+                const eligibleRegions = (ev && ev.eligibleRegions) || [];
                 if (Tournament.config.selectionMethod === 'manual') {
                     const actualSize = Tournament.state.selectedPlayerIndices.size;
                     if (actualSize !== size) { 
@@ -8760,7 +8856,7 @@
                     }
                     Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({ ...PLAYERS_DB[idx] }));
                 } else {
-                    if (ev.type === 'q-school') {
+                    if (ev && ev.type === 'q-school') {
                         participants = PLAYERS_DB.filter(p => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country)));
                     } else {
                         participants = [...PLAYERS_DB];
@@ -8771,7 +8867,7 @@
                 }
 
                 // Q-SCHOOL: Exclude players from other venue, exclude qualified, and backfill replacements
-                if (ev.type === 'q-school') {
+                if (ev && ev.type === 'q-school') {
                     const location = ev.location; // 'uk' or 'eu'
                     const otherVenueParticipants = location === 'uk' ? (Season.state.qSchool.euParticipants || []) : (Season.state.qSchool.ukParticipants || []);
                     const eligibleRegions = ev.eligibleRegions || [];
