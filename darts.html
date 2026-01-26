@@ -9084,8 +9084,36 @@
             updatePlayerSelectUI: () => {
                 const container = document.getElementById('player-list-container');
                 if (container.children.length > 0) return;
+                
+                // Get event and apply regional restrictions
+                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                let regionFilter = null;
+                
+                // Apply strict regional filtering for qualifier events
+                if (ev?.type === 'wc-qual-intl') {
+                    if (ev.name.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
+                    else if (ev.name.includes("INDIA")) regionFilter = REGION_MAP.india;
+                    else if (ev.name.includes("JAPAN")) regionFilter = ["jpn"];
+                    else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("HUNGARIAN")) regionFilter = ["hun"];
+                    else if (ev.name.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
+                    else if (ev.name.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
+                    else if (ev.name.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
+                    else if (ev.name.includes("CZECHIA")) regionFilter = ["cze"];
+                    else if (ev.name.includes("POLISH") || ev.name.includes("PDO POLISH")) regionFilter = ["pol"];
+                    else if (ev.name.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
+                    else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
+                    else if (ev.name.includes("CDC") || ev.name.includes("CDLC")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ANZ") || ev.name.includes("DPA") || ev.name.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+                }
+                
                 let html = '';
                 PLAYERS_DB.forEach((p, idx) => {
+                    // Skip players that don't match regional filter
+                    if (regionFilter && !regionFilter.includes(p.country)) return;
+                    
                     const flag = getFlagUrl(p.country);
                     html += `
                         <div class="player-option" id="p-opt-${idx}" onclick="Tournament.togglePlayer(${idx})">
@@ -9100,10 +9128,29 @@
                 const set = Tournament.state.selectedPlayerIndices;
                 const chk = document.getElementById(`chk-${idx}`);
                 const div = document.getElementById(`p-opt-${idx}`);
-                if (set.has(idx)) { set.delete(idx); chk.checked = false; div.classList.remove('selected'); }
-                else {
-                    if (set.size >= Tournament.config.playerCount) { alert(`Limit reached.`); return; }
-                    set.add(idx); chk.checked = true; div.classList.add('selected');
+                
+                // Check regional restrictions before allowing selection
+                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const player = PLAYERS_DB[idx];
+                
+                if (set.has(idx)) { 
+                    set.delete(idx); 
+                    chk.checked = false; 
+                    div.classList.remove('selected'); 
+                } else {
+                    // Enforce regional restrictions for JAPAN tour
+                    if (ev?.type === 'wc-qual-intl' && ev.name.includes("JAPAN") && player.country !== "jpn") {
+                        alert("Only Japanese players can participate in the PDJ JAPAN TOUR.");
+                        return;
+                    }
+                    
+                    if (set.size >= Tournament.config.playerCount) { 
+                        alert(`Limit reached.`); 
+                        return; 
+                    }
+                    set.add(idx); 
+                    chk.checked = true; 
+                    div.classList.add('selected');
                 }
                 Tournament.updateSelectionCount();
             },
