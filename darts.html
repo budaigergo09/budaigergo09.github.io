@@ -4659,6 +4659,66 @@
                 return PLAYERS_DB.length - 1;
             },
 
+            generateRandomPlayer: (eventType, region) => {
+                // Generate a random player based on event type with appropriate skill level
+                const firstNames = ["James", "Marcus", "Daniel", "Stephen", "Michael", "Robert", "David", "Richard", "Charles", "Samuel", "Thomas", "William", "Benjamin", "Joseph", "Christopher", "Patrick", "Alexander", "George", "Edward", "Andrew"];
+                const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin"];
+                
+                // Determine average based on event type (qualifier events = lower avg)
+                let avgRange = { min: 75, max: 85 };
+                
+                if (eventType === "challenge" || eventType === "q-school" || eventType === "wc-qual-intl") {
+                    avgRange = { min: 60, max: 70 };  // Lower skill for qualifiers
+                } else if (eventType === "minor" || eventType === "et-host-nation") {
+                    avgRange = { min: 70, max: 80 };  // Mid-level
+                } else if (eventType === "players" || eventType === "world") {
+                    avgRange = { min: 80, max: 95 };  // High skill
+                }
+                
+                // Determine country based on region
+                let countries = ["eng", "wal", "sco", "nir", "irl"];  // Default UK/Ireland
+                
+                if (region === "africa") {
+                    countries = REGION_MAP.africa;
+                } else if (region === "asia") {
+                    countries = REGION_MAP.asia;
+                } else if (region === "america") {
+                    countries = REGION_MAP.america;
+                } else if (region === "oceania") {
+                    countries = REGION_MAP.oceania;
+                } else if (region === "nordic") {
+                    countries = REGION_MAP.nordic;
+                }
+                
+                const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+                const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const playerName = `${randomFirst} ${randomLast}`;
+                
+                // Generate random average within range
+                const avg = (Math.random() * (avgRange.max - avgRange.min) + avgRange.min).toFixed(2);
+                
+                // Create new player
+                const newPlayer = {
+                    name: playerName,
+                    country: randomCountry,
+                    avg: parseFloat(avg),
+                    co: 40.0 + Math.random() * 10,  // Random checkout between 40-50
+                    fav: Math.random() > 0.5 ? 20 : 16,
+                    money: 0,
+                    tourCard: false,
+                    form: 45,
+                    confidence: 50,
+                    fatigue: 20,
+                    isReplacement: true,
+                    isGenerated: true  // Mark as generated player for tracking
+                };
+                
+                // Add to PLAYERS_DB and return index
+                PLAYERS_DB.push(newPlayer);
+                return PLAYERS_DB.length - 1;
+            },
+
             getReplacementPlayer: (currentParticipantsIndices, eventType, eventName) => {
                 const currentSet = new Set(currentParticipantsIndices);
                 const isQSchool = eventType === 'q-school';
@@ -6563,6 +6623,12 @@
                         if (r) selected.add(PLAYERS_DB.indexOf(r));
                         attempts++;
                     }
+                    
+                    // If still short, generate random players
+                    while (selected.size < ev.players) {
+                        const newIdx = PlayerState.generateRandomPlayer(ev.type, null);
+                        if (newIdx >= 0) selected.add(newIdx);
+                    }
 
                     Tournament.setSelectionMethod('manual');
                     Tournament.updateConfigUI();
@@ -7142,12 +7208,6 @@
                     // Filter to non-tour card players
                     const challengePool = pool.filter(p => !p.tourCard);
 
-                    if (challengePool.length < ev.players) {
-                        alert(`Not enough non-tour card players for Challenge Tour (need ${ev.players}, have ${challengePool.length})`);
-                        Season.state.inProgress = false;
-                        return;
-                    }
-
                     // Shuffle and select players
                     for (let i = challengePool.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
@@ -7159,6 +7219,12 @@
                         const idx = PLAYERS_DB.indexOf(p);
                         if (idx >= 0) Tournament.state.selectedPlayerIndices.add(idx);
                     });
+                    
+                    // Backfill with generated players if short
+                    while (Tournament.state.selectedPlayerIndices.size < ev.players) {
+                        const newIdx = PlayerState.generateRandomPlayer(ev.type, null);
+                        if (newIdx >= 0) Tournament.state.selectedPlayerIndices.add(newIdx);
+                    }
                 }
                 // ========================
                 // 4. MINDEN MÁS EVENT
@@ -7174,6 +7240,22 @@
                         const rand = pool[Math.floor(Math.random() * pool.length)];
                         Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(rand));
                         attempts++;
+                    }
+                }
+
+                // ========================
+                // FINAL BACKFILL: Generate random players if still short
+                // ========================
+                if (Tournament.state.selectedPlayerIndices.size < ev.players && ev.type !== "challenge") {
+                    const shortage = ev.players - Tournament.state.selectedPlayerIndices.size;
+                    const usedIndices = new Set(Tournament.state.selectedPlayerIndices);
+                    
+                    for (let i = 0; i < shortage; i++) {
+                        // Generate a random player to fill the gap
+                        const newPlayerIdx = PlayerState.generateRandomPlayer(ev.type, ev.region);
+                        if (newPlayerIdx >= 0) {
+                            Tournament.state.selectedPlayerIndices.add(newPlayerIdx);
+                        }
                     }
                 }
 
