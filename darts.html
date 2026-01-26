@@ -4873,6 +4873,40 @@
                 return PLAYERS_DB.length - 1;
             },
 
+            generateRandomJapanesePlayer: () => {
+                // Generate a random Japanese player with realistic Japanese names
+                const firstNames = ["Takeshi", "Hiroshi", "Masaki", "Kenji", "Toshiro", "Kazuo", "Satoshi", "Shoji", "Noboru", "Junichi", "Yoshiaki", "Tamotsu", "Isao", "Naoki", "Daisuke", "Tetsuya"];
+                const lastNames = ["Yamada", "Tanaka", "Suzuki", "Sato", "Nakamura", "Kobayashi", "Watanabe", "Sasaki", "Matsumoto", "Yamamoto", "Ito", "Nakajima", "Okada", "Shimizu", "Goto", "Saito"];
+                
+                const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const playerName = `${randomFirst} ${randomLast}`;
+                
+                // Create new player with realistic skill for Japan tour qualifier (65-75 average)
+                const avg = (Math.random() * 10 + 65).toFixed(2);
+                const co = (39 + Math.random() * 3).toFixed(1);  // 39-42 checkout for this skill level
+                
+                const newPlayer = {
+                    name: playerName,
+                    country: "jpn",  // Japan country code
+                    avg: parseFloat(avg),
+                    co: parseFloat(co),
+                    fav: 16,  // Standard favorite leg
+                    money: 0,
+                    tourCard: false,  // Qualifiers don't have tour cards
+                    // State properties
+                    form: 45,
+                    confidence: 50,
+                    fatigue: 20,
+                    isReplacement: true,
+                    isGenerated: true  // Mark as generated player for tracking
+                };
+                
+                // Add to PLAYERS_DB and return index
+                PLAYERS_DB.push(newPlayer);
+                return PLAYERS_DB.length - 1;
+            },
+
             generateRandomPlayer: (eventType, region) => {
                 // Generate a random player based on event type with appropriate skill level
                 // Ensures the player meets the eligibility criteria for the tournament
@@ -5003,6 +5037,7 @@
                     else if (eventName.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
                     else if (eventName.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
                     else if (eventName.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
+                    else if (eventName.includes("JAPAN")) regionFilter = ["jpn"];
                     else if (eventName.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
                     else if (eventName.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
                     else if (eventName.includes("ASIAN")) regionFilter = REGION_MAP.asia;
@@ -5043,6 +5078,8 @@
                         return PlayerState.generateRandomAfricanPlayer();
                     } else if (eventName.includes("INDIA")) {
                         return PlayerState.generateRandomIndianPlayer();
+                    } else if (eventName.includes("JAPAN")) {
+                        return PlayerState.generateRandomJapanesePlayer();
                     }
                 }
                 
@@ -6791,6 +6828,7 @@
                     else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
                     else if (ev.name.includes("AFRICAN")) { regionFilter = REGION_MAP.africa; isStrictRegionalEvent = true; }
                     else if (ev.name.includes("INDIA")) { regionFilter = REGION_MAP.india; isStrictRegionalEvent = true; }
+                    else if (ev.name.includes("JAPAN")) { regionFilter = ["jpn"]; isStrictRegionalEvent = true; }
                     else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
                     else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
                     else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
