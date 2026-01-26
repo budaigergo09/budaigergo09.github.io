@@ -7311,18 +7311,23 @@
                 // ========================
                 // FINAL BACKFILL: Generate random players if still short
                 // ========================
-                if (Tournament.state.selectedPlayerIndices.size < ev.players && ev.type !== "challenge") {
-                    const shortage = ev.players - Tournament.state.selectedPlayerIndices.size;
-                    const usedIndices = new Set(Tournament.state.selectedPlayerIndices);
-                    
-                    for (let i = 0; i < shortage; i++) {
-                        // Generate a random player to fill the gap
-                        const newPlayerIdx = PlayerState.generateRandomPlayer(ev.type, ev.region);
-                        if (newPlayerIdx >= 0) {
-                            Tournament.state.selectedPlayerIndices.add(newPlayerIdx);
+                    if (Tournament.state.selectedPlayerIndices.size < ev.players && ev.type !== "challenge") {
+                        const shortage = ev.players - Tournament.state.selectedPlayerIndices.size;
+                        const usedIndices = new Set(Tournament.state.selectedPlayerIndices);
+                        for (let i = 0; i < shortage; i++) {
+                            let newPlayerIdx = -1;
+                            if (ev.name && ev.name.includes("AFRICAN")) {
+                                newPlayerIdx = PlayerState.generateRandomAfricanPlayer();
+                            } else if (ev.name && ev.name.includes("INDIA")) {
+                                newPlayerIdx = PlayerState.generateRandomIndianPlayer();
+                            } else {
+                                newPlayerIdx = PlayerState.generateRandomPlayer(ev.type, ev.region);
+                            }
+                            if (newPlayerIdx >= 0) {
+                                Tournament.state.selectedPlayerIndices.add(newPlayerIdx);
+                            }
                         }
                     }
-                }
 
                 // ========================
                 // 5. FINAL SETUP
