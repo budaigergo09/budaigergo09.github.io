@@ -2495,6 +2495,13 @@
                             onclick="Tournament.setMode('legs')">LEGS</button>
                     </div>
                 </div>
+                <div id="tourn-legs-per-set-div">
+                    <label>Legs/Set</label>
+                    <select id="inp-tourn-set-legs">
+                        <option value="3" selected>3</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
                 <label>Distances (First to X)</label>
                 <div class="tourn-config-grid" id="tourn-rounds-container"></div>
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
@@ -4264,6 +4271,9 @@
                 L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8
             },
             'winmaudm': {
+                // SETS mode (default 3 legs/set)
+                L32_sets: 3, L16_sets: 4, QF_sets: 4, SF_sets: 5, F_sets: 6,
+                // LEGS mode (used for season simulation with 2 legs/set)
                 L32: 2, L16: 4, QF: 4, SF: 5, F: 6
             }
         };
@@ -6678,6 +6688,16 @@
                 Tournament.config.eventPlayers = ev.players;
                 Tournament.setMode(ev.format);
 
+                // For season mode with Winmau Masters sets format, set to 2 legs/set
+                if (isSim && ev.type === 'winmaudm' && ev.format === 'sets') {
+                    const legsEl = document.getElementById('inp-tourn-set-legs');
+                    if (legsEl) legsEl.value = '2';
+                } else if (ev.format === 'sets') {
+                    // Default to 3 legs/set for custom tournaments
+                    const legsEl = document.getElementById('inp-tourn-set-legs');
+                    if (legsEl) legsEl.value = '3';
+                }
+
                 document.getElementById('tourn-event-name').value = ev.name;
                 document.getElementById('tourn-size').value = ev.players;
 
@@ -8741,6 +8761,8 @@
                 Tournament.config.mode = mode;
                 document.getElementById('tourn-mode-sets').className = `format-btn ${mode === 'sets' ? 'selected' : ''}`;
                 document.getElementById('tourn-mode-legs').className = `format-btn ${mode === 'legs' ? 'selected' : ''}`;
+                const legDiv = document.getElementById('tourn-legs-per-set-div');
+                if (legDiv) legDiv.style.display = (mode === 'sets') ? 'block' : 'none';
                 Tournament.updateConfigUI();
             },
             setSelectionMethod: (method) => {
@@ -9285,7 +9307,22 @@
 
                 const cfg = ROUND_FORMATS[ev.type];
 
-                if (!cfg || cfg[roundName] === undefined) {
+                if (!cfg) {
+                    return 5; // Q-school safe default
+                }
+
+                // For sets mode with Winmau Masters, check for sets-specific keys
+                if (Tournament.config.mode === 'sets' && ev.type === 'winmaudm') {
+                    const setsKey = roundName + '_sets';
+                    if (cfg[setsKey] !== undefined) {
+                        // Convert sets to legs based on legs per set setting
+                        const legsPerSet = parseInt(document.getElementById('inp-tourn-set-legs')?.value) || 3;
+                        return cfg[setsKey] * legsPerSet;
+                    }
+                }
+
+                // Fall back to regular leg targets
+                if (cfg[roundName] === undefined) {
                     return 5; // Q-school safe default
                 }
 
