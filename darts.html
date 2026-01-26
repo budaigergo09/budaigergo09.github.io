@@ -4003,7 +4003,8 @@
             america: ["usa", "can", "mex"],
             oceania: ["aus", "nzl"],
             europe: ["eng", "ger", "nl", "bel", "fra", "aut", "cze", "pol", "sui", "esp", "ita", "sco", "wal", "irl", "svk"],
-            africa: ["rsa", "zim", "ken", "uga", "moz", "tan", "bwa", "egi", "mar", "nig", "gha", "ivr", "cmr"]
+            africa: ["rsa", "zim", "ken", "uga", "moz", "tan", "bwa", "egi", "mar", "nig", "gha", "ivr", "cmr"],
+            india: ["ind"]
         };
         REGION_MAP.east = ["hun", "cze", "svk", "pol", "rou", "bul", "srb", "cro"];
         const WORLD_SERIES_POINTS = {
@@ -4660,6 +4661,40 @@
                 return PLAYERS_DB.length - 1;
             },
 
+            generateRandomIndianPlayer: () => {
+                // Generate a random Indian player with realistic Indian names
+                const firstNames = ["Arjun", "Aditya", "Raj", "Rohan", "Vikram", "Harsha", "Nitin", "Manoj", "Sandeep", "Amit", "Devendra", "Bhavesh", "Ashok", "Karan", "Mohit", "Saurav"];
+                const lastNames = ["Sharma", "Patel", "Singh", "Kumar", "Reddy", "Kapoor", "Nair", "Gupta", "Pandey", "Verma", "Iyer", "Bhat", "Desai", "Tiwari", "Bhatt", "Rao"];
+                
+                const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const playerName = `${randomFirst} ${randomLast}`;
+                
+                // Create new player with realistic skill for Indian qualifier (60-72 average)
+                const avg = (Math.random() * 12 + 60).toFixed(2);
+                const co = (38 + Math.random() * 3).toFixed(1);  // 38-41 checkout for this skill level
+                
+                const newPlayer = {
+                    name: playerName,
+                    country: "ind",  // India country code
+                    avg: parseFloat(avg),
+                    co: parseFloat(co),
+                    fav: 16,  // Standard favorite leg
+                    money: 0,
+                    tourCard: false,  // Qualifiers don't have tour cards
+                    // State properties
+                    form: 45,
+                    confidence: 50,
+                    fatigue: 20,
+                    isReplacement: true,
+                    isGenerated: true  // Mark as generated player for tracking
+                };
+                
+                // Add to PLAYERS_DB and return index
+                PLAYERS_DB.push(newPlayer);
+                return PLAYERS_DB.length - 1;
+            },
+
             generateRandomPlayer: (eventType, region) => {
                 // Generate a random player based on event type with appropriate skill level
                 // Ensures the player meets the eligibility criteria for the tournament
@@ -4697,6 +4732,8 @@
                     countries = REGION_MAP.africa;
                 } else if (region === "asia") {
                     countries = REGION_MAP.asia;
+                } else if (region === "india") {
+                    countries = REGION_MAP.india;
                 } else if (region === "america") {
                     countries = REGION_MAP.america;
                 } else if (region === "oceania") {
@@ -4822,9 +4859,13 @@
                     }
                 }
                 
-                // Fallback: If it's an African qualifier and no eligible players found, generate one
-                if (isWCQualIntl && eventName && eventName.includes("AFRICAN")) {
-                    return PlayerState.generateRandomAfricanPlayer();
+                // Fallback: If it's a regional qualifier and no eligible players found, generate one
+                if (isWCQualIntl && eventName) {
+                    if (eventName.includes("AFRICAN")) {
+                        return PlayerState.generateRandomAfricanPlayer();
+                    } else if (eventName.includes("INDIA")) {
+                        return PlayerState.generateRandomIndianPlayer();
+                    }
                 }
                 
                 return -1;
@@ -6560,6 +6601,7 @@
                     else if (ev.name.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
                     else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
                     else if (ev.name.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
+                    else if (ev.name.includes("INDIA")) regionFilter = REGION_MAP.india;
                     else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
                     else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
                     else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
