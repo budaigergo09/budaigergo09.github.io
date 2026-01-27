@@ -11376,8 +11376,10 @@
                     btn.innerText = "NEXT MATCH >>";
                     btn.style.background = "#e65100";
                     // Auto-advance to next match after stats display
-                    setTimeout(() => {
-                        if (Tournament.state.matchQueue && Tournament.state.matchQueue.length > 0) {
+                    // Store timer ID so it can be cancelled if user clicks manually
+                    App._autoAdvanceTimer = setTimeout(() => {
+                        // Only auto-advance if post-match screen is still visible
+                        if (Tournament.state.matchQueue && Tournament.state.matchQueue.length > 0 && document.getElementById('post-match-screen').style.display === 'flex') {
                             App.returnToMenu();
                         }
                     }, 3000);
@@ -11394,6 +11396,17 @@
             },
 
             returnToMenu: () => {
+                // Cancel auto-advance timer if it exists
+                if (App._autoAdvanceTimer) {
+                    clearTimeout(App._autoAdvanceTimer);
+                    App._autoAdvanceTimer = null;
+                }
+                
+                // Guard: Only process if post-match screen is visible (prevents double-processing)
+                if (document.getElementById('post-match-screen').style.display !== 'flex') {
+                    return;
+                }
+                
                 SOUND_OUTRO.pause();
                 SOUND_OUTRO.currentTime = 0;
 
@@ -11445,6 +11458,10 @@
             },
 
             startLeg: () => {
+                // Cancel any pending game loop from previous match/leg
+                App._gameLoopId = (App._gameLoopId || 0) + 1;
+                const currentLoopId = App._gameLoopId;
+                
                 // 🔥 FIX: mindig a round target legyen az igazság (only for tournaments)
                 if (Tournament.config && Tournament.config.rounds && Tournament.state && Tournament.state.currentActiveRound !== undefined) {
                     const roundInfo = Tournament.config.rounds[Tournament.state.currentActiveRound];
@@ -11464,6 +11481,8 @@
                 document.getElementById('intro-name-txt').innerText = App.players[App.matchState.starterLeg].name;
                 document.getElementById('overlay-intro').style.display = 'flex';
                 setTimeout(() => {
+                    // Guard: Only proceed if this is still the current game loop
+                    if (App._gameLoopId !== currentLoopId) return;
                     try {
                         document.getElementById('overlay-intro').style.display = 'none';
                         App.gameLoop();
@@ -11481,6 +11500,9 @@
             },
             gameLoop: () => {
                 if (App.isPaused) return;
+                
+                // Guard against stale game loops from previous matches
+                const currentLoopId = App._gameLoopId || 0;
 
                 const pIdx = App.matchState.currentThrower;
                 const p = App.players[pIdx];
@@ -11501,7 +11523,8 @@
                 }
 
                 setTimeout(() => {
-                    if (App.isPaused) return;
+                    // Guard: check if this game loop is still valid
+                    if (App.isPaused || App._gameLoopId !== currentLoopId) return;
 
                     const legs = App.matchState.legs;
                     const isDecider = (App.config.mode === 'sets') ? (legs[0] === legs[1] && legs[0] === App.config.legsToWinSet - 1) : false;
@@ -11541,7 +11564,9 @@
                     if (result.endLeg) { App.handleLegWin(pIdx, result.points); }
                     else {
                         App.matchState.currentThrower = 1 - pIdx;
-                        setTimeout(App.gameLoop, delay);
+                        setTimeout(() => {
+                            if (App._gameLoopId === currentLoopId) App.gameLoop();
+                        }, delay);
                     }
                 }, 1200);
             },
@@ -11886,8 +11911,8 @@
     </script>
     
     <!-- VERSION FOOTER -->
-    <div id="version-footer" style="position: fixed; bottom: 5px; right: 10px; font-size: 10px; color: #555; font-family: Arial, sans-serif; z-index: 1; pointer-events: none;">
-        v1.0.2 | PDC Darts Simulator
+    <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
+        v1.0.5 | PDC Darts Simulator
     </div>
 </body>
 
