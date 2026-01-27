@@ -8886,8 +8886,10 @@
                 // GRAND SLAM GROUP STAGE
                 // 32 players in 8 groups of 4, round-robin format
                 // ========================
-                const size = parseInt(document.getElementById('tourn-size').value);
-                Tournament.config.tiebreak = document.getElementById('tourn-tiebreak').checked;
+                const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
+                
+                const size = isBulkSim ? 32 : parseInt(document.getElementById('tourn-size').value);
+                Tournament.config.tiebreak = isBulkSim ? false : document.getElementById('tourn-tiebreak').checked;
                 Tournament.config.playerCount = size;
 
                 let participants = [];
@@ -8959,11 +8961,14 @@
                     { name: "F", target: 16 }
                 ];
 
-                Persistence.save();
-                requestWakeLock();
-                document.getElementById('setup-screen').style.display = 'none';
-                document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
-                Tournament.renderGrandSlamGroupStage();
+                // Skip UI updates during bulk simulation
+                if (!isBulkSim) {
+                    Persistence.save();
+                    requestWakeLock();
+                    document.getElementById('setup-screen').style.display = 'none';
+                    document.getElementById('tourn-hub-title').innerText = document.getElementById('tourn-event-name').value;
+                    Tournament.renderGrandSlamGroupStage();
+                }
             },
             seedBracket: (participants) => {
                 // ========================
@@ -11882,7 +11887,7 @@
     
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 5px; right: 10px; font-size: 10px; color: #555; font-family: Arial, sans-serif; z-index: 1; pointer-events: none;">
-        v1.0.1 | PDC Darts Simulator
+        v1.0.2 | PDC Darts Simulator
     </div>
 </body>
 
