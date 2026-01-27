@@ -5826,13 +5826,15 @@
                 overlay.innerHTML = `
                     <div style="text-align:center; max-width:600px;">
                         <div style="font-size:32px; font-weight:bold; margin-bottom:20px; color:var(--pdc-gold);">⚡ SIMULATING SEASON...</div>
-                        <div id="sim-progress" style="font-size:18px; color:#fff; margin-bottom:30px; min-height:40px; line-height:1.5;">Initializing...</div>
+                        <div id="sim-progress" style="font-size:18px; color:#fff; margin-bottom:10px; min-height:40px; line-height:1.5;">Initializing...</div>
+                        <div id="sim-speed" style="font-size:14px; color:#aaa; margin-bottom:30px;"></div>
                         <button id="sim-stop-btn" style="padding:12px 30px; font-size:16px; font-weight:bold; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s;">STOP SIMULATION</button>
                     </div>
                 `;
                 document.body.appendChild(overlay);
 
                 const progressDiv = document.getElementById('sim-progress');
+                const speedDiv = document.getElementById('sim-speed');
                 const stopBtn = document.getElementById('sim-stop-btn');
                 let shouldStop = false;
 
@@ -5843,7 +5845,6 @@
                     progressDiv.innerText = 'Stopping simulation...';
                 });
                 
-                // Add hover effect
                 stopBtn.addEventListener('mouseover', () => {
                     if (!stopBtn.disabled) stopBtn.style.background = '#c23030';
                 });
@@ -5851,50 +5852,60 @@
                     if (!stopBtn.disabled) stopBtn.style.background = '#e74c3c';
                 });
 
-                // Helper sleep function to let UI breathe
                 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
                 Season.isBulkSim = true;
+                Season.silentSimulation = true;
 
                 try {
-                    // Optimization: Minimal sleep every 5 events for speed while showing progress
-                    // This allows UI updates without the cumulative slowdown of 1ms per event
+                    const startTime = performance.now();
+                    let eventsSimulated = 0;
+                    const totalEvents = Season.events.length - Season.state.activeEventIndex;
+                    const BATCH_SIZE = 10; // Process events in batches for speed
                     
-                    // While there are events left in the current year
                     while (Season.state.activeEventIndex < Season.events.length && !shouldStop) {
-                        const ev = Season.events[Season.state.activeEventIndex];
-                        progressDiv.innerText = `Simulating: ${ev.name} (${Season.state.activeEventIndex + 1}/${Season.events.length})`;
-
-                        // 1. Start Event (Sim Mode)
-                        Season.startEvent(Season.state.activeEventIndex, true);
+                        const batchStart = Season.state.activeEventIndex;
+                        const batchEnd = Math.min(batchStart + BATCH_SIZE, Season.events.length);
                         
-                        // Add micro sleep every 5 events to allow UI rendering and browser responsiveness
-                        // This is much faster than 1ms per event but still shows progress smoothly
-                        if (Season.state.activeEventIndex % 5 === 0) {
-                            await sleep(0);
+                        // Process batch of events without UI updates
+                        for (let i = batchStart; i < batchEnd && !shouldStop; i++) {
+                            Season.startEvent(i, true);
+                            eventsSimulated++;
                         }
+                        
+                        // Update UI after each batch
+                        const ev = Season.events[Math.min(Season.state.activeEventIndex, Season.events.length - 1)];
+                        const elapsed = (performance.now() - startTime) / 1000;
+                        const eventsPerSec = (eventsSimulated / elapsed).toFixed(1);
+                        const remaining = totalEvents - eventsSimulated;
+                        const eta = remaining > 0 ? Math.ceil(remaining / (eventsSimulated / elapsed)) : 0;
+                        
+                        progressDiv.innerText = `Simulating: ${ev.name} (${Season.state.activeEventIndex + 1}/${Season.events.length})`;
+                        speedDiv.innerText = `Speed: ${eventsPerSec} events/sec | ETA: ${eta}s`;
+                        
+                        // Yield to browser for UI update
+                        await sleep(0);
                     }
 
                     if (shouldStop) {
                         progressDiv.innerText = "SIMULATION STOPPED";
                     } else {
                         progressDiv.innerText = "SEASON COMPLETE!";
+                        const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
+                        speedDiv.innerText = `Completed ${eventsSimulated} events in ${totalTime}s`;
                     }
                     
-                    // Final recalculation after bulk sim (do it once at the end, not per-event)
                     if (!shouldStop) {
                         progressDiv.innerText = "Finalizing rankings...";
                         Season.recalculateProTourOOM();
                         Season.recalculateChallengeTourOOM();
                     }
                     
-                    // Save all changes at the end instead of per-event
                     Persistence.save();
                     
-                    await sleep(1000);
+                    await sleep(1500);
                     document.body.removeChild(overlay);
 
-                    // Refresh UI
                     Season.renderUI();
                     if (!shouldStop) {
                         alert("Season Simulation Finished!");
@@ -5906,6 +5917,7 @@
                     alert("Simulation interrupted due to error.");
                 } finally {
                     Season.isBulkSim = false;
+                    Season.silentSimulation = false;
                 }
             },
 
@@ -9504,6 +9516,7 @@
 
                 // Optimize: Skip animations and DOM updates during bulk simulation
                 const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
+                const isSilent = typeof Season !== 'undefined' && Season.silentSimulation;
 
                 // Simulate only the current active round
                 const activeR = Tournament.state.currentActiveRound;
@@ -9511,26 +9524,32 @@
                 const roundInfo = Tournament.config.rounds[activeR];
 
                 let simulatedCount = 0;
-                const advancingPlayers = [];
+                const advancingPlayers = isBulkSim ? null : []; // Skip array allocation in bulk sim
 
                 if (!matches || !Array.isArray(matches)) {
-                    console.error('simulateCurrentRound: matches array is undefined or invalid');
-                    alert('Tournament bracket error. Please restart the tournament.');
+                    if (!isBulkSim) {
+                        console.error('simulateCurrentRound: matches array is undefined or invalid');
+                        alert('Tournament bracket error. Please restart the tournament.');
+                    }
                     return;
                 }
 
-                matches.forEach(m => {
+                // Use optimized for loop instead of forEach
+                const matchCount = matches.length;
+                const target = roundInfo.target;
+                for (let i = 0; i < matchCount; i++) {
+                    const m = matches[i];
                     if (!m.winner && m.p1 && m.p2) {
-                        Tournament.fastSim(m, roundInfo.target);
+                        Tournament.fastSim(m, target);
                         simulatedCount++;
-                        if (m.winner) {
+                        if (!isBulkSim && m.winner) {
                             advancingPlayers.push({
                                 player: m.winner,
                                 avg: m.averages[m.winner === m.p1 ? 0 : 1]
                             });
                         }
                     }
-                });
+                }
 
                 if (simulatedCount > 0) {
                     if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
@@ -9541,9 +9560,12 @@
                         }
                     } else {
                         // Show advancement animation BEFORE advancing rounds (but only if NOT in bulk sim)
-                        if (!isBulkSim && advancingPlayers.length > 0 && (typeof Season === 'undefined' || (Season && !Season.silentSimulation))) {
+                        if (!isBulkSim && !isSilent && advancingPlayers && advancingPlayers.length > 0) {
                             // Check if round is complete before showing animation
-                            const allMatchesComplete = matches.every(m => m.winner);
+                            let allMatchesComplete = true;
+                            for (let i = 0; i < matchCount; i++) {
+                                if (!matches[i].winner) { allMatchesComplete = false; break; }
+                            }
 
                             if (allMatchesComplete) {
                                 // Show animation first, then advance round after it ends
@@ -9574,7 +9596,10 @@
                     }
                 } else {
                     // If everything is already played, advance state quietly instead of alerting
-                    const allDone = matches.every(m => m.winner);
+                    let allDone = true;
+                    for (let i = 0; i < matchCount; i++) {
+                        if (!matches[i].winner) { allDone = false; break; }
+                    }
                     if (allDone) {
                         if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
                             Tournament.checkRoundCompleteNoAutoAdvance();
@@ -9585,7 +9610,7 @@
                             Persistence.save();
                             Tournament.renderHub();
                         }
-                    } else if (typeof Season === 'undefined' || !Season.silentSimulation) {
+                    } else if (!isSilent) {
                         alert("No matches to simulate.");
                     }
                 }
@@ -9594,16 +9619,43 @@
             simulateToEnd: () => {
                 // Simulate all remaining rounds and show only final winner
                 let finalWinner = null;
+                const isBulkSim = Season.isBulkSim;
+                
+                // Build player index cache for bulk sim performance
+                if (isBulkSim && !Tournament._playerIndexCache) {
+                    Tournament._playerIndexCache = new Map();
+                    for (let i = 0; i < PLAYERS_DB.length; i++) {
+                        Tournament._playerIndexCache.set(PLAYERS_DB[i].name, i);
+                    }
+                }
 
                 // Check if Grand Slam with incomplete group stage
                 if (Tournament.config.isGroupStage && Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
-                    const allGroupsComplete = Tournament.state.groupMatches.every(gm => gm.every(m => m.winner));
+                    // Optimized check for incomplete groups
+                    let allGroupsComplete = true;
+                    outer: for (let g = 0; g < Tournament.state.groupMatches.length; g++) {
+                        const matches = Tournament.state.groupMatches[g];
+                        for (let m = 0; m < matches.length; m++) {
+                            if (!matches[m].winner) {
+                                allGroupsComplete = false;
+                                break outer;
+                            }
+                        }
+                    }
                     
                     if (!allGroupsComplete) {
-                        // Simulate group stage first
+                        // Simulate group stage first - this will call initiateGrandSlamKnockout
+                        // which sets currentActiveRound to 1 and creates the knockout bracket
                         Tournament.simulateGroupStage();
-                        // After group stage, knockout bracket is created and currentActiveRound is set to 1
                     }
+                }
+                
+                // After group stage simulation, ensure we're pointing at a valid round with matches
+                // Grand Slam: bracketData[0] is empty placeholder, bracketData[1] is L16
+                while (Tournament.state.currentActiveRound < Tournament.config.rounds.length &&
+                       Tournament.state.bracketData[Tournament.state.currentActiveRound] &&
+                       Tournament.state.bracketData[Tournament.state.currentActiveRound].length === 0) {
+                    Tournament.state.currentActiveRound++;
                 }
 
                 while (Tournament.state.currentActiveRound < Tournament.config.rounds.length - 1) {
@@ -9611,8 +9663,10 @@
                     const matches = Tournament.state.bracketData[activeR];
                     const roundInfo = Tournament.config.rounds[activeR];
 
-                    if (!matches || !Array.isArray(matches)) {
-                        break; // Exit if bracket data is missing
+                    if (!matches || !Array.isArray(matches) || matches.length === 0) {
+                        // Skip empty rounds (e.g., Grand Slam group placeholder at index 0)
+                        Tournament.state.currentActiveRound++;
+                        continue;
                     }
 
                     matches.forEach(m => {
@@ -9916,14 +9970,22 @@
 
                 // Add action buttons
                 const actionsDiv = document.createElement('div');
-                actionsDiv.style.cssText = 'display: flex; gap: 10px; padding: 15px 10px; justify-content: center;';
+                actionsDiv.style.cssText = 'display: flex; gap: 10px; padding: 15px 10px; justify-content: center; flex-wrap: wrap;';
 
                 const simBtn = document.createElement('button');
                 simBtn.className = 'btn-sim';
                 simBtn.style.cssText = 'padding: 8px 16px; font-size: 12px;';
-                simBtn.innerText = 'SIMULATE GROUP STAGE';
+                simBtn.innerText = '⚡ SIMULATE GROUP STAGE';
                 simBtn.onclick = () => Tournament.simulateGroupStage();
                 actionsDiv.appendChild(simBtn);
+
+                // Add Simulate to End button
+                const simToEndBtn = document.createElement('button');
+                simToEndBtn.className = 'btn-sim';
+                simToEndBtn.style.cssText = 'padding: 8px 16px; font-size: 12px; background: linear-gradient(145deg, #c9a227, #967818);';
+                simToEndBtn.innerText = '🏆 SIMULATE TO END';
+                simToEndBtn.onclick = () => Tournament.simulateToEnd();
+                actionsDiv.appendChild(simToEndBtn);
 
                 html.appendChild(actionsDiv);
 
@@ -9940,26 +10002,40 @@
             },
             simulateGroupStage: () => {
                 const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
+                const isSilent = typeof Season !== 'undefined' && Season.silentSimulation;
                 
                 let totalSimulated = 0;
                 const roundInfo = Tournament.config.rounds[0]; // Group stage target
 
-                // Simulate all group matches
-                for (let g = 0; g < Tournament.state.groupMatches.length; g++) {
-                    const matches = Tournament.state.groupMatches[g];
-                    matches.forEach(m => {
-                        if (!m.winner && m.p1 && m.p2) {
-                            Tournament.fastSim(m, roundInfo.target);
-                            // Update group standings
-                            Tournament.updateGroupStandings(g, m);
+                // Simulate all group matches with optimized loop
+                const groupMatches = Tournament.state.groupMatches;
+                const groupCount = groupMatches.length;
+                
+                for (let g = 0; g < groupCount; g++) {
+                    const matches = groupMatches[g];
+                    const matchCount = matches.length;
+                    for (let m = 0; m < matchCount; m++) {
+                        const match = matches[m];
+                        if (!match.winner && match.p1 && match.p2) {
+                            Tournament.fastSim(match, roundInfo.target);
+                            Tournament.updateGroupStandings(g, match);
                             totalSimulated++;
                         }
-                    });
+                    }
                 }
 
                 if (totalSimulated > 0) {
                     // Check if all groups are complete
-                    const allGroupsComplete = Tournament.state.groupMatches.every(gm => gm.every(m => m.winner));
+                    let allGroupsComplete = true;
+                    for (let g = 0; g < groupCount && allGroupsComplete; g++) {
+                        const matches = groupMatches[g];
+                        for (let m = 0; m < matches.length; m++) {
+                            if (!matches[m].winner) {
+                                allGroupsComplete = false;
+                                break;
+                            }
+                        }
+                    }
 
                     if (allGroupsComplete) {
                         if (!isBulkSim) Persistence.save();
@@ -9968,11 +10044,11 @@
                         if (!isBulkSim) Persistence.save();
                         if (!isBulkSim) Tournament.renderGrandSlamGroupStage();
                     }
-                    if (!isBulkSim && (typeof Season === 'undefined' || !Season.silentSimulation)) {
+                    if (!isBulkSim && !isSilent) {
                         alert(`Simulated ${totalSimulated} group matches!`);
                     }
                 } else {
-                    if (!isBulkSim && (typeof Season === 'undefined' || !Season.silentSimulation)) {
+                    if (!isBulkSim && !isSilent) {
                         alert("No matches to simulate.");
                     }
                 }
@@ -10286,6 +10362,7 @@
 
             fastSim: (match, target) => {
                 let s1 = 0, s2 = 0;
+                const isBulkSim = Season.isBulkSim;
                 
                 // Optimize: Cache modifier lookups
                 let mod1 = 0, mod2 = 0;
@@ -10298,81 +10375,91 @@
                 const eff1 = match.p1.avg * (1 + mod1);
                 const eff2 = match.p2.avg * (1 + mod2);
 
+                // Optimized win probability calculation with clamping
                 let winProbP1 = 0.50 + ((eff1 - eff2) * 0.025);
+                winProbP1 = winProbP1 < 0.01 ? 0.01 : (winProbP1 > 0.99 ? 0.99 : winProbP1);
                 
-                // Optimize: Clamp win probability to valid range
-                winProbP1 = Math.max(0.01, Math.min(0.99, winProbP1));
+                // Simulate match with minimal overhead
+                while (s1 < target && s2 < target) { 
+                    if (Math.random() < winProbP1) s1++; else s2++; 
+                }
                 
-                // Simulate match
-                while (s1 < target && s2 < target) { if (Math.random() < winProbP1) s1++; else s2++; }
                 match.score = [s1, s2];
                 match.winner = (s1 > s2) ? match.p1 : match.p2;
-                match.averages = [
-                    (eff1 + (Math.random() * 10 - 5)).toFixed(2),
-                    (eff2 + (Math.random() * 10 - 5)).toFixed(2)
-                ];
+                
+                // Only generate detailed averages when not bulk simming
+                if (!isBulkSim) {
+                    match.averages = [
+                        (eff1 + (Math.random() * 10 - 5)).toFixed(2),
+                        (eff2 + (Math.random() * 10 - 5)).toFixed(2)
+                    ];
+                } else {
+                    // Simpler averages for bulk sim
+                    match.averages = [eff1.toFixed(2), eff2.toFixed(2)];
+                }
 
-                // Update Form/Fatigue immediately for simulated matches
+                // Update Form/Fatigue - optimized for bulk sim
                 if (typeof PlayerState !== 'undefined' && typeof PLAYERS_DB !== 'undefined') {
                     const diff = Math.abs(s1 - s2);
                     const winnerCopy = match.winner;
                     const loserCopy = (winnerCopy === match.p1) ? match.p2 : match.p1;
                     
-                    // Optimize: Use indexOf instead of find (faster for linear search with unique name values)
-                    const winnerIdx = PLAYERS_DB.findIndex(p => p.name === winnerCopy.name);
-                    const loserIdx = PLAYERS_DB.findIndex(p => p.name === loserCopy.name);
+                    // Use cached name-to-index map for bulk sim performance
+                    let winnerIdx, loserIdx;
+                    if (isBulkSim && Tournament._playerIndexCache) {
+                        winnerIdx = Tournament._playerIndexCache.get(winnerCopy.name);
+                        loserIdx = Tournament._playerIndexCache.get(loserCopy.name);
+                        if (winnerIdx === undefined) winnerIdx = PLAYERS_DB.findIndex(p => p.name === winnerCopy.name);
+                        if (loserIdx === undefined) loserIdx = PLAYERS_DB.findIndex(p => p.name === loserCopy.name);
+                    } else {
+                        winnerIdx = PLAYERS_DB.findIndex(p => p.name === winnerCopy.name);
+                        loserIdx = PLAYERS_DB.findIndex(p => p.name === loserCopy.name);
+                    }
 
                     if (winnerIdx !== -1 && loserIdx !== -1) {
                         const winnerReal = PLAYERS_DB[winnerIdx];
                         const loserReal = PLAYERS_DB[loserIdx];
                         
-                        if (diff >= 2) {
-                            PlayerState.updateForm(winnerReal, 3);
-                            PlayerState.updateForm(loserReal, -3);
-                        } else {
-                            PlayerState.updateForm(winnerReal, 1);
-                            PlayerState.updateForm(loserReal, -1);
-                        }
-                        PlayerState.updateFatigue(winnerReal, 5);
-                        PlayerState.updateFatigue(loserReal, 5);
+                        // Inline form updates for speed
+                        const formDelta = diff >= 2 ? 3 : 1;
+                        winnerReal.form = Math.min(100, Math.max(0, (winnerReal.form || 50) + formDelta));
+                        loserReal.form = Math.min(100, Math.max(0, (loserReal.form || 50) - formDelta));
+                        winnerReal.fatigue = Math.min(100, (winnerReal.fatigue || 0) + 5);
+                        loserReal.fatigue = Math.min(100, (loserReal.fatigue || 0) + 5);
                         
-                        // Also update the local copies so the UI reflects it immediately within this tournament
+                        // Update local copies
                         winnerCopy.form = winnerReal.form;
                         winnerCopy.fatigue = winnerReal.fatigue;
                         loserCopy.form = loserReal.form;
                         loserCopy.fatigue = loserReal.fatigue;
                         
-                        // NEWS GENERATION FOR SIMULATED MATCHES
-                        // Get proper event name
-                        const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
-                        const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
-                        
-                        // Check for Upset (Rank diff > 20)
-                        const rankWin = PLAYERS_DB.findIndex(p => p.name === winnerCopy.name) + 1;
-                        const rankLose = PLAYERS_DB.findIndex(p => p.name === loserCopy.name) + 1;
-                        
-                        const isUpset = rankWin > 0 && rankLose > 0 && rankWin > rankLose + 20;
-                        
-                        if (isUpset && NewsSystem) {
-                            NewsSystem.add('upset', { 
-                                player: winnerCopy.name, 
-                                rank: rankWin, 
-                                rival: loserCopy.name,
-                                event: eventName
-                            });
-                        }
-                        
-                        // Track rivalries and generate beef
-                        if (typeof RivalryTracker !== 'undefined' && eventName) {
-                            const isFinal = Tournament.state.bracketData && 
-                                           Tournament.state.currentActiveRound === Tournament.state.bracketData.length - 1;
-                            RivalryTracker.recordMatch(
-                                winnerCopy.name, 
-                                loserCopy.name, 
-                                eventName,
-                                isUpset,
-                                isFinal
-                            );
+                        // Skip news/rivalry tracking in bulk sim for speed
+                        if (!isBulkSim) {
+                            const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                            const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
+                            
+                            const isUpset = winnerIdx > loserIdx + 20;
+                            
+                            if (isUpset && NewsSystem) {
+                                NewsSystem.add('upset', { 
+                                    player: winnerCopy.name, 
+                                    rank: winnerIdx + 1, 
+                                    rival: loserCopy.name,
+                                    event: eventName
+                                });
+                            }
+                            
+                            if (typeof RivalryTracker !== 'undefined' && eventName) {
+                                const isFinal = Tournament.state.bracketData && 
+                                               Tournament.state.currentActiveRound === Tournament.state.bracketData.length - 1;
+                                RivalryTracker.recordMatch(
+                                    winnerCopy.name, 
+                                    loserCopy.name, 
+                                    eventName,
+                                    isUpset,
+                                    isFinal
+                                );
+                            }
                         }
                     }
                 }
@@ -10512,6 +10599,8 @@
                 }
             },
             initiateGrandSlamKnockout: () => {
+                const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
+                
                 // Get top 2 from each group
                 const qualifiers = [];
 
@@ -10550,13 +10639,21 @@
                 Tournament.activeGroupIdx = undefined;
                 Tournament.config.isGroupStage = false;
 
-                Persistence.save();
-                Tournament.renderHub();
+                // Skip UI updates during bulk simulation
+                if (!isBulkSim) {
+                    Persistence.save();
+                    Tournament.renderHub();
+                }
             },
             checkRoundComplete: () => {
                 const rIdx = Tournament.state.currentActiveRound;
                 const matches = Tournament.state.bracketData[rIdx];
                 Tournament.roundAdvanceAnimating = false;
+                
+                // Skip if matches is empty or invalid (e.g., Grand Slam placeholder round)
+                if (!matches || matches.length === 0) {
+                    return;
+                }
 
                 const advanceToNextRound = () => {
                     const nextRIdx = rIdx + 1;
@@ -11782,6 +11879,11 @@
             }
         });
     </script>
+    
+    <!-- VERSION FOOTER -->
+    <div id="version-footer" style="position: fixed; bottom: 5px; right: 10px; font-size: 10px; color: #555; font-family: Arial, sans-serif; z-index: 1; pointer-events: none;">
+        v1.0.1 | PDC Darts Simulator
+    </div>
 </body>
 
 </html>
