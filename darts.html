@@ -6876,6 +6876,50 @@
                 }
 
                 // ==============================
+                // WC INTERNATIONAL QUALIFIERS
+                // ==============================
+                if (ev.type === "wc-qual-intl") {
+                    const selected = Tournament.state.selectedPlayerIndices;
+                    selected.clear();
+
+                    pool.slice(0, ev.players).forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
+
+                    let attempts = 0;
+                    while (selected.size < ev.players && attempts < 1000) {
+                        const r = pool[Math.floor(Math.random() * pool.length)];
+                        if (r) selected.add(PLAYERS_DB.indexOf(r));
+                        attempts++;
+                    }
+                    
+                    // If still short, generate regional players
+                    while (selected.size < ev.players) {
+                        let newIdx = PlayerState.getReplacementPlayer(Array.from(selected), ev.type, ev.name);
+                        if (newIdx >= 0) {
+                            selected.add(newIdx);
+                        } else {
+                            // Fallback: generate regional players directly if getReplacementPlayer fails
+                            if (ev.name.includes("AFRICAN")) {
+                                newIdx = PlayerState.generateRandomAfricanPlayer();
+                            } else if (ev.name.includes("INDIA")) {
+                                newIdx = PlayerState.generateRandomIndianPlayer();
+                            } else if (ev.name.includes("JAPAN")) {
+                                newIdx = PlayerState.generateRandomJapanesePlayer();
+                            } else {
+                                break;  // No suitable player can be generated
+                            }
+                            if (newIdx >= 0) selected.add(newIdx);
+                            else break;
+                        }
+                    }
+
+                    Tournament.setSelectionMethod('manual');
+                    Tournament.updateConfigUI();
+                    Tournament.start();
+                    if (autoSimIfRequested()) return;
+                    return;
+                }
+
+                // ==============================
                 // EUROPEAN TOUR QUALIFIERS (TC, HOST, EAST, NB)
                 // ==============================
                 if (ev.type === "et-qual-tc" || ev.type === "et-host-nation" || ev.type === "et-east-european" || ev.type === "et-nordic-baltic") {
