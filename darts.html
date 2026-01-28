@@ -11890,12 +11890,10 @@
                         players: PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue, m: p.money }))
                     };
                     const json = ShareSystem.serialize(state);
-                    // Use LZ-String to compress, then base64 encode for URL safety
-                    const compressed = LZString.compress(json);
-                    // Convert to base64 that's URL-safe across all platforms
-                    const b64 = btoa(unescape(encodeURIComponent(compressed)));
+                    // Use LZ-String's base64 compression - safe for URLs
+                    const compressed = LZString.compressToBase64(json);
                     // Make URL-safe: replace + with -, / with _, remove padding =
-                    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                    return compressed.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
                 } catch (e) { console.error('Encode error:', e); return null; }
             },
             decodeState: (encoded) => {
@@ -11904,15 +11902,12 @@
                     let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
                     while (b64.length % 4) b64 += '=';
                     
-                    // Decode base64
-                    const decoded = decodeURIComponent(escape(atob(b64)));
+                    // Try LZ-String base64 decompression first (new compressed format)
+                    let json = LZString.decompressFromBase64(b64);
                     
-                    // Try to decompress with LZ-String (new compressed format)
-                    let json = LZString.decompress(decoded);
-                    
-                    // If decompression fails or doesn't look like JSON, treat as raw JSON (old format)
+                    // If decompression fails or doesn't look like JSON, try old format
                     if (!json || !json.startsWith('{')) {
-                        json = decoded;
+                        json = decodeURIComponent(escape(atob(b64)));
                     }
                     
                     return ShareSystem.deserialize(json);
@@ -12076,7 +12071,7 @@
 
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.1.8 | PDC Darts Simulator
+        v1.1.9 | PDC Darts Simulator
     </div>
 </body>
 
