@@ -11927,16 +11927,14 @@
                 const shortenBtn = document.getElementById('shorten-btn');
                 
                 linkInput.value = 'Generating compressed link...';
-                shortInput.value = '';
-                shortenBtn.style.display = 'none'; // Hide - compression is built-in
+                // Hide the short link section entirely - the main link is already compressed
+                shortInput.parentElement.style.display = 'none';
+                shortenBtn.style.display = 'none';
                 document.getElementById('share-modal').style.display = 'flex';
                 
                 setTimeout(() => {
                     const link = ShareSystem.generateShareLink();
                     linkInput.value = link || 'Error';
-                    if (link) {
-                        shortInput.value = '✓ Link is already compressed! Ready to share.';
-                    }
                 }, 50);
             },
             generateShortLink: async () => {
@@ -11949,12 +11947,14 @@
             },
             closeModal: () => { document.getElementById('share-modal').style.display = 'none'; },
             copyToClipboard: (inputId = 'share-link-input') => {
-                const input = document.getElementById(inputId);
-                if (!input.value || input.value.includes('...') || input.value.includes('Failed')) {
+                // Always copy from the main link input
+                const input = document.getElementById('share-link-input');
+                if (!input.value || input.value.includes('...') || input.value.includes('Failed') || input.value.includes('Error')) {
                     alert('No valid link to copy');
                     return;
                 }
-                input.select(); document.execCommand('copy');
+                input.select(); 
+                document.execCommand('copy');
                 const btn = event.target; const orig = btn.innerText;
                 btn.innerText = '✓ COPIED!'; setTimeout(() => btn.innerText = orig, 2000);
             },
