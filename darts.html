@@ -2530,8 +2530,11 @@
                 </div>
 
                 <div id="season-controls" style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
-                    <button class="btn-sim" style="width:100%; padding:15px;"
-                        onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-sim" style="flex:1; padding:15px;"
+                            onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                        <button class="btn-gold" onclick="ShareSystem.showShareModal()" style="background:#0066cc; padding:15px;">📤 SHARE</button>
+                    </div>
                     <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
                 </div>
             </div>
@@ -10997,6 +11000,9 @@
                 // Load saved state FIRST before initializing
                 Persistence.load();
 
+                // Check for shared state in URL
+                ShareSystem.loadFromURL();
+
                 // Initialize Season logic (will only init if no data exists)
                 Season.init();
 
@@ -11857,6 +11863,51 @@
             }
         };
 
+        // ================= SHARE SYSTEM =================
+        window.ShareSystem = {
+            encodeState: () => {
+                const state = {
+                    season: Season.state,
+                    players: PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue, m: p.money }))
+                };
+                return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+            },
+            decodeState: (encoded) => {
+                try { return JSON.parse(decodeURIComponent(escape(atob(encoded)))); }
+                catch (e) { console.error('Decode error:', e); return null; }
+            },
+            generateShareLink: () => {
+                const baseUrl = window.location.origin + window.location.pathname;
+                return `${baseUrl}?share=${ShareSystem.encodeState()}`;
+            },
+            showShareModal: () => {
+                document.getElementById('share-link-input').value = ShareSystem.generateShareLink();
+                document.getElementById('share-modal').style.display = 'flex';
+            },
+            closeModal: () => { document.getElementById('share-modal').style.display = 'none'; },
+            copyToClipboard: () => {
+                const input = document.getElementById('share-link-input');
+                input.select(); document.execCommand('copy');
+                const btn = event.target; const orig = btn.innerText;
+                btn.innerText = '✓ COPIED!'; setTimeout(() => btn.innerText = orig, 2000);
+            },
+            loadFromURL: () => {
+                const encoded = new URLSearchParams(window.location.search).get('share');
+                if (!encoded) return false;
+                const decoded = ShareSystem.decodeState(encoded);
+                if (!decoded) return false;
+                try {
+                    if (decoded.season) Season.state = { ...Season.state, ...decoded.season };
+                    if (decoded.players) decoded.players.forEach(sp => {
+                        const p = PLAYERS_DB.find(x => x.name === sp.n);
+                        if (p) { p.form = sp.f || 0; p.fatigue = sp.ft || 0; p.money = sp.m || 0; }
+                    });
+                    if (window.history) window.history.replaceState({}, document.title, window.location.pathname);
+                    return true;
+                } catch (e) { console.error('Load error:', e); return false; }
+            }
+        };
+
         // INITIALIZATION f
         document.addEventListener("DOMContentLoaded", () => {
             try {
@@ -11910,9 +11961,26 @@
         });
     </script>
     
+    <!-- SHARE MODAL -->
+    <div id="share-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10001; display:none; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:linear-gradient(145deg, #1a1f35, #0f1525); border:2px solid #ffd700; border-radius:12px; padding:25px; max-width:500px; width:100%; color:white;">
+            <div style="font-size:18px; font-weight:bold; color:#ffd700; margin-bottom:15px; text-align:center;">📤 SHARE SEASON PROGRESS</div>
+            <div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.3); border-radius:6px;">
+                <div style="font-size:11px; color:#aaa; margin-bottom:8px;">SHARE LINK:</div>
+                <input type="text" id="share-link-input" readonly style="width:100%; padding:8px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#ddd; font-size:10px;">
+                <button onclick="ShareSystem.copyToClipboard()" style="width:100%; margin-top:8px; padding:10px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY LINK</button>
+            </div>
+            <div style="font-size:11px; color:#888; margin-bottom:15px;">Includes: completed events, rankings, money, form & fatigue</div>
+            <button onclick="ShareSystem.closeModal()" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- SHARE BUTTON (Always Visible) -->
+    <button onclick="ShareSystem.showShareModal()" style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">📤 SHARE</button>
+
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.0.5 | PDC Darts Simulator
+        v1.0.9 | PDC Darts Simulator
     </div>
 </body>
 
