@@ -12011,48 +12011,45 @@
 
         // ================= SHARE SYSTEM =================
         window.ShareSystem = {
-            // Custom JSON serializer that handles Set objects
-            serializeState: (obj) => {
-                return JSON.stringify(obj, (key, value) => {
-                    if (value instanceof Set) return { __isSet: true, values: [...value] };
-                    return value;
-                });
-            },
-            // Custom JSON parser that restores Set objects
-            deserializeState: (str) => {
-                return JSON.parse(str, (key, value) => {
-                    if (value && value.__isSet) return new Set(value.values);
-                    return value;
-                });
+            // Create minimal state for sharing (only essential data, avoids freezing)
+            getMinimalState: () => {
+                const s = Season.state;
+                const oom = Object.entries(s.orderOfMerit || {});
+                oom.sort((a, b) => (b[1].points || 0) - (a[1].points || 0));
+                const proOom = Object.entries(s.proTourOOM || {});
+                proOom.sort((a, b) => (b[1] || 0) - (a[1] || 0));
+                return {
+                    v: 1,
+                    e: s.activeEventIndex || 0,
+                    y: s.year || 2026,
+                    c: (s.completedEvents || []).map(ev => ev.id),
+                    o: oom.slice(0, 32).map(([n, d]) => [n, d.points || 0]),
+                    p: proOom.slice(0, 16).map(([n, pts]) => [n, pts || 0]),
+                    pd: PLAYERS_DB.filter(pl => pl.form !== 0 || pl.fatigue !== 0 || pl.money > 0)
+                        .slice(0, 100)
+                        .map(pl => [pl.name, pl.form || 0, pl.fatigue || 0, Math.round(pl.money) || 0])
+                };
             },
             encodeState: () => {
                 try {
-                    if (!Season || !Season.state) {
-                        console.error('Season not initialized');
-                        return null;
-                    }
-                    const state = {
-                        season: Season.state,
-                        players: PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue, m: p.money }))
-                    };
-                    const jsonStr = ShareSystem.serializeState(state);
-                    // Use LZ compression for much shorter URLs
+                    if (!Season || !Season.state) return null;
+                    const state = ShareSystem.getMinimalState();
+                    const jsonStr = JSON.stringify(state);
                     return LZString.compressToEncodedURIComponent(jsonStr);
                 } catch (e) { console.error('Encode error:', e); return null; }
             },
             decodeState: (encoded) => {
                 try {
-                    // Use LZ decompression
                     const jsonStr = LZString.decompressFromEncodedURIComponent(encoded);
                     if (!jsonStr) return null;
-                    return ShareSystem.deserializeState(jsonStr);
+                    return JSON.parse(jsonStr);
                 } catch (e) { console.error('Decode error:', e); return null; }
             },
             generateShareLink: () => {
                 const baseUrl = window.location.origin + window.location.pathname;
                 const encoded = ShareSystem.encodeState();
                 if (!encoded) { alert('Error: Could not generate share link'); return ''; }
-                return `${baseUrl}?share=${encoded}`;
+                return `${baseUrl}#s=${encoded}`;
             },
             showShareModal: () => {
                 const link = ShareSystem.generateShareLink();
@@ -12069,23 +12066,35 @@
                 btn.innerText = '✓ COPIED!'; setTimeout(() => btn.innerText = orig, 2000);
             },
             loadFromURL: () => {
-                const encoded = new URLSearchParams(window.location.search).get('share');
+                let encoded = window.location.hash.startsWith('#s=') ? window.location.hash.substring(3) : null;
+                if (!encoded) encoded = new URLSearchParams(window.location.search).get('share');
                 if (!encoded) return false;
-                const decoded = ShareSystem.decodeState(encoded);
-                if (!decoded) {
-                    console.warn('Invalid share link - could not decode data');
-                    // Clear the invalid URL parameter
+                const data = ShareSystem.decodeState(encoded);
+                if (!data) {
                     if (window.history) window.history.replaceState({}, document.title, window.location.pathname);
                     return false;
                 }
                 try {
-                    if (decoded.season) Season.state = { ...Season.state, ...decoded.season };
-                    if (decoded.players) decoded.players.forEach(sp => {
-                        const p = PLAYERS_DB.find(x => x.name === sp.n);
-                        if (p) { p.form = sp.f || 0; p.fatigue = sp.ft || 0; p.money = sp.m || 0; }
-                    });
+                    if (data.e !== undefined) Season.state.activeEventIndex = data.e;
+                    if (data.y) Season.state.year = data.y;
+                    if (data.c && Array.isArray(data.c)) {
+                        Season.state.completedEvents = data.c.map(id => Season.events.find(ev => ev.id === id)).filter(Boolean);
+                    }
+                    if (data.o) {
+                        Season.state.orderOfMerit = {};
+                        data.o.forEach(([n, pts]) => { Season.state.orderOfMerit[n] = { points: pts }; });
+                    }
+                    if (data.p) {
+                        Season.state.proTourOOM = {};
+                        data.p.forEach(([n, pts]) => { Season.state.proTourOOM[n] = pts; });
+                    }
+                    if (data.pd) {
+                        data.pd.forEach(([name, form, fatigue, money]) => {
+                            const pl = PLAYERS_DB.find(x => x.name === name);
+                            if (pl) { pl.form = form; pl.fatigue = fatigue; pl.money = money; }
+                        });
+                    }
                     if (window.history) window.history.replaceState({}, document.title, window.location.pathname);
-                    console.log('Successfully loaded shared season data');
                     return true;
                 } catch (e) { console.error('Load error:', e); return false; }
             }
