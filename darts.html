@@ -11912,50 +11912,11 @@
                     return null;
                 }
                 
-                // Use TinyURL - it has better CORS support via their API
-                try {
-                    // Try TinyURL's create endpoint
-                    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
-                    if (response.ok) {
-                        const shortUrl = await response.text();
-                        if (shortUrl && shortUrl.startsWith('http')) {
-                            return shortUrl.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.log('TinyURL direct failed:', e.message);
-                }
-                
-                // Fallback: Try with JSONP-style workaround using allorigins
-                try {
-                    const tinyUrlApi = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
-                    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(tinyUrlApi)}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.contents && data.contents.startsWith('http')) {
-                            return data.contents.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.log('TinyURL via allorigins failed:', e.message);
-                }
-                
-                // Try is.gd via allorigins /get endpoint (returns JSON with contents)
-                try {
-                    const isgdApi = `https://is.gd/create.php?format=simple&url=${encodeURIComponent(longUrl)}`;
-                    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(isgdApi)}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.contents && data.contents.startsWith('http')) {
-                            return data.contents.trim();
-                        }
-                    }
-                } catch (e) {
-                    console.log('is.gd via allorigins failed:', e.message);
-                }
-                
-                console.error('All URL shortening attempts failed');
-                return null;
+                // Open TinyURL in new tab - user can copy the shortened URL from there
+                // This bypasses CORS entirely since it's a user-initiated navigation
+                const tinyUrlPage = `https://tinyurl.com/create.php?url=${encodeURIComponent(longUrl)}`;
+                window.open(tinyUrlPage, '_blank');
+                return 'OPENED_TINYURL';
             },
             showShareModal: async () => {
                 const linkInput = document.getElementById('share-link-input');
@@ -11985,13 +11946,16 @@
                 }
                 
                 shortenBtn.disabled = true;
-                shortenBtn.innerText = '⏳ Shortening...';
-                shortInput.value = 'Creating short link...';
+                shortenBtn.innerText = '⏳ Opening TinyURL...';
                 
-                const shortUrl = await ShareSystem.shortenURL(longUrl);
+                const result = await ShareSystem.shortenURL(longUrl);
                 
-                if (shortUrl) {
-                    shortInput.value = shortUrl;
+                if (result === 'OPENED_TINYURL') {
+                    shortInput.value = 'Copy short link from TinyURL tab →';
+                    shortenBtn.innerText = '🔗 OPEN TINYURL AGAIN';
+                    shortenBtn.disabled = false;
+                } else if (result) {
+                    shortInput.value = result;
                     shortenBtn.innerText = '✓ SHORT LINK READY!';
                 } else {
                     shortInput.value = 'Failed - use long link above';
