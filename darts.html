@@ -11927,29 +11927,42 @@
                 const shortenBtn = document.getElementById('shorten-btn');
                 
                 linkInput.value = 'Generating compressed link...';
-                // Hide the short link section entirely - the main link is already compressed
-                shortInput.parentElement.style.display = 'none';
-                shortenBtn.style.display = 'none';
+                shortInput.value = '';
+                shortInput.parentElement.style.display = ''; // Show short link section
+                shortenBtn.style.display = '';
+                shortenBtn.disabled = false;
+                shortenBtn.innerText = '🔗 OPEN TINYURL';
                 document.getElementById('share-modal').style.display = 'flex';
                 
                 setTimeout(() => {
                     const link = ShareSystem.generateShareLink();
                     linkInput.value = link || 'Error';
+                    if (link) {
+                        shortInput.value = link; // Put the same compressed link in short box too
+                    }
                 }, 50);
             },
             generateShortLink: async () => {
-                // Open TinyURL as optional external shortener
+                // Open TinyURL for additional shortening if user wants even shorter URL
                 const linkInput = document.getElementById('share-link-input');
+                const shortInput = document.getElementById('short-link-input');
+                const shortenBtn = document.getElementById('shorten-btn');
                 const longUrl = linkInput.value;
-                if (longUrl && !longUrl.includes('...')) {
-                    window.open(`https://tinyurl.com/create.php?url=${encodeURIComponent(longUrl)}`, '_blank');
+                
+                if (!longUrl || longUrl.includes('...') || longUrl.includes('Error')) {
+                    alert('Please wait for the link to generate first');
+                    return;
                 }
+                
+                shortenBtn.innerText = '⏳ Opening...';
+                window.open(`https://tinyurl.com/create.php?url=${encodeURIComponent(longUrl)}`, '_blank');
+                shortInput.value = 'Copy short link from TinyURL tab';
+                shortenBtn.innerText = '🔗 OPEN TINYURL AGAIN';
             },
             closeModal: () => { document.getElementById('share-modal').style.display = 'none'; },
             copyToClipboard: (inputId = 'share-link-input') => {
-                // Always copy from the main link input
-                const input = document.getElementById('share-link-input');
-                if (!input.value || input.value.includes('...') || input.value.includes('Failed') || input.value.includes('Error')) {
+                const input = document.getElementById(inputId);
+                if (!input.value || input.value.includes('...') || input.value.includes('Failed') || input.value.includes('Error') || input.value.includes('Copy short link')) {
                     alert('No valid link to copy');
                     return;
                 }
