@@ -11904,30 +11904,37 @@
                 if (!encoded) { alert('Error generating link'); return ''; }
                 return window.location.origin + window.location.pathname + '#s=' + encoded;
             },
-            // Shorten URL using is.gd (reusable, no limits, CORS-friendly)
+            // Shorten URL using is.gd via CORS proxy (reusable, no limits)
             shortenURL: async (longUrl) => {
+                const corsProxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url='
+                ];
+                
+                for (const proxy of corsProxies) {
+                    try {
+                        const apiUrl = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+                        const response = await fetch(proxy + encodeURIComponent(apiUrl));
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.shorturl) return data.shorturl;
+                        }
+                    } catch (e) {
+                        console.log('Proxy failed:', proxy, e.message);
+                    }
+                }
+                
+                // Final fallback: try direct (in case CORS is ever enabled)
                 try {
-                    // Try is.gd first (usually CORS-friendly)
                     const response = await fetch(`https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data.shorturl) return data.shorturl;
                     }
-                    throw new Error('is.gd failed');
                 } catch (e) {
-                    console.error('URL shortening failed:', e);
-                    // Fallback: try v.gd
-                    try {
-                        const response2 = await fetch(`https://v.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`);
-                        if (response2.ok) {
-                            const data2 = await response2.json();
-                            if (data2.shorturl) return data2.shorturl;
-                        }
-                    } catch (e2) {
-                        console.error('v.gd also failed:', e2);
-                    }
-                    return null;
+                    console.error('Direct call also failed:', e);
                 }
+                return null;
             },
             showShareModal: async () => {
                 const linkInput = document.getElementById('share-link-input');
@@ -12079,7 +12086,7 @@
 
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.1.4 | PDC Darts Simulator
+        v1.1.5 | PDC Darts Simulator
     </div>
 </body>
 
