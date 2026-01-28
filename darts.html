@@ -11890,21 +11890,29 @@
                         players: PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue, m: p.money }))
                     };
                     const json = ShareSystem.serialize(state);
-                    // Use LZ-String compression for much shorter URLs
-                    const compressed = LZString.compressToEncodedURIComponent(json);
-                    return compressed;
+                    // Use LZ-String to compress, then base64 encode for URL safety
+                    const compressed = LZString.compress(json);
+                    // Convert to base64 that's URL-safe across all platforms
+                    const b64 = btoa(unescape(encodeURIComponent(compressed)));
+                    // Make URL-safe: replace + with -, / with _, remove padding =
+                    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
                 } catch (e) { console.error('Encode error:', e); return null; }
             },
             decodeState: (encoded) => {
                 try {
-                    // Try LZ-String decompression first (new format)
-                    let json = LZString.decompressFromEncodedURIComponent(encoded);
+                    // Restore base64 padding and characters
+                    let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                    while (b64.length % 4) b64 += '=';
                     
-                    // Fallback to old base64 format for backward compatibility
+                    // Decode base64
+                    const decoded = decodeURIComponent(escape(atob(b64)));
+                    
+                    // Try to decompress with LZ-String (new compressed format)
+                    let json = LZString.decompress(decoded);
+                    
+                    // If decompression fails or doesn't look like JSON, treat as raw JSON (old format)
                     if (!json || !json.startsWith('{')) {
-                        let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-                        while (b64.length % 4) b64 += '=';
-                        json = decodeURIComponent(escape(atob(b64)));
+                        json = decoded;
                     }
                     
                     return ShareSystem.deserialize(json);
