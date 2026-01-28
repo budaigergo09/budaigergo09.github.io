@@ -11904,17 +11904,66 @@
                 if (!encoded) { alert('Error generating link'); return ''; }
                 return window.location.origin + window.location.pathname + '#s=' + encoded;
             },
-            showShareModal: () => {
-                document.getElementById('share-link-input').value = 'Generating...';
+            // Shorten URL using TinyURL (reusable, no limits)
+            shortenURL: async (longUrl) => {
+                try {
+                    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+                    if (!response.ok) throw new Error('TinyURL failed');
+                    return await response.text();
+                } catch (e) {
+                    console.error('URL shortening failed:', e);
+                    return null;
+                }
+            },
+            showShareModal: async () => {
+                const linkInput = document.getElementById('share-link-input');
+                const shortInput = document.getElementById('short-link-input');
+                const shortenBtn = document.getElementById('shorten-btn');
+                
+                linkInput.value = 'Generating...';
+                shortInput.value = '';
+                shortenBtn.disabled = false;
+                shortenBtn.innerText = '🔗 GENERATE SHORT LINK';
                 document.getElementById('share-modal').style.display = 'flex';
+                
                 setTimeout(() => {
                     const link = ShareSystem.generateShareLink();
-                    document.getElementById('share-link-input').value = link || 'Error';
+                    linkInput.value = link || 'Error';
                 }, 50);
             },
+            generateShortLink: async () => {
+                const linkInput = document.getElementById('share-link-input');
+                const shortInput = document.getElementById('short-link-input');
+                const shortenBtn = document.getElementById('shorten-btn');
+                
+                const longUrl = linkInput.value;
+                if (!longUrl || longUrl === 'Generating...' || longUrl === 'Error') {
+                    alert('Please wait for the link to generate first');
+                    return;
+                }
+                
+                shortenBtn.disabled = true;
+                shortenBtn.innerText = '⏳ Shortening...';
+                shortInput.value = 'Creating short link...';
+                
+                const shortUrl = await ShareSystem.shortenURL(longUrl);
+                
+                if (shortUrl) {
+                    shortInput.value = shortUrl;
+                    shortenBtn.innerText = '✓ SHORT LINK READY!';
+                } else {
+                    shortInput.value = 'Failed - use long link above';
+                    shortenBtn.innerText = '❌ Failed - Try Again';
+                    shortenBtn.disabled = false;
+                }
+            },
             closeModal: () => { document.getElementById('share-modal').style.display = 'none'; },
-            copyToClipboard: () => {
-                const input = document.getElementById('share-link-input');
+            copyToClipboard: (inputId = 'share-link-input') => {
+                const input = document.getElementById(inputId);
+                if (!input.value || input.value.includes('...') || input.value.includes('Failed')) {
+                    alert('No valid link to copy');
+                    return;
+                }
                 input.select(); document.execCommand('copy');
                 const btn = event.target; const orig = btn.innerText;
                 btn.innerText = '✓ COPIED!'; setTimeout(() => btn.innerText = orig, 2000);
@@ -11996,11 +12045,17 @@
         <div style="background:linear-gradient(145deg, #1a1f35, #0f1525); border:2px solid #ffd700; border-radius:12px; padding:25px; max-width:500px; width:100%; color:white;">
             <div style="font-size:18px; font-weight:bold; color:#ffd700; margin-bottom:15px; text-align:center;">📤 SHARE SEASON PROGRESS</div>
             <div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.3); border-radius:6px;">
-                <div style="font-size:11px; color:#aaa; margin-bottom:8px;">SHARE LINK:</div>
+                <div style="font-size:11px; color:#aaa; margin-bottom:8px;">FULL SHARE LINK:</div>
                 <input type="text" id="share-link-input" readonly style="width:100%; padding:8px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#ddd; font-size:10px;">
-                <button onclick="ShareSystem.copyToClipboard()" style="width:100%; margin-top:8px; padding:10px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY LINK</button>
+                <button onclick="ShareSystem.copyToClipboard('share-link-input')" style="width:100%; margin-top:8px; padding:10px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY FULL LINK</button>
             </div>
-            <div style="font-size:11px; color:#888; margin-bottom:15px;">Includes: completed events, rankings, money, form & fatigue</div>
+            <div style="margin-bottom:15px; padding:12px; background:rgba(0,102,0,0.2); border:1px solid #00b359; border-radius:6px;">
+                <div style="font-size:11px; color:#00b359; margin-bottom:8px;">🔗 SHORT LINK (Reusable - No Limits!):</div>
+                <input type="text" id="short-link-input" readonly placeholder="Click button below to generate..." style="width:100%; padding:8px; background:#0a0e1a; border:1px solid #00b359; border-radius:4px; color:#0f0; font-size:12px; font-weight:bold;">
+                <button id="shorten-btn" onclick="ShareSystem.generateShortLink()" style="width:100%; margin-top:8px; padding:10px; background:#00b359; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🔗 GENERATE SHORT LINK</button>
+                <button onclick="ShareSystem.copyToClipboard('short-link-input')" style="width:100%; margin-top:8px; padding:10px; background:#006633; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY SHORT LINK</button>
+            </div>
+            <div style="font-size:11px; color:#888; margin-bottom:15px;">Includes: completed events, rankings, money, form & fatigue<br><span style="color:#00b359;">✓ Short links work forever and have no usage limits!</span></div>
             <button onclick="ShareSystem.closeModal()" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">CLOSE</button>
         </div>
     </div>
