@@ -580,13 +580,46 @@ switch ($uri) {
                 jsonResponse(['success' => true]);
             }
             
-            // Remove duplicate players (keep first occurrence by name)
+            // Remove duplicate players (handles "First Last" vs "Last, First" format)
             if ($adminRoute === 'players/deduplicate' && $method === 'POST') {
                 $db = getDB();
-                // Count duplicates before
                 $beforeCount = $db->querySingle('SELECT COUNT(*) FROM players');
-                // Delete duplicates keeping the one with lowest id for each name
-                $db->exec("DELETE FROM players WHERE id NOT IN (SELECT MIN(id) FROM players GROUP BY name)");
+                
+                // Get all players
+                $result = $db->query('SELECT id, name FROM players ORDER BY id');
+                $players = [];
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    $players[] = $row;
+                }
+                
+                // Normalize name: "Last, First" -> "First Last"
+                function normalizeName($name) {
+                    $name = trim($name);
+                    if (strpos($name, ',') !== false) {
+                        $parts = explode(',', $name, 2);
+                        return trim($parts[1]) . ' ' . trim($parts[0]);
+                    }
+                    return $name;
+                }
+                
+                // Find duplicates
+                $seen = [];
+                $toDelete = [];
+                foreach ($players as $p) {
+                    $normalized = strtolower(normalizeName($p['name']));
+                    if (isset($seen[$normalized])) {
+                        $toDelete[] = $p['id'];
+                    } else {
+                        $seen[$normalized] = $p['id'];
+                    }
+                }
+                
+                // Delete duplicates
+                if (!empty($toDelete)) {
+                    $ids = implode(',', $toDelete);
+                    $db->exec("DELETE FROM players WHERE id IN ($ids)");
+                }
+                
                 $afterCount = $db->querySingle('SELECT COUNT(*) FROM players');
                 $removed = $beforeCount - $afterCount;
                 jsonResponse(['success' => true, 'removed' => $removed, 'remaining' => $afterCount]);
