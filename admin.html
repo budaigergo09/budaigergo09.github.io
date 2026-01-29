@@ -971,8 +971,8 @@
                 const response = await fetch('/darts.html');
                 const html = await response.text();
                 
-                // Extract Season.events array
-                const match = html.match(/events:\s*\[([\s\S]*?)\]\s*,\s*state:/);
+                // Extract Season.defaultEvents array
+                const match = html.match(/defaultEvents:\s*\[([\s\S]*?)\]\s*,\s*events:/);
                 if (!match) throw new Error('Could not find tournaments data');
                 
                 // Parse the tournaments
