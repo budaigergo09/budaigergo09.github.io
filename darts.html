@@ -12101,11 +12101,16 @@
             applyGameState: (data) => {
                 if (data.season) {
                     Season.state = { ...Season.state, ...data.season };
-                    // Restore Sets from arrays
-                    if (data.season.completedEvents && Array.isArray(data.season.completedEvents)) {
-                        Season.state.completedEvents = new Set(data.season.completedEvents);
-                    } else if (data.season.completedEvents && data.season.completedEvents.__set) {
-                        Season.state.completedEvents = new Set(data.season.completedEvents.__set);
+                    // Ensure completedEvents stays as an array
+                    if (data.season.completedEvents) {
+                        if (data.season.completedEvents.__set) {
+                            // Convert from Set serialization format back to array
+                            Season.state.completedEvents = data.season.completedEvents.__set;
+                        } else if (Array.isArray(data.season.completedEvents)) {
+                            Season.state.completedEvents = data.season.completedEvents;
+                        } else {
+                            Season.state.completedEvents = [];
+                        }
                     }
                 }
                 if (data.players) {
@@ -12330,7 +12335,7 @@
 
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.2.1 | PDC Darts Simulator
+        v1.2.2 | PDC Darts Simulator
     </div>
 </body>
 
