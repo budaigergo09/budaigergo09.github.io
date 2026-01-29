@@ -1032,12 +1032,19 @@
                     const batch = players.slice(i, i + batchSize);
                     status.innerHTML = `<div class="alert alert-info">Importing players... ${i}/${players.length}</div>`;
                     
-                    const result = await fetch(API_BASE + '/admin/players/import', {
+                    const response = await fetch(API_BASE + '/admin/players/import', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ players: batch })
-                    }).then(r => r.json());
+                    });
                     
+                    const responseText = await response.text();
+                    console.log('API Response:', response.status, responseText);
+                    
+                    if (!response.ok) throw new Error(`HTTP ${response.status}: ${responseText}`);
+                    if (!responseText) throw new Error('Empty response from server');
+                    
+                    const result = JSON.parse(responseText);
                     if (!result.success) throw new Error(result.error || 'Import failed');
                     imported += result.imported;
                 }
@@ -1046,6 +1053,7 @@
                 loadDashboard();
             } catch (e) {
                 status.innerHTML = `<div class="alert alert-error">Failed to import players: ${e.message}</div>`;
+                console.error('Import error:', e);
             }
             input.value = ''; // Reset file input
         }
