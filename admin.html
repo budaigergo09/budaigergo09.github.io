@@ -967,28 +967,10 @@
             status.innerHTML = '<div class="alert alert-info">Importing tournaments... Please wait.</div>';
             
             try {
-                // Fetch the default tournaments from the game page
-                const response = await fetch('/darts.html');
-                const html = await response.text();
-                
-                // Extract Season.defaultEvents array - match from defaultEvents: [ to the closing ]
-                const startIdx = html.indexOf('defaultEvents: [');
-                if (startIdx === -1) throw new Error('Could not find tournaments data');
-                
-                // Find matching closing bracket
-                let depth = 0;
-                let endIdx = -1;
-                for (let i = startIdx + 15; i < html.length; i++) {
-                    if (html[i] === '[') depth++;
-                    if (html[i] === ']') {
-                        if (depth === 0) { endIdx = i; break; }
-                        depth--;
-                    }
-                }
-                if (endIdx === -1) throw new Error('Could not parse tournaments data');
-                
-                const tournamentsStr = html.substring(startIdx + 15, endIdx + 1);
-                const tournaments = eval(tournamentsStr); // Using eval for JS object notation
+                // Fetch tournaments from JSON file
+                const response = await fetch('/tournaments.json');
+                if (!response.ok) throw new Error('Could not load tournaments.json');
+                const tournaments = await response.json();
                 
                 // Import to database
                 const result = await fetch(API_BASE + '/admin/tournaments/import', {
@@ -1013,17 +995,10 @@
             status.innerHTML = '<div class="alert alert-info">Importing players... Please wait.</div>';
             
             try {
-                // Fetch the default players from the game page
-                const response = await fetch('/darts.html');
-                const html = await response.text();
-                
-                // Extract RAW_PLAYERS array
-                const match = html.match(/const RAW_PLAYERS = \[([\s\S]*?)\];/);
-                if (!match) throw new Error('Could not find players data');
-                
-                // Parse the players
-                const playersStr = '[' + match[1] + ']';
-                const players = eval(playersStr); // Using eval for JS object notation
+                // Fetch players from JSON file
+                const response = await fetch('/players.json');
+                if (!response.ok) throw new Error('Could not load players.json');
+                const players = await response.json();
                 
                 // Import to database
                 const result = await fetch(API_BASE + '/admin/players/import', {
