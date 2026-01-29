@@ -2879,6 +2879,46 @@
         });
 
         // ================= DATA =================
+        // API URL for database operations
+        const API_BASE = '/api';
+        
+        // Database loader - tries to load from server, falls back to hardcoded
+        const DataLoader = {
+            async loadPlayers() {
+                try {
+                    const response = await fetch(API_BASE + '/players');
+                    const data = await response.json();
+                    if (data.success && data.players && data.players.length > 0) {
+                        console.log('[DataLoader] Loaded ' + data.players.length + ' players from database');
+                        return data.players;
+                    }
+                } catch (e) {
+                    console.log('[DataLoader] Could not load players from database, using defaults');
+                }
+                return null; // Fall back to hardcoded
+            },
+            
+            async loadTournaments() {
+                try {
+                    const response = await fetch(API_BASE + '/tournaments');
+                    const data = await response.json();
+                    if (data.success && data.tournaments && data.tournaments.length > 0) {
+                        console.log('[DataLoader] Loaded ' + data.tournaments.length + ' tournaments from database');
+                        // Convert eligibleRegions from JSON string to array if needed
+                        return data.tournaments.map(t => ({
+                            ...t,
+                            cardRequired: Boolean(t.cardRequired),
+                            eligibleRegions: typeof t.eligibleRegions === 'string' ? JSON.parse(t.eligibleRegions) : t.eligibleRegions
+                        }));
+                    }
+                } catch (e) {
+                    console.log('[DataLoader] Could not load tournaments from database, using defaults');
+                }
+                return null; // Fall back to hardcoded
+            }
+        };
+        
+        // Default players (fallback if database is empty or unavailable)
         const RAW_PLAYERS = [{name: "Luke Littler", country: "eng", avg: 101.09, co: 46.0, fav: 20, money: 2770500, tourCard: true},
 {name: "Luke Humphries", country: "eng", avg: 98.69, co: 45.0, fav: 20, money: 1172000, tourCard: true},
 {name: "Gian van Veen", country: "nl", avg: 98.27, co: 44.0, fav: 20, money: 912500, tourCard: true},
@@ -4467,8 +4507,9 @@
                     if (!Season.state.premierLeague.playoffQualifiers) Season.state.premierLeague.playoffQualifiers = [];
 
                     // ===== GENERAL SAFETY INIT =====
-                    if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set() };
+                    if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set(), internationalQualifiers: [] };
                     if (!Season.state.wcQualified.qualifiers) Season.state.wcQualified.qualifiers = new Set();
+                    if (!Season.state.wcQualified.internationalQualifiers) Season.state.wcQualified.internationalQualifiers = [];
                     if (!Season.state.winmauQualifiers) Season.state.winmauQualifiers = [];
                     if (!Season.state.activeOOMView) Season.state.activeOOMView = "main";
 
@@ -5550,13 +5591,14 @@
                 NewsSystem.add(type, { player: "", event: "Season", overrideText: text });
             },
 
-            events: [
+            // Default events (fallback if database is empty or unavailable)
+            defaultEvents: [
                 { id: 1, name: "Q-SCHOOL UK - First Stage Day 1", date: "Jan 05", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 2, name: "Q-SCHOOL UK - First Stage Day 2", date: "Jan 06", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 3, name: "Q-SCHOOL UK - First Stage Day 3", date: "Jan 07", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 10, name: "Q-SCHOOL EU - First Stage Day 1", date: "Jan 05", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
                 { id: 11, name: "Q-SCHOOL EU - First Stage Day 2", date: "Jan 06", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
-                { id: 12, name: "Q-SCHOOL EU - First Stage Day 3", date: "Jan 07", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
+                { id: 12, name: "Q-SCHOOL EU - Final Stage Day 3", date: "Jan 07", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'eu', eligibleRegions: ['ger','nl','bel','fra','aut','cze','pol','sui','esp','ita','svk','rou','hun'] },
                 { id: 4, name: "Q-SCHOOL UK - Final Stage Day 1", date: "Jan 08", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 5, name: "Q-SCHOOL UK - Final Stage Day 2", date: "Jan 09", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
                 { id: 6, name: "Q-SCHOOL UK - Final Stage Day 3", date: "Jan 10", format: "legs", players: 128, type: 'q-school', cardRequired: false, location: 'uk', eligibleRegions: ['eng','wal','sco','nir','irl'] },
@@ -5772,6 +5814,10 @@
                 { id: 31, name: "WORLD CHAMPIONSHIP", date: "Dec 12", format: "sets", players: 128, type: 'world', cardRequired: true }
 
             ],
+            
+            // Active events array - will be loaded from DB or use defaults
+            events: [],
+            
             state: {
                 activeEventIndex: 0,
                 year: 2026,
@@ -5809,7 +5855,8 @@
                 },
 
                 wcQualified: {
-                    qualifiers: new Set()
+                    qualifiers: new Set(),
+                    internationalQualifiers: []
                 },
                 ukOpenQualifiers: [],
 
@@ -5925,6 +5972,12 @@
             },
 
             init: () => {
+                // Load events from defaults if not already loaded from DB
+                if (Season.events.length === 0) {
+                    Season.events = [...Season.defaultEvents];
+                    console.log('[Season.init] Using default events:', Season.events.length);
+                }
+                
                 // Initialize main OOM with only tour card holders
                 if (Object.keys(Season.state.orderOfMerit).length === 0) {
                     PLAYERS_DB.forEach(p => {
@@ -5945,7 +5998,8 @@
                 if (!Season.state.proTourOOM) Season.state.proTourOOM = {};
                 if (!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
                 if (!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
-                if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set() };
+                if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set(), internationalQualifiers: [] };
+                if (!Season.state.wcQualified.internationalQualifiers) Season.state.wcQualified.internationalQualifiers = [];
                 if (!Season.state.qSchool) {
                     Season.state.qSchool = {
                         ukOOM: {}, euOOM: {}, ukFinalStageQualified: [], euFinalStageQualified: [],
@@ -5965,8 +6019,19 @@
                 Season.renderUI();
             },
 
-            reset: () => {
+            reset: async () => {
                 if (!confirm("Reset Career Mode completely?")) return;
+                
+                // If logged in, also clear server save
+                if (AuthSystem.currentUser) {
+                    if (confirm("Also delete your cloud save?")) {
+                        try {
+                            await AuthSystem.apiCall('/save', 'POST', { data: null });
+                        } catch (e) {
+                            console.log('Could not clear cloud save:', e);
+                        }
+                    }
+                }
                 
                 // Reset persistence
                 localStorage.removeItem('pdc_news');
@@ -5988,7 +6053,7 @@
                     worldSeriesOOM: {},
                     worldSeriesHistory: [],
                     activeOOMView: "main",
-                    wcQualified: { qualifiers: new Set() },
+                    wcQualified: { qualifiers: new Set(), internationalQualifiers: [] },
                     qSchool: {
                         ukOOM: {}, euOOM: {}, ukFinalStageQualified: [], euFinalStageQualified: [],
                         ukParticipants: [], euParticipants: [], ukTourCardWinners: [], euTourCardWinners: [],
@@ -6415,7 +6480,7 @@
                     currentNight: 0,
                     playoffQualifiers: []
                 };
-                Season.state.wcQualified = { qualifiers: new Set() };
+                Season.state.wcQualified = { qualifiers: new Set(), internationalQualifiers: [] };
                 Season.state.ukOpenQualifiers = [];
                 Season.state.etQualifiers = {};
                 Season.state.wsQualifiers = {};
@@ -8047,6 +8112,58 @@
                     return;
                 }
 
+                // ================= WC QUALIFIER STORAGE =================
+                if (ev.type === "wc-qual-intl" || ev.type === "wc-qual-tc") {
+                    const slots = ev.slots || 1;
+
+                    // Initialize wcQualified structure if needed
+                    if (!Season.state.wcQualified) {
+                        Season.state.wcQualified = { qualifiers: new Set(), internationalQualifiers: [] };
+                    }
+                    if (!Season.state.wcQualified.internationalQualifiers) {
+                        Season.state.wcQualified.internationalQualifiers = [];
+                    }
+
+                    const positions = getParticipations();
+                    const sorted = Object.entries(positions)
+                        .sort((a, b) => a[1].position - b[1].position)
+                        .map(e => e[0]);
+
+                    const qualifiedPlayers = sorted.slice(0, slots);
+
+                    // Add qualified players to the WC international qualifiers list
+                    qualifiedPlayers.forEach(name => {
+                        if (!Season.state.wcQualified.internationalQualifiers.includes(name)) {
+                            Season.state.wcQualified.internationalQualifiers.push(name);
+                        }
+                    });
+
+                    if (!Season.isBulkSim) {
+                        Tournament.showCelebration("QUALIFIED FOR WORLD CHAMPIONSHIP", ev.name, qualifiedPlayers);
+                    }
+
+                    Season.state.completedEvents.push({
+                        id: ev.id,
+                        name: ev.name,
+                        winner: qualifiedPlayers[0] || "Qualifiers decided",
+                        participations: positions,
+                        date: ev.date
+                    });
+
+                    Season.state.activeEventIndex++;
+                    Tournament.state.active = false;
+
+                    if (!isBulkSim) {
+                        Persistence.save();
+                        document.getElementById('setup-screen').style.display = 'flex';
+                        document.getElementById('match-screen').style.display = 'none';
+                        document.getElementById('tournament-hub').style.display = 'none';
+                        App.switchTab('season');
+                        Season.renderUI();
+                    }
+                    return;
+                }
+
                 // ================= WS & GS QUALIFIER STORAGE =================
                 if (ev.type === "ws-qual-tc" || ev.type === "gs-qual-tc") {
                     const qualStore = ev.type === "ws-qual-tc" ? "wsQualifiers" : "gsQualifiers";
@@ -9479,8 +9596,8 @@
                 if (Tournament.config.mode === 'sets' && ev.type === 'winmaudm') {
                     const setsKey = roundName + '_sets';
                     if (cfg[setsKey] !== undefined) {
-                        // Convert sets to legs based on legs per set setting
-                        const legsPerSet = parseInt(document.getElementById('inp-tourn-set-legs')?.value) || 3;
+                        // Convert sets to legs based on legs per set setting (Winmau uses 2 legs per set)
+                        const legsPerSet = 2;
                         return cfg[setsKey] * legsPerSet;
                     }
                 }
@@ -10324,7 +10441,7 @@
                 if (Tournament.config.mode === 'sets') {
                     const ev = (typeof Season !== 'undefined' && Season.events) ? Season.events[Season.state.activeEventIndex] : null;
                     if (ev && ev.type === 'winmaudm') {
-                        App.config.setLegs = 3;
+                        App.config.setLegs = 3; // Best of 3 legs per set (first to 2 wins the set)
                     } else {
                         App.config.setLegs = (roundInfo.target * 2) - 1;
                     }
@@ -12094,6 +12211,13 @@
                         ft: p.fatigue,
                         m: p.money
                     })),
+                    tournament: {
+                        config: Tournament.config,
+                        state: {
+                            ...Tournament.state,
+                            selectedPlayerIndices: [...Tournament.state.selectedPlayerIndices]
+                        }
+                    },
                     savedAt: Date.now()
                 };
             },
@@ -12110,6 +12234,19 @@
                             Season.state.completedEvents = data.season.completedEvents;
                         } else {
                             Season.state.completedEvents = [];
+                        }
+                    }
+                }
+                // Restore tournament state
+                if (data.tournament) {
+                    if (data.tournament.config) {
+                        Tournament.config = { ...Tournament.config, ...data.tournament.config };
+                    }
+                    if (data.tournament.state) {
+                        Tournament.state = { ...Tournament.state, ...data.tournament.state };
+                        // Restore Set from array
+                        if (Array.isArray(data.tournament.state.selectedPlayerIndices)) {
+                            Tournament.state.selectedPlayerIndices = new Set(data.tournament.state.selectedPlayerIndices);
                         }
                     }
                 }
@@ -12204,9 +12341,34 @@
             }
         };
 
-        // INITIALIZATION f
-        document.addEventListener("DOMContentLoaded", () => {
+        // INITIALIZATION - Async to load from database first
+        document.addEventListener("DOMContentLoaded", async () => {
             try {
+                // Try to load players and tournaments from database
+                console.log("[Init] Attempting to load data from database...");
+                
+                const [dbPlayers, dbTournaments] = await Promise.all([
+                    DataLoader.loadPlayers(),
+                    DataLoader.loadTournaments()
+                ]);
+                
+                // If we got players from DB, use them instead of hardcoded
+                if (dbPlayers && dbPlayers.length > 0) {
+                    RAW_PLAYERS.length = 0; // Clear the array
+                    dbPlayers.forEach(p => RAW_PLAYERS.push(p));
+                    console.log("[Init] Using " + dbPlayers.length + " players from database");
+                } else {
+                    console.log("[Init] Using " + RAW_PLAYERS.length + " hardcoded players");
+                }
+                
+                // If we got tournaments from DB, use them
+                if (dbTournaments && dbTournaments.length > 0) {
+                    Season.events = dbTournaments;
+                    console.log("[Init] Using " + dbTournaments.length + " tournaments from database");
+                } else {
+                    console.log("[Init] Will use default tournaments");
+                }
+                
                 console.log("App starting, RAW_PLAYERS length:", RAW_PLAYERS.length);
                 console.log("PLAYERS_DB length:", PLAYERS_DB.length);
                 App.setMode('sets');
@@ -12335,7 +12497,7 @@
 
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.2.2 | PDC Darts Simulator
+        v1.2.6 | PDC Darts Simulator
     </div>
 </body>
 

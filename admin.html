@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDC Sim Admin Panel</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        /* Login Screen */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        #login-screen.hidden { display: none; }
+        
+        .login-box {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .login-box h1 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #0a0e1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: #ffd700;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .login-box button:hover { background: #ffed4a; }
+        .login-error {
+            color: #ff4444;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        /* Admin Panel */
+        #admin-panel { display: none; }
+        #admin-panel.active { display: block; }
+        
+        .header {
+            background: linear-gradient(90deg, #0a0e1a, #1a1f35);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ffd700;
+        }
+        .header h1 { color: #ffd700; font-size: 24px; }
+        .header button {
+            padding: 10px 20px;
+            background: #9a0000;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #0f1525;
+            padding: 20px;
+            border-right: 1px solid #333;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: transparent;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #ccc;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+        }
+        .sidebar button:hover { background: #1a1f35; border-color: #ffd700; }
+        .sidebar button.active { background: #ffd700; color: #000; border-color: #ffd700; }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+        }
+        .data-table th {
+            background: #1a1f35;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        .data-table tr:hover { background: rgba(255,215,0,0.05); }
+        
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-right: 3px;
+        }
+        .btn-edit { background: #0066cc; color: #fff; }
+        .btn-delete { background: #9a0000; color: #fff; }
+        .btn-add { background: #00b359; color: #fff; padding: 10px 20px; font-size: 14px; }
+        .btn-import { background: #6600cc; color: #fff; padding: 10px 20px; font-size: 14px; }
+        .btn-clear { background: #cc6600; color: #fff; padding: 10px 20px; font-size: 14px; }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 {
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: #aaa;
+            font-size: 11px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            background: #0a0e1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group { flex: 1; }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-save { background: #00b359; color: #fff; }
+        .btn-cancel { background: #444; color: #fff; }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        .stat-card .label {
+            color: #888;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .toolbar-left {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-bar input {
+            width: 250px;
+            padding: 10px;
+            background: #0a0e1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .status-yes { background: #00b359; }
+        .status-no { background: #666; }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .alert-success { background: rgba(0, 179, 89, 0.2); border: 1px solid #00b359; }
+        .alert-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; }
+        .alert-info { background: rgba(0, 102, 204, 0.2); border: 1px solid #0066cc; }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>🔐 Admin Login</h1>
+            <input type="text" id="admin-username" placeholder="Username">
+            <input type="password" id="admin-password" placeholder="Password">
+            <button onclick="adminLogin()">LOGIN</button>
+            <div id="login-error" class="login-error"></div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div id="admin-panel">
+        <div class="header">
+            <h1>⚙️ PDC Sim Admin Panel</h1>
+            <button onclick="adminLogout()">🚪 Logout</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <button class="active" onclick="showSection('dashboard', this)">📊 Dashboard</button>
+                <button onclick="showSection('tournaments', this)">🏆 Tournaments</button>
+                <button onclick="showSection('players', this)">👤 Players</button>
+                <button onclick="showSection('users', this)">👥 Users</button>
+                <button onclick="showSection('import', this)">📥 Import Data</button>
+            </div>
+            
+            <div class="content">
+                <!-- Dashboard -->
+                <div id="section-dashboard" class="section">
+                    <h2>Dashboard</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="number" id="stat-tournaments">0</div>
+                            <div class="label">Tournaments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="stat-players">0</div>
+                            <div class="label">Players</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="stat-users">0</div>
+                            <div class="label">Registered Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="stat-saves">0</div>
+                            <div class="label">Cloud Saves</div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>📋 Setup Info:</strong> After git pull on server, access the admin panel at <code>/admin.html</code>. 
+                        If database is empty, use the <strong>Import Data</strong> section to load the default tournaments and players.
+                    </div>
+                </div>
+                
+                <!-- Tournaments -->
+                <div id="section-tournaments" class="section" style="display:none;">
+                    <h2>Tournament Management</h2>
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-bar">
+                                <input type="text" id="tournament-search" placeholder="Search tournaments..." oninput="filterTournaments()">
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-add" onclick="openTournamentModal()">+ Add Tournament</button>
+                        </div>
+                    </div>
+                    <div id="tournaments-loading" class="loading">Loading tournaments...</div>
+                    <table class="data-table" id="tournaments-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Format</th>
+                                <th>Players</th>
+                                <th>Type</th>
+                                <th>Card</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tournaments-tbody"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Players -->
+                <div id="section-players" class="section" style="display:none;">
+                    <h2>Player Management</h2>
+                    <div class="toolbar">
+                        <div class="toolbar-left">
+                            <div class="search-bar">
+                                <input type="text" id="player-search" placeholder="Search players..." oninput="filterPlayers()">
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-add" onclick="openPlayerModal()">+ Add Player</button>
+                        </div>
+                    </div>
+                    <div id="players-loading" class="loading">Loading players...</div>
+                    <table class="data-table" id="players-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Country</th>
+                                <th>Avg</th>
+                                <th>CO%</th>
+                                <th>Fav</th>
+                                <th>Money</th>
+                                <th>Tour Card</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-tbody"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Users -->
+                <div id="section-users" class="section" style="display:none;">
+                    <h2>User Management</h2>
+                    <div id="users-loading" class="loading">Loading users...</div>
+                    <table class="data-table" id="users-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Created</th>
+                                <th>Last Sync</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody"></tbody>
+                    </table>
+                </div>
+                
+                <!-- Import Data -->
+                <div id="section-import" class="section" style="display:none;">
+                    <h2>Import Default Data</h2>
+                    <div class="alert alert-info">
+                        <strong>📋 Instructions:</strong> Use these buttons to import the default tournaments and players from the game. 
+                        This is useful for initial setup or resetting the database to defaults.
+                    </div>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                        <div class="stat-card" style="flex: 1; min-width: 250px;">
+                            <h3 style="color: #ffd700; margin-bottom: 15px;">🏆 Tournaments</h3>
+                            <p style="color: #888; margin-bottom: 15px;">Import all default season tournaments</p>
+                            <button class="btn btn-import" onclick="importDefaultTournaments()" style="width: 100%;">Import Tournaments</button>
+                            <button class="btn btn-clear" onclick="clearTournaments()" style="width: 100%; margin-top: 10px;">Clear All</button>
+                        </div>
+                        <div class="stat-card" style="flex: 1; min-width: 250px;">
+                            <h3 style="color: #ffd700; margin-bottom: 15px;">👤 Players</h3>
+                            <p style="color: #888; margin-bottom: 15px;">Import all default players database</p>
+                            <button class="btn btn-import" onclick="importDefaultPlayers()" style="width: 100%;">Import Players</button>
+                            <button class="btn btn-clear" onclick="clearPlayers()" style="width: 100%; margin-top: 10px;">Clear All</button>
+                        </div>
+                    </div>
+                    <div id="import-status" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tournament Modal -->
+    <div id="tournament-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="tournament-modal-title">Add Tournament</h3>
+            <input type="hidden" id="edit-tournament-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tournament ID</label>
+                    <input type="number" id="edit-tourn-id" placeholder="Unique ID">
+                </div>
+                <div class="form-group">
+                    <label>Tournament Name</label>
+                    <input type="text" id="edit-tourn-name" placeholder="e.g., WORLD CHAMPIONSHIP">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="text" id="edit-tourn-date" placeholder="e.g., Dec 15">
+                </div>
+                <div class="form-group">
+                    <label>Players Count</label>
+                    <input type="number" id="edit-tourn-players" placeholder="e.g., 32">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Format</label>
+                    <select id="edit-tourn-format">
+                        <option value="legs">Legs</option>
+                        <option value="sets">Sets</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="edit-tourn-type">
+                        <option value="players">Players Championship</option>
+                        <option value="minor">European Tour</option>
+                        <option value="major">Major</option>
+                        <option value="premier-league">Premier League</option>
+                        <option value="premier-league-playoff">PL Playoff</option>
+                        <option value="world">World Championship</option>
+                        <option value="grandprix">Grand Prix</option>
+                        <option value="masters">Masters</option>
+                        <option value="masters-final">Masters Final</option>
+                        <option value="matchplay">World Matchplay</option>
+                        <option value="uk-open">UK Open</option>
+                        <option value="challenge">Challenge Tour</option>
+                        <option value="q-school">Q-School</option>
+                        <option value="et-qual-tc">ET Qualifier (TC)</option>
+                        <option value="et-host-nation">ET Host Nation</option>
+                        <option value="et-east-european">ET East European</option>
+                        <option value="et-nordic-baltic">ET Nordic Baltic</option>
+                        <option value="wc-qual-intl">WC Intl Qualifier</option>
+                        <option value="wc-qual-tc">WC TC Qualifier</option>
+                        <option value="ws-qual-tc">World Series Qual</option>
+                        <option value="gs-qual-tc">Grand Slam Qual</option>
+                        <option value="wmasters-qual">W Masters Qual</option>
+                        <option value="winmaudm">Winmau Masters</option>
+                        <option value="grandslam">Grand Slam</option>
+                        <option value="europeanf">European Final</option>
+                        <option value="playersf">Players Final</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tour Card Required</label>
+                    <select id="edit-tourn-cardRequired">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Location (optional)</label>
+                    <input type="text" id="edit-tourn-location" placeholder="e.g., uk, eu">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Region (optional)</label>
+                    <input type="text" id="edit-tourn-region" placeholder="e.g., asia, europe">
+                </div>
+                <div class="form-group">
+                    <label>Night (PL only)</label>
+                    <input type="number" id="edit-tourn-night" placeholder="e.g., 1-16">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Target Event ID (qualifiers)</label>
+                    <input type="number" id="edit-tourn-targetEvent" placeholder="Target tournament ID">
+                </div>
+                <div class="form-group">
+                    <label>Qualification Slots</label>
+                    <input type="number" id="edit-tourn-slots" placeholder="e.g., 8">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeTournamentModal()">Cancel</button>
+                <button class="btn-save" onclick="saveTournament()">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Player Modal -->
+    <div id="player-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="player-modal-title">Add Player</h3>
+            <input type="hidden" id="edit-player-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Player Name</label>
+                    <input type="text" id="edit-player-name" placeholder="e.g., Luke Littler">
+                </div>
+                <div class="form-group">
+                    <label>Country Code</label>
+                    <input type="text" id="edit-player-country" placeholder="e.g., eng, nl, ger">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Average</label>
+                    <input type="number" step="0.01" id="edit-player-avg" placeholder="e.g., 95.5">
+                </div>
+                <div class="form-group">
+                    <label>Checkout %</label>
+                    <input type="number" step="0.1" id="edit-player-co" placeholder="e.g., 40.0">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Favourite Double</label>
+                    <input type="number" id="edit-player-fav" placeholder="e.g., 20, 16, 18">
+                </div>
+                <div class="form-group">
+                    <label>Prize Money</label>
+                    <input type="number" id="edit-player-money" placeholder="e.g., 500000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Tour Card</label>
+                <select id="edit-player-tourCard">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closePlayerModal()">Cancel</button>
+                <button class="btn-save" onclick="savePlayer()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let tournaments = [];
+        let players = [];
+        let isLoggedIn = false;
+        
+        // Admin credentials
+        const ADMIN_USER = 'root';
+        const ADMIN_PASS = 'admin';
+        
+        // ==================== AUTH ====================
+        
+        function adminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            
+            if (username === ADMIN_USER && password === ADMIN_PASS) {
+                isLoggedIn = true;
+                localStorage.setItem('admin_logged_in', 'true');
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.add('active');
+                loadDashboard();
+            } else {
+                document.getElementById('login-error').innerText = 'Invalid credentials';
+            }
+        }
+        
+        function adminLogout() {
+            isLoggedIn = false;
+            localStorage.removeItem('admin_logged_in');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.remove('active');
+        }
+        
+        function showSection(section, btn) {
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+            document.getElementById('section-' + section).style.display = 'block';
+            if (btn) btn.classList.add('active');
+            
+            if (section === 'tournaments') loadTournaments();
+            if (section === 'players') loadPlayers();
+            if (section === 'users') loadUsers();
+            if (section === 'dashboard') loadDashboard();
+        }
+        
+        // ==================== DASHBOARD ====================
+        
+        async function loadDashboard() {
+            try {
+                const stats = await fetch(API_BASE + '/admin/stats').then(r => r.json());
+                document.getElementById('stat-tournaments').innerText = stats.tournaments || 0;
+                document.getElementById('stat-players').innerText = stats.players || 0;
+                document.getElementById('stat-users').innerText = stats.users || 0;
+                document.getElementById('stat-saves').innerText = stats.saves || 0;
+            } catch (e) {
+                console.log('Stats not available:', e);
+            }
+        }
+        
+        // ==================== TOURNAMENTS ====================
+        
+        async function loadTournaments() {
+            document.getElementById('tournaments-loading').style.display = 'block';
+            document.getElementById('tournaments-table').style.display = 'none';
+            
+            try {
+                const result = await fetch(API_BASE + '/admin/tournaments').then(r => r.json());
+                if (result.success) {
+                    tournaments = result.tournaments;
+                    renderTournaments();
+                }
+            } catch (e) {
+                console.error('Failed to load tournaments:', e);
+                document.getElementById('tournaments-loading').innerText = 'Failed to load tournaments';
+            }
+        }
+        
+        function renderTournaments(data = null) {
+            const list = data || tournaments;
+            document.getElementById('tournaments-loading').style.display = 'none';
+            document.getElementById('tournaments-table').style.display = 'table';
+            
+            const tbody = document.getElementById('tournaments-tbody');
+            tbody.innerHTML = list.map(t => `
+                <tr>
+                    <td>${t.id}</td>
+                    <td>${t.name}</td>
+                    <td>${t.date}</td>
+                    <td><span style="color:${t.format === 'sets' ? '#ffd700' : '#00b359'}">${t.format.toUpperCase()}</span></td>
+                    <td>${t.players}</td>
+                    <td>${t.type}</td>
+                    <td><span class="status-badge ${t.cardRequired ? 'status-yes' : 'status-no'}">${t.cardRequired ? 'YES' : 'NO'}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editTournament(${t.id})">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteTournament(${t.id})">Del</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function filterTournaments() {
+            const search = document.getElementById('tournament-search').value.toLowerCase();
+            const filtered = tournaments.filter(t => 
+                t.name.toLowerCase().includes(search) || 
+                t.type.toLowerCase().includes(search) ||
+                String(t.id).includes(search)
+            );
+            renderTournaments(filtered);
+        }
+        
+        function openTournamentModal(tournament = null) {
+            document.getElementById('tournament-modal-title').innerText = tournament ? 'Edit Tournament' : 'Add Tournament';
+            document.getElementById('edit-tournament-id').value = tournament ? tournament.id : '';
+            document.getElementById('edit-tourn-id').value = tournament ? tournament.id : '';
+            document.getElementById('edit-tourn-name').value = tournament ? tournament.name : '';
+            document.getElementById('edit-tourn-date').value = tournament ? tournament.date : '';
+            document.getElementById('edit-tourn-players').value = tournament ? tournament.players : '';
+            document.getElementById('edit-tourn-format').value = tournament ? tournament.format : 'legs';
+            document.getElementById('edit-tourn-type').value = tournament ? tournament.type : 'players';
+            document.getElementById('edit-tourn-cardRequired').value = tournament ? String(tournament.cardRequired) : 'false';
+            document.getElementById('edit-tourn-location').value = tournament ? (tournament.location || '') : '';
+            document.getElementById('edit-tourn-region').value = tournament ? (tournament.region || '') : '';
+            document.getElementById('edit-tourn-night').value = tournament ? (tournament.night || '') : '';
+            document.getElementById('edit-tourn-targetEvent').value = tournament ? (tournament.targetEvent || '') : '';
+            document.getElementById('edit-tourn-slots').value = tournament ? (tournament.slots || '') : '';
+            document.getElementById('tournament-modal').classList.add('active');
+        }
+        
+        function closeTournamentModal() {
+            document.getElementById('tournament-modal').classList.remove('active');
+        }
+        
+        function editTournament(id) {
+            const tournament = tournaments.find(t => t.id === id);
+            if (tournament) openTournamentModal(tournament);
+        }
+        
+        async function saveTournament() {
+            const tournament = {
+                id: parseInt(document.getElementById('edit-tourn-id').value),
+                name: document.getElementById('edit-tourn-name').value,
+                date: document.getElementById('edit-tourn-date').value,
+                players: parseInt(document.getElementById('edit-tourn-players').value),
+                format: document.getElementById('edit-tourn-format').value,
+                type: document.getElementById('edit-tourn-type').value,
+                cardRequired: document.getElementById('edit-tourn-cardRequired').value === 'true',
+                location: document.getElementById('edit-tourn-location').value || null,
+                region: document.getElementById('edit-tourn-region').value || null,
+                night: document.getElementById('edit-tourn-night').value ? parseInt(document.getElementById('edit-tourn-night').value) : null,
+                targetEvent: document.getElementById('edit-tourn-targetEvent').value ? parseInt(document.getElementById('edit-tourn-targetEvent').value) : null,
+                slots: document.getElementById('edit-tourn-slots').value ? parseInt(document.getElementById('edit-tourn-slots').value) : null
+            };
+            
+            const editId = document.getElementById('edit-tournament-id').value;
+            
+            try {
+                if (editId) {
+                    await fetch(API_BASE + '/admin/tournaments/' + editId, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tournament)
+                    });
+                } else {
+                    await fetch(API_BASE + '/admin/tournaments', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tournament)
+                    });
+                }
+                loadTournaments();
+                closeTournamentModal();
+            } catch (e) {
+                alert('Failed to save tournament: ' + e.message);
+            }
+        }
+        
+        async function deleteTournament(id) {
+            if (!confirm('Delete this tournament?')) return;
+            
+            try {
+                await fetch(API_BASE + '/admin/tournaments/' + id, { method: 'DELETE' });
+                loadTournaments();
+            } catch (e) {
+                alert('Failed to delete tournament');
+            }
+        }
+        
+        // ==================== PLAYERS ====================
+        
+        async function loadPlayers() {
+            document.getElementById('players-loading').style.display = 'block';
+            document.getElementById('players-table').style.display = 'none';
+            
+            try {
+                const result = await fetch(API_BASE + '/admin/players').then(r => r.json());
+                if (result.success) {
+                    players = result.players;
+                    renderPlayers();
+                }
+            } catch (e) {
+                console.error('Failed to load players:', e);
+                document.getElementById('players-loading').innerText = 'Failed to load players';
+            }
+        }
+        
+        function renderPlayers(data = null) {
+            const list = data || players;
+            document.getElementById('players-loading').style.display = 'none';
+            document.getElementById('players-table').style.display = 'table';
+            
+            const tbody = document.getElementById('players-tbody');
+            tbody.innerHTML = list.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>${p.country.toUpperCase()}</td>
+                    <td>${p.avg.toFixed(2)}</td>
+                    <td>${p.co.toFixed(1)}%</td>
+                    <td>D${p.fav}</td>
+                    <td>£${p.money.toLocaleString()}</td>
+                    <td><span class="status-badge ${p.tourCard ? 'status-yes' : 'status-no'}">${p.tourCard ? 'YES' : 'NO'}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editPlayer(${p.id})">Edit</button>
+                        <button class="btn btn-delete" onclick="deletePlayer(${p.id})">Del</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function filterPlayers() {
+            const search = document.getElementById('player-search').value.toLowerCase();
+            const filtered = players.filter(p => 
+                p.name.toLowerCase().includes(search) || 
+                p.country.toLowerCase().includes(search)
+            );
+            renderPlayers(filtered);
+        }
+        
+        function openPlayerModal(player = null) {
+            document.getElementById('player-modal-title').innerText = player ? 'Edit Player' : 'Add Player';
+            document.getElementById('edit-player-id').value = player ? player.id : '';
+            document.getElementById('edit-player-name').value = player ? player.name : '';
+            document.getElementById('edit-player-country').value = player ? player.country : '';
+            document.getElementById('edit-player-avg').value = player ? player.avg : '85.0';
+            document.getElementById('edit-player-co').value = player ? player.co : '35.0';
+            document.getElementById('edit-player-fav').value = player ? player.fav : '20';
+            document.getElementById('edit-player-money').value = player ? player.money : '0';
+            document.getElementById('edit-player-tourCard').value = player ? String(player.tourCard) : 'false';
+            document.getElementById('player-modal').classList.add('active');
+        }
+        
+        function closePlayerModal() {
+            document.getElementById('player-modal').classList.remove('active');
+        }
+        
+        function editPlayer(id) {
+            const player = players.find(p => p.id === id);
+            if (player) openPlayerModal(player);
+        }
+        
+        async function savePlayer() {
+            const player = {
+                name: document.getElementById('edit-player-name').value,
+                country: document.getElementById('edit-player-country').value.toLowerCase(),
+                avg: parseFloat(document.getElementById('edit-player-avg').value) || 85.0,
+                co: parseFloat(document.getElementById('edit-player-co').value) || 35.0,
+                fav: parseInt(document.getElementById('edit-player-fav').value) || 20,
+                money: parseInt(document.getElementById('edit-player-money').value) || 0,
+                tourCard: document.getElementById('edit-player-tourCard').value === 'true'
+            };
+            
+            const editId = document.getElementById('edit-player-id').value;
+            
+            try {
+                if (editId) {
+                    await fetch(API_BASE + '/admin/players/' + editId, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(player)
+                    });
+                } else {
+                    await fetch(API_BASE + '/admin/players', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(player)
+                    });
+                }
+                loadPlayers();
+                closePlayerModal();
+            } catch (e) {
+                alert('Failed to save player: ' + e.message);
+            }
+        }
+        
+        async function deletePlayer(id) {
+            if (!confirm('Delete this player?')) return;
+            
+            try {
+                await fetch(API_BASE + '/admin/players/' + id, { method: 'DELETE' });
+                loadPlayers();
+            } catch (e) {
+                alert('Failed to delete player');
+            }
+        }
+        
+        // ==================== USERS ====================
+        
+        async function loadUsers() {
+            document.getElementById('users-loading').style.display = 'block';
+            document.getElementById('users-table').style.display = 'none';
+            
+            try {
+                const result = await fetch(API_BASE + '/admin/users').then(r => r.json());
+                if (result.success) {
+                    document.getElementById('users-loading').style.display = 'none';
+                    document.getElementById('users-table').style.display = 'table';
+                    
+                    const tbody = document.getElementById('users-tbody');
+                    tbody.innerHTML = result.users.map(u => `
+                        <tr>
+                            <td>${u.id}</td>
+                            <td>${u.username}</td>
+                            <td>${new Date(u.created_at * 1000).toLocaleDateString()}</td>
+                            <td>${u.last_sync ? new Date(u.last_sync * 1000).toLocaleString() : 'Never'}</td>
+                            <td>
+                                <button class="btn btn-delete" onclick="deleteUser(${u.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                document.getElementById('users-loading').innerText = 'Failed to load users';
+            }
+        }
+        
+        async function deleteUser(id) {
+            if (!confirm('Delete this user and their save data?')) return;
+            try {
+                await fetch(API_BASE + '/admin/users/' + id, { method: 'DELETE' });
+                loadUsers();
+            } catch (e) {
+                alert('Failed to delete user');
+            }
+        }
+        
+        // ==================== IMPORT ====================
+        
+        async function importDefaultTournaments() {
+            const status = document.getElementById('import-status');
+            status.innerHTML = '<div class="alert alert-info">Importing tournaments... Please wait.</div>';
+            
+            try {
+                // Fetch the default tournaments from the game page
+                const response = await fetch('/darts.html');
+                const html = await response.text();
+                
+                // Extract Season.events array
+                const match = html.match(/events:\s*\[([\s\S]*?)\]\s*,\s*state:/);
+                if (!match) throw new Error('Could not find tournaments data');
+                
+                // Parse the tournaments
+                const tournamentsStr = '[' + match[1] + ']';
+                const tournaments = eval(tournamentsStr); // Using eval for JS object notation
+                
+                // Import to database
+                const result = await fetch(API_BASE + '/admin/tournaments/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tournaments })
+                }).then(r => r.json());
+                
+                if (result.success) {
+                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} tournaments!</div>`;
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error || 'Import failed');
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="alert alert-error">Failed to import tournaments: ${e.message}</div>`;
+            }
+        }
+        
+        async function importDefaultPlayers() {
+            const status = document.getElementById('import-status');
+            status.innerHTML = '<div class="alert alert-info">Importing players... Please wait.</div>';
+            
+            try {
+                // Fetch the default players from the game page
+                const response = await fetch('/darts.html');
+                const html = await response.text();
+                
+                // Extract RAW_PLAYERS array
+                const match = html.match(/const RAW_PLAYERS = \[([\s\S]*?)\];/);
+                if (!match) throw new Error('Could not find players data');
+                
+                // Parse the players
+                const playersStr = '[' + match[1] + ']';
+                const players = eval(playersStr); // Using eval for JS object notation
+                
+                // Import to database
+                const result = await fetch(API_BASE + '/admin/players/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ players })
+                }).then(r => r.json());
+                
+                if (result.success) {
+                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} players!</div>`;
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error || 'Import failed');
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="alert alert-error">Failed to import players: ${e.message}</div>`;
+            }
+        }
+        
+        async function clearTournaments() {
+            if (!confirm('Are you sure you want to delete ALL tournaments? This cannot be undone.')) return;
+            
+            const status = document.getElementById('import-status');
+            try {
+                await fetch(API_BASE + '/admin/tournaments/clear', { method: 'DELETE' });
+                status.innerHTML = '<div class="alert alert-success">All tournaments cleared!</div>';
+                loadDashboard();
+            } catch (e) {
+                status.innerHTML = '<div class="alert alert-error">Failed to clear tournaments</div>';
+            }
+        }
+        
+        async function clearPlayers() {
+            if (!confirm('Are you sure you want to delete ALL players? This cannot be undone.')) return;
+            
+            const status = document.getElementById('import-status');
+            try {
+                await fetch(API_BASE + '/admin/players/clear', { method: 'DELETE' });
+                status.innerHTML = '<div class="alert alert-success">All players cleared!</div>';
+                loadDashboard();
+            } catch (e) {
+                status.innerHTML = '<div class="alert alert-error">Failed to clear players</div>';
+            }
+        }
+        
+        // ==================== INIT ====================
+        
+        // Check if already logged in
+        if (localStorage.getItem('admin_logged_in') === 'true') {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-panel').classList.add('active');
+            loadDashboard();
+        }
+    </script>
+</body>
+</html>
