@@ -443,14 +443,16 @@
                     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
                         <div class="stat-card" style="flex: 1; min-width: 250px;">
                             <h3 style="color: #ffd700; margin-bottom: 15px;">🏆 Tournaments</h3>
-                            <p style="color: #888; margin-bottom: 15px;">Import all default season tournaments</p>
-                            <button class="btn btn-import" onclick="importDefaultTournaments()" style="width: 100%;">Import Tournaments</button>
+                            <p style="color: #888; margin-bottom: 15px;">Import tournaments from JSON file</p>
+                            <input type="file" id="tournaments-file" accept=".json" style="display: none;" onchange="importTournamentsFromFile(this)">
+                            <button class="btn btn-import" onclick="document.getElementById('tournaments-file').click()" style="width: 100%;">📁 Upload JSON File</button>
                             <button class="btn btn-clear" onclick="clearTournaments()" style="width: 100%; margin-top: 10px;">Clear All</button>
                         </div>
                         <div class="stat-card" style="flex: 1; min-width: 250px;">
                             <h3 style="color: #ffd700; margin-bottom: 15px;">👤 Players</h3>
-                            <p style="color: #888; margin-bottom: 15px;">Import all default players database</p>
-                            <button class="btn btn-import" onclick="importDefaultPlayers()" style="width: 100%;">Import Players</button>
+                            <p style="color: #888; margin-bottom: 15px;">Import players from JSON file</p>
+                            <input type="file" id="players-file" accept=".json" style="display: none;" onchange="importPlayersFromFile(this)">
+                            <button class="btn btn-import" onclick="document.getElementById('players-file').click()" style="width: 100%;">📁 Upload JSON File</button>
                             <button class="btn btn-clear" onclick="clearPlayers()" style="width: 100%; margin-top: 10px;">Clear All</button>
                         </div>
                     </div>
@@ -962,6 +964,68 @@
         
         // ==================== IMPORT ====================
         
+        async function importTournamentsFromFile(input) {
+            const status = document.getElementById('import-status');
+            const file = input.files[0];
+            if (!file) return;
+            
+            status.innerHTML = '<div class="alert alert-info">Importing tournaments... Please wait.</div>';
+            
+            try {
+                const text = await file.text();
+                const tournaments = JSON.parse(text);
+                
+                if (!Array.isArray(tournaments)) throw new Error('JSON must be an array of tournaments');
+                
+                const result = await fetch(API_BASE + '/admin/tournaments/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tournaments })
+                }).then(r => r.json());
+                
+                if (result.success) {
+                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} tournaments!</div>`;
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error || 'Import failed');
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="alert alert-error">Failed to import tournaments: ${e.message}</div>`;
+            }
+            input.value = ''; // Reset file input
+        }
+        
+        async function importPlayersFromFile(input) {
+            const status = document.getElementById('import-status');
+            const file = input.files[0];
+            if (!file) return;
+            
+            status.innerHTML = '<div class="alert alert-info">Importing players... Please wait.</div>';
+            
+            try {
+                const text = await file.text();
+                const players = JSON.parse(text);
+                
+                if (!Array.isArray(players)) throw new Error('JSON must be an array of players');
+                
+                const result = await fetch(API_BASE + '/admin/players/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ players })
+                }).then(r => r.json());
+                
+                if (result.success) {
+                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} players!</div>`;
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error || 'Import failed');
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="alert alert-error">Failed to import players: ${e.message}</div>`;
+            }
+            input.value = ''; // Reset file input
+        }
+
         async function importDefaultTournaments() {
             const status = document.getElementById('import-status');
             status.innerHTML = '<div class="alert alert-info">Importing tournaments... Please wait.</div>';
