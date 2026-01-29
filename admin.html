@@ -971,12 +971,23 @@
                 const response = await fetch('/darts.html');
                 const html = await response.text();
                 
-                // Extract Season.defaultEvents array
-                const match = html.match(/defaultEvents:\s*\[([\s\S]*?)\]\s*,\s*events:/);
-                if (!match) throw new Error('Could not find tournaments data');
+                // Extract Season.defaultEvents array - match from defaultEvents: [ to the closing ]
+                const startIdx = html.indexOf('defaultEvents: [');
+                if (startIdx === -1) throw new Error('Could not find tournaments data');
                 
-                // Parse the tournaments
-                const tournamentsStr = '[' + match[1] + ']';
+                // Find matching closing bracket
+                let depth = 0;
+                let endIdx = -1;
+                for (let i = startIdx + 15; i < html.length; i++) {
+                    if (html[i] === '[') depth++;
+                    if (html[i] === ']') {
+                        if (depth === 0) { endIdx = i; break; }
+                        depth--;
+                    }
+                }
+                if (endIdx === -1) throw new Error('Could not parse tournaments data');
+                
+                const tournamentsStr = html.substring(startIdx + 15, endIdx + 1);
                 const tournaments = eval(tournamentsStr); // Using eval for JS object notation
                 
                 // Import to database
