@@ -453,6 +453,7 @@
                             <p style="color: #888; margin-bottom: 15px;">Import players from JSON file</p>
                             <input type="file" id="players-file" accept=".json" style="display: none;" onchange="importPlayersFromFile(this)">
                             <button class="btn btn-import" onclick="document.getElementById('players-file').click()" style="width: 100%;">📁 Upload JSON File</button>
+                            <button class="btn" onclick="deduplicatePlayers()" style="width: 100%; margin-top: 10px; background: #2196F3;">🔄 Remove Duplicates</button>
                             <button class="btn btn-clear" onclick="clearPlayers()" style="width: 100%; margin-top: 10px;">Clear All</button>
                         </div>
                     </div>
@@ -1056,6 +1057,29 @@
                 console.error('Import error:', e);
             }
             input.value = ''; // Reset file input
+        }
+        
+        async function deduplicatePlayers() {
+            const status = document.getElementById('import-status');
+            status.innerHTML = '<div class="alert alert-info">Removing duplicates... Please wait.</div>';
+            
+            try {
+                const response = await fetch(API_BASE + '/admin/players/deduplicate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    status.innerHTML = `<div class="alert alert-success">Removed ${result.removed} duplicate players. ${result.remaining} players remaining.</div>`;
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error || 'Deduplication failed');
+                }
+            } catch (e) {
+                status.innerHTML = `<div class="alert alert-error">Failed to remove duplicates: ${e.message}</div>`;
+            }
         }
 
         async function importDefaultTournaments() {

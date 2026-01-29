@@ -579,6 +579,18 @@ switch ($uri) {
                 $db->exec("DELETE FROM players");
                 jsonResponse(['success' => true]);
             }
+            
+            // Remove duplicate players (keep first occurrence by name)
+            if ($adminRoute === 'players/deduplicate' && $method === 'POST') {
+                $db = getDB();
+                // Count duplicates before
+                $beforeCount = $db->querySingle('SELECT COUNT(*) FROM players');
+                // Delete duplicates keeping the one with lowest id for each name
+                $db->exec("DELETE FROM players WHERE id NOT IN (SELECT MIN(id) FROM players GROUP BY name)");
+                $afterCount = $db->querySingle('SELECT COUNT(*) FROM players');
+                $removed = $beforeCount - $afterCount;
+                jsonResponse(['success' => true, 'removed' => $removed, 'remaining' => $afterCount]);
+            }
         }
         
         jsonResponse([
