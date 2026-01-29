@@ -47,8 +47,15 @@ fi
 
 # Set file permissions
 echo "[3/5] Setting file permissions..."
-chown -R www-data:www-data "$WEB_ROOT"
+
+# Set ownership for web files (excluding .git)
+find "$WEB_ROOT" -path "$WEB_ROOT/.git" -prune -o -exec chown www-data:www-data {} \;
 chmod -R 755 "$WEB_ROOT"
+
+# Restore .git ownership to current user (for git operations)
+if [ -d "$WEB_ROOT/.git" ]; then
+    chown -R $SUDO_USER:$SUDO_USER "$WEB_ROOT/.git"
+fi
 
 # Create data directory for SQLite database
 mkdir -p "$WEB_ROOT/api/data"
