@@ -977,18 +977,26 @@
                 
                 if (!Array.isArray(tournaments)) throw new Error('JSON must be an array of tournaments');
                 
-                const result = await fetch(API_BASE + '/admin/tournaments/import', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tournaments })
-                }).then(r => r.json());
+                // Import in batches of 20 to avoid max_input_vars limit
+                const batchSize = 20;
+                let imported = 0;
                 
-                if (result.success) {
-                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} tournaments!</div>`;
-                    loadDashboard();
-                } else {
-                    throw new Error(result.error || 'Import failed');
+                for (let i = 0; i < tournaments.length; i += batchSize) {
+                    const batch = tournaments.slice(i, i + batchSize);
+                    status.innerHTML = `<div class="alert alert-info">Importing tournaments... ${i}/${tournaments.length}</div>`;
+                    
+                    const result = await fetch(API_BASE + '/admin/tournaments/import', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tournaments: batch })
+                    }).then(r => r.json());
+                    
+                    if (!result.success) throw new Error(result.error || 'Import failed');
+                    imported += result.imported;
                 }
+                
+                status.innerHTML = `<div class="alert alert-success">Successfully imported ${imported} tournaments!</div>`;
+                loadDashboard();
             } catch (e) {
                 status.innerHTML = `<div class="alert alert-error">Failed to import tournaments: ${e.message}</div>`;
             }
@@ -1008,18 +1016,26 @@
                 
                 if (!Array.isArray(players)) throw new Error('JSON must be an array of players');
                 
-                const result = await fetch(API_BASE + '/admin/players/import', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ players })
-                }).then(r => r.json());
+                // Import in batches of 20 to avoid max_input_vars limit
+                const batchSize = 20;
+                let imported = 0;
                 
-                if (result.success) {
-                    status.innerHTML = `<div class="alert alert-success">Successfully imported ${result.imported} players!</div>`;
-                    loadDashboard();
-                } else {
-                    throw new Error(result.error || 'Import failed');
+                for (let i = 0; i < players.length; i += batchSize) {
+                    const batch = players.slice(i, i + batchSize);
+                    status.innerHTML = `<div class="alert alert-info">Importing players... ${i}/${players.length}</div>`;
+                    
+                    const result = await fetch(API_BASE + '/admin/players/import', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ players: batch })
+                    }).then(r => r.json());
+                    
+                    if (!result.success) throw new Error(result.error || 'Import failed');
+                    imported += result.imported;
                 }
+                
+                status.innerHTML = `<div class="alert alert-success">Successfully imported ${imported} players!</div>`;
+                loadDashboard();
             } catch (e) {
                 status.innerHTML = `<div class="alert alert-error">Failed to import players: ${e.message}</div>`;
             }
