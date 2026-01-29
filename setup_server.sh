@@ -107,8 +107,13 @@ server {
 }
 EOF
 
-# Enable the site
+# Disable default site and enable our site
+rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/$SITE_NAME /etc/nginx/sites-enabled/
+
+# Stop any existing nginx process
+systemctl stop nginx 2>/dev/null || service nginx stop 2>/dev/null
+killall nginx 2>/dev/null
 
 # Test nginx configuration
 echo "[5/5] Testing and starting nginx..."
