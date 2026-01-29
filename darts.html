@@ -2533,7 +2533,7 @@
                     <div style="display:flex; gap:5px;">
                         <button class="btn-sim" style="flex:1; padding:15px;"
                             onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
-                        <button class="btn-gold" onclick="ShareSystem.showShareModal()" style="background:#0066cc; padding:15px;">📤 SHARE</button>
+                        <button class="btn-gold" onclick="AuthSystem.showModal()" style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
                     </div>
                     <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
                 </div>
@@ -11000,8 +11000,8 @@
                 // Load saved state FIRST before initializing
                 Persistence.load();
 
-                // Check for shared state in URL
-                ShareSystem.loadFromURL();
+                // Check for cloud sync if logged in
+                AuthSystem.init();
 
                 // Initialize Season logic (will only init if no data exists)
                 Season.init();
@@ -11863,12 +11863,15 @@
             }
         };
 
-        // ================= LZ-STRING COMPRESSION =================
-        // Minified LZ-String library for URL-safe compression
-        var LZString=function(){function o(o,r){if(!t[o]){t[o]={};for(var n=0;n<o.length;n++)t[o][o.charAt(n)]=n}return t[o][r]}var r=String.fromCharCode,n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",t={},e={compressToBase64:function(o){if(null==o)return"";var r=e._compress(o,6,function(o){return n.charAt(o)});switch(r.length%4){default:case 0:return r;case 1:return r+"===";case 2:return r+"==";case 3:return r+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:e._decompress(r.length,32,function(t){return o(n,r.charAt(t))})},compressToUTF16:function(o){return null==o?"":e._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(o){return null==o?"":""==o?null:e._decompress(o.length,16384,function(r){return o.charCodeAt(r)-32})},compressToUint8Array:function(o){for(var r=e.compress(o),n=new Uint8Array(2*r.length),t=0,i=r.length;i>t;t++){var s=r.charCodeAt(t);n[2*t]=s>>>8,n[2*t+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return e.decompress(o);for(var n=new Array(o.length/2),t=0,i=n.length;i>t;t++)n[t]=256*o[2*t]+o[2*t+1];var s=[];return n.forEach(function(o){s.push(r(o))}),e.decompress(s.join(""))},compressToEncodedURIComponent:function(o){return null==o?"":e._compress(o,6,function(o){return n.charAt(o)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),e._decompress(r.length,32,function(t){return o(n,r.charAt(t))}))},compress:function(o){return e._compress(o,16,function(o){return r(o)})},_compress:function(o,r,n){if(null==o)return"";var t,e,i,s={},p={},u="",c="",a="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<o.length;i+=1)if(u=o.charAt(i),Object.prototype.hasOwnProperty.call(s,u)||(s[u]=f++,p[u]=!0),c=a+u,Object.prototype.hasOwnProperty.call(s,c))a=c;else{if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;h>t;t++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(e=a.charCodeAt(0),t=0;8>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1}else{for(e=1,t=0;h>t;t++)m=m<<1|e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e=0;for(e=a.charCodeAt(0),t=0;16>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(e=s[a],t=0;h>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1;l--,0==l&&(l=Math.pow(2,h),h++),s[c]=f++,a=String(u)}if(""!==a){if(Object.prototype.hasOwnProperty.call(p,a)){if(a.charCodeAt(0)<256){for(t=0;h>t;t++)m<<=1,v==r-1?(v=0,d.push(n(m)),m=0):v++;for(e=a.charCodeAt(0),t=0;8>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1}else{for(e=1,t=0;h>t;t++)m=m<<1|e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e=0;for(e=a.charCodeAt(0),t=0;16>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1}l--,0==l&&(l=Math.pow(2,h),h++),delete p[a]}else for(e=s[a],t=0;h>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1;l--,0==l&&(l=Math.pow(2,h),h++)}for(e=2,t=0;h>t;t++)m=m<<1|1&e,v==r-1?(v=0,d.push(n(m)),m=0):v++,e>>=1;for(;;){if(m<<=1,v==r-1){d.push(n(m));break}v++}return d.join("")},decompress:function(o){return null==o?"":""==o?null:e._decompress(o.length,32768,function(r){return o.charCodeAt(r)})},_decompress:function(o,n,t){var e,i,s,p,u,c,a,l,f=[],h=4,d=4,m=3,v="",w=[],A={val:t(0),position:n,index:1};for(i=0;3>i;i+=1)f[i]=i;for(p=0,c=Math.pow(2,2),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(e=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;l=r(p);break;case 2:return""}for(f[3]=l,s=l,w.push(l);;){if(A.index>o)return"";for(p=0,c=Math.pow(2,m),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;switch(l=p){case 0:for(p=0,c=Math.pow(2,8),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 1:for(p=0,c=Math.pow(2,16),a=1;a!=c;)u=A.val&A.position,A.position>>=1,0==A.position&&(A.position=n,A.val=t(A.index++)),p|=(u>0?1:0)*a,a<<=1;f[d++]=r(p),l=d-1,h--;break;case 2:return w.join("")}if(0==h&&(h=Math.pow(2,m),m++),f[l])v=f[l];else{if(l!==d)return null;v=s+s.charAt(0)}w.push(v),f[d++]=s+v.charAt(0),h--,s=v,0==h&&(h=Math.pow(2,m),m++)}}};return e}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module&&(module.exports=LZString);
+        // ================= SERVER CONFIG =================
+        // Change this to your server's API URL
+        const API_BASE_URL = '/api'; // e.g., 'https://yourserver.com/api' or '/api' for same domain
 
-        // ================= SHARE SYSTEM =================
-        window.ShareSystem = {
+        // ================= AUTH SYSTEM =================
+        window.AuthSystem = {
+            currentUser: null,
+            isInitialized: false,
+            
             // Serialize with Set support
             serialize: (obj) => {
                 return JSON.stringify(obj, (key, value) => {
@@ -11876,6 +11879,7 @@
                     return value;
                 });
             },
+            
             // Deserialize with Set support
             deserialize: (str) => {
                 return JSON.parse(str, (key, value) => {
@@ -11883,113 +11887,315 @@
                     return value;
                 });
             },
-            encodeState: () => {
+            
+            // API helper function
+            apiCall: async (endpoint, method = 'GET', data = null) => {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                if (AuthSystem.currentUser && AuthSystem.currentUser.token) {
+                    options.headers['Authorization'] = 'Bearer ' + AuthSystem.currentUser.token;
+                }
+                const response = await fetch(API_BASE_URL + endpoint, options);
+                return await response.json();
+            },
+            
+            init: async () => {
                 try {
-                    const state = {
-                        season: Season.state,
-                        players: PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue, m: p.money }))
+                    // Check for saved login
+                    const savedUser = localStorage.getItem('pdc_auth_user');
+                    if (savedUser) {
+                        AuthSystem.currentUser = JSON.parse(savedUser);
+                        AuthSystem.updateUIStatus();
+                        // Verify token is still valid
+                        try {
+                            const result = await AuthSystem.apiCall('/verify', 'POST');
+                            if (result.success) {
+                                await AuthSystem.loadFromCloud();
+                            } else {
+                                // Token expired, clear login
+                                AuthSystem.logout();
+                            }
+                        } catch (e) {
+                            console.log('Server not available, using local data');
+                        }
+                    }
+                    AuthSystem.isInitialized = true;
+                } catch (e) {
+                    console.log('Auth init error:', e.message);
+                }
+            },
+            
+            showModal: () => {
+                const modal = document.getElementById('auth-modal');
+                modal.style.display = 'flex';
+                AuthSystem.updateModalView();
+            },
+            
+            closeModal: () => {
+                document.getElementById('auth-modal').style.display = 'none';
+            },
+            
+            updateModalView: () => {
+                const loginView = document.getElementById('auth-login-view');
+                const accountView = document.getElementById('auth-account-view');
+                
+                if (AuthSystem.currentUser) {
+                    loginView.style.display = 'none';
+                    accountView.style.display = 'block';
+                    document.getElementById('auth-username-display').innerText = AuthSystem.currentUser.username;
+                    document.getElementById('auth-last-sync').innerText = AuthSystem.currentUser.lastSync || 'Never';
+                } else {
+                    loginView.style.display = 'block';
+                    accountView.style.display = 'none';
+                }
+            },
+            
+            updateUIStatus: () => {
+                // Update any UI elements showing login status
+                const accountBtn = document.querySelector('[onclick="AuthSystem.showModal()"]');
+                if (accountBtn && AuthSystem.currentUser) {
+                    accountBtn.innerHTML = '👤 ' + AuthSystem.currentUser.username.substring(0, 8);
+                } else if (accountBtn) {
+                    accountBtn.innerHTML = '👤 ACCOUNT';
+                }
+            },
+            
+            switchToRegister: () => {
+                document.getElementById('auth-login-form').style.display = 'none';
+                document.getElementById('auth-register-form').style.display = 'block';
+            },
+            
+            switchToLogin: () => {
+                document.getElementById('auth-login-form').style.display = 'block';
+                document.getElementById('auth-register-form').style.display = 'none';
+            },
+            
+            hashPassword: async (password) => {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password + 'pdc_darts_salt_2026');
+                const hash = await crypto.subtle.digest('SHA-256', data);
+                return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+            },
+            
+            register: async () => {
+                const username = document.getElementById('reg-username').value.trim();
+                const password = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('reg-confirm-password').value;
+                const errorEl = document.getElementById('auth-error');
+                
+                errorEl.innerText = '';
+                
+                if (!username || username.length < 3) {
+                    errorEl.innerText = 'Username must be at least 3 characters';
+                    return;
+                }
+                if (!password || password.length < 6) {
+                    errorEl.innerText = 'Password must be at least 6 characters';
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    errorEl.innerText = 'Passwords do not match';
+                    return;
+                }
+                
+                try {
+                    const result = await AuthSystem.apiCall('/register', 'POST', {
+                        username: username,
+                        password: password
+                    });
+                    
+                    if (!result.success) {
+                        errorEl.innerText = result.error || 'Registration failed';
+                        return;
+                    }
+                    
+                    // Auto login after register
+                    AuthSystem.currentUser = {
+                        username: result.username,
+                        userId: result.userId,
+                        token: result.token,
+                        lastSync: null
                     };
-                    const json = ShareSystem.serialize(state);
-                    // Use LZ-String's base64 compression - safe for URLs
-                    const compressed = LZString.compressToBase64(json);
-                    // Make URL-safe: replace + with -, / with _, remove padding =
-                    return compressed.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-                } catch (e) { console.error('Encode error:', e); return null; }
-            },
-            decodeState: (encoded) => {
-                try {
-                    // Restore base64 padding and characters
-                    let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-                    while (b64.length % 4) b64 += '=';
+                    localStorage.setItem('pdc_auth_user', JSON.stringify(AuthSystem.currentUser));
+                    AuthSystem.updateUIStatus();
+                    AuthSystem.updateModalView();
                     
-                    // Try LZ-String base64 decompression first (new compressed format)
-                    let json = LZString.decompressFromBase64(b64);
+                    // Save current progress to server
+                    await AuthSystem.saveToCloud();
                     
-                    // If decompression fails or doesn't look like JSON, try old format
-                    if (!json || !json.startsWith('{')) {
-                        json = decodeURIComponent(escape(atob(b64)));
-                    }
-                    
-                    return ShareSystem.deserialize(json);
-                } catch (e) { console.error('Decode error:', e); return null; }
+                } catch (e) {
+                    console.error('Register error:', e);
+                    errorEl.innerText = 'Server unavailable. Try again later.';
+                }
             },
-            generateShareLink: () => {
-                const encoded = ShareSystem.encodeState();
-                if (!encoded) { alert('Error generating link'); return ''; }
-                return window.location.origin + window.location.pathname + '#s=' + encoded;
-            },
-            // Built-in "shortening" is now just compression - no external service needed!
-            shortenURL: async (longUrl) => {
-                // The URL is already compressed with LZ-String, so it's already "shortened"
-                // Just show a message that the link is already optimized
-                return null; // Signal that no additional shortening is available
-            },
-            showShareModal: async () => {
-                const linkInput = document.getElementById('share-link-input');
-                const shortInput = document.getElementById('short-link-input');
-                const shortenBtn = document.getElementById('shorten-btn');
+            
+            login: async () => {
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value;
+                const errorEl = document.getElementById('auth-error');
                 
-                linkInput.value = 'Generating compressed link...';
-                shortInput.value = '';
-                shortInput.parentElement.style.display = ''; // Show short link section
-                shortenBtn.style.display = '';
-                shortenBtn.disabled = false;
-                shortenBtn.innerText = '🔗 OPEN TINYURL';
-                document.getElementById('share-modal').style.display = 'flex';
+                errorEl.innerText = '';
                 
-                setTimeout(() => {
-                    const link = ShareSystem.generateShareLink();
-                    linkInput.value = link || 'Error';
-                    if (link) {
-                        shortInput.value = link; // Put the same compressed link in short box too
-                    }
-                }, 50);
-            },
-            generateShortLink: async () => {
-                // Open TinyURL for additional shortening if user wants even shorter URL
-                const linkInput = document.getElementById('share-link-input');
-                const shortInput = document.getElementById('short-link-input');
-                const shortenBtn = document.getElementById('shorten-btn');
-                const longUrl = linkInput.value;
-                
-                if (!longUrl || longUrl.includes('...') || longUrl.includes('Error')) {
-                    alert('Please wait for the link to generate first');
+                if (!username || !password) {
+                    errorEl.innerText = 'Please enter username and password';
                     return;
                 }
                 
-                shortenBtn.innerText = '⏳ Opening...';
-                window.open(`https://tinyurl.com/create.php?url=${encodeURIComponent(longUrl)}`, '_blank');
-                shortInput.value = 'Copy short link from TinyURL tab';
-                shortenBtn.innerText = '🔗 OPEN TINYURL AGAIN';
+                try {
+                    const result = await AuthSystem.apiCall('/login', 'POST', {
+                        username: username,
+                        password: password
+                    });
+                    
+                    if (!result.success) {
+                        errorEl.innerText = result.error || 'Login failed';
+                        return;
+                    }
+                    
+                    AuthSystem.currentUser = {
+                        username: result.username,
+                        userId: result.userId,
+                        token: result.token,
+                        lastSync: result.lastSync || null
+                    };
+                    localStorage.setItem('pdc_auth_user', JSON.stringify(AuthSystem.currentUser));
+                    AuthSystem.updateUIStatus();
+                    AuthSystem.updateModalView();
+                    
+                    // Load server save
+                    await AuthSystem.loadFromCloud();
+                    
+                } catch (e) {
+                    console.error('Login error:', e);
+                    errorEl.innerText = 'Server unavailable. Try again later.';
+                }
             },
-            closeModal: () => { document.getElementById('share-modal').style.display = 'none'; },
-            copyToClipboard: (inputId = 'share-link-input') => {
-                const input = document.getElementById(inputId);
-                if (!input.value || input.value.includes('...') || input.value.includes('Failed') || input.value.includes('Error') || input.value.includes('Copy short link')) {
-                    alert('No valid link to copy');
+            
+            logout: () => {
+                AuthSystem.currentUser = null;
+                localStorage.removeItem('pdc_auth_user');
+                AuthSystem.updateUIStatus();
+                AuthSystem.updateModalView();
+            },
+            
+            getGameState: () => {
+                return {
+                    season: Season.state,
+                    players: PLAYERS_DB.map(p => ({
+                        n: p.name,
+                        f: p.form,
+                        ft: p.fatigue,
+                        m: p.money
+                    })),
+                    savedAt: Date.now()
+                };
+            },
+            
+            applyGameState: (data) => {
+                if (data.season) {
+                    Season.state = { ...Season.state, ...data.season };
+                    // Restore Sets from arrays
+                    if (data.season.completedEvents && Array.isArray(data.season.completedEvents)) {
+                        Season.state.completedEvents = new Set(data.season.completedEvents);
+                    } else if (data.season.completedEvents && data.season.completedEvents.__set) {
+                        Season.state.completedEvents = new Set(data.season.completedEvents.__set);
+                    }
+                }
+                if (data.players) {
+                    data.players.forEach(sp => {
+                        const p = PLAYERS_DB.find(x => x.name === sp.n);
+                        if (p) {
+                            p.form = sp.f || 0;
+                            p.fatigue = sp.ft || 0;
+                            p.money = sp.m || 0;
+                        }
+                    });
+                }
+            },
+            
+            saveToCloud: async () => {
+                if (!AuthSystem.currentUser) {
+                    alert('Please log in to save to server');
                     return;
                 }
-                input.select(); 
-                document.execCommand('copy');
-                const btn = event.target; const orig = btn.innerText;
-                btn.innerText = '✓ COPIED!'; setTimeout(() => btn.innerText = orig, 2000);
-            },
-            loadFromURL: () => {
-                let encoded = window.location.hash.startsWith('#s=') ? window.location.hash.substring(3) : null;
-                if (!encoded) return false;
-                const data = ShareSystem.decodeState(encoded);
-                if (!data) return false;
+                
                 try {
-                    if (data.season) Season.state = { ...Season.state, ...data.season };
-                    if (data.players) {
-                        data.players.forEach(sp => {
-                            const p = PLAYERS_DB.find(x => x.name === sp.n);
-                            if (p) { p.form = sp.f || 0; p.fatigue = sp.ft || 0; p.money = sp.m || 0; }
-                        });
+                    const saveBtn = document.getElementById('auth-save-btn');
+                    if (saveBtn) saveBtn.innerText = '⏳ Saving...';
+                    
+                    const gameState = AuthSystem.getGameState();
+                    const serialized = AuthSystem.serialize(gameState);
+                    
+                    const result = await AuthSystem.apiCall('/save', 'POST', {
+                        data: serialized
+                    });
+                    
+                    if (!result.success) {
+                        throw new Error(result.error || 'Save failed');
                     }
-                    if (window.history) window.history.replaceState({}, document.title, window.location.pathname);
-                    return true;
-                } catch (e) { console.error('Load error:', e); return false; }
+                    
+                    const now = new Date().toLocaleString();
+                    AuthSystem.currentUser.lastSync = now;
+                    localStorage.setItem('pdc_auth_user', JSON.stringify(AuthSystem.currentUser));
+                    document.getElementById('auth-last-sync').innerText = now;
+                    
+                    if (saveBtn) {
+                        saveBtn.innerText = '✓ Saved!';
+                        setTimeout(() => saveBtn.innerText = '💾 SAVE TO SERVER', 2000);
+                    }
+                    
+                } catch (e) {
+                    console.error('Save error:', e);
+                    alert('Failed to save. Check your connection.');
+                    const saveBtn = document.getElementById('auth-save-btn');
+                    if (saveBtn) saveBtn.innerText = '💾 SAVE TO SERVER';
+                }
+            },
+            
+            loadFromCloud: async () => {
+                if (!AuthSystem.currentUser) return false;
+                
+                try {
+                    const loadBtn = document.getElementById('auth-load-btn');
+                    if (loadBtn) loadBtn.innerText = '⏳ Loading...';
+                    
+                    const result = await AuthSystem.apiCall('/load', 'GET');
+                    
+                    if (result.success && result.data) {
+                        const gameState = AuthSystem.deserialize(result.data);
+                        AuthSystem.applyGameState(gameState);
+                        
+                        // Update local persistence
+                        Persistence.save('season');
+                        
+                        // Refresh UI
+                        if (typeof Season !== 'undefined' && Season.renderUI) {
+                            Season.renderUI();
+                        }
+                        
+                        if (loadBtn) {
+                            loadBtn.innerText = '✓ Loaded!';
+                            setTimeout(() => loadBtn.innerText = '📥 LOAD FROM SERVER', 2000);
+                        }
+                        return true;
+                    } else {
+                        if (loadBtn) loadBtn.innerText = '📥 LOAD FROM SERVER';
+                        return false;
+                    }
+                    
+                } catch (e) {
+                    console.error('Load error:', e);
+                    const loadBtn = document.getElementById('auth-load-btn');
+                    if (loadBtn) loadBtn.innerText = '📥 LOAD FROM SERVER';
+                    return false;
+                }
             }
         };
 
@@ -12046,32 +12252,85 @@
         });
     </script>
     
-    <!-- SHARE MODAL -->
-    <div id="share-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10001; display:none; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:linear-gradient(145deg, #1a1f35, #0f1525); border:2px solid #ffd700; border-radius:12px; padding:25px; max-width:500px; width:100%; color:white;">
-            <div style="font-size:18px; font-weight:bold; color:#ffd700; margin-bottom:15px; text-align:center;">📤 SHARE SEASON PROGRESS</div>
-            <div style="margin-bottom:15px; padding:12px; background:rgba(0,0,0,0.3); border-radius:6px;">
-                <div style="font-size:11px; color:#aaa; margin-bottom:8px;">FULL SHARE LINK:</div>
-                <input type="text" id="share-link-input" readonly style="width:100%; padding:8px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#ddd; font-size:10px;">
-                <button onclick="ShareSystem.copyToClipboard('share-link-input')" style="width:100%; margin-top:8px; padding:10px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY FULL LINK</button>
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:10001; display:none; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:linear-gradient(145deg, #1a1f35, #0f1525); border:2px solid #ffd700; border-radius:12px; padding:25px; max-width:400px; width:100%; color:white;">
+            <div style="font-size:18px; font-weight:bold; color:#ffd700; margin-bottom:15px; text-align:center;">👤 ACCOUNT</div>
+            
+            <!-- Login View (shown when not logged in) -->
+            <div id="auth-login-view">
+                <!-- Login Form -->
+                <div id="auth-login-form">
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:4px;">USERNAME</label>
+                        <input type="text" id="login-username" placeholder="Enter username" style="width:100%; padding:10px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#fff; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:4px;">PASSWORD</label>
+                        <input type="password" id="login-password" placeholder="Enter password" style="width:100%; padding:10px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#fff; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <button onclick="AuthSystem.login()" style="width:100%; padding:12px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">🔐 LOGIN</button>
+                    <div style="text-align:center; margin-top:12px;">
+                        <span style="color:#888; font-size:12px;">Don't have an account? </span>
+                        <a href="#" onclick="AuthSystem.switchToRegister(); return false;" style="color:#ffd700; font-size:12px;">Register</a>
+                    </div>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="auth-register-form" style="display:none;">
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:4px;">USERNAME</label>
+                        <input type="text" id="reg-username" placeholder="Choose username (min 3 chars)" style="width:100%; padding:10px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#fff; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:4px;">PASSWORD</label>
+                        <input type="password" id="reg-password" placeholder="Choose password (min 6 chars)" style="width:100%; padding:10px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#fff; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <label style="font-size:11px; color:#aaa; display:block; margin-bottom:4px;">CONFIRM PASSWORD</label>
+                        <input type="password" id="reg-confirm-password" placeholder="Confirm password" style="width:100%; padding:10px; background:#0a0e1a; border:1px solid #444; border-radius:4px; color:#fff; font-size:14px; box-sizing:border-box;">
+                    </div>
+                    <button onclick="AuthSystem.register()" style="width:100%; padding:12px; background:#00b359; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold; font-size:14px;">📝 REGISTER</button>
+                    <div style="text-align:center; margin-top:12px;">
+                        <span style="color:#888; font-size:12px;">Already have an account? </span>
+                        <a href="#" onclick="AuthSystem.switchToLogin(); return false;" style="color:#ffd700; font-size:12px;">Login</a>
+                    </div>
+                </div>
+                
+                <div id="auth-error" style="color:#ff4444; font-size:12px; text-align:center; margin-top:10px;"></div>
             </div>
-            <div style="margin-bottom:15px; padding:12px; background:rgba(0,102,0,0.2); border:1px solid #00b359; border-radius:6px;">
-                <div style="font-size:11px; color:#00b359; margin-bottom:8px;">🔗 SHORT LINK (Reusable - No Limits!):</div>
-                <input type="text" id="short-link-input" readonly placeholder="Click button below to generate..." style="width:100%; padding:8px; background:#0a0e1a; border:1px solid #00b359; border-radius:4px; color:#0f0; font-size:12px; font-weight:bold;">
-                <button id="shorten-btn" onclick="ShareSystem.generateShortLink()" style="width:100%; margin-top:8px; padding:10px; background:#00b359; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🔗 GENERATE SHORT LINK</button>
-                <button onclick="ShareSystem.copyToClipboard('short-link-input')" style="width:100%; margin-top:8px; padding:10px; background:#006633; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📋 COPY SHORT LINK</button>
+            
+            <!-- Account View (shown when logged in) -->
+            <div id="auth-account-view" style="display:none;">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size:40px; margin-bottom:10px;">👤</div>
+                    <div style="font-size:16px; font-weight:bold; color:#fff;">Welcome, <span id="auth-username-display"></span>!</div>
+                    <div style="font-size:11px; color:#888; margin-top:5px;">Last sync: <span id="auth-last-sync">Never</span></div>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+                    <button id="auth-save-btn" onclick="AuthSystem.saveToCloud()" style="width:100%; padding:12px; background:#00b359; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">💾 SAVE TO SERVER</button>
+                    <button id="auth-load-btn" onclick="AuthSystem.loadFromCloud()" style="width:100%; padding:12px; background:#0066cc; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">📥 LOAD FROM SERVER</button>
+                </div>
+                
+                <div style="padding:12px; background:rgba(0,102,0,0.2); border:1px solid #00b359; border-radius:6px; margin-bottom:15px;">
+                    <div style="font-size:11px; color:#00b359;">✓ Your progress syncs across all devices</div>
+                    <div style="font-size:11px; color:#888; margin-top:4px;">Login on any device to continue your career</div>
+                </div>
+                
+                <button onclick="AuthSystem.logout()" style="width:100%; padding:10px; background:#9a0000; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🚪 LOGOUT</button>
             </div>
-            <div style="font-size:11px; color:#888; margin-bottom:15px;">Includes: completed events, rankings, money, form & fatigue<br><span style="color:#00b359;">✓ Short links work forever and have no usage limits!</span></div>
-            <button onclick="ShareSystem.closeModal()" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">CLOSE</button>
+            
+            <button onclick="AuthSystem.closeModal()" style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold; margin-top:15px;">CLOSE</button>
         </div>
     </div>
 
-    <!-- SHARE BUTTON (Always Visible) -->
-    <button onclick="ShareSystem.showShareModal()" style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">📤 SHARE</button>
+    <!-- ACCOUNT BUTTON (Always Visible) -->
+    <button onclick="AuthSystem.showModal()" style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">👤 ACCOUNT</button>
 
     <!-- VERSION FOOTER -->
     <div id="version-footer" style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.1.9 | PDC Darts Simulator
+        v1.2.1 | PDC Darts Simulator
     </div>
 </body>
 
