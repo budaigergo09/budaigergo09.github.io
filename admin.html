@@ -1126,21 +1126,22 @@
             document.getElementById('edit-tourn-targetEvent').value = tournament ? (tournament.targetEvent || '') : '';
             document.getElementById('edit-tourn-slots').value = tournament ? (tournament.slots || '') : '';
             
+
             // Get type for defaults
             const tType = tournament?.type || 'players';
             const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
-            
-            // Appearance fields - use tournament values or defaults from type
-            const color1 = tournament?.color1 || defaultAppearance.color1 || '#111111';
-            const color2 = tournament?.color2 || defaultAppearance.color2 || '#333333';
+
+            // Use actual tournament color if present, else fallback to type default
+            let color1 = (tournament && typeof tournament.color1 === 'string' && tournament.color1.length === 7) ? tournament.color1 : (defaultAppearance.color1 || '#111111');
+            let color2 = (tournament && typeof tournament.color2 === 'string' && tournament.color2.length === 7) ? tournament.color2 : (defaultAppearance.color2 || '#333333');
             document.getElementById('edit-tourn-color1').value = color1;
             document.getElementById('edit-tourn-color1-hex').value = color1;
             document.getElementById('edit-tourn-color2').value = color2;
             document.getElementById('edit-tourn-color2-hex').value = color2;
             updateColorPreview();
-            
-            document.getElementById('edit-tourn-logo').value = tournament?.logo || defaultAppearance.logo || '';
-            document.getElementById('edit-tourn-theme').value = tournament?.theme || defaultAppearance.theme || '';
+
+            document.getElementById('edit-tourn-logo').value = (tournament && typeof tournament.logo === 'string') ? tournament.logo : (defaultAppearance.logo || '');
+            document.getElementById('edit-tourn-theme').value = (tournament && typeof tournament.theme === 'string') ? tournament.theme : (defaultAppearance.theme || '');
             
             // Rounds format - use tournament values or defaults from type
             const roundsContainer = document.getElementById('rounds-container');
