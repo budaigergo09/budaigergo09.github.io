@@ -294,6 +294,231 @@
         .alert-success { background: rgba(0, 179, 89, 0.2); border: 1px solid #00b359; }
         .alert-error { background: rgba(255, 68, 68, 0.2); border: 1px solid #ff4444; }
         .alert-info { background: rgba(0, 102, 204, 0.2); border: 1px solid #0066cc; }
+        
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .data-table th, .data-table td {
+                padding: 8px 4px;
+                font-size: 12px;
+            }
+            .modal-content {
+                max-width: 95%;
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .header h1 {
+                font-size: 18px;
+                flex: 1;
+            }
+            .menu-toggle {
+                display: block;
+                order: -1;
+            }
+            .header button:not(.menu-toggle) {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+            
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px;
+                border-right: none;
+                border-bottom: 1px solid #333;
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                z-index: 100;
+                background: #0f1525;
+            }
+            .sidebar.open {
+                display: block;
+            }
+            .sidebar button {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .content {
+                padding: 15px;
+                margin-top: 0;
+            }
+            .content h2 {
+                font-size: 20px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar-left {
+                flex-direction: column;
+            }
+            .search-bar input {
+                width: 100%;
+            }
+            .toolbar > div:last-child {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .toolbar > div:last-child .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            /* Responsive table */
+            .data-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .data-table th, .data-table td {
+                min-width: 80px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .modal-content {
+                max-height: 90vh;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 15px;
+            }
+            .stat-card .number {
+                font-size: 24px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .btn-add, .btn-import, .btn-clear {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 25px 20px;
+            }
+            .login-box h1 {
+                font-size: 22px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            .modal-content h3 {
+                font-size: 18px;
+            }
+            .modal-content h4 {
+                font-size: 13px;
+            }
+            .form-group label {
+                font-size: 10px;
+            }
+            .form-group input, .form-group select {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            .modal-buttons button {
+                padding: 14px;
+            }
+            
+            #rounds-container, #prizes-container {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            
+            /* Table card view for very small screens */
+            .data-table thead {
+                display: none;
+            }
+            .data-table, .data-table tbody, .data-table tr, .data-table td {
+                display: block;
+                width: 100%;
+            }
+            .data-table tr {
+                margin-bottom: 15px;
+                background: #1a1f35;
+                border-radius: 8px;
+                padding: 10px;
+                border: 1px solid #333;
+            }
+            .data-table td {
+                text-align: left;
+                padding: 8px 10px;
+                border: none;
+                position: relative;
+                padding-left: 45%;
+                white-space: normal;
+                min-width: unset;
+            }
+            .data-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 40%;
+                font-weight: bold;
+                color: #ffd700;
+                font-size: 11px;
+            }
+            .data-table td:last-child {
+                padding-left: 10px;
+                text-align: center;
+            }
+            .data-table td:last-child::before {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -311,12 +536,13 @@
     <!-- Admin Panel -->
     <div id="admin-panel">
         <div class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
             <h1>⚙️ PDC Sim Admin Panel</h1>
             <button onclick="adminLogout()">🚪 Logout</button>
         </div>
         
         <div class="main-content">
-            <div class="sidebar">
+            <div class="sidebar" id="sidebar">
                 <button class="active" onclick="showSection('dashboard', this)">📊 Dashboard</button>
                 <button onclick="showSection('tournaments', this)">🏆 Tournaments</button>
                 <button onclick="showSection('players', this)">👤 Players</button>
@@ -376,6 +602,7 @@
                                 <th>Players</th>
                                 <th>Type</th>
                                 <th>Card</th>
+                                <th>Color</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -465,9 +692,12 @@
     
     <!-- Tournament Modal -->
     <div id="tournament-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 850px;">
             <h3 id="tournament-modal-title">Add Tournament</h3>
             <input type="hidden" id="edit-tournament-id">
+            
+            <!-- Basic Info -->
+            <h4 style="color: #ffd700; margin: 15px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">📋 Basic Info</h4>
             <div class="form-row">
                 <div class="form-group">
                     <label>Tournament ID</label>
@@ -498,7 +728,7 @@
                 </div>
                 <div class="form-group">
                     <label>Type</label>
-                    <select id="edit-tourn-type">
+                    <select id="edit-tourn-type" onchange="onTypeChange()">
                         <option value="players">Players Championship</option>
                         <option value="minor">European Tour</option>
                         <option value="major">Major</option>
@@ -561,6 +791,56 @@
                     <input type="number" id="edit-tourn-slots" placeholder="e.g., 8">
                 </div>
             </div>
+            
+            <!-- Appearance -->
+            <h4 style="color: #ffd700; margin: 20px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">🎨 Appearance</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Primary Color</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="edit-tourn-color1" value="#111111" style="width: 50px; height: 32px; padding: 0; border: none; cursor: pointer;">
+                        <input type="text" id="edit-tourn-color1-hex" placeholder="#111111" style="flex: 1;" oninput="syncColorPicker('color1')">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Secondary Color (Gradient)</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="color" id="edit-tourn-color2" value="#333333" style="width: 50px; height: 32px; padding: 0; border: none; cursor: pointer;">
+                        <input type="text" id="edit-tourn-color2-hex" placeholder="#333333" style="flex: 1;" oninput="syncColorPicker('color2')">
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label>Color Preview</label>
+                    <div id="color-preview" style="height: 40px; border-radius: 6px; background: linear-gradient(135deg, #111111 0%, #333333 100%);"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Logo Filename (optional)</label>
+                    <input type="text" id="edit-tourn-logo" placeholder="e.g., worldchampionship.png">
+                </div>
+                <div class="form-group">
+                    <label>Theme Class (optional)</label>
+                    <input type="text" id="edit-tourn-theme" placeholder="e.g., theme-world-championship">
+                </div>
+            </div>
+            
+            <!-- Round Format -->
+            <h4 style="color: #ffd700; margin: 20px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">🎯 Round Format (Legs/Sets per Round)</h4>
+            <div id="rounds-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px;">
+                <!-- Dynamically populated -->
+            </div>
+            <button type="button" onclick="addRoundField()" class="btn" style="margin-top: 10px; background: #444;">+ Add Round</button>
+            
+            <!-- Prize Money -->
+            <h4 style="color: #ffd700; margin: 20px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">💰 Prize Money Structure</h4>
+            <div id="prizes-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px;">
+                <!-- Dynamically populated -->
+            </div>
+            <button type="button" onclick="addPrizeField()" class="btn" style="margin-top: 10px; background: #444;">+ Add Prize Level</button>
+            
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeTournamentModal()">Cancel</button>
                 <button class="btn-save" onclick="saveTournament()">Save</button>
@@ -657,10 +937,22 @@
             document.getElementById('section-' + section).style.display = 'block';
             if (btn) btn.classList.add('active');
             
+            // Close sidebar on mobile after selection
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+            
             if (section === 'tournaments') loadTournaments();
             if (section === 'players') loadPlayers();
             if (section === 'users') loadUsers();
             if (section === 'dashboard') loadDashboard();
+        }
+        
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
         }
         
         // ==================== DASHBOARD ====================
@@ -676,6 +968,91 @@
                 console.log('Stats not available:', e);
             }
         }
+        
+        // ==================== DEFAULT DATA FROM DARTS.HTML ====================
+        
+        // Default colors and logos based on tournament type/name
+        const DEFAULT_APPEARANCE = {
+            'matchplay': { color1: '#8B0000', color2: '#B22222', logo: 'worldmatchplay.png', theme: 'theme-matchplay' },
+            'uk-open': { color1: '#C8102E', color2: '#FFD100', logo: 'ukopen.png', theme: 'theme-uk-open' },
+            'playersf': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship' },
+            'grandslam': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam' },
+            'masters-final': { color1: '#7A0000', color2: '#000000', logo: 'worldseriesofdarts.png', theme: 'theme-world-series' },
+            'grandprix': { color1: '#0033A0', color2: '#00AEEF', logo: 'grandprix.png', theme: 'theme-world-grandprix' },
+            'winmaudm': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau' },
+            'europeanf': { color1: '#5B2D8B', color2: '#C0C0C0', logo: 'europeanchampionship.png', theme: 'theme-european' },
+            'world': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship' },
+            'players': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship' },
+            'premier-league': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league' },
+            'premier-league-playoff': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league' },
+            'masters': { color1: '#000000', color2: '#D4AF37', logo: 'worldseries.png', theme: 'theme-masters' },
+            'minor': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'challenge': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'q-school': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'et-qual-tc': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'et-host-nation': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'et-east-european': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'et-nordic-baltic': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor' },
+            'ws-qual-tc': { color1: '#7A0000', color2: '#000000', logo: 'worldseries.png', theme: 'theme-world-series' },
+            'gs-qual-tc': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam' },
+            'wmasters-qual': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau' }
+        };
+        
+        // Default round formats (legs to win) based on tournament type
+        const DEFAULT_ROUND_FORMATS = {
+            'masters': { L16: 6, QF: 6, SF: 8, F: 8 },
+            'major': { QF: 10, SF: 10, F: 11 },
+            'minor': { L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'matchplay': { L32: 10, L16: 11, QF: 16, SF: 17, F: 18 },
+            'masters-final': { L32: 6, L16: 6, QF: 10, SF: 11, F: 11 },
+            'grandprix': { L32: 2, L16: 3, QF: 3, SF: 5, F: 6 },
+            'europeanf': { L32: 6, L16: 6, QF: 10, SF: 11, F: 11 },
+            'players': { L128: 6, L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'challenge': { L128: 5, L64: 5, L32: 5, L16: 5, QF: 5, SF: 6, F: 6 },
+            'grandslam': { Group: 5, L16: 10, QF: 16, SF: 16, F: 16 },
+            'playersf': { L64: 6, L32: 6, L16: 10, QF: 10, SF: 11, F: 11 },
+            'q-school': { L256: 5, L128: 5, L64: 5, L32: 5, L16: 5, QF: 5, SF: 6, F: 6 },
+            'world': { L128: 3, L64: 3, L32: 4, L16: 4, QF: 5, SF: 6, F: 7 },
+            'uk-open': { L128: 6, L64: 6, L32: 6, L16: 10, QF: 10, SF: 11, F: 11 },
+            'et-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'et-host-nation': { QF: 6, SF: 7, F: 8 },
+            'et-east-european': { L16: 6, QF: 6, SF: 7, F: 8 },
+            'et-nordic-baltic': { L16: 6, QF: 6, SF: 7, F: 8 },
+            'ws-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'gs-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'wmasters-qual': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'winmaudm': { L32: 2, L16: 4, QF: 4, SF: 5, F: 6 },
+            'premier-league': { R1: 6, SF: 10, F: 11 },
+            'premier-league-playoff': { SF: 11, F: 11 }
+        };
+        
+        // Default prize money structure based on tournament type
+        const DEFAULT_PRIZE_STRUCTURE = {
+            'masters': { 16: 1000, 8: 3000, 4: 5000, 2: 8000, 1: 12000 },
+            'masters-final': { 32: 5000, 16: 10000, 8: 17500, 4: 30000, 2: 60000, 1: 100000 },
+            'q-school': { 128: 0, 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'minor': { 32: 2500, 16: 4000, 8: 6000, 4: 8500, 2: 12000, 1: 30000 },
+            'major': { 64: 2500, 32: 5000, 16: 10000, 8: 20000, 4: 40000, 2: 80000, 1: 150000 },
+            'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000 },
+            'players': { 64: 1000, 32: 2000, 16: 3000, 8: 5000, 4: 7500, 2: 10000, 1: 15000 },
+            'challenge': { 64: 100, 32: 250, 16: 350, 8: 750, 4: 1000, 2: 2000, 1: 3000 },
+            'uk-open': { 128: 1000, 64: 2500, 32: 5000, 16: 10000, 8: 15000, 4: 30000, 2: 50000, 1: 110000 },
+            'et-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-host-nation': { 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-east-european': { 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-nordic-baltic': { 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'ws-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'gs-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'wmasters-qual': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'winmaudm': { 32: 5000, 16: 10000, 8: 17500, 4: 30000, 2: 50000, 1: 100000 },
+            'matchplay': { 32: 10000, 16: 15000, 8: 30000, 4: 50000, 2: 100000, 1: 200000 },
+            'europeanf': { 32: 7500, 16: 15000, 8: 25000, 4: 40000, 2: 60000, 1: 120000 },
+            'grandprix': { 32: 7500, 16: 15000, 8: 25000, 4: 40000, 2: 60000, 1: 120000 },
+            'playersf': { 64: 3000, 32: 6500, 16: 10000, 8: 20000, 4: 30000, 2: 60000, 1: 120000 },
+            'grandslam': { 32: 5000, 16: 12250, 8: 25000, 4: 50000, 2: 70000, 1: 150000 },
+            'premier-league': { 8: 0, 4: 5000, 2: 10000, 1: 25000 },
+            'premier-league-playoff': { 4: 50000, 2: 100000, 1: 275000 }
+        };
         
         // ==================== TOURNAMENTS ====================
         
@@ -701,21 +1078,26 @@
             document.getElementById('tournaments-table').style.display = 'table';
             
             const tbody = document.getElementById('tournaments-tbody');
-            tbody.innerHTML = list.map(t => `
+            tbody.innerHTML = list.map(t => {
+                const c1 = t.color1 || '#111111';
+                const c2 = t.color2 || '#333333';
+                const colorStyle = `background: linear-gradient(135deg, ${c1} 0%, ${c2} 100%); width: 40px; height: 20px; border-radius: 3px; border: 1px solid #444;`;
+                return `
                 <tr>
-                    <td>${t.id}</td>
-                    <td>${t.name}</td>
-                    <td>${t.date}</td>
-                    <td><span style="color:${t.format === 'sets' ? '#ffd700' : '#00b359'}">${t.format.toUpperCase()}</span></td>
-                    <td>${t.players}</td>
-                    <td>${t.type}</td>
-                    <td><span class="status-badge ${t.cardRequired ? 'status-yes' : 'status-no'}">${t.cardRequired ? 'YES' : 'NO'}</span></td>
-                    <td>
+                    <td data-label="ID">${t.id}</td>
+                    <td data-label="Name">${t.name}</td>
+                    <td data-label="Date">${t.date}</td>
+                    <td data-label="Format"><span style="color:${t.format === 'sets' ? '#ffd700' : '#00b359'}">${t.format.toUpperCase()}</span></td>
+                    <td data-label="Players">${t.players}</td>
+                    <td data-label="Type">${t.type}</td>
+                    <td data-label="Card"><span class="status-badge ${t.cardRequired ? 'status-yes' : 'status-no'}">${t.cardRequired ? 'YES' : 'NO'}</span></td>
+                    <td data-label="Color"><div style="${colorStyle}" title="${c1} → ${c2}"></div></td>
+                    <td data-label="Actions">
                         <button class="btn btn-edit" onclick="editTournament(${t.id})">Edit</button>
                         <button class="btn btn-delete" onclick="deleteTournament(${t.id})">Del</button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
         
         function filterTournaments() {
@@ -743,8 +1125,180 @@
             document.getElementById('edit-tourn-night').value = tournament ? (tournament.night || '') : '';
             document.getElementById('edit-tourn-targetEvent').value = tournament ? (tournament.targetEvent || '') : '';
             document.getElementById('edit-tourn-slots').value = tournament ? (tournament.slots || '') : '';
+            
+            // Get type for defaults
+            const tType = tournament?.type || 'players';
+            const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
+            
+            // Appearance fields - use tournament values or defaults from type
+            const color1 = tournament?.color1 || defaultAppearance.color1 || '#111111';
+            const color2 = tournament?.color2 || defaultAppearance.color2 || '#333333';
+            document.getElementById('edit-tourn-color1').value = color1;
+            document.getElementById('edit-tourn-color1-hex').value = color1;
+            document.getElementById('edit-tourn-color2').value = color2;
+            document.getElementById('edit-tourn-color2-hex').value = color2;
+            updateColorPreview();
+            
+            document.getElementById('edit-tourn-logo').value = tournament?.logo || defaultAppearance.logo || '';
+            document.getElementById('edit-tourn-theme').value = tournament?.theme || defaultAppearance.theme || '';
+            
+            // Rounds format - use tournament values or defaults from type
+            const roundsContainer = document.getElementById('rounds-container');
+            roundsContainer.innerHTML = '';
+            if (tournament?.rounds && Array.isArray(tournament.rounds) && tournament.rounds.length > 0) {
+                tournament.rounds.forEach((r, idx) => {
+                    addRoundField(r.name || `R${idx+1}`, r.target || 5);
+                });
+            } else {
+                // Use defaults based on tournament type
+                const defaultRounds = DEFAULT_ROUND_FORMATS[tType] || DEFAULT_ROUND_FORMATS['minor'];
+                if (defaultRounds) {
+                    // Convert object format to array
+                    Object.entries(defaultRounds).forEach(([name, target]) => {
+                        addRoundField(name, target);
+                    });
+                } else {
+                    // Fallback to generic defaults
+                    const genericRounds = getDefaultRounds(tournament?.players || 32, tournament?.format || 'legs');
+                    genericRounds.forEach(r => addRoundField(r.name, r.target));
+                }
+            }
+            
+            // Prize money - use tournament values or defaults from type
+            const prizesContainer = document.getElementById('prizes-container');
+            prizesContainer.innerHTML = '';
+            if (tournament?.prizes && typeof tournament.prizes === 'object' && Object.keys(tournament.prizes).length > 0) {
+                Object.entries(tournament.prizes).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).forEach(([pos, amount]) => {
+                    addPrizeField(pos, amount);
+                });
+            } else {
+                // Use defaults based on tournament type
+                const defaultPrizes = DEFAULT_PRIZE_STRUCTURE[tType] || DEFAULT_PRIZE_STRUCTURE['minor'];
+                if (defaultPrizes) {
+                    Object.entries(defaultPrizes).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).forEach(([pos, amount]) => {
+                        addPrizeField(pos, amount);
+                    });
+                } else {
+                    // Fallback
+                    addPrizeField('1', 15000);
+                    addPrizeField('2', 10000);
+                    addPrizeField('4', 7500);
+                    addPrizeField('8', 5000);
+                }
+            }
+            
             document.getElementById('tournament-modal').classList.add('active');
         }
+        
+        // Update defaults when type changes
+        function onTypeChange() {
+            const tType = document.getElementById('edit-tourn-type').value;
+            const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
+            
+            // Update colors
+            document.getElementById('edit-tourn-color1').value = defaultAppearance.color1 || '#111111';
+            document.getElementById('edit-tourn-color1-hex').value = defaultAppearance.color1 || '#111111';
+            document.getElementById('edit-tourn-color2').value = defaultAppearance.color2 || '#333333';
+            document.getElementById('edit-tourn-color2-hex').value = defaultAppearance.color2 || '#333333';
+            updateColorPreview();
+            
+            // Update logo and theme
+            document.getElementById('edit-tourn-logo').value = defaultAppearance.logo || '';
+            document.getElementById('edit-tourn-theme').value = defaultAppearance.theme || '';
+            
+            // Update rounds
+            const roundsContainer = document.getElementById('rounds-container');
+            roundsContainer.innerHTML = '';
+            const defaultRounds = DEFAULT_ROUND_FORMATS[tType] || DEFAULT_ROUND_FORMATS['minor'];
+            if (defaultRounds) {
+                Object.entries(defaultRounds).forEach(([name, target]) => {
+                    addRoundField(name, target);
+                });
+            }
+            
+            // Update prizes
+            const prizesContainer = document.getElementById('prizes-container');
+            prizesContainer.innerHTML = '';
+            const defaultPrizes = DEFAULT_PRIZE_STRUCTURE[tType] || DEFAULT_PRIZE_STRUCTURE['minor'];
+            if (defaultPrizes) {
+                Object.entries(defaultPrizes).sort((a,b) => parseInt(b[0]) - parseInt(a[0])).forEach(([pos, amount]) => {
+                    addPrizeField(pos, amount);
+                });
+            }
+        }
+        
+        function getDefaultRounds(playerCount, format) {
+            const rounds = [];
+            const roundNames = { 128: 'L128', 64: 'L64', 32: 'L32', 16: 'L16', 8: 'QF', 4: 'SF', 2: 'F' };
+            let current = playerCount;
+            while (current >= 2) {
+                const name = roundNames[current] || `L${current}`;
+                const target = format === 'sets' ? (current <= 4 ? 5 : 3) : (current <= 4 ? 7 : 5);
+                rounds.push({ name, target });
+                current = Math.floor(current / 2);
+            }
+            return rounds;
+        }
+        
+        function addRoundField(name = '', target = 5) {
+            const container = document.getElementById('rounds-container');
+            const idx = container.children.length;
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.style.cssText = 'margin-bottom: 0;';
+            div.innerHTML = `
+                <label style="font-size: 10px;">${name || 'Round ' + (idx + 1)}</label>
+                <div style="display: flex; gap: 4px;">
+                    <input type="text" class="round-name" value="${name}" placeholder="Name" style="width: 50px; font-size: 11px; padding: 4px;">
+                    <input type="number" class="round-target" value="${target}" placeholder="Target" style="width: 50px; font-size: 11px; padding: 4px;">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" style="padding: 4px 8px; background: #9a0000; border: none; color: #fff; border-radius: 3px; cursor: pointer;">×</button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+        
+        function addPrizeField(position = '', amount = 0) {
+            const container = document.getElementById('prizes-container');
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.style.cssText = 'margin-bottom: 0;';
+            const posLabel = position == '1' ? 'Winner' : position == '2' ? 'R-Up' : position == '4' ? 'SF' : position == '8' ? 'QF' : `Top ${position}`;
+            div.innerHTML = `
+                <label style="font-size: 10px;">${posLabel}</label>
+                <div style="display: flex; gap: 4px;">
+                    <input type="number" class="prize-pos" value="${position}" placeholder="Pos" style="width: 45px; font-size: 11px; padding: 4px;">
+                    <input type="number" class="prize-amount" value="${amount}" placeholder="£" style="width: 70px; font-size: 11px; padding: 4px;">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" style="padding: 4px 8px; background: #9a0000; border: none; color: #fff; border-radius: 3px; cursor: pointer;">×</button>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+        
+        function syncColorPicker(which) {
+            const hex = document.getElementById(`edit-tourn-${which}-hex`).value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                document.getElementById(`edit-tourn-${which}`).value = hex;
+                updateColorPreview();
+            }
+        }
+        
+        function updateColorPreview() {
+            const c1 = document.getElementById('edit-tourn-color1').value;
+            const c2 = document.getElementById('edit-tourn-color2').value;
+            document.getElementById('color-preview').style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
+        }
+        
+        // Sync color pickers on change
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit-tourn-color1')?.addEventListener('input', function() {
+                document.getElementById('edit-tourn-color1-hex').value = this.value;
+                updateColorPreview();
+            });
+            document.getElementById('edit-tourn-color2')?.addEventListener('input', function() {
+                document.getElementById('edit-tourn-color2-hex').value = this.value;
+                updateColorPreview();
+            });
+        });
         
         function closeTournamentModal() {
             document.getElementById('tournament-modal').classList.remove('active');
@@ -756,6 +1310,22 @@
         }
         
         async function saveTournament() {
+            // Collect rounds
+            const rounds = [];
+            document.querySelectorAll('#rounds-container .form-group').forEach(div => {
+                const name = div.querySelector('.round-name').value;
+                const target = parseInt(div.querySelector('.round-target').value) || 5;
+                if (name) rounds.push({ name, target });
+            });
+            
+            // Collect prizes
+            const prizes = {};
+            document.querySelectorAll('#prizes-container .form-group').forEach(div => {
+                const pos = div.querySelector('.prize-pos').value;
+                const amount = parseInt(div.querySelector('.prize-amount').value) || 0;
+                if (pos) prizes[pos] = amount;
+            });
+            
             const tournament = {
                 id: parseInt(document.getElementById('edit-tourn-id').value),
                 name: document.getElementById('edit-tourn-name').value,
@@ -768,7 +1338,15 @@
                 region: document.getElementById('edit-tourn-region').value || null,
                 night: document.getElementById('edit-tourn-night').value ? parseInt(document.getElementById('edit-tourn-night').value) : null,
                 targetEvent: document.getElementById('edit-tourn-targetEvent').value ? parseInt(document.getElementById('edit-tourn-targetEvent').value) : null,
-                slots: document.getElementById('edit-tourn-slots').value ? parseInt(document.getElementById('edit-tourn-slots').value) : null
+                slots: document.getElementById('edit-tourn-slots').value ? parseInt(document.getElementById('edit-tourn-slots').value) : null,
+                // Appearance
+                color1: document.getElementById('edit-tourn-color1').value || null,
+                color2: document.getElementById('edit-tourn-color2').value || null,
+                logo: document.getElementById('edit-tourn-logo').value || null,
+                theme: document.getElementById('edit-tourn-theme').value || null,
+                // Rounds and prizes
+                rounds: rounds.length > 0 ? rounds : null,
+                prizes: Object.keys(prizes).length > 0 ? prizes : null
             };
             
             const editId = document.getElementById('edit-tournament-id').value;
@@ -831,15 +1409,15 @@
             const tbody = document.getElementById('players-tbody');
             tbody.innerHTML = list.map(p => `
                 <tr>
-                    <td>${p.id}</td>
-                    <td>${p.name}</td>
-                    <td>${p.country.toUpperCase()}</td>
-                    <td>${p.avg.toFixed(2)}</td>
-                    <td>${p.co.toFixed(1)}%</td>
-                    <td>D${p.fav}</td>
-                    <td>£${p.money.toLocaleString()}</td>
-                    <td><span class="status-badge ${p.tourCard ? 'status-yes' : 'status-no'}">${p.tourCard ? 'YES' : 'NO'}</span></td>
-                    <td>
+                    <td data-label="ID">${p.id}</td>
+                    <td data-label="Name">${p.name}</td>
+                    <td data-label="Country">${p.country.toUpperCase()}</td>
+                    <td data-label="Average">${p.avg.toFixed(2)}</td>
+                    <td data-label="CO%">${p.co.toFixed(1)}%</td>
+                    <td data-label="Fav">D${p.fav}</td>
+                    <td data-label="Money">£${p.money.toLocaleString()}</td>
+                    <td data-label="Card"><span class="status-badge ${p.tourCard ? 'status-yes' : 'status-no'}">${p.tourCard ? 'YES' : 'NO'}</span></td>
+                    <td data-label="Actions">
                         <button class="btn btn-edit" onclick="editPlayer(${p.id})">Edit</button>
                         <button class="btn btn-delete" onclick="deletePlayer(${p.id})">Del</button>
                     </td>
@@ -938,11 +1516,11 @@
                     const tbody = document.getElementById('users-tbody');
                     tbody.innerHTML = result.users.map(u => `
                         <tr>
-                            <td>${u.id}</td>
-                            <td>${u.username}</td>
-                            <td>${new Date(u.created_at * 1000).toLocaleDateString()}</td>
-                            <td>${u.last_sync ? new Date(u.last_sync * 1000).toLocaleString() : 'Never'}</td>
-                            <td>
+                            <td data-label="ID">${u.id}</td>
+                            <td data-label="Username">${u.username}</td>
+                            <td data-label="Created">${new Date(u.created_at * 1000).toLocaleDateString()}</td>
+                            <td data-label="Last Sync">${u.last_sync ? new Date(u.last_sync * 1000).toLocaleString() : 'Never'}</td>
+                            <td data-label="Actions">
                                 <button class="btn btn-delete" onclick="deleteUser(${u.id})">Delete</button>
                             </td>
                         </tr>

@@ -4368,6 +4368,27 @@
 
         // ================= PERSISTENCE =================
         window.Persistence = {
+            // Save completed tournament to history (autosave when tournament finishes)
+            saveTournamentResult: (winner, runnerUp, tournamentName, bracketData) => {
+                const history = JSON.parse(localStorage.getItem('pdc_tournament_history') || '[]');
+                const result = {
+                    id: Date.now(),
+                    name: tournamentName || Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'CUSTOM TOURNAMENT',
+                    winner: winner ? winner.name : 'Unknown',
+                    runnerUp: runnerUp ? runnerUp.name : 'Unknown',
+                    date: new Date().toISOString(),
+                    eventType: Tournament.config.eventType || 'custom',
+                    mode: Tournament.config.mode,
+                    playerCount: Tournament.config.playerCount,
+                    finalScore: bracketData && bracketData.length > 0 ? 
+                        bracketData[bracketData.length - 1][0]?.score?.join(' - ') : null
+                };
+                history.push(result);
+                localStorage.setItem('pdc_tournament_history', JSON.stringify(history));
+                console.log('[Autosave] Tournament result saved:', result);
+                return result;
+            },
+
             save: () => {
                 if (typeof PLAYERS_DB !== 'undefined') {
                     const states = PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue }));
@@ -4378,6 +4399,9 @@
                 localStorage.setItem('pdc_match_state', JSON.stringify(App.matchState));
                 localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
 
+                // Get tournament name - always save it when in tournament
+                const tournName = document.getElementById('tourn-event-name')?.value || Tournament.config.name || 'CUSTOM TOURNAMENT';
+                
                 // Only save tournament state if it's active
                 if (Tournament.state.active) {
                     const cleanBracket = Tournament.state.bracketData.map(round =>
@@ -4385,17 +4409,36 @@
                             p1: m.p1, p2: m.p2, winner: m.winner, score: m.score, averages: m.averages
                         }))
                     );
+                    
+                    // Clean group matches if they exist (for Grand Slam group stage)
+                    let cleanGroupMatches = null;
+                    if (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
+                        cleanGroupMatches = Tournament.state.groupMatches.map(group =>
+                            group.map(m => ({
+                                id: m.id, group: m.group, p1: m.p1, p2: m.p2, 
+                                winner: m.winner, score: m.score, averages: m.averages
+                            }))
+                        );
+                    }
+                    
                     localStorage.setItem('pdc_tourn_state', JSON.stringify({
                         active: true,
                         bracketData: cleanBracket,
                         currentActiveRound: Tournament.state.currentActiveRound,
                         viewingRound: Tournament.state.viewingRound,
                         selectedPlayerIndices: Array.from(Tournament.state.selectedPlayerIndices),
-                        matchQueue: Tournament.state.matchQueue
+                        matchQueue: Tournament.state.matchQueue,
+                        tournamentName: tournName,
+                        // Group stage data for Grand Slam
+                        groupMatches: cleanGroupMatches,
+                        groupStandings: Tournament.state.groupStandings || null,
+                        groupStageData: Tournament.state.groupStageData || null
                     }));
-                    localStorage.setItem('pdc_tourn_config', JSON.stringify(Tournament.config));
+                    localStorage.setItem('pdc_tourn_config', JSON.stringify({
+                        ...Tournament.config,
+                        name: tournName
+                    }));
                     // Cache tournament name for restoration
-                    const tournName = document.getElementById('tourn-event-name')?.value || Tournament.config.name || 'CUSTOM TOURNAMENT';
                     localStorage.setItem('pdc_tournament_name', tournName);
                 } else {
                     // Clear tournament state if not active
@@ -4462,6 +4505,20 @@
                         Tournament.state.viewingRound = parsed.viewingRound;
                         Tournament.state.selectedPlayerIndices = new Set(parsed.selectedPlayerIndices);
                         Tournament.state.matchQueue = parsed.matchQueue || [];
+                        // Restore tournament name from state if available
+                        if (parsed.tournamentName) {
+                            Tournament.config.name = parsed.tournamentName;
+                        }
+                        // Restore group stage data for Grand Slam
+                        if (parsed.groupMatches) {
+                            Tournament.state.groupMatches = parsed.groupMatches;
+                        }
+                        if (parsed.groupStandings) {
+                            Tournament.state.groupStandings = parsed.groupStandings;
+                        }
+                        if (parsed.groupStageData) {
+                            Tournament.state.groupStageData = parsed.groupStageData;
+                        }
                     }
 
                     const tConfig = localStorage.getItem('pdc_tourn_config');
@@ -9633,8 +9690,10 @@
             },
 
             simulateCurrentRound: () => {
-                // Check if this is group stage
-                if (Tournament.config.isGroupStage) {
+                // Check if this is group stage (either by flag or by checking if group data exists)
+                if (Tournament.config.isGroupStage || 
+                    (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0 && 
+                     !Tournament.state.groupMatches.every(gm => gm.every(m => m.winner)))) {
                     Tournament.simulateGroupStage();
                     return;
                 }
@@ -10129,6 +10188,24 @@
                 const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
                 const isSilent = typeof Season !== 'undefined' && Season.silentSimulation;
                 
+                // Check if group stage data exists
+                if (!Tournament.state.groupMatches || Tournament.state.groupMatches.length === 0) {
+                    if (!isBulkSim && !isSilent) {
+                        console.error('simulateGroupStage: No group matches data found');
+                        alert('No group stage data found. Please enter the tournament first.');
+                    }
+                    return;
+                }
+                
+                // Ensure rounds config exists
+                if (!Tournament.config.rounds || Tournament.config.rounds.length === 0) {
+                    if (!isBulkSim && !isSilent) {
+                        console.error('simulateGroupStage: No rounds config found');
+                        alert('Tournament configuration error. Please restart the tournament.');
+                    }
+                    return;
+                }
+                
                 let totalSimulated = 0;
                 const roundInfo = Tournament.config.rounds[0]; // Group stage target
 
@@ -10260,6 +10337,11 @@
             },
 
             renderHub: () => {
+                // Ensure tournament title is set correctly
+                const tournName = Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'TOURNAMENT';
+                const hubTitle = document.getElementById('tourn-hub-title');
+                if (hubTitle) hubTitle.innerText = tournName;
+
                 // Check if this is group stage
                 if (Tournament.config.isGroupStage) {
                     Tournament.renderGrandSlamGroupStage();
@@ -10803,9 +10885,21 @@
                     }
 
                     if (rIdx === Tournament.config.rounds.length - 1) {
+                        // Tournament is complete - get winner info BEFORE changing state
+                        const finalMatch = matches[0];
+                        const winner = finalMatch.winner;
+                        const runnerUp = finalMatch.p1 === winner ? finalMatch.p2 : finalMatch.p1;
+                        const tournamentName = Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'CUSTOM TOURNAMENT';
+                        
+                        // AUTOSAVE: Save tournament result to history BEFORE clearing state
+                        Persistence.saveTournamentResult(winner, runnerUp, tournamentName, Tournament.state.bracketData);
+                        console.log(`[Tournament Complete] Winner: ${winner?.name}, saved to history`);
+
                         if (typeof Season === 'undefined' || !Season.silentSimulation) {
-                            alert(`${matches[0].winner.name} WINS!`);
+                            // Show celebration overlay instead of alert
+                            Tournament.showCelebration("TOURNAMENT WINNER", winner?.name || 'Unknown', [winner?.name || 'Unknown']);
                         }
+                        
                         Tournament.state.active = false;
                         Persistence.save();
 
@@ -10826,9 +10920,9 @@
                             Season.completeEvent(Tournament.state.bracketData);
                             return;
                         } else {
-                            Persistence.clearTournamentOnly();
-                            document.getElementById('setup-screen').style.display = 'flex';
-                            document.getElementById('tournament-hub').style.display = 'none';
+                            // Non-season mode: Stay in tournament hub to show results, don't auto-exit
+                            // User can click "Exit Tournament" when ready
+                            Tournament.renderHub();
                             return;
                         }
                     }
@@ -10863,7 +10957,16 @@
                 if (!matches.every(m => m.winner)) return;
 
                 if (rIdx === Tournament.config.rounds.length - 1) {
-                    // ALERT REMOVED: Replaced with celebration overlay + auto-complete prevention
+                    // Get winner info BEFORE changing state for autosave
+                    const finalMatch = matches[0];
+                    const winner = finalMatch.winner;
+                    const runnerUp = finalMatch.p1 === winner ? finalMatch.p2 : finalMatch.p1;
+                    const tournamentName = Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'UK OPEN';
+                    
+                    // AUTOSAVE: Save tournament result to history
+                    Persistence.saveTournamentResult(winner, runnerUp, tournamentName, Tournament.state.bracketData);
+                    console.log(`[UK Open Complete] Winner: ${winner?.name}, saved to history`);
+
                     if (!Season.silentSimulation && !Season.isBulkSim) {
                         Tournament.showCelebration("TOURNAMENT WINNER", matches[0].winner.name, [matches[0].winner.name]);
                     }
@@ -10881,6 +10984,9 @@
                          // Also trigger season completion in background
                          if (Season.state.inProgress) {
                              Season.completeEvent(Tournament.state.bracketData);
+                         } else {
+                             // Non-season mode: Stay in hub to show results
+                             Tournament.renderHub();
                          }
                     }
                     return;
