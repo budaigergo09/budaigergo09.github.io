@@ -147,7 +147,7 @@ switch ($uri) {
         if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
         
         $db = getDB();
-        $result = $db->query('SELECT * FROM tournaments ORDER BY id');
+        $result = $db->query('SELECT * FROM tournaments ORDER BY date, id');
         $tournaments = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $row['cardRequired'] = (bool)$row['cardRequired'];
@@ -385,7 +385,7 @@ switch ($uri) {
             
             if ($adminRoute === 'tournaments' && $method === 'GET') {
                 $db = getDB();
-                $result = $db->query('SELECT * FROM tournaments ORDER BY id');
+                $result = $db->query('SELECT * FROM tournaments ORDER BY date, id');
                 $tournaments = [];
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                     $row['cardRequired'] = (bool)$row['cardRequired'];
