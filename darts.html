@@ -2525,6 +2525,40 @@
                     <label>Event Name</label>
                     <input type="text" id="tourn-event-name" value="CUSTOM TOURNAMENT">
                 </div>
+                <div>
+                    <label>Theme</label>
+                    <select id="tourn-theme" onchange="toggleCustomTheme()">
+                        <option value="default">Default / Auto</option>
+                        <option value="world">World Championship (Green/Gold)</option>
+                        <option value="matchplay">World Matchplay (Red/Blue)</option>
+                        <option value="premier">Premier League (Blue/Neon)</option>
+                        <option value="grandprix">World Grand Prix (Blue/Teal)</option>
+                        <option value="grandslam">Grand Slam (Orange/Black)</option>
+                        <option value="ukopen">UK Open (Yellow/Red)</option>
+                        <option value="players">Players Championship (Red/Black)</option>
+                        <option value="european">European Championship (Purple/Silver)</option>
+                        <option value="worldseries">World Series (Maroon/Black)</option>
+                        <option value="masters">The Masters (Gold/Black)</option>
+                        <option value="winmau">Winmau (Black/White)</option>
+                        <option value="custom">✨ Custom Theme...</option>
+                    </select>
+                    <div id="custom-theme-options"
+                        style="display:none; margin-top:10px; padding:10px; background:#222; border:1px solid #444; border-radius:4px;">
+                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">Custom Gradient Colors</div>
+                        <div style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label style="font-size:10px;">Start Color</label>
+                                <input type="color" id="theme-col-1" value="#000000"
+                                    style="width:100%; height:30px; border:none; padding:0;">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size:10px;">End Color</label>
+                                <input type="color" id="theme-col-2" value="#ffffff"
+                                    style="width:100%; height:30px; border:none; padding:0;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="pc-row">
                     <div>
                         <label>Players</label>
@@ -2582,7 +2616,8 @@
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="tourn-tiebreak">
                     <label for="tourn-tiebreak"
-                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by 2)</label>
+                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by
+                        2)</label>
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
             </div>
@@ -2611,7 +2646,8 @@
                         <button class="btn-gold" onclick="AuthSystem.showModal()"
                             style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
                     </div>
-                    <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
+                    <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET
+                        CAREER</button>
                 </div>
             </div>
 
@@ -2843,7 +2879,8 @@
     <div id="overlay-intro" class="overlay">
         <div class="intro-box">
             <div class="intro-title" id="intro-title-txt" style="font-size:24px; font-weight:bold;">Leg 1</div>
-            <div class="intro-name" id="intro-name-txt" style="font-size:30px; font-weight:bold; margin:10px 0;">Player
+            <div class="intro-name" id="intro-name-txt" style="font-size:30px; font-weight:bold; margin:10px 0;">
+                Player
                 Name</div>
             <div style="margin-top:10px; font-size:14px; color:#ddd;">TO THROW FIRST</div>
         </div>
@@ -2867,7 +2904,8 @@
     <!-- PAUSE / RESUME OVERLAY -->
     <div id="overlay-resume" class="overlay">
         <div class="end-box">
-            <div style="font-size:20px; font-weight:bold; margin-bottom:10px; color:var(--pdc-gold);">MATCH PAUSED</div>
+            <div style="font-size:20px; font-weight:bold; margin-bottom:10px; color:var(--pdc-gold);">MATCH PAUSED
+            </div>
             <div id="pause-info-text"
                 style="color:white; font-size:14px; font-weight:bold; margin-bottom:20px; text-transform:uppercase;">
                 FORMAT INFO</div>
@@ -2938,6 +2976,14 @@
 
         // ================= WAKE LOCK =================
         let wakeLock = null;
+        function toggleCustomTheme() {
+            const el = document.getElementById('tourn-theme');
+            const opts = document.getElementById('custom-theme-options');
+            if (el && opts) {
+                opts.style.display = (el.value === 'custom') ? 'block' : 'none';
+            }
+        }
+
         const requestWakeLock = async () => {
             if ('wakeLock' in navigator) {
                 try {
@@ -7183,6 +7229,7 @@
                     selected.clear();
 
                     let pool = PLAYERS_DB;
+                    let generationRegion = null; // Store region for regen
 
                     if (ev.type === "et-qual-tc") {
                         // Exclude top 16 Main OOM (by world ranking) and top 16 Pro Tour OOM
@@ -7201,10 +7248,13 @@
                     } else if (ev.type === "et-host-nation") {
                         const hostCode = HOST_NATION[ev.targetEvent];
                         pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode) : [];
+                        generationRegion = hostCode; // Regen using host nation
                     } else if (ev.type === "et-east-european") {
                         pool = PLAYERS_DB.filter(p => REGION_MAP.east.includes(p.country));
+                        generationRegion = "east";
                     } else if (ev.type === "et-nordic-baltic") {
                         pool = PLAYERS_DB.filter(p => REGION_MAP.nordic.includes(p.country));
+                        generationRegion = "nordic";
                     }
 
                     pool.slice(0, ev.players).forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
@@ -7218,7 +7268,8 @@
 
                     // If still short, generate random players
                     while (selected.size < ev.players) {
-                        const newIdx = PlayerState.generateRandomPlayer(ev.type, null);
+                        // FIX: Pass generationRegion to ensure correct nationality
+                        const newIdx = PlayerState.generateRandomPlayer(ev.type, generationRegion);
                         if (newIdx >= 0) selected.add(newIdx);
                     }
 
@@ -9607,6 +9658,20 @@
                 const tiebreakEl = document.getElementById('tourn-tiebreak');
                 Tournament.config.tiebreak = tiebreakEl ? tiebreakEl.checked : false;
 
+                // Save Custom Theme
+                const themeEl = document.getElementById('tourn-theme');
+                if (themeEl) {
+                    if (themeEl.value === 'custom') {
+                        const c1 = document.getElementById('theme-col-1').value;
+                        const c2 = document.getElementById('theme-col-2').value;
+                        Tournament.config.theme = { mode: 'custom', color1: c1, color2: c2 };
+                    } else {
+                        Tournament.config.theme = { mode: 'preset', id: themeEl.value };
+                    }
+                } else {
+                    Tournament.config.theme = { mode: 'preset', id: 'default' };
+                }
+
                 // Support non-power-of-2 by rounding up to next power of 2
                 const nextPowerOf2 = Math.pow(2, Math.ceil(Math.log2(size)));
                 const numRounds = Math.log2(nextPowerOf2);
@@ -11483,14 +11548,37 @@
                 scoreboardHeader.className = 'scoreboard-header';
                 if (bottomBar) bottomBar.className = 'bottom-bar';
 
-                // Reset to default
+                // Reset to default settings first
                 eventBar.style.background = '#111';
                 eventLogo.src = "";
                 eventLogo.style.display = 'none';
                 pdcLogo.style.display = 'block';
 
-                // Apply event-specific colors and logos
-                if (eventName.includes('MATCHPLAY')) {
+                // ================= THEME RESOLUTION =================
+                let themeConfig = null;
+                if (typeof Tournament !== 'undefined' && Tournament.config.theme) {
+                    themeConfig = Tournament.config.theme;
+                } else if (typeof App !== 'undefined' && App.config.theme) {
+                    themeConfig = App.config.theme;
+                }
+
+                // Normalization
+                if (typeof themeConfig === 'string') {
+                    themeConfig = { mode: 'preset', id: themeConfig };
+                }
+
+                // 1. CUSTOM THEME
+                if (themeConfig && themeConfig.mode === 'custom') {
+                    eventBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
+                    eventLogo.style.display = 'none';
+                    pdcLogo.style.display = 'block';
+                    return;
+                }
+
+                // 2. PRESET / LEGACY THEME
+                const themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
+
+                if (themeId === 'matchplay' || (!themeId && eventName.includes('MATCHPLAY'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #8B0000 0%, #B22222 100%)';
                     eventLogo.src = 'worldmatchplay.png';
                     eventLogo.style.display = 'block';
@@ -11498,7 +11586,7 @@
                     scoreboardHeader.classList.add('theme-matchplay');
                     if (bottomBar) bottomBar.classList.add('theme-matchplay');
 
-                } else if (eventName.includes('UK OPEN')) {
+                } else if (themeId === 'ukopen' || (!themeId && eventName.includes('UK OPEN'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #C8102E 0%, #FFD100 100%)';
                     eventLogo.src = 'ukopen.png';
                     eventLogo.style.display = 'block';
@@ -11506,7 +11594,7 @@
                     scoreboardHeader.classList.add('theme-uk-open');
                     if (bottomBar) bottomBar.classList.add('theme-uk-open');
 
-                } else if (eventName.includes('PLAYERS CHAMPIONSHIP FINALS')) {
+                } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP FINALS'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
                     eventLogo.src = 'playersc.png';
                     eventLogo.style.display = 'block';
@@ -11514,7 +11602,7 @@
                     scoreboardHeader.classList.add('theme-players-championship');
                     if (bottomBar) bottomBar.classList.add('theme-players-championship');
 
-                } else if (eventName.includes('GRAND SLAM')) {
+                } else if (themeId === 'grandslam' || (!themeId && eventName.includes('GRAND SLAM'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #FF8C00 0%, #111111 100%)';
                     eventLogo.src = 'mrvegas.png';
                     eventLogo.style.display = 'block';
@@ -11522,7 +11610,7 @@
                     scoreboardHeader.classList.add('theme-grand-slam');
                     if (bottomBar) bottomBar.classList.add('theme-grand-slam');
 
-                } else if (eventName.includes('WORLD SERIES OF DARTS FINALS')) {
+                } else if (themeId === 'worldseries' || (!themeId && (eventName.includes('WORLD SERIES OF DARTS FINALS') || eventName.includes('WORLD SERIES OF DARTS')))) {
                     eventBar.style.background = 'linear-gradient(135deg, #7A0000 0%, #000000 100%)';
                     eventLogo.src = 'worldseriesofdarts.png';
                     eventLogo.style.display = 'block';
@@ -11530,15 +11618,7 @@
                     scoreboardHeader.classList.add('theme-world-series');
                     if (bottomBar) bottomBar.classList.add('theme-world-series');
 
-                } else if (eventName.includes('WORLD SERIES OF DARTS')) {
-                    eventBar.style.background = 'linear-gradient(135deg, #7A0000 0%, #000000 100%)';
-                    eventLogo.src = 'worldseries.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-world-series');
-                    if (bottomBar) bottomBar.classList.add('theme-world-series');
-
-                } else if (eventName.includes('WORLD GRAND PRIX')) {
+                } else if (themeId === 'grandprix' || (!themeId && eventName.includes('WORLD GRAND PRIX'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0033A0 0%, #00AEEF 100%)';
                     eventLogo.src = 'grandprix.png';
                     eventLogo.style.display = 'block';
@@ -11546,7 +11626,7 @@
                     scoreboardHeader.classList.add('theme-world-grandprix');
                     if (bottomBar) bottomBar.classList.add('theme-world-grandprix');
 
-                } else if (eventName.includes('WINMAU')) {
+                } else if (themeId === 'winmau' || (!themeId && eventName.includes('WINMAU'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #FFFFFF 100%)';
                     eventLogo.src = 'worldmasters.png';
                     eventLogo.style.display = 'block';
@@ -11554,7 +11634,7 @@
                     scoreboardHeader.classList.add('theme-winmau');
                     if (bottomBar) bottomBar.classList.add('theme-winmau');
 
-                } else if (eventName.includes('EUROPEAN CHAMPIONSHIP')) {
+                } else if (themeId === 'european' || (!themeId && eventName.includes('EUROPEAN CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #5B2D8B 0%, #C0C0C0 100%)';
                     eventLogo.src = 'europeanchampionship.png';
                     eventLogo.style.display = 'block';
@@ -11562,7 +11642,7 @@
                     scoreboardHeader.classList.add('theme-european');
                     if (bottomBar) bottomBar.classList.add('theme-european');
 
-                } else if (eventName.includes('WORLD CHAMPIONSHIP')) {
+                } else if (themeId === 'world' || (!themeId && eventName.includes('WORLD CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0C3B2E 0%, #1E7F43 100%)';
                     eventLogo.src = 'worldchampionship.png';
                     eventLogo.style.display = 'block';
@@ -11570,7 +11650,7 @@
                     scoreboardHeader.classList.add('theme-world-championship');
                     if (bottomBar) bottomBar.classList.add('theme-world-championship');
 
-                } else if (eventName.includes('PLAYERS CHAMPIONSHIP')) {
+                } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
                     eventLogo.src = 'playersc.png';
                     eventLogo.style.display = 'block';
@@ -11578,7 +11658,7 @@
                     scoreboardHeader.classList.add('theme-players-championship');
                     if (bottomBar) bottomBar.classList.add('theme-players-championship');
 
-                } else if (eventName.includes('PREMIER LEAGUE')) {
+                } else if (themeId === 'premier' || (!themeId && eventName.includes('PREMIER LEAGUE'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0A1AFF 0%, #001B5E 100%)';
                     eventLogo.src = 'premierleague.png';
                     eventLogo.style.display = 'block';
@@ -11586,13 +11666,14 @@
                     scoreboardHeader.classList.add('theme-premier-league');
                     if (bottomBar) bottomBar.classList.add('theme-premier-league');
 
-                } else if (eventName.includes('MASTERS')) {
+                } else if (themeId === 'masters' || (!themeId && eventName.includes('MASTERS'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #D4AF37 100%)';
                     eventLogo.src = 'worldseries.png';
                     eventLogo.style.display = 'block';
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-masters');
                     if (bottomBar) bottomBar.classList.add('theme-masters');
+
                 } else if (eventName.includes('Q-SCHOOL') || eventName.includes('CHALLENGE') || eventName.includes('MINOR')) {
                     eventBar.style.background = 'linear-gradient(135deg, #1A1A1A 0%, #2E2E2E 100%)';
                     eventLogo.style.display = 'none';
@@ -11600,6 +11681,7 @@
                     scoreboardHeader.classList.add('theme-minor');
                     if (bottomBar) bottomBar.classList.add('theme-minor');
                 }
+
             },
             startMatch: (p1Override, p2Override, targetOverride) => {
                 requestWakeLock();
@@ -12715,7 +12797,8 @@
                     </div>
                 </div>
 
-                <div id="auth-error" style="color:#ff4444; font-size:12px; text-align:center; margin-top:10px;"></div>
+                <div id="auth-error" style="color:#ff4444; font-size:12px; text-align:center; margin-top:10px;">
+                </div>
             </div>
 
             <!-- Account View (shown when logged in) -->
@@ -12740,7 +12823,8 @@
                 <div
                     style="padding:12px; background:rgba(0,102,0,0.2); border:1px solid #00b359; border-radius:6px; margin-bottom:15px;">
                     <div style="font-size:11px; color:#00b359;">✓ Your progress syncs across all devices</div>
-                    <div style="font-size:11px; color:#888; margin-top:4px;">Login on any device to continue your career
+                    <div style="font-size:11px; color:#888; margin-top:4px;">Login on any device to continue your
+                        career
                     </div>
                 </div>
 
