@@ -5055,6 +5055,24 @@
                     countries = REGION_MAP.nordic;
                 } else if (region === "east") {
                     countries = REGION_MAP.east;
+                } else if (region === "jpn") {
+                    countries = ["jpn"];
+                } else if (region === "ger") {
+                    countries = ["ger"];
+                } else if (region === "aut") {
+                    countries = ["aut"];
+                } else if (region === "bel") {
+                    countries = ["bel"];
+                } else if (region === "svk") {
+                    countries = ["svk"];
+                } else if (region === "cze") {
+                    countries = ["cze"];
+                } else if (region === "pol") {
+                    countries = ["pol"];
+                } else if (region === "hun") {
+                    countries = ["hun"];
+                } else if (region === "sui") {
+                    countries = ["sui"];
                 }
                 
                 const randomCountry = countries[Math.floor(Math.random() * countries.length)];
@@ -5180,13 +5198,10 @@
                 }
                 
                 // Fallback: If it's a regional qualifier and no eligible players found, generate one
-                if (isWCQualIntl && eventName) {
-                    if (eventName.includes("AFRICAN")) {
-                        return PlayerState.generateRandomAfricanPlayer();
-                    } else if (eventName.includes("INDIA")) {
-                        return PlayerState.generateRandomIndianPlayer();
-                    } else if (eventName.includes("JAPAN")) {
-                        return PlayerState.generateRandomJapanesePlayer();
+                if ((isWCQualIntl || eventType === 'et-host-nation') && eventName) {
+                    if (regionFilter && regionFilter.length > 0) {
+                        // Use the first country in the filter as the primary region for generation
+                        return PlayerState.generateRandomPlayer(eventType, regionFilter[0]);
                     }
                 }
                 
