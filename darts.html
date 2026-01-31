@@ -5128,22 +5128,28 @@
                 
                 // Regional filtering for WC International Qualifiers
                 let regionFilter = null;
-                if (isWCQualIntl && eventName) {
-                    if (eventName.includes("HUNGARIAN")) regionFilter = ["hun"];
-                    else if (eventName.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
-                    else if (eventName.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
-                    else if (eventName.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
-                    else if (eventName.includes("CZECHIA")) regionFilter = ["cze"];
-                    else if (eventName.includes("POLISH") || eventName.includes("PDO POLISH")) regionFilter = ["pol"];
-                    else if (eventName.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
-                    else if (eventName.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
-                    else if (eventName.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
-                    else if (eventName.includes("JAPAN")) regionFilter = ["jpn"];
-                    else if (eventName.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
-                    else if (eventName.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
-                    else if (eventName.includes("ASIAN")) regionFilter = REGION_MAP.asia;
-                    else if (eventName.includes("CDC") || eventName.includes("CDLC")) regionFilter = REGION_MAP.america;
-                    else if (eventName.includes("ANZ") || eventName.includes("DPA") || eventName.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+                if ((isWCQualIntl || eventType === 'et-host-nation') && eventName) {
+                    const nameUpper = eventName.toUpperCase();
+                    if (nameUpper.includes("HUNGARIAN") || nameUpper.includes("ET13")) regionFilter = ["hun"];
+                    else if (nameUpper.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
+                    else if (nameUpper.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
+                    else if (nameUpper.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
+                    else if (nameUpper.includes("CZECHIA") || nameUpper.includes("ET14") || nameUpper.includes("CZECH")) regionFilter = ["cze"];
+                    else if (nameUpper.includes("POLISH") || nameUpper.includes("PDO POLISH") || nameUpper.includes("ET1") || nameUpper.includes("POLAND")) regionFilter = ["pol"];
+                    else if (nameUpper.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
+                    else if (nameUpper.includes("GERMAN") || nameUpper.includes("ET2") || nameUpper.includes("ET4") || nameUpper.includes("ET5") || nameUpper.includes("ET6") || nameUpper.includes("ET8") || nameUpper.includes("ET11")) regionFilter = ["ger"];
+                    else if (nameUpper.includes("AUSTRIAN") || nameUpper.includes("ET7")) regionFilter = ["aut"];
+                    else if (nameUpper.includes("BELGIAN") || nameUpper.includes("ET3") || nameUpper.includes("ET9")) regionFilter = ["bel"];
+                    else if (nameUpper.includes("SLOVAK") || nameUpper.includes("ET10")) regionFilter = ["svk"];
+                    else if (nameUpper.includes("SWISS") || nameUpper.includes("ET12")) regionFilter = ["sui"];
+                    else if (nameUpper.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
+                    else if (nameUpper.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
+                    else if (nameUpper.includes("JAPAN")) regionFilter = ["jpn"];
+                    else if (nameUpper.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (nameUpper.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
+                    else if (nameUpper.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (nameUpper.includes("CDC") || nameUpper.includes("CDLC")) regionFilter = REGION_MAP.america;
+                    else if (nameUpper.includes("ANZ") || nameUpper.includes("DPA") || nameUpper.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
                 }
 
                 for(let i = 0; i < PLAYERS_DB.length; i++) {
@@ -5159,10 +5165,10 @@
                         // If it's WC Tour Card Qualifier, do NOT allow non-tour-card holders or auto-qualified players
                         if (isWCQualTC && (excludedNames.has(p.name) || !p.tourCard)) continue;
                         
-                        // If it's WC International Qualifier, do NOT allow auto-qualified players
-                        if (isWCQualIntl && excludedNames.has(p.name)) continue;
+                        // If it's WC International Qualifier or ET Host Nation, do NOT allow auto-qualified players
+                        if ((isWCQualIntl || eventType === 'et-host-nation') && excludedNames.has(p.name)) continue;
                         
-                        // Regional filtering for WC International Qualifiers
+                        // Regional filtering for WC International Qualifiers and ET Host Nation
                         if (regionFilter && !regionFilter.includes(p.country)) continue;
 
                         p.form = 45;
