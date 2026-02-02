@@ -8,6 +8,15 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap"
         rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffd700">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PDC Sim">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
 
     <style>
         /* ==================== GLOBAL STYLES ==================== */
@@ -1549,6 +1558,82 @@
             transition: opacity 0.1s;
         }
 
+        /* Theme-specific v-arrow colors for player round indicator */
+        .visit-board.theme-world-championship .v-arrow {
+            color: #1E7F43;
+        }
+        .visit-board.theme-premier-league .v-arrow {
+            color: #FFD100;
+        }
+        .visit-board.theme-matchplay .v-arrow {
+            color: #B22222;
+        }
+        .visit-board.theme-uk-open .v-arrow {
+            color: #8402db;
+        }
+        .visit-board.theme-grand-slam .v-arrow {
+            color: #FF8C00;
+        }
+        .visit-board.theme-european .v-arrow {
+            color: #5B2D8B;
+        }
+        .visit-board.theme-world-grandprix .v-arrow {
+            color: #fd0202;
+        }
+        .visit-board.theme-players-championship .v-arrow {
+            color: #C8102E;
+        }
+        .visit-board.theme-world-series .v-arrow {
+            color: #7A0000;
+        }
+        .visit-board.theme-winmau .v-arrow {
+            color: #888888;
+        }
+        .visit-board.theme-masters .v-arrow {
+            color: #D4AF37;
+        }
+        .visit-board.theme-minor .v-arrow {
+            color: #666666;
+        }
+
+        /* Theme-specific visit-board background colors */
+        .visit-board.theme-world-championship {
+            background: linear-gradient(180deg, rgba(30, 127, 67, 0.3) 0%, rgba(12, 59, 46, 0.5) 100%);
+        }
+        .visit-board.theme-premier-league {
+            background: linear-gradient(180deg, rgba(255, 209, 0, 0.15) 0%, rgba(121, 109, 2, 0.3) 100%);
+        }
+        .visit-board.theme-matchplay {
+            background: linear-gradient(180deg, rgba(178, 34, 34, 0.3) 0%, rgba(139, 0, 0, 0.5) 100%);
+        }
+        .visit-board.theme-uk-open {
+            background: linear-gradient(180deg, rgba(132, 2, 219, 0.3) 0%, rgba(200, 16, 46, 0.3) 100%);
+        }
+        .visit-board.theme-grand-slam {
+            background: linear-gradient(180deg, rgba(255, 140, 0, 0.3) 0%, rgba(217, 119, 6, 0.4) 100%);
+        }
+        .visit-board.theme-european {
+            background: linear-gradient(180deg, rgba(192, 192, 192, 0.2) 0%, rgba(91, 45, 139, 0.4) 100%);
+        }
+        .visit-board.theme-world-grandprix {
+            background: linear-gradient(180deg, rgba(253, 2, 2, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+        }
+        .visit-board.theme-players-championship {
+            background: linear-gradient(180deg, rgba(200, 16, 46, 0.3) 0%, rgba(17, 17, 17, 0.5) 100%);
+        }
+        .visit-board.theme-world-series {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(122, 0, 0, 0.4) 100%);
+        }
+        .visit-board.theme-winmau {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+        }
+        .visit-board.theme-masters {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
+        }
+        .visit-board.theme-minor {
+            background: linear-gradient(180deg, rgba(46, 46, 46, 0.5) 0%, rgba(26, 26, 26, 0.6) 100%);
+        }
+
         .bottom-bar {
             height: 60px;
             background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
@@ -2197,6 +2282,39 @@
             padding: 4px 8px;
             cursor: pointer;
             border-radius: 4px;
+        }
+
+        /* PWA Install Button */
+        #pwa-install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #111;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        #pwa-install-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+        }
+        #pwa-install-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        #pwa-install-btn.show {
+            display: flex;
         }
 
         /* EMERGENCY RESET */
@@ -11541,12 +11659,14 @@
                 const eventBar = document.querySelector('.event-bar');
                 const scoreboardHeader = document.getElementById('scoreboard-header');
                 const bottomBar = document.querySelector('.bottom-bar');
+                const visitBoard = document.getElementById('visit-container');
                 const eventLogo = document.getElementById('event-logo');
                 const pdcLogo = document.getElementById('pdc-logo');
 
                 // Reset theme classes
                 scoreboardHeader.className = 'scoreboard-header';
                 if (bottomBar) bottomBar.className = 'bottom-bar';
+                if (visitBoard) visitBoard.className = 'visit-board';
 
                 // Reset to default settings first
                 eventBar.style.background = '#111';
@@ -11585,6 +11705,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-matchplay');
                     if (bottomBar) bottomBar.classList.add('theme-matchplay');
+                    if (visitBoard) visitBoard.classList.add('theme-matchplay');
 
                 } else if (themeId === 'ukopen' || (!themeId && eventName.includes('UK OPEN'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #C8102E 0%, #FFD100 100%)';
@@ -11593,6 +11714,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-uk-open');
                     if (bottomBar) bottomBar.classList.add('theme-uk-open');
+                    if (visitBoard) visitBoard.classList.add('theme-uk-open');
 
                 } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP FINALS'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
@@ -11601,6 +11723,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-players-championship');
                     if (bottomBar) bottomBar.classList.add('theme-players-championship');
+                    if (visitBoard) visitBoard.classList.add('theme-players-championship');
 
                 } else if (themeId === 'grandslam' || (!themeId && eventName.includes('GRAND SLAM'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #FF8C00 0%, #111111 100%)';
@@ -11609,6 +11732,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-grand-slam');
                     if (bottomBar) bottomBar.classList.add('theme-grand-slam');
+                    if (visitBoard) visitBoard.classList.add('theme-grand-slam');
 
                 } else if (themeId === 'worldseries' || (!themeId && (eventName.includes('WORLD SERIES OF DARTS FINALS') || eventName.includes('WORLD SERIES OF DARTS')))) {
                     eventBar.style.background = 'linear-gradient(135deg, #7A0000 0%, #000000 100%)';
@@ -11617,6 +11741,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-world-series');
                     if (bottomBar) bottomBar.classList.add('theme-world-series');
+                    if (visitBoard) visitBoard.classList.add('theme-world-series');
 
                 } else if (themeId === 'grandprix' || (!themeId && eventName.includes('WORLD GRAND PRIX'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0033A0 0%, #00AEEF 100%)';
@@ -11625,6 +11750,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-world-grandprix');
                     if (bottomBar) bottomBar.classList.add('theme-world-grandprix');
+                    if (visitBoard) visitBoard.classList.add('theme-world-grandprix');
 
                 } else if (themeId === 'winmau' || (!themeId && eventName.includes('WINMAU'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #FFFFFF 100%)';
@@ -11633,6 +11759,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-winmau');
                     if (bottomBar) bottomBar.classList.add('theme-winmau');
+                    if (visitBoard) visitBoard.classList.add('theme-winmau');
 
                 } else if (themeId === 'european' || (!themeId && eventName.includes('EUROPEAN CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #5B2D8B 0%, #C0C0C0 100%)';
@@ -11641,6 +11768,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-european');
                     if (bottomBar) bottomBar.classList.add('theme-european');
+                    if (visitBoard) visitBoard.classList.add('theme-european');
 
                 } else if (themeId === 'world' || (!themeId && eventName.includes('WORLD CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0C3B2E 0%, #1E7F43 100%)';
@@ -11649,6 +11777,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-world-championship');
                     if (bottomBar) bottomBar.classList.add('theme-world-championship');
+                    if (visitBoard) visitBoard.classList.add('theme-world-championship');
 
                 } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
@@ -11657,6 +11786,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-players-championship');
                     if (bottomBar) bottomBar.classList.add('theme-players-championship');
+                    if (visitBoard) visitBoard.classList.add('theme-players-championship');
 
                 } else if (themeId === 'premier' || (!themeId && eventName.includes('PREMIER LEAGUE'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #0A1AFF 0%, #001B5E 100%)';
@@ -11665,6 +11795,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-premier-league');
                     if (bottomBar) bottomBar.classList.add('theme-premier-league');
+                    if (visitBoard) visitBoard.classList.add('theme-premier-league');
 
                 } else if (themeId === 'masters' || (!themeId && eventName.includes('MASTERS'))) {
                     eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #D4AF37 100%)';
@@ -11673,6 +11804,7 @@
                     pdcLogo.style.display = 'none';
                     scoreboardHeader.classList.add('theme-masters');
                     if (bottomBar) bottomBar.classList.add('theme-masters');
+                    if (visitBoard) visitBoard.classList.add('theme-masters');
 
                 } else if (eventName.includes('Q-SCHOOL') || eventName.includes('CHALLENGE') || eventName.includes('MINOR')) {
                     eventBar.style.background = 'linear-gradient(135deg, #1A1A1A 0%, #2E2E2E 100%)';
@@ -11680,6 +11812,7 @@
                     pdcLogo.style.display = 'block';
                     scoreboardHeader.classList.add('theme-minor');
                     if (bottomBar) bottomBar.classList.add('theme-minor');
+                    if (visitBoard) visitBoard.classList.add('theme-minor');
                 }
 
             },
@@ -12843,11 +12976,77 @@
         style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">👤
         ACCOUNT</button>
 
+    <!-- PWA Install Button -->
+    <button id="pwa-install-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Install App
+    </button>
+
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
         v1.2.6 | PDC Darts Simulator
     </div>
+
+    <!-- PWA Service Worker Registration and Install Logic -->
+    <script>
+        // PWA Install functionality
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('SW registration failed:', error);
+                    });
+            });
+        }
+
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installBtn.classList.add('show');
+        });
+
+        // Handle install button click
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                return;
+            }
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('User response to install prompt:', outcome);
+            // Clear the deferred prompt
+            deferredPrompt = null;
+            // Hide the install button
+            installBtn.classList.remove('show');
+        });
+
+        // Hide button if app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installBtn.classList.remove('show');
+            deferredPrompt = null;
+        });
+
+        // Check if running as PWA (standalone mode)
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.classList.remove('show');
+        }
+    </script>
 </body>
 
 </html>
