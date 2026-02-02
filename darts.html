@@ -2287,22 +2287,22 @@
         /* PWA Install Button */
         #pwa-install-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 70px;
+            right: 12px;
             z-index: 10000;
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #111;
             border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
             font-family: 'Roboto Condensed', sans-serif;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
-            display: none;
+            display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s ease;
         }
         #pwa-install-btn:hover {
@@ -2310,11 +2310,11 @@
             box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
         }
         #pwa-install-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
         }
-        #pwa-install-btn.show {
-            display: flex;
+        #pwa-install-btn.hidden {
+            display: none;
         }
 
         /* EMERGENCY RESET */
@@ -13009,43 +13009,44 @@
             });
         }
 
+        // Check if running as PWA (standalone mode) - hide button
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            installBtn.classList.add('hidden');
+        }
+
         // Listen for beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
             // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
             // Stash the event so it can be triggered later
             deferredPrompt = e;
-            // Show the install button
-            installBtn.classList.add('show');
         });
 
         // Handle install button click
         installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) {
-                return;
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('User response to install prompt:', outcome);
+                // Clear the deferred prompt
+                deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+            } else {
+                // Fallback: Show instructions for manual install
+                alert('To install this app:\n\n• Chrome/Edge: Click the menu (⋮) and select "Install app"\n• Safari iOS: Tap Share button and "Add to Home Screen"\n• Firefox: Not supported for PWA install');
             }
-            // Show the install prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('User response to install prompt:', outcome);
-            // Clear the deferred prompt
-            deferredPrompt = null;
-            // Hide the install button
-            installBtn.classList.remove('show');
         });
 
-        // Hide button if app is already installed
+        // Hide button after app is installed
         window.addEventListener('appinstalled', () => {
             console.log('PWA was installed');
-            installBtn.classList.remove('show');
+            installBtn.classList.add('hidden');
             deferredPrompt = null;
         });
-
-        // Check if running as PWA (standalone mode)
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            installBtn.classList.remove('show');
-        }
     </script>
 </body>
 
