@@ -3,24 +3,24 @@
   "short_name": "PDC Sim",
   "description": "PDC Darts Simulator 2026 - Professional darts simulation game",
   "id": "pdc-sim-2026",
-  "start_url": "https://darts.nassoft.org",
-  "scope": "https://darts.nassoft.org/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0e1a",
   "theme_color": "#ffd700",
   "icons": [
     {
-      "src": "https://darts.nassof.org/icon.png",
+      "src": "./icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "https://darts.nassof.org/icon.png",
+      "src": "./icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "categories": ["games", "sports"],
