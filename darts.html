@@ -13054,17 +13054,58 @@
         // PWA Install functionality
         let deferredPrompt;
         const installBtn = document.getElementById('pwa-install-btn');
+        let swRegistration = null;
 
-        // Register Service Worker
+        // Register Service Worker with auto-update
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
                     .then(registration => {
                         console.log('SW registered:', registration);
+                        swRegistration = registration;
+                        
+                        // Check for updates immediately
+                        registration.update();
+                        
+                        // Check for updates every 60 seconds
+                        setInterval(() => {
+                            registration.update();
+                            console.log('Checking for SW updates...');
+                        }, 60000);
+                        
+                        // Listen for new service worker installing
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New service worker installing...');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available - auto reload
+                                    console.log('New version available, reloading...');
+                                    // Tell the new SW to skip waiting
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        });
                     })
                     .catch(error => {
                         console.log('SW registration failed:', error);
                     });
+                
+                // Listen for controller change (new SW took over)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('New service worker activated, reloading page...');
+                    window.location.reload();
+                });
+                
+                // Listen for messages from SW
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'SW_UPDATED') {
+                        console.log('SW updated to version:', event.data.version);
+                        // Reload to get the latest version
+                        window.location.reload();
+                    }
+                });
             });
         }
 

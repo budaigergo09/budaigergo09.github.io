@@ -1,4 +1,6 @@
-const CACHE_NAME = 'pdc-sim-2026-v1';
+const CACHE_NAME = 'pdc-sim-2026-v1.4.0';
+const APP_VERSION = '1.4.0';
+
 const urlsToCache = [
   '/darts.html',
   '/icon.png',
@@ -25,22 +27,23 @@ const urlsToCache = [
   '/outromusic.MP3'
 ];
 
-// Install event - cache resources
+// Install event - cache resources and skip waiting immediately
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
+        console.log('Opened cache:', CACHE_NAME);
         return cache.addAll(urlsToCache);
       })
       .catch(err => {
         console.log('Cache install error:', err);
       })
   );
+  // Force the waiting service worker to become active immediately
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -52,37 +55,81 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Notify all clients that there's a new version
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'SW_UPDATED', version: APP_VERSION });
+        });
+      });
     })
   );
+  // Take control of all pages immediately
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network first for HTML, cache first for assets
 self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
+  
+  // For HTML files - always try network first to get latest version
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Clone and cache the new response
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(event.request).then(response => {
+            return response || caches.match('/darts.html');
+          });
+        })
+    );
+    return;
+  }
+  
+  // For other assets - cache first, then network
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Return cached version or fetch from network
         if (response) {
+          // Return cached version but also fetch and update cache in background
+          fetch(event.request).then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then(cache => {
+                cache.put(event.request, networkResponse);
+              });
+            }
+          }).catch(() => {});
           return response;
         }
+        
         return fetch(event.request).then(response => {
-          // Don't cache non-successful responses or non-GET requests
-          if (!response || response.status !== 200 || response.type !== 'basic' || event.request.method !== 'GET') {
+          if (!response || response.status !== 200 || event.request.method !== 'GET') {
             return response;
           }
-          // Clone the response
           const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
           return response;
         });
       })
       .catch(() => {
-        // Return offline fallback if available
         return caches.match('/darts.html');
       })
   );
+});
+
+// Listen for skip waiting message from client
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
