@@ -7249,12 +7249,9 @@
                 // ==============================
                 // THEME CONFIG FROM EVENT
                 // ==============================
-                // Set theme from event's themePreset if available
+                // Set theme from event's themePreset if available, otherwise use type
                 if (ev.themePreset && EVENT_THEMES && EVENT_THEMES[ev.themePreset]) {
                     Tournament.config.theme = { mode: 'preset', id: ev.themePreset };
-                } else if (ev.color1 && ev.color2) {
-                    // Use custom colors directly from event
-                    Tournament.config.theme = { mode: 'custom', color1: ev.color1, color2: ev.color2 };
                 } else {
                     // Use event type as theme preset fallback
                     Tournament.config.theme = { mode: 'preset', id: ev.type || 'default' };
@@ -11854,34 +11851,7 @@
                     return;
                 }
 
-                // 2. CUSTOM COLORS FROM DATABASE (set via admin.html)
-                if (tournamentFromDB && tournamentFromDB.color1 && tournamentFromDB.color2) {
-                    const color1 = tournamentFromDB.color1;
-                    const color2 = tournamentFromDB.color2;
-                    
-                    eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
-                    
-                    // Use custom logo if set, otherwise fall back to theme logo or default
-                    if (tournamentFromDB.logo) {
-                        eventLogo.src = tournamentFromDB.logo;
-                        eventLogo.style.display = 'block';
-                        pdcLogo.style.display = 'none';
-                    } else {
-                        eventLogo.style.display = 'none';
-                        pdcLogo.style.display = 'block';
-                    }
-                    
-                    // Apply bottom bar gradient
-                    if (bottomBar) {
-                        bottomBar.style.background = `linear-gradient(135deg, ${color2} 0%, ${color1} 100%)`;
-                    }
-                    
-                    // Store as current theme for other functions
-                    App.currentTheme = { color1, color2, logo: tournamentFromDB.logo };
-                    return;
-                }
-
-                // 3. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
+                // 2. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
                 // First check if there's a themeId from Tournament.config
                 let themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
                 
@@ -11909,8 +11879,11 @@
                     const color2 = matchedTheme.color2 || (matchedTheme.gradient ? matchedTheme.gradient[1] : '#333');
                     
                     eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
-                    if (matchedTheme.logo) {
-                        eventLogo.src = matchedTheme.logo;
+                    
+                    // Use tournament's custom logo override if set, otherwise use theme logo
+                    const logoToUse = (tournamentFromDB && tournamentFromDB.logo) ? tournamentFromDB.logo : matchedTheme.logo;
+                    if (logoToUse) {
+                        eventLogo.src = logoToUse;
                         eventLogo.style.display = 'block';
                         pdcLogo.style.display = 'none';
                     } else {

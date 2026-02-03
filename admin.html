@@ -833,45 +833,14 @@
                     <div id="theme-preset-preview" style="height: 32px; border-radius: 4px; background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 100%); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888;">Select a theme</div>
                 </div>
             </div>
-            <div id="custom-colors-section">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Custom Primary Color (overrides theme)</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="color" id="edit-tourn-color1" value="#111111" style="width: 50px; height: 32px; padding: 0; border: none; cursor: pointer;">
-                            <input type="text" id="edit-tourn-color1-hex" placeholder="#111111" style="flex: 1;" oninput="syncColorPicker('color1')">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Custom Secondary Color (overrides theme)</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="color" id="edit-tourn-color2" value="#333333" style="width: 50px; height: 32px; padding: 0; border: none; cursor: pointer;">
-                            <input type="text" id="edit-tourn-color2-hex" placeholder="#333333" style="flex: 1;" oninput="syncColorPicker('color2')">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
-                        <label>Color Preview</label>
-                        <div id="color-preview" style="height: 40px; border-radius: 6px; background: linear-gradient(135deg, #111111 0%, #333333 100%);"></div>
-                    </div>
-                    <div class="form-group">
-                        <button type="button" onclick="clearCustomColors()" class="btn" style="margin-top: 18px; background: #666;">Clear Custom Colors</button>
-                    </div>
-                </div>
-            </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Logo (optional)</label>
+                    <label>Logo (optional override)</label>
                     <input type="file" id="edit-tourn-logo-upload" accept="image/*" style="margin-bottom: 6px;" onchange="handleLogoUpload(event)">
-                    <input type="text" id="edit-tourn-logo" placeholder="e.g., worldchampionship.png" style="margin-bottom: 6px;">
+                    <input type="text" id="edit-tourn-logo" placeholder="Leave empty to use theme logo">
                     <div id="logo-preview-container" style="display:none; margin-top:4px;">
                         <img id="logo-preview-img" src="" alt="Logo Preview" style="max-width:80px; max-height:40px; border:1px solid #333; border-radius:4px; background:#222;">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Theme CSS Class (optional)</label>
-                    <input type="text" id="edit-tourn-theme" placeholder="e.g., theme-world-championship">
                 </div>
             </div>
             
@@ -1294,17 +1263,9 @@
             const tType = tournament?.type || 'players';
             const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
 
-            // Use actual tournament color if present, else fallback to type default
-            let color1 = (tournament && typeof tournament.color1 === 'string' && tournament.color1.length === 7) ? tournament.color1 : (defaultAppearance.color1 || '#111111');
-            let color2 = (tournament && typeof tournament.color2 === 'string' && tournament.color2.length === 7) ? tournament.color2 : (defaultAppearance.color2 || '#333333');
-            document.getElementById('edit-tourn-color1').value = color1;
-            document.getElementById('edit-tourn-color1-hex').value = color1;
-            document.getElementById('edit-tourn-color2').value = color2;
-            document.getElementById('edit-tourn-color2-hex').value = color2;
-            updateColorPreview();
-
-            document.getElementById('edit-tourn-logo').value = (tournament && typeof tournament.logo === 'string') ? tournament.logo : (defaultAppearance.logo || '');
-            document.getElementById('edit-tourn-theme').value = (tournament && typeof tournament.theme === 'string') ? tournament.theme : (defaultAppearance.theme || '');
+            // Logo - use tournament's custom logo or leave blank to use theme default
+            document.getElementById('edit-tourn-logo').value = (tournament && typeof tournament.logo === 'string') ? tournament.logo : '';
+            document.getElementById('edit-tourn-logo').placeholder = `Theme default: ${defaultAppearance.logo || 'none'}`;
             
             // Rounds format - use tournament values or defaults from type
             const roundsContainer = document.getElementById('rounds-container');
@@ -1394,28 +1355,16 @@
             const themeId = document.getElementById('edit-tourn-theme-select').value;
             updateThemePresetPreview(themeId);
             
-            // If a theme is selected, apply its colors to the form
+            // If a theme is selected, show its logo as placeholder
             if (themeId) {
                 const theme = themes.find(t => t.id === themeId);
-                if (theme) {
-                    // Clear custom colors when selecting a preset
-                    document.getElementById('edit-tourn-color1').value = '';
-                    document.getElementById('edit-tourn-color1-hex').value = '';
-                    document.getElementById('edit-tourn-color2').value = '';
-                    document.getElementById('edit-tourn-color2-hex').value = '';
-                    
-                    // Update the main color preview with theme colors
-                    document.getElementById('color-preview').style.background = 
-                        `linear-gradient(135deg, ${theme.color1} 0%, ${theme.color2} 100%)`;
-                    
-                    // Also set logo and CSS class from theme
-                    if (theme.logo) {
-                        document.getElementById('edit-tourn-logo').value = theme.logo;
-                    }
-                    if (theme.theme) {
-                        document.getElementById('edit-tourn-theme').value = theme.theme;
-                    }
+                if (theme && theme.logo) {
+                    document.getElementById('edit-tourn-logo').placeholder = `Theme uses: ${theme.logo}`;
+                } else {
+                    document.getElementById('edit-tourn-logo').placeholder = 'Leave empty to use theme logo';
                 }
+            } else {
+                document.getElementById('edit-tourn-logo').placeholder = 'Leave empty to use theme logo';
             }
         }
         
@@ -1437,30 +1386,6 @@
             }
         }
         
-        // Clear custom colors
-        function clearCustomColors() {
-            document.getElementById('edit-tourn-color1').value = '#111111';
-            document.getElementById('edit-tourn-color1-hex').value = '';
-            document.getElementById('edit-tourn-color2').value = '#333333';
-            document.getElementById('edit-tourn-color2-hex').value = '';
-            
-            // Reset preview to theme or type default
-            const themeId = document.getElementById('edit-tourn-theme-select').value;
-            if (themeId) {
-                const theme = themes.find(t => t.id === themeId);
-                if (theme) {
-                    document.getElementById('color-preview').style.background = 
-                        `linear-gradient(135deg, ${theme.color1} 0%, ${theme.color2} 100%)`;
-                    return;
-                }
-            }
-            
-            const tType = document.getElementById('edit-tourn-type').value;
-            const def = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
-            document.getElementById('color-preview').style.background = 
-                `linear-gradient(135deg, ${def.color1} 0%, ${def.color2} 100%)`;
-        }
-        
         // Update defaults when type changes
         function onTypeChange() {
             const tType = document.getElementById('edit-tourn-type').value;
@@ -1470,16 +1395,9 @@
             document.getElementById('edit-tourn-theme-select').value = '';
             updateThemePresetPreview('');
             
-            // Update colors
-            document.getElementById('edit-tourn-color1').value = defaultAppearance.color1 || '#111111';
-            document.getElementById('edit-tourn-color1-hex').value = defaultAppearance.color1 || '#111111';
-            document.getElementById('edit-tourn-color2').value = defaultAppearance.color2 || '#333333';
-            document.getElementById('edit-tourn-color2-hex').value = defaultAppearance.color2 || '#333333';
-            updateColorPreview();
-            
-            // Update logo and theme
-            document.getElementById('edit-tourn-logo').value = defaultAppearance.logo || '';
-            document.getElementById('edit-tourn-theme').value = defaultAppearance.theme || '';
+            // Clear logo override
+            document.getElementById('edit-tourn-logo').value = '';
+            document.getElementById('edit-tourn-logo').placeholder = `Type default: ${defaultAppearance.logo || 'none'}`;
             
             // Update rounds
             const roundsContainer = document.getElementById('rounds-container');
@@ -1549,32 +1467,6 @@
             container.appendChild(div);
         }
         
-        function syncColorPicker(which) {
-            const hex = document.getElementById(`edit-tourn-${which}-hex`).value;
-            if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-                document.getElementById(`edit-tourn-${which}`).value = hex;
-                updateColorPreview();
-            }
-        }
-        
-        function updateColorPreview() {
-            const c1 = document.getElementById('edit-tourn-color1').value;
-            const c2 = document.getElementById('edit-tourn-color2').value;
-            document.getElementById('color-preview').style.background = `linear-gradient(135deg, ${c1} 0%, ${c2} 100%)`;
-        }
-        
-        // Sync color pickers on change
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('edit-tourn-color1')?.addEventListener('input', function() {
-                document.getElementById('edit-tourn-color1-hex').value = this.value;
-                updateColorPreview();
-            });
-            document.getElementById('edit-tourn-color2')?.addEventListener('input', function() {
-                document.getElementById('edit-tourn-color2-hex').value = this.value;
-                updateColorPreview();
-            });
-        });
-        
         function closeTournamentModal() {
             document.getElementById('tournament-modal').classList.remove('active');
         }
@@ -1614,12 +1506,9 @@
                 night: document.getElementById('edit-tourn-night').value ? parseInt(document.getElementById('edit-tourn-night').value) : null,
                 targetEvent: document.getElementById('edit-tourn-targetEvent').value ? parseInt(document.getElementById('edit-tourn-targetEvent').value) : null,
                 slots: document.getElementById('edit-tourn-slots').value ? parseInt(document.getElementById('edit-tourn-slots').value) : null,
-                // Appearance
+                // Appearance - only save themePreset and optional logo override
                 themePreset: document.getElementById('edit-tourn-theme-select').value || null,
-                color1: document.getElementById('edit-tourn-color1').value || null,
-                color2: document.getElementById('edit-tourn-color2').value || null,
                 logo: document.getElementById('edit-tourn-logo').value || null,
-                theme: document.getElementById('edit-tourn-theme').value || null,
                 // Rounds and prizes
                 rounds: rounds.length > 0 ? rounds : null,
                 prizes: Object.keys(prizes).length > 0 ? prizes : null

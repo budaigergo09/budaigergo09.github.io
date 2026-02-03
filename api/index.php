@@ -641,8 +641,8 @@ switch ($uri) {
                 $prizes = isset($input['prizes']) ? json_encode($input['prizes']) : null;
                 
                 $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, theme, color1, color2, logo, rounds, prizes) 
-                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :theme, :color1, :color2, :logo, :rounds, :prizes)');
+                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, logo, rounds, prizes) 
+                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :logo, :rounds, :prizes)');
                 $stmt->bindValue(':id', $input['id'], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
                 $stmt->bindValue(':date', $input['date'], SQLITE3_TEXT);
@@ -657,9 +657,6 @@ switch ($uri) {
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
                 $stmt->bindValue(':themePreset', $input['themePreset'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':theme', $input['theme'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
                 $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
@@ -679,7 +676,7 @@ switch ($uri) {
                     name=:name, date=:date, format=:format, players=:players, type=:type, 
                     cardRequired=:cardRequired, location=:location, region=:region, 
                     targetEvent=:targetEvent, slots=:slots, night=:night, eligibleRegions=:eligibleRegions,
-                    themePreset=:themePreset, theme=:theme, color1=:color1, color2=:color2, logo=:logo, rounds=:rounds, prizes=:prizes 
+                    themePreset=:themePreset, logo=:logo, rounds=:rounds, prizes=:prizes 
                     WHERE id=:id');
                 $stmt->bindValue(':id', $m[1], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
@@ -695,9 +692,6 @@ switch ($uri) {
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
                 $stmt->bindValue(':themePreset', $input['themePreset'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':theme', $input['theme'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
-                $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
                 $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
@@ -724,8 +718,8 @@ switch ($uri) {
                     $prizes = isset($t['prizes']) ? json_encode($t['prizes']) : null;
                     
                     $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, theme, color1, color2, logo, rounds, prizes) 
-                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :theme, :color1, :color2, :logo, :rounds, :prizes)');
+                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, logo, rounds, prizes) 
+                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :logo, :rounds, :prizes)');
                     $stmt->bindValue(':id', $t['id'], SQLITE3_INTEGER);
                     $stmt->bindValue(':name', $t['name'], SQLITE3_TEXT);
                     $stmt->bindValue(':date', $t['date'], SQLITE3_TEXT);
@@ -740,9 +734,6 @@ switch ($uri) {
                     $stmt->bindValue(':night', $t['night'] ?? null, SQLITE3_INTEGER);
                     $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
                     $stmt->bindValue(':themePreset', $t['themePreset'] ?? null, SQLITE3_TEXT);
-                    $stmt->bindValue(':theme', $t['theme'] ?? null, SQLITE3_TEXT);
-                    $stmt->bindValue(':color1', $t['color1'] ?? null, SQLITE3_TEXT);
-                    $stmt->bindValue(':color2', $t['color2'] ?? null, SQLITE3_TEXT);
                     $stmt->bindValue(':logo', $t['logo'] ?? null, SQLITE3_TEXT);
                     $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
                     $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
