@@ -67,11 +67,21 @@ function getDB() {
         slots INTEGER,
         night INTEGER,
         eligibleRegions TEXT,
-        theme TEXT
+        theme TEXT,
+        color1 TEXT,
+        color2 TEXT,
+        logo TEXT,
+        rounds TEXT,
+        prizes TEXT
     )');
     
-    // Add theme column if it doesn't exist (for existing databases)
+    // Add columns if they don't exist (for existing databases)
     $db->exec('ALTER TABLE tournaments ADD COLUMN theme TEXT');
+    $db->exec('ALTER TABLE tournaments ADD COLUMN color1 TEXT');
+    $db->exec('ALTER TABLE tournaments ADD COLUMN color2 TEXT');
+    $db->exec('ALTER TABLE tournaments ADD COLUMN logo TEXT');
+    $db->exec('ALTER TABLE tournaments ADD COLUMN rounds TEXT');
+    $db->exec('ALTER TABLE tournaments ADD COLUMN prizes TEXT');
     
     // Players table
     $db->exec('CREATE TABLE IF NOT EXISTS players (
@@ -141,214 +151,133 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = preg_replace('/^.*\/api/', '', $uri); // Get path after /api
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Event themes data - matches admin.html DEFAULT_APPEARANCE keys
+// Event themes data - EXACT copy from admin.html DEFAULT_APPEARANCE
+// Keys match tournament types, values include colors, logo, and CSS class
 $EVENT_THEMES = [
     'matchplay' => [
-        'id' => 'matchplay',
-        'keywords' => ['MATCHPLAY'],
-        'gradient' => ['#8B0000', '#B22222'],
-        'logo' => 'worldmatchplay.png',
-        'cssClass' => 'theme-matchplay',
-        'activeGradient' => ['#B22222', '#8B0000'],
-        'legNameColor' => 'white'
+        'color1' => '#8B0000', 'color2' => '#B22222', 
+        'logo' => 'worldmatchplay.png', 'theme' => 'theme-matchplay',
+        'activeGradient' => ['#B22222', '#8B0000'], 'legNameColor' => 'white'
     ],
     'uk-open' => [
-        'id' => 'uk-open',
-        'keywords' => ['UK OPEN'],
-        'gradient' => ['#C8102E', '#FFD100'],
-        'logo' => 'ukopen.png',
-        'cssClass' => 'theme-uk-open',
-        'activeGradient' => ['#8402db', '#C8102E'],
-        'legNameColor' => 'white'
+        'color1' => '#C8102E', 'color2' => '#FFD100', 
+        'logo' => 'ukopen.png', 'theme' => 'theme-uk-open',
+        'activeGradient' => ['#8402db', '#C8102E'], 'legNameColor' => 'white'
     ],
     'playersf' => [
-        'id' => 'playersf',
-        'keywords' => ['PLAYERS CHAMPIONSHIP FINALS'],
-        'gradient' => ['#111111', '#C8102E'],
-        'logo' => 'playersc.png',
-        'cssClass' => 'theme-players-championship',
-        'activeGradient' => ['#C8102E', '#111111'],
-        'legNameColor' => 'white'
+        'color1' => '#111111', 'color2' => '#C8102E', 
+        'logo' => 'playersc.png', 'theme' => 'theme-players-championship',
+        'activeGradient' => ['#C8102E', '#111111'], 'legNameColor' => 'white'
     ],
     'grandslam' => [
-        'id' => 'grandslam',
-        'keywords' => ['GRAND SLAM'],
-        'gradient' => ['#FF8C00', '#111111'],
-        'logo' => 'mrvegas.png',
-        'cssClass' => 'theme-grand-slam',
-        'activeGradient' => ['#FF8C00', '#D97706'],
-        'legNameColor' => 'white'
+        'color1' => '#FF8C00', 'color2' => '#111111', 
+        'logo' => 'mrvegas.png', 'theme' => 'theme-grand-slam',
+        'activeGradient' => ['#FF8C00', '#D97706'], 'legNameColor' => 'white'
     ],
     'masters-final' => [
-        'id' => 'masters-final',
-        'keywords' => ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'],
-        'gradient' => ['#7A0000', '#000000'],
-        'logo' => 'worldseriesofdarts.png',
-        'cssClass' => 'theme-world-series',
-        'activeGradient' => ['#000000', '#7A0000'],
-        'legNameColor' => 'white'
+        'color1' => '#7A0000', 'color2' => '#000000', 
+        'logo' => 'worldseriesofdarts.png', 'theme' => 'theme-world-series',
+        'activeGradient' => ['#000000', '#7A0000'], 'legNameColor' => 'white'
     ],
     'grandprix' => [
-        'id' => 'grandprix',
-        'keywords' => ['WORLD GRAND PRIX'],
-        'gradient' => ['#0033A0', '#00AEEF'],
-        'logo' => 'grandprix.png',
-        'cssClass' => 'theme-world-grandprix',
-        'activeGradient' => ['#fd0202', '#000000'],
-        'legNameColor' => 'white'
+        'color1' => '#0033A0', 'color2' => '#00AEEF', 
+        'logo' => 'grandprix.png', 'theme' => 'theme-world-grandprix',
+        'activeGradient' => ['#fd0202', '#000000'], 'legNameColor' => 'white'
     ],
     'winmaudm' => [
-        'id' => 'winmaudm',
-        'keywords' => ['WINMAU'],
-        'gradient' => ['#000000', '#FFFFFF'],
-        'logo' => 'worldmasters.png',
-        'cssClass' => 'theme-winmau',
-        'activeGradient' => ['#FFFFFF', '#000000'],
-        'legNameColor' => '#000'
-    ],
-    'wmasters-qual' => [
-        'id' => 'wmasters-qual',
-        'keywords' => ['WINMAU WORLD MASTERS PRELIMINARY'],
-        'gradient' => ['#000000', '#FFFFFF'],
-        'logo' => 'worldmasters.png',
-        'cssClass' => 'theme-winmau',
-        'activeGradient' => ['#FFFFFF', '#000000'],
-        'legNameColor' => '#000'
+        'color1' => '#000000', 'color2' => '#FFFFFF', 
+        'logo' => 'worldmasters.png', 'theme' => 'theme-winmau',
+        'activeGradient' => ['#FFFFFF', '#000000'], 'legNameColor' => '#000'
     ],
     'europeanf' => [
-        'id' => 'europeanf',
-        'keywords' => ['EUROPEAN CHAMPIONSHIP', 'MACHINESEEKER EUROPEAN'],
-        'gradient' => ['#5B2D8B', '#C0C0C0'],
-        'logo' => 'europeanchampionship.png',
-        'cssClass' => 'theme-european',
-        'activeGradient' => ['#C0C0C0', '#5B2D8B'],
-        'legNameColor' => '#000'
+        'color1' => '#5B2D8B', 'color2' => '#C0C0C0', 
+        'logo' => 'europeanchampionship.png', 'theme' => 'theme-european',
+        'activeGradient' => ['#C0C0C0', '#5B2D8B'], 'legNameColor' => '#000'
     ],
     'world' => [
-        'id' => 'world',
-        'keywords' => ['WORLD CHAMPIONSHIP'],
-        'gradient' => ['#0C3B2E', '#1E7F43'],
-        'logo' => 'worldchampionship.png',
-        'cssClass' => 'theme-world-championship',
-        'activeGradient' => ['#1E7F43', '#0C3B2E'],
-        'legNameColor' => 'white'
+        'color1' => '#0C3B2E', 'color2' => '#1E7F43', 
+        'logo' => 'worldchampionship.png', 'theme' => 'theme-world-championship',
+        'activeGradient' => ['#1E7F43', '#0C3B2E'], 'legNameColor' => 'white'
     ],
     'players' => [
-        'id' => 'players',
-        'keywords' => ['PLAYERS CHAMPIONSHIP'],
-        'gradient' => ['#111111', '#C8102E'],
-        'logo' => 'playersc.png',
-        'cssClass' => 'theme-players-championship',
-        'activeGradient' => ['#C8102E', '#111111'],
-        'legNameColor' => 'white'
+        'color1' => '#111111', 'color2' => '#C8102E', 
+        'logo' => 'playersc.png', 'theme' => 'theme-players-championship',
+        'activeGradient' => ['#C8102E', '#111111'], 'legNameColor' => 'white'
     ],
     'premier-league' => [
-        'id' => 'premier-league',
-        'keywords' => ['PREMIER LEAGUE'],
-        'gradient' => ['#0A1AFF', '#001B5E'],
-        'logo' => 'premierleague.png',
-        'cssClass' => 'theme-premier-league',
-        'activeGradient' => ['#FFD100', '#796d02'],
-        'legNameColor' => 'white'
+        'color1' => '#0A1AFF', 'color2' => '#001B5E', 
+        'logo' => 'premierleague.png', 'theme' => 'theme-premier-league',
+        'activeGradient' => ['#FFD100', '#796d02'], 'legNameColor' => 'white'
     ],
     'premier-league-playoff' => [
-        'id' => 'premier-league-playoff',
-        'keywords' => ['PREMIER LEAGUE - PLAYOFFS'],
-        'gradient' => ['#0A1AFF', '#001B5E'],
-        'logo' => 'premierleague.png',
-        'cssClass' => 'theme-premier-league',
-        'activeGradient' => ['#FFD100', '#796d02'],
-        'legNameColor' => 'white'
+        'color1' => '#0A1AFF', 'color2' => '#001B5E', 
+        'logo' => 'premierleague.png', 'theme' => 'theme-premier-league',
+        'activeGradient' => ['#FFD100', '#796d02'], 'legNameColor' => 'white'
     ],
     'masters' => [
-        'id' => 'masters',
-        'keywords' => ['MASTERS'],
-        'gradient' => ['#000000', '#D4AF37'],
-        'logo' => 'worldseries.png',
-        'cssClass' => 'theme-masters',
-        'activeGradient' => ['#D4AF37', '#000000'],
-        'legNameColor' => '#000'
+        'color1' => '#000000', 'color2' => '#D4AF37', 
+        'logo' => 'worldseries.png', 'theme' => 'theme-masters',
+        'activeGradient' => ['#D4AF37', '#000000'], 'legNameColor' => '#000'
     ],
     'minor' => [
-        'id' => 'minor',
-        'keywords' => ['DARTS OPEN', 'DARTS TROPHY', 'DARTS GRAND PRIX'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'challenge' => [
-        'id' => 'challenge',
-        'keywords' => ['CHALLENGE TOUR'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'q-school' => [
-        'id' => 'q-school',
-        'keywords' => ['Q-SCHOOL'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'et-qual-tc' => [
-        'id' => 'et-qual-tc',
-        'keywords' => ['ET TOUR CARD QUALIFIER'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'et-host-nation' => [
-        'id' => 'et-host-nation',
-        'keywords' => ['ET HOST NATION QUALIFIER'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'et-east-european' => [
-        'id' => 'et-east-european',
-        'keywords' => ['ET EAST EUROPEAN QUALIFIER'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'et-nordic-baltic' => [
-        'id' => 'et-nordic-baltic',
-        'keywords' => ['ET NORDIC & BALTIC QUALIFIER'],
-        'gradient' => ['#1A1A1A', '#2E2E2E'],
-        'logo' => null,
-        'cssClass' => 'theme-minor',
-        'activeGradient' => ['#2E2E2E', '#1A1A1A'],
-        'legNameColor' => 'white'
+        'color1' => '#1A1A1A', 'color2' => '#2E2E2E', 
+        'logo' => '', 'theme' => 'theme-minor',
+        'activeGradient' => ['#2E2E2E', '#1A1A1A'], 'legNameColor' => 'white'
     ],
     'ws-qual-tc' => [
-        'id' => 'ws-qual-tc',
-        'keywords' => ['WORLD SERIES OF DARTS FINALS TOUR QUALIFIER'],
-        'gradient' => ['#7A0000', '#000000'],
-        'logo' => 'worldseries.png',
-        'cssClass' => 'theme-world-series',
-        'activeGradient' => ['#000000', '#7A0000'],
-        'legNameColor' => 'white'
+        'color1' => '#7A0000', 'color2' => '#000000', 
+        'logo' => 'worldseries.png', 'theme' => 'theme-world-series',
+        'activeGradient' => ['#000000', '#7A0000'], 'legNameColor' => 'white'
     ],
     'gs-qual-tc' => [
-        'id' => 'gs-qual-tc',
-        'keywords' => ['GRAND SLAM OF DARTS TOUR QUALIFIER'],
-        'gradient' => ['#FF8C00', '#111111'],
-        'logo' => 'mrvegas.png',
-        'cssClass' => 'theme-grand-slam',
-        'activeGradient' => ['#FF8C00', '#D97706'],
-        'legNameColor' => 'white'
+        'color1' => '#FF8C00', 'color2' => '#111111', 
+        'logo' => 'mrvegas.png', 'theme' => 'theme-grand-slam',
+        'activeGradient' => ['#FF8C00', '#D97706'], 'legNameColor' => 'white'
+    ],
+    'wmasters-qual' => [
+        'color1' => '#000000', 'color2' => '#FFFFFF', 
+        'logo' => 'worldmasters.png', 'theme' => 'theme-winmau',
+        'activeGradient' => ['#FFFFFF', '#000000'], 'legNameColor' => '#000'
+    ],
+    'wc-qual-intl' => [
+        'color1' => '#0C3B2E', 'color2' => '#1E7F43', 
+        'logo' => 'worldchampionship.png', 'theme' => 'theme-world-championship',
+        'activeGradient' => ['#1E7F43', '#0C3B2E'], 'legNameColor' => 'white'
+    ],
+    'wc-qual-tc' => [
+        'color1' => '#0C3B2E', 'color2' => '#1E7F43', 
+        'logo' => 'worldchampionship.png', 'theme' => 'theme-world-championship',
+        'activeGradient' => ['#1E7F43', '#0C3B2E'], 'legNameColor' => 'white'
     ]
 ];
 
@@ -363,7 +292,7 @@ switch ($uri) {
         jsonResponse(['success' => true, 'themes' => $EVENT_THEMES]);
         break;
     
-    // Assign themes to all tournaments based on their names
+    // Assign themes to all tournaments based on their type (which matches admin.html DEFAULT_APPEARANCE keys)
     case '/assign-themes':
         if ($method !== 'POST') jsonResponse(['error' => 'Method not allowed'], 405);
         
@@ -373,60 +302,11 @@ switch ($uri) {
         $assignments = [];
         
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $tournamentName = strtoupper($row['name']);
             $tournamentType = $row['type'];
-            $theme = null;
             
-            // First check for specific major events by name (most specific first)
-            if (strpos($tournamentName, 'PLAYERS CHAMPIONSHIP FINALS') !== false) {
-                $theme = 'playersf';
-            } elseif (strpos($tournamentName, 'WORLD SERIES OF DARTS') !== false) {
-                $theme = 'masters-final';
-            } elseif (strpos($tournamentName, 'WORLD GRAND PRIX') !== false) {
-                $theme = 'grandprix';
-            } elseif (strpos($tournamentName, 'WORLD CHAMPIONSHIP') !== false) {
-                $theme = 'world';
-            } elseif (strpos($tournamentName, 'EUROPEAN CHAMPIONSHIP') !== false || strpos($tournamentName, 'MACHINESEEKER EUROPEAN') !== false) {
-                $theme = 'europeanf';
-            } elseif (strpos($tournamentName, 'GRAND SLAM') !== false) {
-                $theme = 'grandslam';
-            } elseif (strpos($tournamentName, 'MATCHPLAY') !== false) {
-                $theme = 'matchplay';
-            } elseif (strpos($tournamentName, 'UK OPEN') !== false) {
-                $theme = 'uk-open';
-            } elseif (strpos($tournamentName, 'PREMIER LEAGUE') !== false) {
-                $theme = 'premier-league';
-            } elseif (strpos($tournamentName, 'WINMAU') !== false) {
-                $theme = 'winmaudm';
-            } elseif (strpos($tournamentName, 'MASTERS') !== false) {
-                $theme = 'masters';
-            } elseif (strpos($tournamentName, 'PLAYERS CHAMPIONSHIP') !== false) {
-                $theme = 'players';
-            } elseif (strpos($tournamentName, 'Q-SCHOOL') !== false) {
-                $theme = 'q-school';
-            } elseif (strpos($tournamentName, 'CHALLENGE TOUR') !== false) {
-                $theme = 'challenge';
-            } elseif (preg_match('/^ET\d+/', $tournamentName)) {
-                $theme = 'et-qual-tc';
-            }
-            
-            // If no name match, use the tournament type directly (already correct format)
-            if (!$theme) {
-                // These types from tournaments.json map directly to admin.html themes
-                $validTypes = [
-                    'matchplay', 'uk-open', 'playersf', 'grandslam', 'masters-final',
-                    'grandprix', 'winmaudm', 'wmasters-qual', 'europeanf', 'world',
-                    'players', 'premier-league', 'premier-league-playoff', 'masters',
-                    'minor', 'challenge', 'q-school', 'et-qual-tc', 'et-host-nation',
-                    'et-east-european', 'et-nordic-baltic', 'ws-qual-tc', 'gs-qual-tc'
-                ];
-                
-                if (in_array($tournamentType, $validTypes)) {
-                    $theme = $tournamentType;
-                } else {
-                    $theme = 'minor'; // Default fallback
-                }
-            }
+            // The tournament type directly maps to admin.html DEFAULT_APPEARANCE keys
+            // So just use the type as the theme
+            $theme = $tournamentType;
             
             if ($theme) {
                 $stmt = $db->prepare('UPDATE tournaments SET theme = :theme WHERE id = :id');
@@ -434,7 +314,7 @@ switch ($uri) {
                 $stmt->bindValue(':id', $row['id'], SQLITE3_INTEGER);
                 $stmt->execute();
                 $updated++;
-                $assignments[] = ['id' => $row['id'], 'name' => $row['name'], 'theme' => $theme];
+                $assignments[] = ['id' => $row['id'], 'name' => $row['name'], 'type' => $tournamentType, 'theme' => $theme];
             }
         }
         
@@ -456,6 +336,12 @@ switch ($uri) {
             if ($row['night']) $row['night'] = (int)$row['night'];
             if ($row['eligibleRegions']) {
                 $row['eligibleRegions'] = json_decode($row['eligibleRegions'], true);
+            }
+            if (isset($row['rounds']) && $row['rounds']) {
+                $row['rounds'] = json_decode($row['rounds'], true);
+            }
+            if (isset($row['prizes']) && $row['prizes']) {
+                $row['prizes'] = json_decode($row['prizes'], true);
             }
             $tournaments[] = $row;
         }
@@ -691,6 +577,12 @@ switch ($uri) {
                     if ($row['eligibleRegions']) {
                         $row['eligibleRegions'] = json_decode($row['eligibleRegions'], true);
                     }
+                    if (isset($row['rounds']) && $row['rounds']) {
+                        $row['rounds'] = json_decode($row['rounds'], true);
+                    }
+                    if (isset($row['prizes']) && $row['prizes']) {
+                        $row['prizes'] = json_decode($row['prizes'], true);
+                    }
                     $tournaments[] = $row;
                 }
                 jsonResponse(['success' => true, 'tournaments' => $tournaments]);
@@ -701,10 +593,12 @@ switch ($uri) {
                 $db = getDB();
                 
                 $eligibleRegions = isset($input['eligibleRegions']) ? json_encode($input['eligibleRegions']) : null;
+                $rounds = isset($input['rounds']) ? json_encode($input['rounds']) : null;
+                $prizes = isset($input['prizes']) ? json_encode($input['prizes']) : null;
                 
                 $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions) 
-                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions)');
+                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, color1, color2, logo, rounds, prizes) 
+                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :color1, :color2, :logo, :rounds, :prizes)');
                 $stmt->bindValue(':id', $input['id'], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
                 $stmt->bindValue(':date', $input['date'], SQLITE3_TEXT);
@@ -718,6 +612,11 @@ switch ($uri) {
                 $stmt->bindValue(':slots', $input['slots'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
+                $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
                 $stmt->execute();
                 jsonResponse(['success' => true]);
             }
@@ -727,11 +626,14 @@ switch ($uri) {
                 $db = getDB();
                 
                 $eligibleRegions = isset($input['eligibleRegions']) ? json_encode($input['eligibleRegions']) : null;
+                $rounds = isset($input['rounds']) ? json_encode($input['rounds']) : null;
+                $prizes = isset($input['prizes']) ? json_encode($input['prizes']) : null;
                 
                 $stmt = $db->prepare('UPDATE tournaments SET 
                     name=:name, date=:date, format=:format, players=:players, type=:type, 
                     cardRequired=:cardRequired, location=:location, region=:region, 
-                    targetEvent=:targetEvent, slots=:slots, night=:night, eligibleRegions=:eligibleRegions 
+                    targetEvent=:targetEvent, slots=:slots, night=:night, eligibleRegions=:eligibleRegions,
+                    color1=:color1, color2=:color2, logo=:logo, rounds=:rounds, prizes=:prizes 
                     WHERE id=:id');
                 $stmt->bindValue(':id', $m[1], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
@@ -746,6 +648,11 @@ switch ($uri) {
                 $stmt->bindValue(':slots', $input['slots'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
+                $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
                 $stmt->execute();
                 jsonResponse(['success' => true]);
             }
@@ -765,10 +672,12 @@ switch ($uri) {
                 $imported = 0;
                 foreach ($tournaments as $t) {
                     $eligibleRegions = isset($t['eligibleRegions']) ? json_encode($t['eligibleRegions']) : null;
+                    $rounds = isset($t['rounds']) ? json_encode($t['rounds']) : null;
+                    $prizes = isset($t['prizes']) ? json_encode($t['prizes']) : null;
                     
                     $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions) 
-                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions)');
+                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, color1, color2, logo, rounds, prizes) 
+                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :color1, :color2, :logo, :rounds, :prizes)');
                     $stmt->bindValue(':id', $t['id'], SQLITE3_INTEGER);
                     $stmt->bindValue(':name', $t['name'], SQLITE3_TEXT);
                     $stmt->bindValue(':date', $t['date'], SQLITE3_TEXT);
@@ -782,6 +691,11 @@ switch ($uri) {
                     $stmt->bindValue(':slots', $t['slots'] ?? null, SQLITE3_INTEGER);
                     $stmt->bindValue(':night', $t['night'] ?? null, SQLITE3_INTEGER);
                     $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                    $stmt->bindValue(':color1', $t['color1'] ?? null, SQLITE3_TEXT);
+                    $stmt->bindValue(':color2', $t['color2'] ?? null, SQLITE3_TEXT);
+                    $stmt->bindValue(':logo', $t['logo'] ?? null, SQLITE3_TEXT);
+                    $stmt->bindValue(':rounds', $rounds, SQLITE3_TEXT);
+                    $stmt->bindValue(':prizes', $prizes, SQLITE3_TEXT);
                     $stmt->execute();
                     $imported++;
                 }

@@ -3179,54 +3179,42 @@
             },
 
             getDefaultThemes() {
-                // Theme IDs match admin.html DEFAULT_APPEARANCE keys
+                // EXACT copy from admin.html DEFAULT_APPEARANCE - keys match tournament types
                 return {
-                    'matchplay': { id: 'matchplay', keywords: ['MATCHPLAY'], gradient: ['#8B0000', '#B22222'], logo: 'worldmatchplay.png', cssClass: 'theme-matchplay', activeGradient: ['#B22222', '#8B0000'], legNameColor: 'white' },
-                    'uk-open': { id: 'uk-open', keywords: ['UK OPEN'], gradient: ['#C8102E', '#FFD100'], logo: 'ukopen.png', cssClass: 'theme-uk-open', activeGradient: ['#8402db', '#C8102E'], legNameColor: 'white' },
-                    'playersf': { id: 'playersf', keywords: ['PLAYERS CHAMPIONSHIP FINALS'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
-                    'grandslam': { id: 'grandslam', keywords: ['GRAND SLAM'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
-                    'masters-final': { id: 'masters-final', keywords: ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'], gradient: ['#7A0000', '#000000'], logo: 'worldseriesofdarts.png', cssClass: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
-                    'grandprix': { id: 'grandprix', keywords: ['WORLD GRAND PRIX'], gradient: ['#0033A0', '#00AEEF'], logo: 'grandprix.png', cssClass: 'theme-world-grandprix', activeGradient: ['#fd0202', '#000000'], legNameColor: 'white' },
-                    'winmaudm': { id: 'winmaudm', keywords: ['WINMAU'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
-                    'wmasters-qual': { id: 'wmasters-qual', keywords: ['WINMAU WORLD MASTERS PRELIMINARY'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
-                    'europeanf': { id: 'europeanf', keywords: ['EUROPEAN CHAMPIONSHIP', 'MACHINESEEKER EUROPEAN'], gradient: ['#5B2D8B', '#C0C0C0'], logo: 'europeanchampionship.png', cssClass: 'theme-european', activeGradient: ['#C0C0C0', '#5B2D8B'], legNameColor: '#000' },
-                    'world': { id: 'world', keywords: ['WORLD CHAMPIONSHIP'], gradient: ['#0C3B2E', '#1E7F43'], logo: 'worldchampionship.png', cssClass: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
-                    'players': { id: 'players', keywords: ['PLAYERS CHAMPIONSHIP'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
-                    'premier-league': { id: 'premier-league', keywords: ['PREMIER LEAGUE'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
-                    'premier-league-playoff': { id: 'premier-league-playoff', keywords: ['PREMIER LEAGUE - PLAYOFFS'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
-                    'masters': { id: 'masters', keywords: ['MASTERS'], gradient: ['#000000', '#D4AF37'], logo: 'worldseries.png', cssClass: 'theme-masters', activeGradient: ['#D4AF37', '#000000'], legNameColor: '#000' },
-                    'minor': { id: 'minor', keywords: ['DARTS OPEN', 'DARTS TROPHY', 'DARTS GRAND PRIX'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'challenge': { id: 'challenge', keywords: ['CHALLENGE TOUR'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'q-school': { id: 'q-school', keywords: ['Q-SCHOOL'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'et-qual-tc': { id: 'et-qual-tc', keywords: ['ET TOUR CARD QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'et-host-nation': { id: 'et-host-nation', keywords: ['ET HOST NATION QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'et-east-european': { id: 'et-east-european', keywords: ['ET EAST EUROPEAN QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'et-nordic-baltic': { id: 'et-nordic-baltic', keywords: ['ET NORDIC & BALTIC QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
-                    'ws-qual-tc': { id: 'ws-qual-tc', keywords: ['WORLD SERIES OF DARTS FINALS TOUR QUALIFIER'], gradient: ['#7A0000', '#000000'], logo: 'worldseries.png', cssClass: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
-                    'gs-qual-tc': { id: 'gs-qual-tc', keywords: ['GRAND SLAM OF DARTS TOUR QUALIFIER'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' }
+                    'matchplay': { color1: '#8B0000', color2: '#B22222', logo: 'worldmatchplay.png', theme: 'theme-matchplay', activeGradient: ['#B22222', '#8B0000'], legNameColor: 'white' },
+                    'uk-open': { color1: '#C8102E', color2: '#FFD100', logo: 'ukopen.png', theme: 'theme-uk-open', activeGradient: ['#8402db', '#C8102E'], legNameColor: 'white' },
+                    'playersf': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+                    'grandslam': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
+                    'masters-final': { color1: '#7A0000', color2: '#000000', logo: 'worldseriesofdarts.png', theme: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+                    'grandprix': { color1: '#0033A0', color2: '#00AEEF', logo: 'grandprix.png', theme: 'theme-world-grandprix', activeGradient: ['#fd0202', '#000000'], legNameColor: 'white' },
+                    'winmaudm': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+                    'wmasters-qual': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+                    'europeanf': { color1: '#5B2D8B', color2: '#C0C0C0', logo: 'europeanchampionship.png', theme: 'theme-european', activeGradient: ['#C0C0C0', '#5B2D8B'], legNameColor: '#000' },
+                    'world': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
+                    'players': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+                    'premier-league': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+                    'premier-league-playoff': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+                    'masters': { color1: '#000000', color2: '#D4AF37', logo: 'worldseries.png', theme: 'theme-masters', activeGradient: ['#D4AF37', '#000000'], legNameColor: '#000' },
+                    'minor': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'challenge': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'q-school': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-qual-tc': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-host-nation': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-east-european': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-nordic-baltic': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'ws-qual-tc': { color1: '#7A0000', color2: '#000000', logo: 'worldseries.png', theme: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+                    'gs-qual-tc': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
+                    'wc-qual-intl': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
+                    'wc-qual-tc': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' }
                 };
             },
 
-            // Find theme for an event name
+            // Find theme for an event by its type/theme key
+            // Now themes are looked up directly by tournament type in EVENT_THEMES
             findThemeForEvent(eventName) {
                 if (!EVENT_THEMES) EVENT_THEMES = DataLoader.getDefaultThemes();
-                const upperName = eventName.toUpperCase();
-                
-                // Check themes in order of specificity (longer keywords first)
-                const sortedThemes = Object.values(EVENT_THEMES).sort((a, b) => {
-                    const aMax = Math.max(...a.keywords.map(k => k.length));
-                    const bMax = Math.max(...b.keywords.map(k => k.length));
-                    return bMax - aMax;
-                });
-                
-                for (const theme of sortedThemes) {
-                    for (const keyword of theme.keywords) {
-                        if (upperName.includes(keyword)) {
-                            return theme;
-                        }
-                    }
-                }
-                return null; // No theme found
+                // Return minor theme as fallback since themes should come from database
+                return EVENT_THEMES['minor'] || null;
             }
         };
 
@@ -11833,7 +11821,13 @@
                     themeConfig = { mode: 'preset', id: themeConfig };
                 }
 
-                // 1. CUSTOM THEME
+                // Check for custom colors directly on the tournament from database
+                let tournamentFromDB = null;
+                if (eventName && typeof Season !== 'undefined' && Season.events) {
+                    tournamentFromDB = Season.events.find(e => e.name === eventName || e.name.toUpperCase() === eventName.toUpperCase());
+                }
+
+                // 1. CUSTOM THEME (from theme selector UI)
                 if (themeConfig && themeConfig.mode === 'custom') {
                     eventBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
                     eventLogo.style.display = 'none';
@@ -11846,16 +11840,40 @@
                     return;
                 }
 
-                // 2. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
+                // 2. CUSTOM COLORS FROM DATABASE (set via admin.html)
+                if (tournamentFromDB && tournamentFromDB.color1 && tournamentFromDB.color2) {
+                    const color1 = tournamentFromDB.color1;
+                    const color2 = tournamentFromDB.color2;
+                    
+                    eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+                    
+                    // Use custom logo if set, otherwise fall back to theme logo or default
+                    if (tournamentFromDB.logo) {
+                        eventLogo.src = tournamentFromDB.logo;
+                        eventLogo.style.display = 'block';
+                        pdcLogo.style.display = 'none';
+                    } else {
+                        eventLogo.style.display = 'none';
+                        pdcLogo.style.display = 'block';
+                    }
+                    
+                    // Apply bottom bar gradient
+                    if (bottomBar) {
+                        bottomBar.style.background = `linear-gradient(135deg, ${color2} 0%, ${color1} 100%)`;
+                    }
+                    
+                    // Store as current theme for other functions
+                    App.currentTheme = { color1, color2, logo: tournamentFromDB.logo };
+                    return;
+                }
+
+                // 3. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
                 // First check if there's a themeId from Tournament.config
                 let themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
                 
                 // If no themeId yet, check if the tournament has a theme set in Season.events
-                if (!themeId && eventName && typeof Season !== 'undefined' && Season.events) {
-                    const eventFromDB = Season.events.find(e => e.name === eventName || e.name.toUpperCase() === eventName.toUpperCase());
-                    if (eventFromDB && eventFromDB.theme) {
-                        themeId = eventFromDB.theme;
-                    }
+                if (!themeId && tournamentFromDB && tournamentFromDB.theme) {
+                    themeId = tournamentFromDB.theme;
                 }
                 
                 // Find matching theme from server data
@@ -11872,7 +11890,11 @@
                     // Store current theme globally for use by other functions
                     App.currentTheme = matchedTheme;
                     
-                    eventBar.style.background = `linear-gradient(135deg, ${matchedTheme.gradient[0]} 0%, ${matchedTheme.gradient[1]} 100%)`;
+                    // Use color1/color2 format (matches admin.html)
+                    const color1 = matchedTheme.color1 || (matchedTheme.gradient ? matchedTheme.gradient[0] : '#111');
+                    const color2 = matchedTheme.color2 || (matchedTheme.gradient ? matchedTheme.gradient[1] : '#333');
+                    
+                    eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
                     if (matchedTheme.logo) {
                         eventLogo.src = matchedTheme.logo;
                         eventLogo.style.display = 'block';
@@ -11883,15 +11905,16 @@
                     }
                     
                     // Apply CSS class for visit-board and other CSS-only styles
-                    if (matchedTheme.cssClass) {
-                        scoreboardHeader.classList.add(matchedTheme.cssClass);
-                        if (bottomBar) bottomBar.classList.add(matchedTheme.cssClass);
-                        if (visitBoard) visitBoard.classList.add(matchedTheme.cssClass);
+                    const cssClass = matchedTheme.theme || matchedTheme.cssClass;
+                    if (cssClass) {
+                        scoreboardHeader.classList.add(cssClass);
+                        if (bottomBar) bottomBar.classList.add(cssClass);
+                        if (visitBoard) visitBoard.classList.add(cssClass);
                     }
                     
                     // Apply bottom bar gradient from theme data
-                    if (bottomBar && matchedTheme.gradient) {
-                        bottomBar.style.background = `linear-gradient(135deg, ${matchedTheme.gradient[1]} 0%, ${matchedTheme.gradient[0]} 100%)`;
+                    if (bottomBar) {
+                        bottomBar.style.background = `linear-gradient(135deg, ${color2} 0%, ${color1} 100%)`;
                     }
                     
                     // Apply leg name color from theme data
