@@ -7334,33 +7334,44 @@
                 document.getElementById('tourn-size').value = ev.players;
 
                 // ==============================
-                // 🔥 ROUND TARGETS (FIXED)
+                // 🔥 ROUND TARGETS - Use database rounds if available
                 // ==============================
-                const formats = ROUND_FORMATS[ev.type] || {};
                 Tournament.config.rounds = [];
+                
+                if (ev.rounds && Array.isArray(ev.rounds) && ev.rounds.length > 0) {
+                    // Use rounds from database (set in admin panel)
+                    Tournament.config.rounds = ev.rounds.map(r => ({
+                        name: r.name,
+                        target: r.target
+                    }));
+                    console.log('[Season.startEvent] Using rounds from database:', Tournament.config.rounds);
+                } else {
+                    // Generate rounds dynamically from ROUND_FORMATS
+                    const formats = ROUND_FORMATS[ev.type] || {};
+                    let players = ev.players;
 
-                let players = ev.players;
+                    while (players >= 2) {
+                        const roundName =
+                            players === 2 ? "F" :
+                                players === 4 ? "SF" :
+                                    players === 8 ? "QF" :
+                                        players === 16 ? "L16" :
+                                            players === 32 ? "L32" :
+                                                players === 64 ? "L64" :
+                                                    players === 128 ? "L128" :
+                                                        players === 256 ? "L256" :
+                                                            `L${players}`;
 
-                while (players >= 2) {
-                    const roundName =
-                        players === 2 ? "F" :
-                            players === 4 ? "SF" :
-                                players === 8 ? "QF" :
-                                    players === 16 ? "L16" :
-                                        players === 32 ? "L32" :
-                                            players === 64 ? "L64" :
-                                                players === 128 ? "L128" :
-                                                    players === 256 ? "L256" :
-                                                        `L${players}`;
+                        const target = formats[roundName] ?? ev.dist ?? 6;
 
-                    const target = formats[roundName] ?? ev.dist ?? 6;
+                        Tournament.config.rounds.push({
+                            name: roundName,
+                            target: target
+                        });
 
-                    Tournament.config.rounds.push({
-                        name: roundName,
-                        target: target
-                    });
-
-                    players /= 2;
+                        players /= 2;
+                    }
+                    console.log('[Season.startEvent] Generated rounds from ROUND_FORMATS');
                 }
 
                 // =======================
@@ -8267,7 +8278,21 @@
 
                 const idx = Season.state.activeEventIndex;
                 const ev = Season.events[idx];
-                const structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
+                
+                // Use prizes from database if available, otherwise fall back to hardcoded PRIZE_STRUCTURE
+                let structure;
+                if (ev.prizes && typeof ev.prizes === 'object' && Object.keys(ev.prizes).length > 0) {
+                    // Convert position keys (like "W", "RU", "SF", etc.) to player counts
+                    structure = {};
+                    const positionMap = { 'W': 1, '1': 1, 'RU': 2, '2': 2, 'SF': 4, '4': 4, 'QF': 8, '8': 8, 'L16': 16, '16': 16, 'L32': 32, '32': 32, 'L64': 64, '64': 64, 'L128': 128, '128': 128, 'L256': 256, '256': 256 };
+                    for (const [pos, amount] of Object.entries(ev.prizes)) {
+                        const key = positionMap[pos] || parseInt(pos);
+                        if (key) structure[key] = amount;
+                    }
+                    console.log('[Season.completeEvent] Using prizes from database:', structure);
+                } else {
+                    structure = PRIZE_STRUCTURE[ev.type] || PRIZE_STRUCTURE['minor'];
+                }
 
                 // Helper function to extract player participations and positions
                 const getParticipations = () => {
@@ -8879,7 +8904,7 @@
 
                     finalBracket.forEach((roundMatches, roundIdx) => {
                         const playersInRound = ev.players / Math.pow(2, roundIdx);
-                        const money = PRIZE_STRUCTURE[ev.type][playersInRound] || 0;
+                        const money = structure[playersInRound] || 0;
 
                         roundMatches.forEach(m => {
                             if (!m.winner) return;
@@ -8889,7 +8914,7 @@
                     });
 
                     // winner
-                    payouts[championName] = PRIZE_STRUCTURE[ev.type][1];
+                    payouts[championName] = structure[1];
 
                     Season.state.proTourHistory.push({
                         date: ev.date,
@@ -8906,7 +8931,7 @@
 
                     finalBracket.forEach((roundMatches, roundIdx) => {
                         const playersInRound = ev.players / Math.pow(2, roundIdx);
-                        const money = PRIZE_STRUCTURE.challenge[playersInRound] || 0;
+                        const money = structure[playersInRound] || 0;
 
                         roundMatches.forEach(m => {
                             if (!m.winner) return;
@@ -8916,7 +8941,7 @@
                     });
 
                     // winner
-                    payouts[championName] = PRIZE_STRUCTURE.challenge[1];
+                    payouts[championName] = structure[1];
 
                     Season.state.challengeTourHistory.push({
                         date: ev.date,
@@ -13196,7 +13221,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v2.2.0 | PDC Darts Simulator
+        v2.2.1 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
