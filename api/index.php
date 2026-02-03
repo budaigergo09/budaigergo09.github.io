@@ -137,10 +137,111 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = preg_replace('/^.*\/api/', '', $uri); // Get path after /api
 $method = $_SERVER['REQUEST_METHOD'];
 
+// Event themes data - matches keywords in event names to themes
+$EVENT_THEMES = [
+    'matchplay' => [
+        'id' => 'matchplay',
+        'keywords' => ['MATCHPLAY'],
+        'gradient' => ['#8B0000', '#B22222'],
+        'logo' => 'worldmatchplay.png',
+        'cssClass' => 'theme-matchplay'
+    ],
+    'ukopen' => [
+        'id' => 'ukopen',
+        'keywords' => ['UK OPEN'],
+        'gradient' => ['#C8102E', '#FFD100'],
+        'logo' => 'ukopen.png',
+        'cssClass' => 'theme-uk-open'
+    ],
+    'playersfinals' => [
+        'id' => 'playersfinals',
+        'keywords' => ['PLAYERS CHAMPIONSHIP FINALS'],
+        'gradient' => ['#111111', '#C8102E'],
+        'logo' => 'playersc.png',
+        'cssClass' => 'theme-players-championship'
+    ],
+    'grandslam' => [
+        'id' => 'grandslam',
+        'keywords' => ['GRAND SLAM'],
+        'gradient' => ['#FF8C00', '#111111'],
+        'logo' => 'mrvegas.png',
+        'cssClass' => 'theme-grand-slam'
+    ],
+    'worldseries' => [
+        'id' => 'worldseries',
+        'keywords' => ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'],
+        'gradient' => ['#7A0000', '#000000'],
+        'logo' => 'worldseriesofdarts.png',
+        'cssClass' => 'theme-world-series'
+    ],
+    'grandprix' => [
+        'id' => 'grandprix',
+        'keywords' => ['WORLD GRAND PRIX'],
+        'gradient' => ['#0033A0', '#00AEEF'],
+        'logo' => 'grandprix.png',
+        'cssClass' => 'theme-world-grandprix'
+    ],
+    'winmau' => [
+        'id' => 'winmau',
+        'keywords' => ['WINMAU'],
+        'gradient' => ['#000000', '#FFFFFF'],
+        'logo' => 'worldmasters.png',
+        'cssClass' => 'theme-winmau'
+    ],
+    'european' => [
+        'id' => 'european',
+        'keywords' => ['EUROPEAN CHAMPIONSHIP'],
+        'gradient' => ['#5B2D8B', '#C0C0C0'],
+        'logo' => 'europeanchampionship.png',
+        'cssClass' => 'theme-european'
+    ],
+    'world' => [
+        'id' => 'world',
+        'keywords' => ['WORLD CHAMPIONSHIP'],
+        'gradient' => ['#0C3B2E', '#1E7F43'],
+        'logo' => 'worldchampionship.png',
+        'cssClass' => 'theme-world-championship'
+    ],
+    'players' => [
+        'id' => 'players',
+        'keywords' => ['PLAYERS CHAMPIONSHIP'],
+        'gradient' => ['#111111', '#C8102E'],
+        'logo' => 'playersc.png',
+        'cssClass' => 'theme-players-championship'
+    ],
+    'premier' => [
+        'id' => 'premier',
+        'keywords' => ['PREMIER LEAGUE'],
+        'gradient' => ['#0A1AFF', '#001B5E'],
+        'logo' => 'premierleague.png',
+        'cssClass' => 'theme-premier-league'
+    ],
+    'masters' => [
+        'id' => 'masters',
+        'keywords' => ['MASTERS'],
+        'gradient' => ['#000000', '#D4AF37'],
+        'logo' => 'worldseries.png',
+        'cssClass' => 'theme-masters'
+    ],
+    'minor' => [
+        'id' => 'minor',
+        'keywords' => ['Q-SCHOOL', 'CHALLENGE', 'MINOR'],
+        'gradient' => ['#1A1A1A', '#2E2E2E'],
+        'logo' => null,
+        'cssClass' => 'theme-minor'
+    ]
+];
+
 // API Routes
 switch ($uri) {
     
     // ==================== PUBLIC DATA ENDPOINTS ====================
+    
+    // Get all event themes
+    case '/themes':
+        if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
+        jsonResponse(['success' => true, 'themes' => $EVENT_THEMES]);
+        break;
     
     // Get all tournaments (for game)
     case '/tournaments':

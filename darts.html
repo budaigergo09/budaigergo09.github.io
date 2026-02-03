@@ -3123,6 +3123,9 @@
         // API URL for database operations
         const API_BASE = '/api';
 
+        // Global event themes - loaded from server or uses defaults
+        let EVENT_THEMES = null;
+
         // Database loader - tries to load from server, falls back to hardcoded
         const DataLoader = {
             async loadPlayers() {
@@ -3156,6 +3159,63 @@
                     console.log('[DataLoader] Could not load tournaments from database, using defaults');
                 }
                 return null; // Fall back to hardcoded
+            },
+
+            async loadThemes() {
+                try {
+                    const response = await fetch(API_BASE + '/themes');
+                    const data = await response.json();
+                    if (data.success && data.themes) {
+                        console.log('[DataLoader] Loaded themes from server');
+                        EVENT_THEMES = data.themes;
+                        return data.themes;
+                    }
+                } catch (e) {
+                    console.log('[DataLoader] Could not load themes from server, using defaults');
+                }
+                // Fallback to default themes
+                EVENT_THEMES = DataLoader.getDefaultThemes();
+                return EVENT_THEMES;
+            },
+
+            getDefaultThemes() {
+                return {
+                    matchplay: { id: 'matchplay', keywords: ['MATCHPLAY'], gradient: ['#8B0000', '#B22222'], logo: 'worldmatchplay.png', cssClass: 'theme-matchplay' },
+                    ukopen: { id: 'ukopen', keywords: ['UK OPEN'], gradient: ['#C8102E', '#FFD100'], logo: 'ukopen.png', cssClass: 'theme-uk-open' },
+                    playersfinals: { id: 'playersfinals', keywords: ['PLAYERS CHAMPIONSHIP FINALS'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship' },
+                    grandslam: { id: 'grandslam', keywords: ['GRAND SLAM'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam' },
+                    worldseries: { id: 'worldseries', keywords: ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'], gradient: ['#7A0000', '#000000'], logo: 'worldseriesofdarts.png', cssClass: 'theme-world-series' },
+                    grandprix: { id: 'grandprix', keywords: ['WORLD GRAND PRIX'], gradient: ['#0033A0', '#00AEEF'], logo: 'grandprix.png', cssClass: 'theme-world-grandprix' },
+                    winmau: { id: 'winmau', keywords: ['WINMAU'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau' },
+                    european: { id: 'european', keywords: ['EUROPEAN CHAMPIONSHIP'], gradient: ['#5B2D8B', '#C0C0C0'], logo: 'europeanchampionship.png', cssClass: 'theme-european' },
+                    world: { id: 'world', keywords: ['WORLD CHAMPIONSHIP'], gradient: ['#0C3B2E', '#1E7F43'], logo: 'worldchampionship.png', cssClass: 'theme-world-championship' },
+                    players: { id: 'players', keywords: ['PLAYERS CHAMPIONSHIP'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship' },
+                    premier: { id: 'premier', keywords: ['PREMIER LEAGUE'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league' },
+                    masters: { id: 'masters', keywords: ['MASTERS'], gradient: ['#000000', '#D4AF37'], logo: 'worldseries.png', cssClass: 'theme-masters' },
+                    minor: { id: 'minor', keywords: ['Q-SCHOOL', 'CHALLENGE', 'MINOR'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor' }
+                };
+            },
+
+            // Find theme for an event name
+            findThemeForEvent(eventName) {
+                if (!EVENT_THEMES) EVENT_THEMES = DataLoader.getDefaultThemes();
+                const upperName = eventName.toUpperCase();
+                
+                // Check themes in order of specificity (longer keywords first)
+                const sortedThemes = Object.values(EVENT_THEMES).sort((a, b) => {
+                    const aMax = Math.max(...a.keywords.map(k => k.length));
+                    const bMax = Math.max(...b.keywords.map(k => k.length));
+                    return bMax - aMax;
+                });
+                
+                for (const theme of sortedThemes) {
+                    for (const keyword of theme.keywords) {
+                        if (upperName.includes(keyword)) {
+                            return theme;
+                        }
+                    }
+                }
+                return null; // No theme found
             }
         };
 
@@ -11775,126 +11835,34 @@
                     return;
                 }
 
-                // 2. PRESET / LEGACY THEME
+                // 2. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
                 const themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
-
-                if (themeId === 'matchplay' || (!themeId && eventName.includes('MATCHPLAY'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #8B0000 0%, #B22222 100%)';
-                    eventLogo.src = 'worldmatchplay.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-matchplay');
-                    if (bottomBar) bottomBar.classList.add('theme-matchplay');
-                    if (visitBoard) visitBoard.classList.add('theme-matchplay');
-
-                } else if (themeId === 'ukopen' || (!themeId && eventName.includes('UK OPEN'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #C8102E 0%, #FFD100 100%)';
-                    eventLogo.src = 'ukopen.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-uk-open');
-                    if (bottomBar) bottomBar.classList.add('theme-uk-open');
-                    if (visitBoard) visitBoard.classList.add('theme-uk-open');
-
-                } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP FINALS'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
-                    eventLogo.src = 'playersc.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-players-championship');
-                    if (bottomBar) bottomBar.classList.add('theme-players-championship');
-                    if (visitBoard) visitBoard.classList.add('theme-players-championship');
-
-                } else if (themeId === 'grandslam' || (!themeId && eventName.includes('GRAND SLAM'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #FF8C00 0%, #111111 100%)';
-                    eventLogo.src = 'mrvegas.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-grand-slam');
-                    if (bottomBar) bottomBar.classList.add('theme-grand-slam');
-                    if (visitBoard) visitBoard.classList.add('theme-grand-slam');
-
-                } else if (themeId === 'worldseries' || (!themeId && (eventName.includes('WORLD SERIES OF DARTS FINALS') || eventName.includes('WORLD SERIES OF DARTS')))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #7A0000 0%, #000000 100%)';
-                    eventLogo.src = 'worldseriesofdarts.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-world-series');
-                    if (bottomBar) bottomBar.classList.add('theme-world-series');
-                    if (visitBoard) visitBoard.classList.add('theme-world-series');
-
-                } else if (themeId === 'grandprix' || (!themeId && eventName.includes('WORLD GRAND PRIX'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #0033A0 0%, #00AEEF 100%)';
-                    eventLogo.src = 'grandprix.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-world-grandprix');
-                    if (bottomBar) bottomBar.classList.add('theme-world-grandprix');
-                    if (visitBoard) visitBoard.classList.add('theme-world-grandprix');
-
-                } else if (themeId === 'winmau' || (!themeId && eventName.includes('WINMAU'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #FFFFFF 100%)';
-                    eventLogo.src = 'worldmasters.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-winmau');
-                    if (bottomBar) bottomBar.classList.add('theme-winmau');
-                    if (visitBoard) visitBoard.classList.add('theme-winmau');
-
-                } else if (themeId === 'european' || (!themeId && eventName.includes('EUROPEAN CHAMPIONSHIP'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #5B2D8B 0%, #C0C0C0 100%)';
-                    eventLogo.src = 'europeanchampionship.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-european');
-                    if (bottomBar) bottomBar.classList.add('theme-european');
-                    if (visitBoard) visitBoard.classList.add('theme-european');
-
-                } else if (themeId === 'world' || (!themeId && eventName.includes('WORLD CHAMPIONSHIP'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #0C3B2E 0%, #1E7F43 100%)';
-                    eventLogo.src = 'worldchampionship.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-world-championship');
-                    if (bottomBar) bottomBar.classList.add('theme-world-championship');
-                    if (visitBoard) visitBoard.classList.add('theme-world-championship');
-
-                } else if (themeId === 'players' || (!themeId && eventName.includes('PLAYERS CHAMPIONSHIP'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #111111 0%, #C8102E 100%)';
-                    eventLogo.src = 'playersc.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-players-championship');
-                    if (bottomBar) bottomBar.classList.add('theme-players-championship');
-                    if (visitBoard) visitBoard.classList.add('theme-players-championship');
-
-                } else if (themeId === 'premier' || (!themeId && eventName.includes('PREMIER LEAGUE'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #0A1AFF 0%, #001B5E 100%)';
-                    eventLogo.src = 'premierleague.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-premier-league');
-                    if (bottomBar) bottomBar.classList.add('theme-premier-league');
-                    if (visitBoard) visitBoard.classList.add('theme-premier-league');
-
-                } else if (themeId === 'masters' || (!themeId && eventName.includes('MASTERS'))) {
-                    eventBar.style.background = 'linear-gradient(135deg, #000000 0%, #D4AF37 100%)';
-                    eventLogo.src = 'worldseries.png';
-                    eventLogo.style.display = 'block';
-                    pdcLogo.style.display = 'none';
-                    scoreboardHeader.classList.add('theme-masters');
-                    if (bottomBar) bottomBar.classList.add('theme-masters');
-                    if (visitBoard) visitBoard.classList.add('theme-masters');
-
-                } else if (eventName.includes('Q-SCHOOL') || eventName.includes('CHALLENGE') || eventName.includes('MINOR')) {
-                    eventBar.style.background = 'linear-gradient(135deg, #1A1A1A 0%, #2E2E2E 100%)';
-                    eventLogo.style.display = 'none';
-                    pdcLogo.style.display = 'block';
-                    scoreboardHeader.classList.add('theme-minor');
-                    if (bottomBar) bottomBar.classList.add('theme-minor');
-                    if (visitBoard) visitBoard.classList.add('theme-minor');
+                
+                // Find matching theme from server data
+                let matchedTheme = null;
+                if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
+                    matchedTheme = EVENT_THEMES[themeId];
+                } else {
+                    matchedTheme = DataLoader.findThemeForEvent(eventName);
                 }
 
+                // Apply the matched theme
+                if (matchedTheme) {
+                    eventBar.style.background = `linear-gradient(135deg, ${matchedTheme.gradient[0]} 0%, ${matchedTheme.gradient[1]} 100%)`;
+                    if (matchedTheme.logo) {
+                        eventLogo.src = matchedTheme.logo;
+                        eventLogo.style.display = 'block';
+                        pdcLogo.style.display = 'none';
+                    } else {
+                        eventLogo.style.display = 'none';
+                        pdcLogo.style.display = 'block';
+                    }
+                    if (matchedTheme.cssClass) {
+                        scoreboardHeader.classList.add(matchedTheme.cssClass);
+                        if (bottomBar) bottomBar.classList.add(matchedTheme.cssClass);
+                        if (visitBoard) visitBoard.classList.add(matchedTheme.cssClass);
+                    }
+                }
             },
             startMatch: (p1Override, p2Override, targetOverride) => {
                 requestWakeLock();
@@ -12780,9 +12748,10 @@
                             Tournament.state.selectedPlayerIndices = new Set(data.tournament.state.selectedPlayerIndices);
                         }
                     }
-                    // Apply tournament theme if it exists
-                    if (data.tournament.config && data.tournament.config.theme && App.applyEventColors) {
-                        App.applyEventColors(data.tournament.config.name || App.config.event || '');
+                    // Always apply event colors based on tournament name (handles both custom themes and preset themes)
+                    if (App.applyEventColors && data.tournament.config) {
+                        const eventName = data.tournament.config.name || App.config.event || '';
+                        App.applyEventColors(eventName);
                     }
                 }
                 if (data.players) {
@@ -12879,12 +12848,13 @@
         // INITIALIZATION - Async to load from database first
         document.addEventListener("DOMContentLoaded", async () => {
             try {
-                // Try to load players and tournaments from database
+                // Try to load players, tournaments, and themes from database
                 console.log("[Init] Attempting to load data from database...");
 
-                const [dbPlayers, dbTournaments] = await Promise.all([
+                const [dbPlayers, dbTournaments, dbThemes] = await Promise.all([
                     DataLoader.loadPlayers(),
-                    DataLoader.loadTournaments()
+                    DataLoader.loadTournaments(),
+                    DataLoader.loadThemes()
                 ]);
 
                 // If we got players from DB, use them instead of hardcoded
@@ -12903,6 +12873,9 @@
                 } else {
                     console.log("[Init] Will use default tournaments");
                 }
+
+                // Themes are always loaded (server or defaults)
+                console.log("[Init] Event themes loaded:", Object.keys(EVENT_THEMES).length);
 
                 console.log("App starting, RAW_PLAYERS length:", RAW_PLAYERS.length);
                 console.log("PLAYERS_DB length:", PLAYERS_DB.length);
@@ -13060,7 +13033,7 @@
         style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">👤
         ACCOUNT</button>
 
-    <!-- PWA Install Button -->
+    <!-- PW8 Install Button -->
     <button id="pwa-install-btn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
