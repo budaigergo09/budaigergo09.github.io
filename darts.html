@@ -3162,19 +3162,24 @@
             },
 
             async loadThemes() {
+                // Always start with default themes
+                const defaults = DataLoader.getDefaultThemes();
+                EVENT_THEMES = { ...defaults };
+                
                 try {
                     const response = await fetch(API_BASE + '/themes');
                     const data = await response.json();
-                    if (data.success && data.themes) {
-                        console.log('[DataLoader] Loaded themes from server');
-                        EVENT_THEMES = data.themes;
-                        return data.themes;
+                    if (data.success && data.themes && Object.keys(data.themes).length > 0) {
+                        console.log('[DataLoader] Loaded themes from server, merging with defaults');
+                        // Merge server themes on top of defaults (server overrides defaults)
+                        EVENT_THEMES = { ...defaults, ...data.themes };
+                        console.log('[DataLoader] EVENT_THEMES keys:', Object.keys(EVENT_THEMES));
+                        return EVENT_THEMES;
                     }
                 } catch (e) {
                     console.log('[DataLoader] Could not load themes from server, using defaults');
                 }
-                // Fallback to default themes
-                EVENT_THEMES = DataLoader.getDefaultThemes();
+                console.log('[DataLoader] Using default themes, keys:', Object.keys(EVENT_THEMES));
                 return EVENT_THEMES;
             },
 
@@ -3212,9 +3217,19 @@
             // Find theme for an event by its type/theme key
             // Now themes are looked up directly by tournament type in EVENT_THEMES
             findThemeForEvent(eventName) {
-                if (!EVENT_THEMES) EVENT_THEMES = DataLoader.getDefaultThemes();
+                // Ensure EVENT_THEMES is populated with defaults
+                if (!EVENT_THEMES || Object.keys(EVENT_THEMES).length === 0) {
+                    EVENT_THEMES = DataLoader.getDefaultThemes();
+                }
                 // Return minor theme as fallback since themes should come from database
-                return EVENT_THEMES['minor'] || null;
+                const minorTheme = EVENT_THEMES['minor'];
+                if (minorTheme) {
+                    console.log('[findThemeForEvent] Returning minor theme');
+                    return minorTheme;
+                }
+                // Ultimate fallback - return hardcoded minor theme
+                console.log('[findThemeForEvent] Returning hardcoded fallback');
+                return { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' };
             }
         };
 
@@ -11878,28 +11893,41 @@
                 // Get tournament type for fallback
                 const tournamentType = tournamentFromDB ? tournamentFromDB.type : null;
                 
+                // Ensure EVENT_THEMES is populated
+                if (!EVENT_THEMES || Object.keys(EVENT_THEMES).length === 0) {
+                    console.log('[Theme] EVENT_THEMES empty, loading defaults');
+                    EVENT_THEMES = DataLoader.getDefaultThemes();
+                }
+                
                 // Find matching theme from server data with proper fallback chain
                 let matchedTheme = null;
                 
+                console.log('[Theme] Looking up theme - themeId:', themeId, 'type:', tournamentType, 'available keys:', Object.keys(EVENT_THEMES).slice(0, 10));
+                
                 // 1. Try the specific themeId first
-                if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
+                if (themeId && EVENT_THEMES[themeId]) {
                     matchedTheme = EVENT_THEMES[themeId];
                     console.log('[Theme] Using themePreset:', themeId);
                 }
                 // 2. Try tournament type as theme key
-                else if (tournamentType && EVENT_THEMES && EVENT_THEMES[tournamentType]) {
+                else if (tournamentType && EVENT_THEMES[tournamentType]) {
                     matchedTheme = EVENT_THEMES[tournamentType];
                     console.log('[Theme] Using tournament type as theme:', tournamentType);
                 }
                 // 3. Try "default" custom theme
-                else if (EVENT_THEMES && EVENT_THEMES['default']) {
+                else if (EVENT_THEMES['default']) {
                     matchedTheme = EVENT_THEMES['default'];
                     console.log('[Theme] Using default theme');
                 }
-                // 4. Fallback to minor theme
+                // 4. Try minor theme directly
+                else if (EVENT_THEMES['minor']) {
+                    matchedTheme = EVENT_THEMES['minor'];
+                    console.log('[Theme] Using minor theme');
+                }
+                // 5. Ultimate fallback
                 else {
                     matchedTheme = DataLoader.findThemeForEvent(eventName);
-                    console.log('[Theme] Fallback to findThemeForEvent');
+                    console.log('[Theme] Fallback to findThemeForEvent, result:', matchedTheme);
                 }
 
                 // Apply the matched theme
