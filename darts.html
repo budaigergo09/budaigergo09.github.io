@@ -7303,23 +7303,18 @@
                 // ==============================
                 // THEME CONFIG FROM EVENT
                 // ==============================
-                // Theme resolution priority:
-                // 1. Tournament's themePreset (if set and exists in EVENT_THEMES)
-                // 2. Tournament type as theme key (e.g., "masters", "matchplay")
-                // 3. "default" custom theme (if exists - applies to all tournaments without specific theme)
-                // 4. Fall back to "minor" theme
-                if (ev.themePreset && EVENT_THEMES && EVENT_THEMES[ev.themePreset]) {
-                    // Tournament has a specific themePreset set
+                // Theme resolution: Use whatever themePreset is set on the tournament
+                // If no themePreset, fall back to tournament type, then "default", then "minor"
+                // The actual theme lookup happens in applyEventColors which has the full default themes
+                
+                if (ev.themePreset) {
+                    // Tournament has a specific themePreset set - ALWAYS use it
                     Tournament.config.theme = { mode: 'preset', id: ev.themePreset };
                     console.log('[Season.startEvent] Using themePreset:', ev.themePreset);
-                } else if (ev.type && EVENT_THEMES && EVENT_THEMES[ev.type]) {
-                    // Use tournament type as theme (e.g., "masters" -> EVENT_THEMES['masters'])
+                } else if (ev.type) {
+                    // No themePreset - use tournament type as the theme key
                     Tournament.config.theme = { mode: 'preset', id: ev.type };
                     console.log('[Season.startEvent] Using tournament type as theme:', ev.type);
-                } else if (EVENT_THEMES && EVENT_THEMES['default']) {
-                    // Use "default" custom theme for tournaments without themePreset
-                    Tournament.config.theme = { mode: 'preset', id: 'default' };
-                    console.log('[Season.startEvent] Using default custom theme');
                 } else {
                     // Fall back to minor theme
                     Tournament.config.theme = { mode: 'preset', id: 'minor' };
@@ -11929,44 +11924,46 @@
                     themeId = tournamentFromDB.themePreset || tournamentFromDB.theme;
                 }
                 
-                // Get tournament type for fallback
+                // Get tournament type for fallback (only if we need it)
                 const tournamentType = tournamentFromDB ? tournamentFromDB.type : null;
                 
-                // Ensure EVENT_THEMES is populated
-                if (!EVENT_THEMES || Object.keys(EVENT_THEMES).length === 0) {
-                    console.log('[Theme] EVENT_THEMES empty, loading defaults');
-                    EVENT_THEMES = DataLoader.getDefaultThemes();
-                }
+                // Get the hardcoded defaults - these are ALWAYS available
+                const defaultThemes = DataLoader.getDefaultThemes();
                 
-                // Find matching theme from server data with proper fallback chain
+                // Find matching theme with proper fallback chain
                 let matchedTheme = null;
                 
-                console.log('[Theme] Looking up theme - themeId:', themeId, 'type:', tournamentType, 'available keys:', Object.keys(EVENT_THEMES).slice(0, 10));
+                console.log('[Theme] Looking up theme - themeId:', themeId, 'type:', tournamentType);
                 
-                // 1. Try the specific themeId first
-                if (themeId && EVENT_THEMES[themeId]) {
+                // 1. Try the specific themeId in EVENT_THEMES (server/custom themes)
+                if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
                     matchedTheme = EVENT_THEMES[themeId];
-                    console.log('[Theme] Using themePreset:', themeId);
+                    console.log('[Theme] Found in EVENT_THEMES:', themeId);
                 }
-                // 2. Try tournament type as theme key
-                else if (tournamentType && EVENT_THEMES[tournamentType]) {
+                // 2. Try the specific themeId in hardcoded defaults
+                else if (themeId && defaultThemes[themeId]) {
+                    matchedTheme = defaultThemes[themeId];
+                    console.log('[Theme] Found in defaults:', themeId);
+                }
+                // 3. Try tournament type in EVENT_THEMES
+                else if (tournamentType && EVENT_THEMES && EVENT_THEMES[tournamentType]) {
                     matchedTheme = EVENT_THEMES[tournamentType];
-                    console.log('[Theme] Using tournament type as theme:', tournamentType);
+                    console.log('[Theme] Using tournament type from EVENT_THEMES:', tournamentType);
                 }
-                // 3. Try "default" custom theme
-                else if (EVENT_THEMES['default']) {
+                // 4. Try tournament type in defaults
+                else if (tournamentType && defaultThemes[tournamentType]) {
+                    matchedTheme = defaultThemes[tournamentType];
+                    console.log('[Theme] Using tournament type from defaults:', tournamentType);
+                }
+                // 5. Try "default" custom theme
+                else if (EVENT_THEMES && EVENT_THEMES['default']) {
                     matchedTheme = EVENT_THEMES['default'];
-                    console.log('[Theme] Using default theme');
+                    console.log('[Theme] Using custom default theme');
                 }
-                // 4. Try minor theme directly
-                else if (EVENT_THEMES['minor']) {
-                    matchedTheme = EVENT_THEMES['minor'];
-                    console.log('[Theme] Using minor theme');
-                }
-                // 5. Ultimate fallback
+                // 6. Fall back to minor theme from defaults
                 else {
-                    matchedTheme = DataLoader.findThemeForEvent(eventName);
-                    console.log('[Theme] Fallback to findThemeForEvent, result:', matchedTheme);
+                    matchedTheme = defaultThemes['minor'];
+                    console.log('[Theme] Fallback to minor theme');
                 }
 
                 // Apply the matched theme
