@@ -3123,8 +3123,34 @@
         // API URL for database operations
         const API_BASE = '/api';
 
-        // Global event themes - loaded from server or uses defaults
-        let EVENT_THEMES = null;
+        // Global event themes - initialized with defaults immediately, then merged with server data
+        let EVENT_THEMES = {
+            'matchplay': { color1: '#8B0000', color2: '#B22222', logo: 'worldmatchplay.png', theme: 'theme-matchplay', activeGradient: ['#B22222', '#8B0000'], legNameColor: 'white' },
+            'uk-open': { color1: '#C8102E', color2: '#FFD100', logo: 'ukopen.png', theme: 'theme-uk-open', activeGradient: ['#8402db', '#C8102E'], legNameColor: 'white' },
+            'playersf': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+            'grandslam': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
+            'masters-final': { color1: '#7A0000', color2: '#000000', logo: 'worldseriesofdarts.png', theme: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+            'grandprix': { color1: '#0033A0', color2: '#00AEEF', logo: 'grandprix.png', theme: 'theme-world-grandprix', activeGradient: ['#fd0202', '#000000'], legNameColor: 'white' },
+            'winmaudm': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+            'wmasters-qual': { color1: '#000000', color2: '#FFFFFF', logo: 'worldmasters.png', theme: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+            'europeanf': { color1: '#5B2D8B', color2: '#C0C0C0', logo: 'europeanchampionship.png', theme: 'theme-european', activeGradient: ['#C0C0C0', '#5B2D8B'], legNameColor: '#000' },
+            'world': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
+            'players': { color1: '#111111', color2: '#C8102E', logo: 'playersc.png', theme: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+            'premier-league': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+            'premier-league-playoff': { color1: '#0A1AFF', color2: '#001B5E', logo: 'premierleague.png', theme: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+            'masters': { color1: '#000000', color2: '#D4AF37', logo: 'worldseries.png', theme: 'theme-masters', activeGradient: ['#D4AF37', '#000000'], legNameColor: '#000' },
+            'minor': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'challenge': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'q-school': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'et-qual-tc': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'et-host-nation': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'et-east-european': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'et-nordic-baltic': { color1: '#1A1A1A', color2: '#2E2E2E', logo: '', theme: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+            'ws-qual-tc': { color1: '#7A0000', color2: '#000000', logo: 'worldseries.png', theme: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+            'gs-qual-tc': { color1: '#FF8C00', color2: '#111111', logo: 'mrvegas.png', theme: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
+            'wc-qual-intl': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
+            'wc-qual-tc': { color1: '#0C3B2E', color2: '#1E7F43', logo: 'worldchampionship.png', theme: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' }
+        };
 
         // Database loader - tries to load from server, falls back to hardcoded
         const DataLoader = {
@@ -3162,24 +3188,37 @@
             },
 
             async loadThemes() {
-                // Always start with default themes
-                const defaults = DataLoader.getDefaultThemes();
-                EVENT_THEMES = { ...defaults };
+                // EVENT_THEMES is already initialized with defaults at declaration
+                // Store a copy of defaults
+                const defaultThemes = { ...EVENT_THEMES };
+                console.log('[DataLoader] Default themes loaded:', Object.keys(defaultThemes).length, 'keys');
                 
                 try {
                     const response = await fetch(API_BASE + '/themes');
                     const data = await response.json();
-                    if (data.success && data.themes && Object.keys(data.themes).length > 0) {
-                        console.log('[DataLoader] Loaded themes from server, merging with defaults');
-                        // Merge server themes on top of defaults (server overrides defaults)
-                        EVENT_THEMES = { ...defaults, ...data.themes };
-                        console.log('[DataLoader] EVENT_THEMES keys:', Object.keys(EVENT_THEMES));
+                    console.log('[DataLoader] Server response:', data);
+                    
+                    if (data.success && data.themes) {
+                        const serverThemes = data.themes;
+                        const serverKeys = Object.keys(serverThemes);
+                        console.log('[DataLoader] Server themes:', serverKeys.length, 'keys:', serverKeys);
+                        
+                        // IMPORTANT: Start fresh with defaults, then merge server themes ON TOP
+                        // This ensures defaults are always present, and server can add/override
+                        EVENT_THEMES = { ...defaultThemes };
+                        
+                        // Merge server themes (including custom themes from admin)
+                        for (const key of serverKeys) {
+                            EVENT_THEMES[key] = serverThemes[key];
+                        }
+                        
+                        console.log('[DataLoader] After merge, EVENT_THEMES has', Object.keys(EVENT_THEMES).length, 'keys');
                         return EVENT_THEMES;
                     }
                 } catch (e) {
-                    console.log('[DataLoader] Could not load themes from server, using defaults');
+                    console.log('[DataLoader] Could not load themes from server:', e);
                 }
-                console.log('[DataLoader] Using default themes, keys:', Object.keys(EVENT_THEMES));
+                console.log('[DataLoader] Using default themes, keys:', Object.keys(EVENT_THEMES).length);
                 return EVENT_THEMES;
             },
 
