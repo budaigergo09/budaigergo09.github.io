@@ -66,8 +66,12 @@ function getDB() {
         targetEvent INTEGER,
         slots INTEGER,
         night INTEGER,
-        eligibleRegions TEXT
+        eligibleRegions TEXT,
+        theme TEXT
     )');
+    
+    // Add theme column if it doesn't exist (for existing databases)
+    $db->exec('ALTER TABLE tournaments ADD COLUMN theme TEXT');
     
     // Players table
     $db->exec('CREATE TABLE IF NOT EXISTS players (
