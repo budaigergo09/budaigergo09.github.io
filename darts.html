@@ -3188,10 +3188,13 @@
             },
 
             async loadThemes() {
-                // EVENT_THEMES is already initialized with defaults at declaration
-                // Store a copy of defaults
-                const defaultThemes = { ...EVENT_THEMES };
-                console.log('[DataLoader] Default themes loaded:', Object.keys(defaultThemes).length, 'keys');
+                // Always get fresh defaults from getDefaultThemes() - never copy from current EVENT_THEMES
+                // This prevents issues if loadThemes is called multiple times
+                const defaultThemes = DataLoader.getDefaultThemes();
+                console.log('[DataLoader] Default themes from getDefaultThemes():', Object.keys(defaultThemes).length, 'keys');
+                
+                // Start with full defaults
+                EVENT_THEMES = { ...defaultThemes };
                 
                 try {
                     const response = await fetch(API_BASE + '/themes');
@@ -3203,11 +3206,7 @@
                         const serverKeys = Object.keys(serverThemes);
                         console.log('[DataLoader] Server themes:', serverKeys.length, 'keys:', serverKeys);
                         
-                        // IMPORTANT: Start fresh with defaults, then merge server themes ON TOP
-                        // This ensures defaults are always present, and server can add/override
-                        EVENT_THEMES = { ...defaultThemes };
-                        
-                        // Merge server themes (including custom themes from admin)
+                        // Merge server themes ON TOP of defaults (server overrides/adds)
                         for (const key of serverKeys) {
                             EVENT_THEMES[key] = serverThemes[key];
                         }
@@ -9979,7 +9978,7 @@
                 const tiebreakEl = document.getElementById('tourn-tiebreak');
                 Tournament.config.tiebreak = tiebreakEl ? tiebreakEl.checked : false;
 
-                // Save Custom Theme
+                // Save Custom Theme - but preserve theme if already set by Season.startEvent()
                 const themeEl = document.getElementById('tourn-theme');
                 if (themeEl) {
                     if (themeEl.value === 'custom') {
@@ -9989,7 +9988,8 @@
                     } else {
                         Tournament.config.theme = { mode: 'preset', id: themeEl.value };
                     }
-                } else {
+                } else if (!Tournament.config.theme || !Tournament.config.theme.id) {
+                    // Only set default if no theme was pre-configured (e.g., by Season.startEvent)
                     Tournament.config.theme = { mode: 'preset', id: 'default' };
                 }
 
