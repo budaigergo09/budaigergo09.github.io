@@ -3179,20 +3179,31 @@
             },
 
             getDefaultThemes() {
+                // Theme IDs match admin.html DEFAULT_APPEARANCE keys
                 return {
-                    matchplay: { id: 'matchplay', keywords: ['MATCHPLAY'], gradient: ['#8B0000', '#B22222'], logo: 'worldmatchplay.png', cssClass: 'theme-matchplay' },
-                    ukopen: { id: 'ukopen', keywords: ['UK OPEN'], gradient: ['#C8102E', '#FFD100'], logo: 'ukopen.png', cssClass: 'theme-uk-open' },
-                    playersfinals: { id: 'playersfinals', keywords: ['PLAYERS CHAMPIONSHIP FINALS'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship' },
-                    grandslam: { id: 'grandslam', keywords: ['GRAND SLAM'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam' },
-                    worldseries: { id: 'worldseries', keywords: ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'], gradient: ['#7A0000', '#000000'], logo: 'worldseriesofdarts.png', cssClass: 'theme-world-series' },
-                    grandprix: { id: 'grandprix', keywords: ['WORLD GRAND PRIX'], gradient: ['#0033A0', '#00AEEF'], logo: 'grandprix.png', cssClass: 'theme-world-grandprix' },
-                    winmau: { id: 'winmau', keywords: ['WINMAU'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau' },
-                    european: { id: 'european', keywords: ['EUROPEAN CHAMPIONSHIP'], gradient: ['#5B2D8B', '#C0C0C0'], logo: 'europeanchampionship.png', cssClass: 'theme-european' },
-                    world: { id: 'world', keywords: ['WORLD CHAMPIONSHIP'], gradient: ['#0C3B2E', '#1E7F43'], logo: 'worldchampionship.png', cssClass: 'theme-world-championship' },
-                    players: { id: 'players', keywords: ['PLAYERS CHAMPIONSHIP'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship' },
-                    premier: { id: 'premier', keywords: ['PREMIER LEAGUE'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league' },
-                    masters: { id: 'masters', keywords: ['MASTERS'], gradient: ['#000000', '#D4AF37'], logo: 'worldseries.png', cssClass: 'theme-masters' },
-                    minor: { id: 'minor', keywords: ['Q-SCHOOL', 'CHALLENGE', 'MINOR'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor' }
+                    'matchplay': { id: 'matchplay', keywords: ['MATCHPLAY'], gradient: ['#8B0000', '#B22222'], logo: 'worldmatchplay.png', cssClass: 'theme-matchplay', activeGradient: ['#B22222', '#8B0000'], legNameColor: 'white' },
+                    'uk-open': { id: 'uk-open', keywords: ['UK OPEN'], gradient: ['#C8102E', '#FFD100'], logo: 'ukopen.png', cssClass: 'theme-uk-open', activeGradient: ['#8402db', '#C8102E'], legNameColor: 'white' },
+                    'playersf': { id: 'playersf', keywords: ['PLAYERS CHAMPIONSHIP FINALS'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+                    'grandslam': { id: 'grandslam', keywords: ['GRAND SLAM'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' },
+                    'masters-final': { id: 'masters-final', keywords: ['WORLD SERIES OF DARTS FINALS', 'WORLD SERIES OF DARTS'], gradient: ['#7A0000', '#000000'], logo: 'worldseriesofdarts.png', cssClass: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+                    'grandprix': { id: 'grandprix', keywords: ['WORLD GRAND PRIX'], gradient: ['#0033A0', '#00AEEF'], logo: 'grandprix.png', cssClass: 'theme-world-grandprix', activeGradient: ['#fd0202', '#000000'], legNameColor: 'white' },
+                    'winmaudm': { id: 'winmaudm', keywords: ['WINMAU'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+                    'wmasters-qual': { id: 'wmasters-qual', keywords: ['WINMAU WORLD MASTERS PRELIMINARY'], gradient: ['#000000', '#FFFFFF'], logo: 'worldmasters.png', cssClass: 'theme-winmau', activeGradient: ['#FFFFFF', '#000000'], legNameColor: '#000' },
+                    'europeanf': { id: 'europeanf', keywords: ['EUROPEAN CHAMPIONSHIP', 'MACHINESEEKER EUROPEAN'], gradient: ['#5B2D8B', '#C0C0C0'], logo: 'europeanchampionship.png', cssClass: 'theme-european', activeGradient: ['#C0C0C0', '#5B2D8B'], legNameColor: '#000' },
+                    'world': { id: 'world', keywords: ['WORLD CHAMPIONSHIP'], gradient: ['#0C3B2E', '#1E7F43'], logo: 'worldchampionship.png', cssClass: 'theme-world-championship', activeGradient: ['#1E7F43', '#0C3B2E'], legNameColor: 'white' },
+                    'players': { id: 'players', keywords: ['PLAYERS CHAMPIONSHIP'], gradient: ['#111111', '#C8102E'], logo: 'playersc.png', cssClass: 'theme-players-championship', activeGradient: ['#C8102E', '#111111'], legNameColor: 'white' },
+                    'premier-league': { id: 'premier-league', keywords: ['PREMIER LEAGUE'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+                    'premier-league-playoff': { id: 'premier-league-playoff', keywords: ['PREMIER LEAGUE - PLAYOFFS'], gradient: ['#0A1AFF', '#001B5E'], logo: 'premierleague.png', cssClass: 'theme-premier-league', activeGradient: ['#FFD100', '#796d02'], legNameColor: 'white' },
+                    'masters': { id: 'masters', keywords: ['MASTERS'], gradient: ['#000000', '#D4AF37'], logo: 'worldseries.png', cssClass: 'theme-masters', activeGradient: ['#D4AF37', '#000000'], legNameColor: '#000' },
+                    'minor': { id: 'minor', keywords: ['DARTS OPEN', 'DARTS TROPHY', 'DARTS GRAND PRIX'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'challenge': { id: 'challenge', keywords: ['CHALLENGE TOUR'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'q-school': { id: 'q-school', keywords: ['Q-SCHOOL'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-qual-tc': { id: 'et-qual-tc', keywords: ['ET TOUR CARD QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-host-nation': { id: 'et-host-nation', keywords: ['ET HOST NATION QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-east-european': { id: 'et-east-european', keywords: ['ET EAST EUROPEAN QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'et-nordic-baltic': { id: 'et-nordic-baltic', keywords: ['ET NORDIC & BALTIC QUALIFIER'], gradient: ['#1A1A1A', '#2E2E2E'], logo: null, cssClass: 'theme-minor', activeGradient: ['#2E2E2E', '#1A1A1A'], legNameColor: 'white' },
+                    'ws-qual-tc': { id: 'ws-qual-tc', keywords: ['WORLD SERIES OF DARTS FINALS TOUR QUALIFIER'], gradient: ['#7A0000', '#000000'], logo: 'worldseries.png', cssClass: 'theme-world-series', activeGradient: ['#000000', '#7A0000'], legNameColor: 'white' },
+                    'gs-qual-tc': { id: 'gs-qual-tc', keywords: ['GRAND SLAM OF DARTS TOUR QUALIFIER'], gradient: ['#FF8C00', '#111111'], logo: 'mrvegas.png', cssClass: 'theme-grand-slam', activeGradient: ['#FF8C00', '#D97706'], legNameColor: 'white' }
                 };
             },
 
@@ -11858,6 +11869,9 @@
 
                 // Apply the matched theme
                 if (matchedTheme) {
+                    // Store current theme globally for use by other functions
+                    App.currentTheme = matchedTheme;
+                    
                     eventBar.style.background = `linear-gradient(135deg, ${matchedTheme.gradient[0]} 0%, ${matchedTheme.gradient[1]} 100%)`;
                     if (matchedTheme.logo) {
                         eventLogo.src = matchedTheme.logo;
@@ -11867,13 +11881,50 @@
                         eventLogo.style.display = 'none';
                         pdcLogo.style.display = 'block';
                     }
+                    
+                    // Apply CSS class for visit-board and other CSS-only styles
                     if (matchedTheme.cssClass) {
                         scoreboardHeader.classList.add(matchedTheme.cssClass);
                         if (bottomBar) bottomBar.classList.add(matchedTheme.cssClass);
                         if (visitBoard) visitBoard.classList.add(matchedTheme.cssClass);
                     }
+                    
+                    // Apply bottom bar gradient from theme data
+                    if (bottomBar && matchedTheme.gradient) {
+                        bottomBar.style.background = `linear-gradient(135deg, ${matchedTheme.gradient[1]} 0%, ${matchedTheme.gradient[0]} 100%)`;
+                    }
+                    
+                    // Apply leg name color from theme data
+                    if (bottomBar && matchedTheme.legNameColor) {
+                        const legNames = bottomBar.querySelectorAll('.leg-name');
+                        legNames.forEach(ln => ln.style.color = matchedTheme.legNameColor);
+                    }
                 }
             },
+            
+            // Apply active player theme gradient from database
+            applyActivePlayerTheme: (activeIdx) => {
+                const theme = App.currentTheme;
+                const card0 = document.getElementById('card-p0');
+                const card1 = document.getElementById('card-p1');
+                const nameStrip0 = card0 ? card0.querySelector('.name-strip') : null;
+                const nameStrip1 = card1 ? card1.querySelector('.name-strip') : null;
+                
+                // Default inactive gradient
+                const inactiveGradient = 'linear-gradient(to bottom, #4c6478, #2f4254)';
+                // Default active gradient (red)
+                const defaultActiveGradient = 'linear-gradient(to bottom, #e00000, #9a0000)';
+                
+                if (theme && theme.activeGradient) {
+                    const activeGradient = `linear-gradient(to bottom, ${theme.activeGradient[0]}, ${theme.activeGradient[1]})`;
+                    if (nameStrip0) nameStrip0.style.background = activeIdx === 0 ? activeGradient : inactiveGradient;
+                    if (nameStrip1) nameStrip1.style.background = activeIdx === 1 ? activeGradient : inactiveGradient;
+                } else {
+                    if (nameStrip0) nameStrip0.style.background = activeIdx === 0 ? defaultActiveGradient : inactiveGradient;
+                    if (nameStrip1) nameStrip1.style.background = activeIdx === 1 ? defaultActiveGradient : inactiveGradient;
+                }
+            },
+            
             startMatch: (p1Override, p2Override, targetOverride) => {
                 requestWakeLock();
                 SOUND_180.load();
@@ -12131,6 +12182,9 @@
 
                 document.getElementById('card-p0').className = `player-card ${pIdx === 0 ? 'active' : ''}`;
                 document.getElementById('card-p1').className = `player-card ${pIdx === 1 ? 'active' : ''}`;
+                
+                // Apply dynamic active gradient from theme data
+                App.applyActivePlayerTheme(pIdx);
 
                 const rows = document.getElementById('visit-container').children;
                 if (rows.length > 0) {
@@ -12296,6 +12350,9 @@
                 const current = App.matchState.currentThrower;
                 document.getElementById('card-p0').className = `player-card ${current === 0 ? 'active' : ''}`;
                 document.getElementById('card-p1').className = `player-card ${current === 1 ? 'active' : ''}`;
+                
+                // Apply dynamic active gradient from theme data
+                App.applyActivePlayerTheme(current);
 
                 const rows = document.getElementById('visit-container').children;
                 if (rows.length > 0) {
@@ -13054,7 +13111,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.9.0 | PDC Darts Simulator
+        v2.1.0 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
