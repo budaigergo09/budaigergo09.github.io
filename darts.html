@@ -8195,6 +8195,10 @@
 
                         if (!isBulkSim) {
                             Persistence.save();
+                            // Auto-save to server after tournament completion
+                            if (AuthSystem.currentUser) {
+                                AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                            }
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8220,6 +8224,10 @@
 
                         if (!isBulkSim) {
                             Persistence.save();
+                            // Auto-save to server after tournament completion
+                            if (AuthSystem.currentUser) {
+                                AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                            }
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8268,6 +8276,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8355,6 +8367,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8392,6 +8408,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         // 🔥 UI RESET (EZ HIÁNYZOTT)
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
@@ -8448,6 +8468,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8500,6 +8524,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8550,6 +8578,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8598,6 +8630,10 @@
 
                     if (!isBulkSim) {
                         Persistence.save();
+                        // Auto-save to server after tournament completion
+                        if (AuthSystem.currentUser) {
+                            AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                        }
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -8906,6 +8942,11 @@
                 }
 
                 Persistence.save();
+
+                // Auto-save to server after tournament completion
+                if (AuthSystem.currentUser) {
+                    AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
+                }
 
                 document.getElementById('setup-screen').style.display = 'flex';
                 document.getElementById('match-screen').style.display = 'none';
@@ -11665,8 +11706,14 @@
 
                 // Reset theme classes
                 scoreboardHeader.className = 'scoreboard-header';
-                if (bottomBar) bottomBar.className = 'bottom-bar';
-                if (visitBoard) visitBoard.className = 'visit-board';
+                if (bottomBar) {
+                    bottomBar.className = 'bottom-bar';
+                    bottomBar.style.background = ''; // Reset inline custom theme style
+                }
+                if (visitBoard) {
+                    visitBoard.className = 'visit-board';
+                    visitBoard.style.background = ''; // Reset inline custom theme style
+                }
 
                 // Reset to default settings first
                 eventBar.style.background = '#111';
@@ -11692,6 +11739,14 @@
                     eventBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
                     eventLogo.style.display = 'none';
                     pdcLogo.style.display = 'block';
+                    // Apply custom theme to bottom bar
+                    if (bottomBar) {
+                        bottomBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
+                    }
+                    // Apply custom theme to visit board
+                    if (visitBoard) {
+                        visitBoard.style.background = `linear-gradient(180deg, ${themeConfig.color1}4D 0%, ${themeConfig.color2}80 100%)`;
+                    }
                     return;
                 }
 
@@ -12700,6 +12755,10 @@
                             Tournament.state.selectedPlayerIndices = new Set(data.tournament.state.selectedPlayerIndices);
                         }
                     }
+                    // Apply tournament theme if it exists
+                    if (data.tournament.config && data.tournament.config.theme && App.applyEventColors) {
+                        App.applyEventColors(data.tournament.config.name || App.config.event || '');
+                    }
                 }
                 if (data.players) {
                     data.players.forEach(sp => {
@@ -12987,7 +13046,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.3.0 | PDC Darts Simulator
+        v1.4.0 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
