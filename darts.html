@@ -9978,7 +9978,7 @@
                 const tiebreakEl = document.getElementById('tourn-tiebreak');
                 Tournament.config.tiebreak = tiebreakEl ? tiebreakEl.checked : false;
 
-                // Save Custom Theme - but preserve theme if already set by Season.startEvent()
+                // Save Custom Theme (only if dropdown exists - Season.startEvent already sets theme)
                 const themeEl = document.getElementById('tourn-theme');
                 if (themeEl) {
                     if (themeEl.value === 'custom') {
@@ -9988,9 +9988,6 @@
                     } else {
                         Tournament.config.theme = { mode: 'preset', id: themeEl.value };
                     }
-                } else if (!Tournament.config.theme || !Tournament.config.theme.id) {
-                    // Only set default if no theme was pre-configured (e.g., by Season.startEvent)
-                    Tournament.config.theme = { mode: 'preset', id: 'default' };
                 }
 
                 // Support non-power-of-2 by rounding up to next power of 2
