@@ -67,6 +67,7 @@ function getDB() {
         slots INTEGER,
         night INTEGER,
         eligibleRegions TEXT,
+        themePreset TEXT,
         theme TEXT,
         color1 TEXT,
         color2 TEXT,
@@ -76,6 +77,7 @@ function getDB() {
     )');
     
     // Add columns if they don't exist (for existing databases)
+    $db->exec('ALTER TABLE tournaments ADD COLUMN themePreset TEXT');
     $db->exec('ALTER TABLE tournaments ADD COLUMN theme TEXT');
     $db->exec('ALTER TABLE tournaments ADD COLUMN color1 TEXT');
     $db->exec('ALTER TABLE tournaments ADD COLUMN color2 TEXT');
@@ -93,6 +95,18 @@ function getDB() {
         fav INTEGER NOT NULL DEFAULT 20,
         money INTEGER NOT NULL DEFAULT 0,
         tourCard INTEGER NOT NULL DEFAULT 0
+    )');
+    
+    // Themes table - stores custom themes that override $EVENT_THEMES defaults
+    $db->exec('CREATE TABLE IF NOT EXISTS themes (
+        id TEXT PRIMARY KEY,
+        color1 TEXT NOT NULL,
+        color2 TEXT NOT NULL,
+        logo TEXT,
+        theme TEXT,
+        activeGradient1 TEXT,
+        activeGradient2 TEXT,
+        legNameColor TEXT
     )');
     
     return $db;
@@ -281,15 +295,43 @@ $EVENT_THEMES = [
     ]
 ];
 
+// Helper to get themes with database overrides
+function getThemesWithOverrides($eventThemes) {
+    $db = getDB();
+    $result = $db->query('SELECT * FROM themes');
+    $themes = $eventThemes; // Start with defaults
+    
+    while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+        $id = $row['id'];
+        $themes[$id] = [
+            'color1' => $row['color1'],
+            'color2' => $row['color2'],
+            'logo' => $row['logo'] ?: '',
+            'theme' => $row['theme'] ?: '',
+            'activeGradient' => $row['activeGradient1'] && $row['activeGradient2'] 
+                ? [$row['activeGradient1'], $row['activeGradient2']] 
+                : null,
+            'legNameColor' => $row['legNameColor'] ?: 'white'
+        ];
+        // Remove null activeGradient
+        if (!$themes[$id]['activeGradient']) {
+            unset($themes[$id]['activeGradient']);
+        }
+    }
+    
+    return $themes;
+}
+
 // API Routes
 switch ($uri) {
     
     // ==================== PUBLIC DATA ENDPOINTS ====================
     
-    // Get all event themes
+    // Get all event themes (merges database themes with defaults)
     case '/themes':
         if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
-        jsonResponse(['success' => true, 'themes' => $EVENT_THEMES]);
+        $themes = getThemesWithOverrides($EVENT_THEMES);
+        jsonResponse(['success' => true, 'themes' => $themes]);
         break;
     
     // Assign themes to all tournaments based on their type (which matches admin.html DEFAULT_APPEARANCE keys)
@@ -535,12 +577,14 @@ switch ($uri) {
                 $saves = $db->querySingle('SELECT COUNT(*) FROM saves');
                 $tournaments = $db->querySingle('SELECT COUNT(*) FROM tournaments');
                 $players = $db->querySingle('SELECT COUNT(*) FROM players');
+                $themes = $db->querySingle('SELECT COUNT(*) FROM themes');
                 jsonResponse([
                     'success' => true,
                     'users' => $users,
                     'saves' => $saves,
                     'tournaments' => $tournaments,
-                    'players' => $players
+                    'players' => $players,
+                    'themes' => $themes
                 ]);
             }
             
@@ -597,8 +641,8 @@ switch ($uri) {
                 $prizes = isset($input['prizes']) ? json_encode($input['prizes']) : null;
                 
                 $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, color1, color2, logo, rounds, prizes) 
-                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :color1, :color2, :logo, :rounds, :prizes)');
+                    (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, theme, color1, color2, logo, rounds, prizes) 
+                    VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :theme, :color1, :color2, :logo, :rounds, :prizes)');
                 $stmt->bindValue(':id', $input['id'], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
                 $stmt->bindValue(':date', $input['date'], SQLITE3_TEXT);
@@ -612,6 +656,8 @@ switch ($uri) {
                 $stmt->bindValue(':slots', $input['slots'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                $stmt->bindValue(':themePreset', $input['themePreset'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':theme', $input['theme'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
@@ -633,7 +679,7 @@ switch ($uri) {
                     name=:name, date=:date, format=:format, players=:players, type=:type, 
                     cardRequired=:cardRequired, location=:location, region=:region, 
                     targetEvent=:targetEvent, slots=:slots, night=:night, eligibleRegions=:eligibleRegions,
-                    color1=:color1, color2=:color2, logo=:logo, rounds=:rounds, prizes=:prizes 
+                    themePreset=:themePreset, theme=:theme, color1=:color1, color2=:color2, logo=:logo, rounds=:rounds, prizes=:prizes 
                     WHERE id=:id');
                 $stmt->bindValue(':id', $m[1], SQLITE3_INTEGER);
                 $stmt->bindValue(':name', $input['name'], SQLITE3_TEXT);
@@ -648,6 +694,8 @@ switch ($uri) {
                 $stmt->bindValue(':slots', $input['slots'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':night', $input['night'] ?? null, SQLITE3_INTEGER);
                 $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                $stmt->bindValue(':themePreset', $input['themePreset'] ?? null, SQLITE3_TEXT);
+                $stmt->bindValue(':theme', $input['theme'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':color1', $input['color1'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':color2', $input['color2'] ?? null, SQLITE3_TEXT);
                 $stmt->bindValue(':logo', $input['logo'] ?? null, SQLITE3_TEXT);
@@ -676,8 +724,8 @@ switch ($uri) {
                     $prizes = isset($t['prizes']) ? json_encode($t['prizes']) : null;
                     
                     $stmt = $db->prepare('INSERT OR REPLACE INTO tournaments 
-                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, color1, color2, logo, rounds, prizes) 
-                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :color1, :color2, :logo, :rounds, :prizes)');
+                        (id, name, date, format, players, type, cardRequired, location, region, targetEvent, slots, night, eligibleRegions, themePreset, theme, color1, color2, logo, rounds, prizes) 
+                        VALUES (:id, :name, :date, :format, :players, :type, :cardRequired, :location, :region, :targetEvent, :slots, :night, :eligibleRegions, :themePreset, :theme, :color1, :color2, :logo, :rounds, :prizes)');
                     $stmt->bindValue(':id', $t['id'], SQLITE3_INTEGER);
                     $stmt->bindValue(':name', $t['name'], SQLITE3_TEXT);
                     $stmt->bindValue(':date', $t['date'], SQLITE3_TEXT);
@@ -691,6 +739,8 @@ switch ($uri) {
                     $stmt->bindValue(':slots', $t['slots'] ?? null, SQLITE3_INTEGER);
                     $stmt->bindValue(':night', $t['night'] ?? null, SQLITE3_INTEGER);
                     $stmt->bindValue(':eligibleRegions', $eligibleRegions, SQLITE3_TEXT);
+                    $stmt->bindValue(':themePreset', $t['themePreset'] ?? null, SQLITE3_TEXT);
+                    $stmt->bindValue(':theme', $t['theme'] ?? null, SQLITE3_TEXT);
                     $stmt->bindValue(':color1', $t['color1'] ?? null, SQLITE3_TEXT);
                     $stmt->bindValue(':color2', $t['color2'] ?? null, SQLITE3_TEXT);
                     $stmt->bindValue(':logo', $t['logo'] ?? null, SQLITE3_TEXT);
@@ -700,6 +750,106 @@ switch ($uri) {
                     $imported++;
                 }
                 jsonResponse(['success' => true, 'imported' => $imported]);
+            }
+            
+            // ==================== ADMIN THEME ROUTES ====================
+            
+            // Get all themes (defaults + custom from DB)
+            if ($adminRoute === 'themes' && $method === 'GET') {
+                $db = getDB();
+                
+                // Get all custom themes from database
+                $result = $db->query('SELECT * FROM themes');
+                $customThemes = [];
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    $customThemes[$row['id']] = $row;
+                }
+                
+                // Merge with defaults - mark which are custom
+                $allThemes = [];
+                foreach ($EVENT_THEMES as $id => $theme) {
+                    $themeData = [
+                        'id' => $id,
+                        'color1' => $theme['color1'],
+                        'color2' => $theme['color2'],
+                        'logo' => $theme['logo'] ?? '',
+                        'theme' => $theme['theme'] ?? '',
+                        'activeGradient1' => isset($theme['activeGradient']) ? $theme['activeGradient'][0] : '',
+                        'activeGradient2' => isset($theme['activeGradient']) ? $theme['activeGradient'][1] : '',
+                        'legNameColor' => $theme['legNameColor'] ?? 'white',
+                        'isCustom' => false,
+                        'isDefault' => true
+                    ];
+                    
+                    // Override with custom if exists
+                    if (isset($customThemes[$id])) {
+                        $custom = $customThemes[$id];
+                        $themeData['color1'] = $custom['color1'];
+                        $themeData['color2'] = $custom['color2'];
+                        $themeData['logo'] = $custom['logo'] ?: $themeData['logo'];
+                        $themeData['theme'] = $custom['theme'] ?: $themeData['theme'];
+                        $themeData['activeGradient1'] = $custom['activeGradient1'] ?: $themeData['activeGradient1'];
+                        $themeData['activeGradient2'] = $custom['activeGradient2'] ?: $themeData['activeGradient2'];
+                        $themeData['legNameColor'] = $custom['legNameColor'] ?: $themeData['legNameColor'];
+                        $themeData['isCustom'] = true;
+                        unset($customThemes[$id]);
+                    }
+                    
+                    $allThemes[] = $themeData;
+                }
+                
+                // Add any custom themes not in defaults
+                foreach ($customThemes as $id => $custom) {
+                    $allThemes[] = [
+                        'id' => $id,
+                        'color1' => $custom['color1'],
+                        'color2' => $custom['color2'],
+                        'logo' => $custom['logo'] ?: '',
+                        'theme' => $custom['theme'] ?: '',
+                        'activeGradient1' => $custom['activeGradient1'] ?: '',
+                        'activeGradient2' => $custom['activeGradient2'] ?: '',
+                        'legNameColor' => $custom['legNameColor'] ?: 'white',
+                        'isCustom' => true,
+                        'isDefault' => false
+                    ];
+                }
+                
+                jsonResponse(['success' => true, 'themes' => $allThemes]);
+            }
+            
+            // Save/Update a theme
+            if ($adminRoute === 'themes' && $method === 'POST') {
+                $input = getInput();
+                $db = getDB();
+                
+                if (empty($input['id'])) {
+                    jsonResponse(['error' => 'Theme ID is required'], 400);
+                }
+                
+                $stmt = $db->prepare('INSERT OR REPLACE INTO themes 
+                    (id, color1, color2, logo, theme, activeGradient1, activeGradient2, legNameColor) 
+                    VALUES (:id, :color1, :color2, :logo, :theme, :ag1, :ag2, :legNameColor)');
+                $stmt->bindValue(':id', $input['id'], SQLITE3_TEXT);
+                $stmt->bindValue(':color1', $input['color1'], SQLITE3_TEXT);
+                $stmt->bindValue(':color2', $input['color2'], SQLITE3_TEXT);
+                $stmt->bindValue(':logo', $input['logo'] ?? '', SQLITE3_TEXT);
+                $stmt->bindValue(':theme', $input['theme'] ?? '', SQLITE3_TEXT);
+                $stmt->bindValue(':ag1', $input['activeGradient1'] ?? '', SQLITE3_TEXT);
+                $stmt->bindValue(':ag2', $input['activeGradient2'] ?? '', SQLITE3_TEXT);
+                $stmt->bindValue(':legNameColor', $input['legNameColor'] ?? 'white', SQLITE3_TEXT);
+                $stmt->execute();
+                
+                jsonResponse(['success' => true]);
+            }
+            
+            // Delete a custom theme (reset to default)
+            if (preg_match('/^themes\/(.+)$/', $adminRoute, $m) && $method === 'DELETE') {
+                $themeId = $m[1];
+                $db = getDB();
+                $stmt = $db->prepare('DELETE FROM themes WHERE id = :id');
+                $stmt->bindValue(':id', $themeId, SQLITE3_TEXT);
+                $stmt->execute();
+                jsonResponse(['success' => true, 'message' => 'Theme reset to default']);
             }
             
             // ==================== ADMIN PLAYER ROUTES ====================
