@@ -7246,6 +7246,20 @@
                 Tournament.config.eventPlayers = ev.players;
                 Tournament.setMode(ev.format);
 
+                // ==============================
+                // THEME CONFIG FROM EVENT
+                // ==============================
+                // Set theme from event's themePreset if available
+                if (ev.themePreset && EVENT_THEMES && EVENT_THEMES[ev.themePreset]) {
+                    Tournament.config.theme = { mode: 'preset', id: ev.themePreset };
+                } else if (ev.color1 && ev.color2) {
+                    // Use custom colors directly from event
+                    Tournament.config.theme = { mode: 'custom', color1: ev.color1, color2: ev.color2 };
+                } else {
+                    // Use event type as theme preset fallback
+                    Tournament.config.theme = { mode: 'preset', id: ev.type || 'default' };
+                }
+
                 // For season mode with Winmau Masters sets format, set to 2 legs/set
                 if (isSim && ev.type === 'winmaudm' && ev.format === 'sets') {
                     const legsEl = document.getElementById('inp-tourn-set-legs');
@@ -11871,9 +11885,9 @@
                 // First check if there's a themeId from Tournament.config
                 let themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
                 
-                // If no themeId yet, check if the tournament has a theme set in Season.events
-                if (!themeId && tournamentFromDB && tournamentFromDB.theme) {
-                    themeId = tournamentFromDB.theme;
+                // If no themeId yet, check if the tournament has a themePreset or theme set in Season.events
+                if (!themeId && tournamentFromDB) {
+                    themeId = tournamentFromDB.themePreset || tournamentFromDB.theme;
                 }
                 
                 // Find matching theme from server data
