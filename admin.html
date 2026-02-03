@@ -820,17 +820,11 @@
             
             <!-- Appearance -->
             <h4 style="color: #ffd700; margin: 20px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">🎨 Appearance</h4>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Theme Preset</label>
-                    <select id="edit-tourn-theme-select" onchange="onThemePresetChange()">
-                        <option value="">-- Use Type Default --</option>
-                        <!-- Populated dynamically -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Theme Preview</label>
-                    <div id="theme-preset-preview" style="height: 32px; border-radius: 4px; background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 100%); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888;">Select a theme</div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Theme Preset</label>
+                <input type="hidden" id="edit-tourn-theme-select" value="">
+                <div id="theme-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px; max-height: 180px; overflow-y: auto; padding: 4px;">
+                    <!-- Populated dynamically with visual theme boxes -->
                 </div>
             </div>
             <div class="form-row">
@@ -1242,7 +1236,7 @@
             renderTournaments(filtered);
         }
         
-        function openTournamentModal(tournament = null) {
+        async function openTournamentModal(tournament = null) {
             document.getElementById('tournament-modal-title').innerText = tournament ? 'Edit Tournament' : 'Add Tournament';
             document.getElementById('edit-tournament-id').value = tournament ? tournament.id : '';
             document.getElementById('edit-tourn-id').value = tournament ? tournament.id : '';
@@ -1312,21 +1306,20 @@
                 }
             }
             
-            // Populate theme dropdown and set current value
-            populateThemeDropdown();
+            // Populate theme grid and select current value
+            await populateThemeDropdown();
             const selectedTheme = tournament?.themePreset || '';
-            document.getElementById('edit-tourn-theme-select').value = selectedTheme;
-            updateThemePresetPreview(selectedTheme);
+            selectThemeBox(selectedTheme);
             
             document.getElementById('tournament-modal').classList.add('active');
         }
         
         // Populate theme dropdown with available themes
         async function populateThemeDropdown() {
-            const select = document.getElementById('edit-tourn-theme-select');
+            const grid = document.getElementById('theme-grid');
+            const hiddenInput = document.getElementById('edit-tourn-theme-select');
             
-            // Keep the first default option
-            select.innerHTML = '<option value="">-- Use Type Default --</option>';
+            grid.innerHTML = '';
             
             // Try to load themes if not already loaded
             if (!themes || themes.length === 0) {
@@ -1340,22 +1333,73 @@
                 }
             }
             
-            // Add themes to dropdown
+            // Add "Use Type Default" option first
+            const defaultBox = document.createElement('div');
+            defaultBox.className = 'theme-box';
+            defaultBox.dataset.themeId = '';
+            defaultBox.style.cssText = `
+                background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 100%);
+                border: 2px solid #444;
+                border-radius: 6px;
+                padding: 8px;
+                cursor: pointer;
+                text-align: center;
+                transition: all 0.2s;
+                min-height: 50px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            `;
+            defaultBox.innerHTML = `<span style="font-size: 10px; color: #aaa; text-shadow: 1px 1px 2px #000;">Type Default</span>`;
+            defaultBox.onclick = () => selectThemeBox('');
+            grid.appendChild(defaultBox);
+            
+            // Add themes as visual boxes
             themes.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.id;
-                option.textContent = t.id + (t.isCustom ? ' ✨' : '');
-                option.style.background = `linear-gradient(90deg, ${t.color1}, ${t.color2})`;
-                select.appendChild(option);
+                const box = document.createElement('div');
+                box.className = 'theme-box';
+                box.dataset.themeId = t.id;
+                box.style.cssText = `
+                    background: linear-gradient(135deg, ${t.color1} 0%, ${t.color2} 100%);
+                    border: 2px solid #444;
+                    border-radius: 6px;
+                    padding: 8px;
+                    cursor: pointer;
+                    text-align: center;
+                    transition: all 0.2s;
+                    min-height: 50px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                `;
+                box.innerHTML = `
+                    <span style="font-size: 9px; color: #fff; text-shadow: 1px 1px 2px #000; font-weight: bold;">${t.id}</span>
+                    ${t.isCustom ? '<span style="font-size: 8px; color: #ffd700;">✨ custom</span>' : ''}
+                `;
+                box.onclick = () => selectThemeBox(t.id);
+                grid.appendChild(box);
             });
         }
         
-        // Handle theme preset selection
-        function onThemePresetChange() {
-            const themeId = document.getElementById('edit-tourn-theme-select').value;
-            updateThemePresetPreview(themeId);
+        // Select a theme box
+        function selectThemeBox(themeId) {
+            const hiddenInput = document.getElementById('edit-tourn-theme-select');
+            hiddenInput.value = themeId;
             
-            // If a theme is selected, show its logo as placeholder
+            // Update visual selection
+            document.querySelectorAll('#theme-grid .theme-box').forEach(box => {
+                if (box.dataset.themeId === themeId) {
+                    box.style.border = '2px solid #ffd700';
+                    box.style.boxShadow = '0 0 8px rgba(255, 215, 0, 0.5)';
+                } else {
+                    box.style.border = '2px solid #444';
+                    box.style.boxShadow = 'none';
+                }
+            });
+            
+            // Update logo placeholder
             if (themeId) {
                 const theme = themes.find(t => t.id === themeId);
                 if (theme && theme.logo) {
@@ -1368,32 +1412,13 @@
             }
         }
         
-        // Update the theme preset preview
-        function updateThemePresetPreview(themeId) {
-            const preview = document.getElementById('theme-preset-preview');
-            if (!themeId) {
-                const tType = document.getElementById('edit-tourn-type').value;
-                const def = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
-                preview.style.background = `linear-gradient(135deg, ${def.color1} 0%, ${def.color2} 100%)`;
-                preview.innerHTML = '<span style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">Type Default</span>';
-                return;
-            }
-            
-            const theme = themes.find(t => t.id === themeId);
-            if (theme) {
-                preview.style.background = `linear-gradient(135deg, ${theme.color1} 0%, ${theme.color2} 100%)`;
-                preview.innerHTML = `<span style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${themeId}</span>`;
-            }
-        }
-        
         // Update defaults when type changes
         function onTypeChange() {
             const tType = document.getElementById('edit-tourn-type').value;
             const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
             
-            // Reset theme dropdown to default (use type default)
-            document.getElementById('edit-tourn-theme-select').value = '';
-            updateThemePresetPreview('');
+            // Reset theme selection to default (use type default)
+            selectThemeBox('');
             
             // Clear logo override
             document.getElementById('edit-tourn-logo').value = '';
