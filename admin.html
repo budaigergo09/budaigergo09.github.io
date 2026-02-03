@@ -607,7 +607,7 @@
                                 <th>Players</th>
                                 <th>Type</th>
                                 <th>Card</th>
-                                <th>Color</th>
+                                <th>Theme</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -820,14 +820,14 @@
             
             <!-- Appearance -->
             <h4 style="color: #ffd700; margin: 20px 0 10px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px;">🎨 Appearance</h4>
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label>Theme Preset</label>
-                <input type="hidden" id="edit-tourn-theme-select" value="">
-                <div id="theme-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px; max-height: 180px; overflow-y: auto; padding: 4px;">
-                    <!-- Populated dynamically with visual theme boxes -->
-                </div>
-            </div>
             <div class="form-row">
+                <div class="form-group">
+                    <label>Theme Preset</label>
+                    <select id="edit-tourn-theme-select">
+                        <option value="">-- Use Type Default --</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>Logo (optional override)</label>
                     <input type="file" id="edit-tourn-logo-upload" accept="image/*" style="margin-bottom: 6px;" onchange="handleLogoUpload(event)">
@@ -1205,9 +1205,7 @@
             
             const tbody = document.getElementById('tournaments-tbody');
             tbody.innerHTML = list.map(t => {
-                const c1 = t.color1 || '#111111';
-                const c2 = t.color2 || '#333333';
-                const colorStyle = `background: linear-gradient(135deg, ${c1} 0%, ${c2} 100%); width: 40px; height: 20px; border-radius: 3px; border: 1px solid #444;`;
+                const themeName = t.themePreset || `(${t.type})`;
                 return `
                 <tr>
                     <td data-label="ID">${t.id}</td>
@@ -1217,7 +1215,7 @@
                     <td data-label="Players">${t.players}</td>
                     <td data-label="Type">${t.type}</td>
                     <td data-label="Card"><span class="status-badge ${t.cardRequired ? 'status-yes' : 'status-no'}">${t.cardRequired ? 'YES' : 'NO'}</span></td>
-                    <td data-label="Color"><div style="${colorStyle}" title="${c1} → ${c2}"></div></td>
+                    <td data-label="Theme"><span style="color: ${t.themePreset ? '#ffd700' : '#888'}; font-size: 11px;">${themeName}</span></td>
                     <td data-label="Actions">
                         <button class="btn btn-edit" onclick="editTournament(${t.id})">Edit</button>
                         <button class="btn btn-delete" onclick="deleteTournament(${t.id})">Del</button>
@@ -1306,20 +1304,20 @@
                 }
             }
             
-            // Populate theme grid and select current value
+            // Populate theme dropdown and select current value
             await populateThemeDropdown();
             const selectedTheme = tournament?.themePreset || '';
-            selectThemeBox(selectedTheme);
+            document.getElementById('edit-tourn-theme-select').value = selectedTheme;
             
             document.getElementById('tournament-modal').classList.add('active');
         }
         
         // Populate theme dropdown with available themes
         async function populateThemeDropdown() {
-            const grid = document.getElementById('theme-grid');
-            const hiddenInput = document.getElementById('edit-tourn-theme-select');
+            const select = document.getElementById('edit-tourn-theme-select');
             
-            grid.innerHTML = '';
+            // Keep the first default option
+            select.innerHTML = '<option value="">-- Use Type Default --</option>';
             
             // Try to load themes if not already loaded
             if (!themes || themes.length === 0) {
@@ -1333,83 +1331,13 @@
                 }
             }
             
-            // Add "Use Type Default" option first
-            const defaultBox = document.createElement('div');
-            defaultBox.className = 'theme-box';
-            defaultBox.dataset.themeId = '';
-            defaultBox.style.cssText = `
-                background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 100%);
-                border: 2px solid #444;
-                border-radius: 6px;
-                padding: 8px;
-                cursor: pointer;
-                text-align: center;
-                transition: all 0.2s;
-                min-height: 50px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            `;
-            defaultBox.innerHTML = `<span style="font-size: 10px; color: #aaa; text-shadow: 1px 1px 2px #000;">Type Default</span>`;
-            defaultBox.onclick = () => selectThemeBox('');
-            grid.appendChild(defaultBox);
-            
-            // Add themes as visual boxes
+            // Add themes to dropdown
             themes.forEach(t => {
-                const box = document.createElement('div');
-                box.className = 'theme-box';
-                box.dataset.themeId = t.id;
-                box.style.cssText = `
-                    background: linear-gradient(135deg, ${t.color1} 0%, ${t.color2} 100%);
-                    border: 2px solid #444;
-                    border-radius: 6px;
-                    padding: 8px;
-                    cursor: pointer;
-                    text-align: center;
-                    transition: all 0.2s;
-                    min-height: 50px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                `;
-                box.innerHTML = `
-                    <span style="font-size: 9px; color: #fff; text-shadow: 1px 1px 2px #000; font-weight: bold;">${t.id}</span>
-                    ${t.isCustom ? '<span style="font-size: 8px; color: #ffd700;">✨ custom</span>' : ''}
-                `;
-                box.onclick = () => selectThemeBox(t.id);
-                grid.appendChild(box);
+                const option = document.createElement('option');
+                option.value = t.id;
+                option.textContent = t.id + (t.isCustom ? ' ✨' : '');
+                select.appendChild(option);
             });
-        }
-        
-        // Select a theme box
-        function selectThemeBox(themeId) {
-            const hiddenInput = document.getElementById('edit-tourn-theme-select');
-            hiddenInput.value = themeId;
-            
-            // Update visual selection
-            document.querySelectorAll('#theme-grid .theme-box').forEach(box => {
-                if (box.dataset.themeId === themeId) {
-                    box.style.border = '2px solid #ffd700';
-                    box.style.boxShadow = '0 0 8px rgba(255, 215, 0, 0.5)';
-                } else {
-                    box.style.border = '2px solid #444';
-                    box.style.boxShadow = 'none';
-                }
-            });
-            
-            // Update logo placeholder
-            if (themeId) {
-                const theme = themes.find(t => t.id === themeId);
-                if (theme && theme.logo) {
-                    document.getElementById('edit-tourn-logo').placeholder = `Theme uses: ${theme.logo}`;
-                } else {
-                    document.getElementById('edit-tourn-logo').placeholder = 'Leave empty to use theme logo';
-                }
-            } else {
-                document.getElementById('edit-tourn-logo').placeholder = 'Leave empty to use theme logo';
-            }
         }
         
         // Update defaults when type changes
@@ -1417,8 +1345,8 @@
             const tType = document.getElementById('edit-tourn-type').value;
             const defaultAppearance = DEFAULT_APPEARANCE[tType] || DEFAULT_APPEARANCE['minor'];
             
-            // Reset theme selection to default (use type default)
-            selectThemeBox('');
+            // Reset theme dropdown to default (use type default)
+            document.getElementById('edit-tourn-theme-select').value = '';
             
             // Clear logo override
             document.getElementById('edit-tourn-logo').value = '';
