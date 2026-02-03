@@ -11893,12 +11893,6 @@
                     themeConfig = { mode: 'preset', id: themeConfig };
                 }
 
-                // Check for custom colors directly on the tournament from database
-                let tournamentFromDB = null;
-                if (eventName && typeof Season !== 'undefined' && Season.events) {
-                    tournamentFromDB = Season.events.find(e => e.name === eventName || e.name.toUpperCase() === eventName.toUpperCase());
-                }
-
                 // 1. CUSTOM THEME (from theme selector UI)
                 if (themeConfig && themeConfig.mode === 'custom') {
                     eventBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
@@ -11912,55 +11906,29 @@
                     return;
                 }
 
-                // 2. PRESET / SERVER THEME - Use themes from server (EVENT_THEMES)
-                // First check if there's a themeId from Tournament.config
-                let themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
+                // 2. PRESET THEME - Just use the themeId directly from Tournament.config
+                const themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
                 
-                // If no themeId yet, check if the tournament has a themePreset or theme set in Season.events
-                if (!themeId && tournamentFromDB) {
-                    themeId = tournamentFromDB.themePreset || tournamentFromDB.theme;
-                }
-                
-                // Get tournament type for fallback (only if we need it)
-                const tournamentType = tournamentFromDB ? tournamentFromDB.type : null;
-                
-                // Get the hardcoded defaults - these are ALWAYS available
+                // Get the hardcoded defaults
                 const defaultThemes = DataLoader.getDefaultThemes();
                 
-                // Find matching theme with proper fallback chain
+                // Simple lookup: check EVENT_THEMES first, then defaults
                 let matchedTheme = null;
                 
-                console.log('[Theme] Looking up theme - themeId:', themeId, 'type:', tournamentType);
+                console.log('[Theme] Using themeId:', themeId);
                 
-                // 1. Try the specific themeId in EVENT_THEMES (server/custom themes)
                 if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
                     matchedTheme = EVENT_THEMES[themeId];
                     console.log('[Theme] Found in EVENT_THEMES:', themeId);
                 }
-                // 2. Try the specific themeId in hardcoded defaults
                 else if (themeId && defaultThemes[themeId]) {
                     matchedTheme = defaultThemes[themeId];
                     console.log('[Theme] Found in defaults:', themeId);
                 }
-                // 3. Try tournament type in EVENT_THEMES
-                else if (tournamentType && EVENT_THEMES && EVENT_THEMES[tournamentType]) {
-                    matchedTheme = EVENT_THEMES[tournamentType];
-                    console.log('[Theme] Using tournament type from EVENT_THEMES:', tournamentType);
-                }
-                // 4. Try tournament type in defaults
-                else if (tournamentType && defaultThemes[tournamentType]) {
-                    matchedTheme = defaultThemes[tournamentType];
-                    console.log('[Theme] Using tournament type from defaults:', tournamentType);
-                }
-                // 5. Try "default" custom theme
-                else if (EVENT_THEMES && EVENT_THEMES['default']) {
-                    matchedTheme = EVENT_THEMES['default'];
-                    console.log('[Theme] Using custom default theme');
-                }
-                // 6. Fall back to minor theme from defaults
                 else {
-                    matchedTheme = defaultThemes['minor'];
-                    console.log('[Theme] Fallback to minor theme');
+                    // Last resort fallback
+                    matchedTheme = defaultThemes['minor'] || { color1: '#1A1A1A', color2: '#2E2E2E' };
+                    console.log('[Theme] Fallback to minor');
                 }
 
                 // Apply the matched theme
@@ -11977,10 +11945,9 @@
                     
                     eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
                     
-                    // Use tournament's custom logo override if set, otherwise use theme logo
-                    const logoToUse = (tournamentFromDB && tournamentFromDB.logo) ? tournamentFromDB.logo : matchedTheme.logo;
-                    if (logoToUse) {
-                        eventLogo.src = logoToUse;
+                    // Use theme logo
+                    if (matchedTheme.logo) {
+                        eventLogo.src = matchedTheme.logo;
                         eventLogo.style.display = 'block';
                         pdcLogo.style.display = 'none';
                     } else {
