@@ -6373,10 +6373,17 @@
                     }
                 }
 
-                // Reset persistence
+                // Clear ALL game-related localStorage items
                 localStorage.removeItem('pdc_news');
                 localStorage.removeItem('pdc_player_states');
                 localStorage.removeItem('pdc_tourn_state');
+                localStorage.removeItem('pdc_tourn_config');
+                localStorage.removeItem('pdc_season');
+                localStorage.removeItem('pdc_players');
+                localStorage.removeItem('pdc_match_state');
+                localStorage.removeItem('pdc_app_config');
+                localStorage.removeItem('pdc_active_screen');
+                localStorage.removeItem('pdc_code_hash');
 
                 NewsSystem.items = [];
 
@@ -11739,14 +11746,11 @@
                     eventBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
                     eventLogo.style.display = 'none';
                     pdcLogo.style.display = 'block';
-                    // Apply custom theme to bottom bar
+                    // Apply custom theme to bottom bar (solid gradient, no transparency)
                     if (bottomBar) {
                         bottomBar.style.background = `linear-gradient(135deg, ${themeConfig.color1} 0%, ${themeConfig.color2} 100%)`;
                     }
-                    // Apply custom theme to visit board
-                    if (visitBoard) {
-                        visitBoard.style.background = `linear-gradient(180deg, ${themeConfig.color1}4D 0%, ${themeConfig.color2}80 100%)`;
-                    }
+                    // Don't apply custom background to visit board - keep default
                     return;
                 }
 
@@ -13046,7 +13050,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.4.0 | PDC Darts Simulator
+        v1.5.0 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->

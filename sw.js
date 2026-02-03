@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pdc-sim-2026-v1.4.0';
-const APP_VERSION = '1.4.0';
+const CACHE_NAME = 'pdc-sim-2026-v1.5.0';
+const APP_VERSION = '1.5.0';
 
 const urlsToCache = [
   '/darts.html',
