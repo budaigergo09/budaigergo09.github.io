@@ -9978,9 +9978,11 @@
                 const tiebreakEl = document.getElementById('tourn-tiebreak');
                 Tournament.config.tiebreak = tiebreakEl ? tiebreakEl.checked : false;
 
-                // Save Custom Theme (only if dropdown exists - Season.startEvent already sets theme)
+                // Save Custom Theme - but ONLY for manual tournaments, not Season events
+                // Season.startEvent() already sets Tournament.config.theme from themePreset
                 const themeEl = document.getElementById('tourn-theme');
-                if (themeEl) {
+                const isSeasonEvent = typeof Season !== 'undefined' && Season.state.inProgress;
+                if (themeEl && !isSeasonEvent) {
                     if (themeEl.value === 'custom') {
                         const c1 = document.getElementById('theme-col-1').value;
                         const c2 = document.getElementById('theme-col-2').value;
