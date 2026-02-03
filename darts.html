@@ -6437,6 +6437,17 @@
                 };
                 Season.init();
                 Persistence.save();
+                
+                // Save the fresh state to cloud if logged in
+                if (isLoggedIn) {
+                    try {
+                        await AuthSystem.saveToCloud();
+                        console.log('Fresh season saved to cloud');
+                    } catch (e) {
+                        console.log('Could not save fresh season to cloud:', e);
+                    }
+                }
+                
                 location.reload();
             },
 
@@ -13060,7 +13071,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v1.6.0 | PDC Darts Simulator
+        v1.7.0 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
