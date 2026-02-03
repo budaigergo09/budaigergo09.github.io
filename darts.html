@@ -7249,12 +7249,27 @@
                 // ==============================
                 // THEME CONFIG FROM EVENT
                 // ==============================
-                // Set theme from event's themePreset if available, otherwise use type
+                // Theme resolution priority:
+                // 1. Tournament's themePreset (if set and exists in EVENT_THEMES)
+                // 2. Tournament type as theme key (e.g., "masters", "matchplay")
+                // 3. "default" custom theme (if exists - applies to all tournaments without specific theme)
+                // 4. Fall back to "minor" theme
                 if (ev.themePreset && EVENT_THEMES && EVENT_THEMES[ev.themePreset]) {
+                    // Tournament has a specific themePreset set
                     Tournament.config.theme = { mode: 'preset', id: ev.themePreset };
+                    console.log('[Season.startEvent] Using themePreset:', ev.themePreset);
+                } else if (ev.type && EVENT_THEMES && EVENT_THEMES[ev.type]) {
+                    // Use tournament type as theme (e.g., "masters" -> EVENT_THEMES['masters'])
+                    Tournament.config.theme = { mode: 'preset', id: ev.type };
+                    console.log('[Season.startEvent] Using tournament type as theme:', ev.type);
+                } else if (EVENT_THEMES && EVENT_THEMES['default']) {
+                    // Use "default" custom theme for tournaments without themePreset
+                    Tournament.config.theme = { mode: 'preset', id: 'default' };
+                    console.log('[Season.startEvent] Using default custom theme');
                 } else {
-                    // Use event type as theme preset fallback
-                    Tournament.config.theme = { mode: 'preset', id: ev.type || 'default' };
+                    // Fall back to minor theme
+                    Tournament.config.theme = { mode: 'preset', id: 'minor' };
+                    console.log('[Season.startEvent] Fallback to minor theme');
                 }
 
                 // For season mode with Winmau Masters sets format, set to 2 legs/set
@@ -11860,19 +11875,40 @@
                     themeId = tournamentFromDB.themePreset || tournamentFromDB.theme;
                 }
                 
-                // Find matching theme from server data
+                // Get tournament type for fallback
+                const tournamentType = tournamentFromDB ? tournamentFromDB.type : null;
+                
+                // Find matching theme from server data with proper fallback chain
                 let matchedTheme = null;
+                
+                // 1. Try the specific themeId first
                 if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
                     matchedTheme = EVENT_THEMES[themeId];
-                } else if (!themeId) {
-                    // Fallback to keyword matching only if no theme specified
+                    console.log('[Theme] Using themePreset:', themeId);
+                }
+                // 2. Try tournament type as theme key
+                else if (tournamentType && EVENT_THEMES && EVENT_THEMES[tournamentType]) {
+                    matchedTheme = EVENT_THEMES[tournamentType];
+                    console.log('[Theme] Using tournament type as theme:', tournamentType);
+                }
+                // 3. Try "default" custom theme
+                else if (EVENT_THEMES && EVENT_THEMES['default']) {
+                    matchedTheme = EVENT_THEMES['default'];
+                    console.log('[Theme] Using default theme');
+                }
+                // 4. Fallback to minor theme
+                else {
                     matchedTheme = DataLoader.findThemeForEvent(eventName);
+                    console.log('[Theme] Fallback to findThemeForEvent');
                 }
 
                 // Apply the matched theme
                 if (matchedTheme) {
                     // Store current theme globally for use by other functions
                     App.currentTheme = matchedTheme;
+                    
+                    // Debug log
+                    console.log('[Theme] Applied theme:', matchedTheme);
                     
                     // Use color1/color2 format (matches admin.html)
                     const color1 = matchedTheme.color1 || (matchedTheme.gradient ? matchedTheme.gradient[0] : '#111');
@@ -11908,6 +11944,15 @@
                     if (bottomBar && matchedTheme.legNameColor) {
                         const legNames = bottomBar.querySelectorAll('.leg-name');
                         legNames.forEach(ln => ln.style.color = matchedTheme.legNameColor);
+                    }
+                } else {
+                    // No theme found - apply default dark gradient as fallback
+                    console.warn('[Theme] No theme found, applying fallback gradient');
+                    eventBar.style.background = 'linear-gradient(135deg, #1A1A1A 0%, #2E2E2E 100%)';
+                    eventLogo.style.display = 'none';
+                    pdcLogo.style.display = 'block';
+                    if (bottomBar) {
+                        bottomBar.style.background = 'linear-gradient(135deg, #2E2E2E 0%, #1A1A1A 100%)';
                     }
                 }
             },
@@ -13121,7 +13166,7 @@
     <!-- VERSION FOOTER -->
     <div id="version-footer"
         style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v2.1.0 | PDC Darts Simulator
+        v2.2.0 | PDC Darts Simulator
     </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
