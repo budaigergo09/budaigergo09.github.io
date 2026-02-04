@@ -858,119 +858,266 @@
             font-size: 11px;
         }
 
-        /* Match Screen */
+        /* Match Screen - from darts.html */
         #match-screen {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             display: none;
             flex-direction: column;
-            height: calc(100vh - 60px);
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            z-index: 150;
         }
 
-        .match-header {
+        .event-bar {
+            height: 36px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-bottom: 1px solid #444;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .event-bar img {
+            height: 24px;
+        }
+
+        .event-bar span {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .scoreboard-header {
+            display: flex;
+            height: 130px;
+            flex-shrink: 0;
+        }
+
+        .player-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .name-strip {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(to bottom, #4c6478, #2f4254);
+            border-bottom: 1px solid #000;
+            padding: 0 5px;
+            position: relative;
+        }
+
+        .score-strip {
+            flex: 1;
+            background: linear-gradient(to bottom, #e4eaf0, #cfd7df);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #e00000, #9a0000);
+        }
+
+        .flag {
+            height: 16px;
+            width: 24px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .p-name {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .p-score {
+            font-size: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: -2px;
+            color: #222;
+        }
+
+        .p-avg {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 2px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .starter-dot {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            background-color: var(--pdc-gold);
+            border-radius: 50%;
+            position: absolute;
+            left: 8px;
+            display: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .visit-board {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            padding: 10px 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .visit-row {
+            display: grid;
+            grid-template-columns: 1fr 30px 80px 30px 1fr;
+            width: 100%;
+            max-width: 500px;
+            align-items: center;
+            margin-bottom: 4px;
+            min-height: 36px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .v-score {
+            font-family: 'Roboto Condensed';
+            font-size: 26px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .v-round {
+            color: var(--text-grey);
+            font-size: 12px;
             text-align: center;
-            padding: 20px;
+        }
+
+        .v-arrow {
+            color: var(--pdc-gold);
+            font-size: 16px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .bottom-bar {
+            height: 60px;
+            background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .legs-display {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .score-box-left {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            padding-right: 15px;
+        }
+
+        .score-box-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            padding-left: 15px;
+        }
+
+        .leg-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
+        }
+
+        .main-score {
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .sub-score {
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            opacity: 0.7;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .leg-label {
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+            width: 40px;
+        }
+
+        /* Match control buttons */
+        .match-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.3);
         }
 
-        .match-header h2 {
-            color: var(--pdc-gold);
-            font-size: 18px;
-        }
-
-        .match-header .round-info {
-            color: #888;
-            font-size: 14px;
-        }
-
-        .scoreboard {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px 20px;
-            gap: 30px;
-        }
-
-        .player-box {
-            text-align: center;
-            flex: 1;
-            max-width: 200px;
-        }
-
-        .player-box img {
-            width: 60px;
-            height: 40px;
+        .btn-exit-small {
+            padding: 6px 12px;
+            font-size: 11px;
+            background: #333;
+            color: white;
+            border: none;
             border-radius: 4px;
-            margin-bottom: 10px;
-        }
-
-        .player-box .name {
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .player-box .score {
-            font-size: 48px;
-            font-weight: 900;
-            color: var(--pdc-gold);
-        }
-
-        .player-box .remaining {
-            font-size: 36px;
-            color: white;
-            margin-top: 10px;
-        }
-
-        .player-box.active {
-            transform: scale(1.05);
-        }
-
-        .player-box.active .name {
-            color: var(--pdc-gold);
-        }
-
-        .vs-divider {
-            font-size: 24px;
-            color: #555;
-            font-weight: bold;
-        }
-
-        .leg-info {
-            text-align: center;
-            padding: 10px;
-            color: #888;
-            font-size: 14px;
-        }
-
-        .dart-buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            padding: 20px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .dart-btn {
-            padding: 15px;
-            background: #1a1f35;
-            border: 2px solid #333;
-            border-radius: 8px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
             cursor: pointer;
         }
 
-        .dart-btn:hover {
-            border-color: var(--pdc-gold);
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .dart-btn.checkout {
-            background: rgba(0, 179, 89, 0.2);
-            border-color: var(--pdc-green);
+        .btn-exit-small:hover {
+            background: #444;
         }
 
         /* Match Result Modal */
@@ -1050,6 +1197,156 @@
             .bracket-match {
                 min-height: 50px;
                 padding: 8px 10px;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 16px;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .header.career-active h1 {
+                display: none;
+            }
+            
+            .header.career-active {
+                justify-content: center;
+            }
+            
+            .header-buttons {
+                gap: 5px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .header-buttons .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .menu-title {
+                font-size: 32px;
+            }
+            
+            .menu-subtitle {
+                font-size: 14px;
+            }
+            
+            .menu-btn {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+            
+            .screen {
+                padding: 15px;
+            }
+            
+            .creation-section {
+                padding: 15px;
+            }
+            
+            .player-type-toggle {
+                flex-direction: column;
+            }
+            
+            .stat-slider-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .player-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .player-avatar {
+                margin: 0 auto;
+            }
+            
+            .player-stats-row {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .week-display {
+                padding: 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .event-item {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .event-date {
+                width: auto;
+            }
+            
+            .event-name {
+                width: 100%;
+                order: -1;
+            }
+            
+            /* Match Screen Mobile */
+            .match-scoreboard {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .match-player {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .match-controls {
+                flex-direction: column;
+            }
+            
+            .match-controls .btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 14px;
+            }
+            
+            .menu-title {
+                font-size: 24px;
+            }
+            
+            .dashboard-card {
+                padding: 15px;
+            }
+            
+            .player-stat .value {
+                font-size: 18px;
+            }
+            
+            .oom-rank {
+                font-size: 28px !important;
+            }
+            
+            /* Event Modal Mobile */
+            .modal-content {
+                padding: 20px;
+                margin: 10px;
+                max-height: 90vh;
+                overflow-y: auto;
             }
         }
     </style>
@@ -1342,34 +1639,56 @@
         <div class="bracket-wrapper" id="bracket-container"></div>
     </div>
 
-    <!-- Match Screen -->
+    <!-- Match Screen - from darts.html -->
     <div id="match-screen">
-        <div class="match-header">
-            <h2 id="match-event-name">Event Name</h2>
-            <div class="round-info" id="match-round-info">Round - First to X</div>
+        <div class="event-bar">
+            <button class="btn-exit-small" style="position: absolute; left: 10px; top: 5px; right:auto;"
+                onclick="CareerMatch.exitMatch()">EXIT</button>
+            <span id="txt-event-header">EVENT NAME</span>
         </div>
-        <div class="scoreboard">
-            <div class="player-box" id="p1-box">
-                <img id="p1-flag" src="" alt="">
-                <div class="name" id="p1-name">Player 1</div>
-                <div class="score" id="p1-legs">0</div>
-                <div class="remaining" id="p1-remaining">501</div>
+        <div class="scoreboard-header" id="scoreboard-header">
+            <div class="player-card" id="card-p0">
+                <div class="name-strip">
+                    <div class="starter-dot" id="dot-p0"></div>
+                    <img class="flag" id="flag-p0" src="" alt="">
+                    <span class="p-name" id="name-p0">PLAYER 1</span>
+                </div>
+                <div class="score-strip">
+                    <div class="p-score" id="score-p0">501</div>
+                    <div class="p-avg" id="avg-p0">AVG 0.00</div>
+                </div>
             </div>
-            <div class="vs-divider">VS</div>
-            <div class="player-box" id="p2-box">
-                <img id="p2-flag" src="" alt="">
-                <div class="name" id="p2-name">Player 2</div>
-                <div class="score" id="p2-legs">0</div>
-                <div class="remaining" id="p2-remaining">501</div>
+            <div class="player-card" id="card-p1">
+                <div class="name-strip">
+                    <div class="starter-dot" id="dot-p1"></div>
+                    <img class="flag" id="flag-p1" src="" alt="">
+                    <span class="p-name" id="name-p1">PLAYER 2</span>
+                </div>
+                <div class="score-strip">
+                    <div class="p-score" id="score-p1">501</div>
+                    <div class="p-avg" id="avg-p1">AVG 0.00</div>
+                </div>
             </div>
         </div>
-        <div class="leg-info" id="leg-info">Leg 1 - Player 1 to throw</div>
-        <div style="text-align: center; padding: 20px;">
-            <button class="btn btn-gold" onclick="CareerMatch.throwDart()" id="btn-throw">🎯 THROW</button>
-            <button class="btn btn-secondary" onclick="CareerMatch.simLeg()" style="margin-left: 10px;">⏩ SIM LEG</button>
-            <button class="btn btn-secondary" onclick="CareerMatch.simMatch()" style="margin-left: 10px;">⏭️ SIM MATCH</button>
+        <div class="visit-board" id="visit-container"></div>
+        <div class="match-controls">
+            <button class="btn btn-gold" onclick="CareerMatch.throwDart()">🎯 THROW</button>
+            <button class="btn btn-secondary" onclick="CareerMatch.simLeg()">⏩ SIM LEG</button>
+            <button class="btn btn-secondary" onclick="CareerMatch.simMatch()">⏭️ SIM MATCH</button>
         </div>
-        <div id="visit-log" style="text-align: center; padding: 10px; color: #888; max-height: 150px; overflow-y: auto;"></div>
+        <div class="bottom-bar">
+            <div class="legs-display">
+                <div class="score-box-left">
+                    <div class="leg-name" id="bot-name-p0">NAME</div>
+                    <div class="main-score" id="bot-legs-p0">0</div>
+                </div>
+                <div class="leg-label"><span id="lbl-score-type">LEGS</span></div>
+                <div class="score-box-right">
+                    <div class="main-score" id="bot-legs-p1">0</div>
+                    <div class="leg-name" id="bot-name-p1">NAME</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Match Result Modal -->
@@ -1666,6 +1985,14 @@
             showScreen: (screenId) => {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById(screenId).classList.add('active');
+                
+                // Hide header title when in career (not main menu or create screen)
+                const header = document.querySelector('.header');
+                if (screenId === 'dashboard-screen' || screenId === 'tournament-screen') {
+                    header.classList.add('career-active');
+                } else {
+                    header.classList.remove('career-active');
+                }
             },
 
             showMainMenu: () => {
@@ -2635,6 +2962,7 @@
                     
                     Career.state = saveData.state;
                     Career.showScreen('dashboard-screen');
+                    document.querySelector('.header').classList.add('career-active');
                     Career.renderDashboard();
                     Career.notify('Career loaded successfully!', 'success');
                     
@@ -2741,6 +3069,7 @@
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('tournament-screen').style.display = 'flex';
                 document.getElementById('tourn-title').textContent = event.name;
+                document.querySelector('.header').classList.add('career-active');
                 
                 CareerTournament.renderBracket();
             },
@@ -3107,33 +3436,88 @@
                 const m = s.match;
                 const target = s.roundInfo.target;
                 
-                document.getElementById('match-event-name').textContent = CareerTournament.state.event.name;
-                document.getElementById('match-round-info').textContent = `${s.roundInfo.name} - First to ${target} Legs`;
+                // Event header
+                document.getElementById('txt-event-header').textContent = `${CareerTournament.state.event.name} - ${s.roundInfo.name}`;
                 
-                // Player 1
-                document.getElementById('p1-flag').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p1.country)}.png`;
-                document.getElementById('p1-name').textContent = m.p1.name + (m.p1.isCareerPlayer ? ' (YOU)' : '');
-                document.getElementById('p1-legs').textContent = s.p1Score;
-                document.getElementById('p1-remaining').textContent = s.p1Remaining;
+                // Player 0 (p1)
+                document.getElementById('flag-p0').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p1.country)}.png`;
+                document.getElementById('name-p0').textContent = m.p1.name;
+                document.getElementById('score-p0').textContent = s.p1Remaining;
+                const avg1 = s.p1Darts > 0 ? ((s.p1TotalPoints / s.p1Darts) * 3).toFixed(2) : '0.00';
+                document.getElementById('avg-p0').textContent = `AVG ${avg1}`;
                 
-                // Player 2
-                document.getElementById('p2-flag').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p2.country)}.png`;
-                document.getElementById('p2-name').textContent = m.p2.name + (m.p2.isCareerPlayer ? ' (YOU)' : '');
-                document.getElementById('p2-legs').textContent = s.p2Score;
-                document.getElementById('p2-remaining').textContent = s.p2Remaining;
+                // Player 1 (p2)
+                document.getElementById('flag-p1').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p2.country)}.png`;
+                document.getElementById('name-p1').textContent = m.p2.name;
+                document.getElementById('score-p1').textContent = s.p2Remaining;
+                const avg2 = s.p2Darts > 0 ? ((s.p2TotalPoints / s.p2Darts) * 3).toFixed(2) : '0.00';
+                document.getElementById('avg-p1').textContent = `AVG ${avg2}`;
                 
                 // Active player highlight
-                document.getElementById('p1-box').classList.toggle('active', s.currentThrower === 1);
-                document.getElementById('p2-box').classList.toggle('active', s.currentThrower === 2);
+                document.getElementById('card-p0').classList.toggle('active', s.currentThrower === 1);
+                document.getElementById('card-p1').classList.toggle('active', s.currentThrower === 2);
                 
-                // Leg info
-                const throwerName = s.currentThrower === 1 ? m.p1.name : m.p2.name;
-                document.getElementById('leg-info').textContent = `Leg ${s.legNumber} - ${throwerName} to throw`;
+                // Starter dots
+                document.getElementById('dot-p0').style.display = s.legStarter === 1 ? 'block' : 'none';
+                document.getElementById('dot-p1').style.display = s.legStarter === 2 ? 'block' : 'none';
                 
-                // Visit log
-                document.getElementById('visit-log').innerHTML = s.visitLog.slice(-10).map(v => 
-                    `<div style="color:${v.checkout ? 'var(--pdc-green)' : '#888'};">${v.player}: ${v.score}${v.checkout ? ' ✓' : ''}</div>`
-                ).join('');
+                // Bottom bar - legs
+                document.getElementById('bot-name-p0').textContent = m.p1.name.split(' ').pop();
+                document.getElementById('bot-legs-p0').textContent = s.p1Score;
+                document.getElementById('bot-name-p1').textContent = m.p2.name.split(' ').pop();
+                document.getElementById('bot-legs-p1').textContent = s.p2Score;
+                document.getElementById('lbl-score-type').textContent = `FT ${target}`;
+                
+                // Visit board - render last visits
+                const visitContainer = document.getElementById('visit-container');
+                visitContainer.innerHTML = '';
+                
+                // Group visits by round number
+                const roundVisits = {};
+                let currentRound = 1;
+                let p1Visits = [];
+                let p2Visits = [];
+                
+                s.visitLog.forEach((v, idx) => {
+                    if (v.player === m.p1.name) {
+                        p1Visits.push(v);
+                    } else {
+                        p2Visits.push(v);
+                    }
+                });
+                
+                // Show last 10 rounds
+                const maxRounds = Math.max(p1Visits.length, p2Visits.length);
+                const startRound = Math.max(0, maxRounds - 10);
+                
+                for (let i = startRound; i < maxRounds; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'visit-row';
+                    
+                    const p1Visit = p1Visits[i];
+                    const p2Visit = p2Visits[i];
+                    
+                    row.innerHTML = `
+                        <div class="v-score" style="text-align:right; ${p1Visit?.checkout ? 'color:var(--pdc-green);' : ''}">${p1Visit ? p1Visit.score : ''}</div>
+                        <div class="v-arrow" style="opacity:${s.currentThrower === 1 && i === p1Visits.length - 1 ? '1' : '0'};">◀</div>
+                        <div class="v-round">${i + 1}</div>
+                        <div class="v-arrow" style="opacity:${s.currentThrower === 2 && i === p2Visits.length - 1 ? '1' : '0'};">▶</div>
+                        <div class="v-score" style="text-align:left; ${p2Visit?.checkout ? 'color:var(--pdc-green);' : ''}">${p2Visit ? p2Visit.score : ''}</div>
+                    `;
+                    visitContainer.appendChild(row);
+                }
+                
+                // Scroll to bottom
+                visitContainer.scrollTop = visitContainer.scrollHeight;
+            },
+
+            exitMatch: () => {
+                // Exit back to bracket without finishing
+                if (confirm('Are you sure you want to exit? Match progress will be lost.')) {
+                    CareerMatch.state.active = false;
+                    document.getElementById('match-screen').style.display = 'none';
+                    document.getElementById('tournament-screen').style.display = 'flex';
+                }
             },
 
             throwDart: () => {
@@ -3141,10 +3525,11 @@
                 const m = s.match;
                 const player = s.currentThrower === 1 ? m.p1 : m.p2;
                 const remaining = s.currentThrower === 1 ? s.p1Remaining : s.p2Remaining;
+                const target = s.roundInfo.target;
                 
                 // Set player score for processVisit (same engine as darts.html)
                 player.score = remaining;
-                const isDecider = (s.p1Legs === s.target - 1 && s.p2Legs === s.target - 1);
+                const isDecider = (s.p1Score === target - 1 && s.p2Score === target - 1);
                 const visit = Logic.processVisit(player, isDecider);
                 
                 // Update remaining
