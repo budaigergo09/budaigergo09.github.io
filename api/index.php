@@ -518,34 +518,47 @@ switch ($uri) {
     // Save game data
     case '/save':
         if ($method !== 'POST') jsonResponse(['error' => 'Method not allowed'], 405);
-        
+
         $user = getAuthUser();
         if (!$user) {
             jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
         }
-        
+
         $input = getInput();
         $data = $input['data'] ?? '';
-        
+
         if (!$data) {
             jsonResponse(['success' => false, 'error' => 'No data provided']);
         }
-        
-        $db = getDB();
-        
-        // Delete old saves for this user (keep only latest)
-        $stmt = $db->prepare('DELETE FROM saves WHERE user_id = :user_id');
-        $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
-        $stmt->execute();
-        
-        // Insert new save
-        $stmt = $db->prepare('INSERT INTO saves (user_id, data, saved_at) VALUES (:user_id, :data, :saved_at)');
-        $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
-        $stmt->bindValue(':data', $data, SQLITE3_TEXT);
-        $stmt->bindValue(':saved_at', time(), SQLITE3_INTEGER);
-        $stmt->execute();
-        
-        jsonResponse(['success' => true, 'savedAt' => time()]);
+
+        // Log save attempt for debugging
+        error_log("Save attempt for user {$user['userId']}, data size: " . strlen($data));
+
+        // Check data size (prevent extremely large saves)
+        if (strlen($data) > 10 * 1024 * 1024) { // 10MB limit
+            jsonResponse(['success' => false, 'error' => 'Save data too large']);
+        }
+
+        try {
+            $db = getDB();
+
+            // Delete old saves for this user (keep only latest)
+            $stmt = $db->prepare('DELETE FROM saves WHERE user_id = :user_id');
+            $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
+            $stmt->execute();
+
+            // Insert new save
+            $stmt = $db->prepare('INSERT INTO saves (user_id, data, saved_at) VALUES (:user_id, :data, :saved_at)');
+            $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
+            $stmt->bindValue(':data', $data, SQLITE3_TEXT);
+            $stmt->bindValue(':saved_at', time(), SQLITE3_INTEGER);
+            $stmt->execute();
+
+            jsonResponse(['success' => true, 'savedAt' => time()]);
+        } catch (Exception $e) {
+            error_log("Save failed for user {$user['userId']}: " . $e->getMessage());
+            jsonResponse(['success' => false, 'error' => 'Database error'], 500);
+        }
         break;
     
     // Load game data
