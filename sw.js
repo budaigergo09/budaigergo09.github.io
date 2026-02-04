@@ -47,6 +47,9 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
+      // Check if there were old caches (meaning this is an update, not first install)
+      const hadOldCaches = cacheNames.some(name => name !== CACHE_NAME);
+      
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
@@ -54,13 +57,16 @@ self.addEventListener('activate', event => {
             return caches.delete(cacheName);
           }
         })
-      );
-    }).then(() => {
-      // Notify all clients that there's a new version
-      self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          client.postMessage({ type: 'SW_UPDATED', version: APP_VERSION });
-        });
+      ).then(() => {
+        // Only notify clients of update if there were old caches to delete
+        // This prevents reload on first install
+        if (hadOldCaches) {
+          self.clients.matchAll().then(clients => {
+            clients.forEach(client => {
+              client.postMessage({ type: 'SW_UPDATED', version: APP_VERSION });
+            });
+          });
+        }
       });
     })
   );

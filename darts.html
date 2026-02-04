@@ -13501,31 +13501,34 @@
         let deferredPrompt;
         const installBtn = document.getElementById('pwa-install-btn');
         let swRegistration = null;
+        let isReloading = false; // Prevent double reload
 
         // Register Service Worker with auto-update
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Force browser to always check for new service worker
+                // Check if we already have a controller (not first visit)
+                const hadController = !!navigator.serviceWorker.controller;
+                
                 navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
                     .then(registration => {
                         console.log('SW registered:', registration);
                         swRegistration = registration;
                         
-                        // Check for updates immediately
-                        registration.update();
-                        
-                        // Check for updates every 30 seconds
-                        setInterval(() => {
-                            registration.update();
-                            console.log('Checking for SW updates...');
-                        }, 30000);
-                        
-                        // Also check when page becomes visible again
-                        document.addEventListener('visibilitychange', () => {
-                            if (document.visibilityState === 'visible') {
+                        // Only set up update checking if this isn't first install
+                        if (hadController) {
+                            // Check for updates every 60 seconds (reduced frequency)
+                            setInterval(() => {
                                 registration.update();
-                            }
-                        });
+                                console.log('Checking for SW updates...');
+                            }, 60000);
+                            
+                            // Also check when page becomes visible again
+                            document.addEventListener('visibilitychange', () => {
+                                if (document.visibilityState === 'visible') {
+                                    registration.update();
+                                }
+                            });
+                        }
                         
                         // Listen for new service worker installing
                         registration.addEventListener('updatefound', () => {
@@ -13533,9 +13536,9 @@
                             console.log('New service worker installing...');
                             
                             newWorker.addEventListener('statechange', () => {
+                                // Only trigger update if we had a previous controller (not first install)
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New version available - auto reload
-                                    console.log('New version available, reloading...');
+                                    console.log('New version available');
                                     // Tell the new SW to skip waiting
                                     newWorker.postMessage({ type: 'SKIP_WAITING' });
                                 }
@@ -13546,18 +13549,21 @@
                         console.log('SW registration failed:', error);
                     });
                 
-                // Listen for controller change (new SW took over)
+                // Listen for controller change (new SW took over) - only reload if we had a previous controller
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('New service worker activated, reloading page...');
-                    window.location.reload();
+                    if (hadController && !isReloading) {
+                        isReloading = true;
+                        console.log('New service worker activated, reloading page...');
+                        window.location.reload();
+                    }
                 });
                 
                 // Listen for messages from SW
                 navigator.serviceWorker.addEventListener('message', event => {
                     if (event.data && event.data.type === 'SW_UPDATED') {
                         console.log('SW updated to version:', event.data.version);
-                        // Reload to get the latest version
-                        window.location.reload();
+                        // Don't auto-reload here - controllerchange will handle it
+                        // This prevents double reload
                     }
                 });
             });
