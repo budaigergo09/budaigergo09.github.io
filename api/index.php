@@ -43,8 +43,17 @@ function getDB() {
         created_at INTEGER NOT NULL
     )');
     
-    // Saves table
+    // Saves table (for season mode)
     $db->exec('CREATE TABLE IF NOT EXISTS saves (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        data TEXT NOT NULL,
+        saved_at INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )');
+    
+    // Career saves table (separate from season saves)
+    $db->exec('CREATE TABLE IF NOT EXISTS career_saves (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         data TEXT NOT NULL,
@@ -564,6 +573,64 @@ switch ($uri) {
         }
         break;
     
+    // Save career data (separate from season saves)
+    case '/save-career':
+        if ($method !== 'POST') jsonResponse(['error' => 'Method not allowed'], 405);
+        
+        $user = getAuthUser();
+        if (!$user) {
+            jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
+        }
+        
+        $input = getInput();
+        $data = $input['data'] ?? '';
+        
+        if (!$data) {
+            jsonResponse(['success' => false, 'error' => 'No data provided']);
+        }
+        
+        $db = getDB();
+        
+        // Delete old career saves for this user (keep only latest)
+        $stmt = $db->prepare('DELETE FROM career_saves WHERE user_id = :user_id');
+        $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
+        $stmt->execute();
+        
+        // Insert new career save
+        $stmt = $db->prepare('INSERT INTO career_saves (user_id, data, saved_at) VALUES (:user_id, :data, :saved_at)');
+        $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
+        $stmt->bindValue(':data', $data, SQLITE3_TEXT);
+        $stmt->bindValue(':saved_at', time(), SQLITE3_INTEGER);
+        $stmt->execute();
+        
+        jsonResponse(['success' => true, 'savedAt' => time()]);
+        break;
+    
+    // Load career data
+    case '/load-career':
+        if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
+        
+        $user = getAuthUser();
+        if (!$user) {
+            jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
+        }
+        
+        $db = getDB();
+        $stmt = $db->prepare('SELECT data, saved_at FROM career_saves WHERE user_id = :user_id ORDER BY saved_at DESC LIMIT 1');
+        $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
+        $save = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+        
+        if ($save) {
+            jsonResponse([
+                'success' => true,
+                'data' => $save['data'],
+                'savedAt' => $save['saved_at']
+            ]);
+        } else {
+            jsonResponse(['success' => true, 'data' => null]);
+        }
+        break;
+    
     // Default - API info and admin routes
     default:
         // Admin routes
@@ -575,6 +642,7 @@ switch ($uri) {
                 $db = getDB();
                 $users = $db->querySingle('SELECT COUNT(*) FROM users');
                 $saves = $db->querySingle('SELECT COUNT(*) FROM saves');
+                $careerSaves = $db->querySingle('SELECT COUNT(*) FROM career_saves');
                 $tournaments = $db->querySingle('SELECT COUNT(*) FROM tournaments');
                 $players = $db->querySingle('SELECT COUNT(*) FROM players');
                 $themes = $db->querySingle('SELECT COUNT(*) FROM themes');
@@ -582,6 +650,7 @@ switch ($uri) {
                     'success' => true,
                     'users' => $users,
                     'saves' => $saves,
+                    'careerSaves' => $careerSaves,
                     'tournaments' => $tournaments,
                     'players' => $players,
                     'themes' => $themes
@@ -982,15 +1051,17 @@ switch ($uri) {
         
         jsonResponse([
             'name' => 'PDC Darts Simulator API',
-            'version' => '1.2.6',
+            'version' => '1.2.7',
             'endpoints' => [
                 'GET /api/tournaments' => 'Get all tournaments',
                 'GET /api/players' => 'Get all players',
                 'POST /api/register' => 'Register new user',
                 'POST /api/login' => 'Login and get token',
                 'POST /api/verify' => 'Verify auth token',
-                'POST /api/save' => 'Save game data (requires auth)',
-                'GET /api/load' => 'Load game data (requires auth)',
+                'POST /api/save' => 'Save season game data (requires auth)',
+                'GET /api/load' => 'Load season game data (requires auth)',
+                'POST /api/save-career' => 'Save career mode data (requires auth)',
+                'GET /api/load-career' => 'Load career mode data (requires auth)',
                 'GET /api/admin/stats' => 'Get admin statistics',
                 'GET /api/admin/users' => 'List all users',
                 'DELETE /api/admin/users/:id' => 'Delete a user',
