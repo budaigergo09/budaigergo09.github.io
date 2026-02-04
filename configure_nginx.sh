@@ -40,6 +40,7 @@ server {
     server_name _;
     root $WEB_ROOT;
     index darts.html index.html index.php;
+    client_max_body_size 50M;
     
     location / {
         try_files \$uri \$uri/ =404;

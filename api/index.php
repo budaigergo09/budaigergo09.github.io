@@ -535,7 +535,7 @@ switch ($uri) {
         error_log("Save attempt for user {$user['userId']}, data size: " . strlen($data));
 
         // Check data size (prevent extremely large saves)
-        if (strlen($data) > 10 * 1024 * 1024) { // 10MB limit
+        if (strlen($data) > 50 * 1024 * 1024) { // 50MB limit
             jsonResponse(['success' => false, 'error' => 'Save data too large']);
         }
 

@@ -8,7 +8,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap"
         rel="stylesheet">
-    
+
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0e1a">
@@ -1562,36 +1562,47 @@
         .visit-board.theme-world-championship .v-arrow {
             color: #1E7F43;
         }
+
         .visit-board.theme-premier-league .v-arrow {
             color: #FFD100;
         }
+
         .visit-board.theme-matchplay .v-arrow {
             color: #B22222;
         }
+
         .visit-board.theme-uk-open .v-arrow {
             color: #8402db;
         }
+
         .visit-board.theme-grand-slam .v-arrow {
             color: #FF8C00;
         }
+
         .visit-board.theme-european .v-arrow {
             color: #5B2D8B;
         }
+
         .visit-board.theme-world-grandprix .v-arrow {
             color: #fd0202;
         }
+
         .visit-board.theme-players-championship .v-arrow {
             color: #C8102E;
         }
+
         .visit-board.theme-world-series .v-arrow {
             color: #7A0000;
         }
+
         .visit-board.theme-winmau .v-arrow {
             color: #888888;
         }
+
         .visit-board.theme-masters .v-arrow {
             color: #D4AF37;
         }
+
         .visit-board.theme-minor .v-arrow {
             color: #666666;
         }
@@ -1600,36 +1611,47 @@
         .visit-board.theme-world-championship {
             background: linear-gradient(180deg, rgba(30, 127, 67, 0.3) 0%, rgba(12, 59, 46, 0.5) 100%);
         }
+
         .visit-board.theme-premier-league {
             background: linear-gradient(180deg, rgba(255, 209, 0, 0.15) 0%, rgba(121, 109, 2, 0.3) 100%);
         }
+
         .visit-board.theme-matchplay {
             background: linear-gradient(180deg, rgba(178, 34, 34, 0.3) 0%, rgba(139, 0, 0, 0.5) 100%);
         }
+
         .visit-board.theme-uk-open {
             background: linear-gradient(180deg, rgba(132, 2, 219, 0.3) 0%, rgba(200, 16, 46, 0.3) 100%);
         }
+
         .visit-board.theme-grand-slam {
             background: linear-gradient(180deg, rgba(255, 140, 0, 0.3) 0%, rgba(217, 119, 6, 0.4) 100%);
         }
+
         .visit-board.theme-european {
             background: linear-gradient(180deg, rgba(192, 192, 192, 0.2) 0%, rgba(91, 45, 139, 0.4) 100%);
         }
+
         .visit-board.theme-world-grandprix {
             background: linear-gradient(180deg, rgba(253, 2, 2, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
         }
+
         .visit-board.theme-players-championship {
             background: linear-gradient(180deg, rgba(200, 16, 46, 0.3) 0%, rgba(17, 17, 17, 0.5) 100%);
         }
+
         .visit-board.theme-world-series {
             background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(122, 0, 0, 0.4) 100%);
         }
+
         .visit-board.theme-winmau {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
         }
+
         .visit-board.theme-masters {
             background: linear-gradient(180deg, rgba(212, 175, 55, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
         }
+
         .visit-board.theme-minor {
             background: linear-gradient(180deg, rgba(46, 46, 46, 0.5) 0%, rgba(26, 26, 26, 0.6) 100%);
         }
@@ -2305,14 +2327,17 @@
             gap: 6px;
             transition: all 0.3s ease;
         }
+
         #pwa-install-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
         }
+
         #pwa-install-btn svg {
             width: 16px;
             height: 16px;
         }
+
         #pwa-install-btn.hidden {
             display: none;
         }
@@ -3192,25 +3217,25 @@
                 // This prevents issues if loadThemes is called multiple times
                 const defaultThemes = DataLoader.getDefaultThemes();
                 console.log('[DataLoader] Default themes from getDefaultThemes():', Object.keys(defaultThemes).length, 'keys');
-                
+
                 // Start with full defaults
                 EVENT_THEMES = { ...defaultThemes };
-                
+
                 try {
                     const response = await fetch(API_BASE + '/themes');
                     const data = await response.json();
                     console.log('[DataLoader] Server response:', data);
-                    
+
                     if (data.success && data.themes) {
                         const serverThemes = data.themes;
                         const serverKeys = Object.keys(serverThemes);
                         console.log('[DataLoader] Server themes:', serverKeys.length, 'keys:', serverKeys);
-                        
+
                         // Merge server themes ON TOP of defaults (server overrides/adds)
                         for (const key of serverKeys) {
                             EVENT_THEMES[key] = serverThemes[key];
                         }
-                        
+
                         console.log('[DataLoader] After merge, EVENT_THEMES has', Object.keys(EVENT_THEMES).length, 'keys');
                         return EVENT_THEMES;
                     }
@@ -6479,10 +6504,10 @@
             reset: async () => {
                 // Different confirmation based on login status
                 const isLoggedIn = !!AuthSystem.currentUser;
-                const confirmMsg = isLoggedIn 
+                const confirmMsg = isLoggedIn
                     ? "Reset Career Mode completely? This will also delete your cloud save."
                     : "Reset Career Mode completely?";
-                
+
                 if (!confirm(confirmMsg)) return;
 
                 // If logged in, clear server save
@@ -6549,7 +6574,7 @@
                 };
                 Season.init();
                 Persistence.save();
-                
+
                 // Save the fresh state to cloud if logged in
                 if (isLoggedIn) {
                     try {
@@ -6559,7 +6584,7 @@
                         console.log('Could not save fresh season to cloud:', e);
                     }
                 }
-                
+
                 location.reload();
             },
 
@@ -7305,7 +7330,7 @@
                 // Theme resolution: Use whatever themePreset is set on the tournament
                 // If no themePreset, fall back to tournament type, then "default", then "minor"
                 // The actual theme lookup happens in applyEventColors which has the full default themes
-                
+
                 if (ev.themePreset) {
                     // Tournament has a specific themePreset set - ALWAYS use it
                     Tournament.config.theme = { mode: 'preset', id: ev.themePreset };
@@ -7337,7 +7362,7 @@
                 // 🔥 ROUND TARGETS - Use database rounds if available
                 // ==============================
                 Tournament.config.rounds = [];
-                
+
                 if (ev.rounds && Array.isArray(ev.rounds) && ev.rounds.length > 0) {
                     // Use rounds from database (set in admin panel)
                     Tournament.config.rounds = ev.rounds.map(r => ({
@@ -8278,7 +8303,7 @@
 
                 const idx = Season.state.activeEventIndex;
                 const ev = Season.events[idx];
-                
+
                 // Use prizes from database if available, otherwise fall back to hardcoded PRIZE_STRUCTURE
                 let structure;
                 if (ev.prizes && typeof ev.prizes === 'object' && Object.keys(ev.prizes).length > 0) {
@@ -11935,15 +11960,15 @@
 
                 // 2. PRESET THEME - Just use the themeId directly from Tournament.config
                 const themeId = (themeConfig && themeConfig.mode === 'preset') ? themeConfig.id : null;
-                
+
                 // Get the hardcoded defaults
                 const defaultThemes = DataLoader.getDefaultThemes();
-                
+
                 // Simple lookup: check EVENT_THEMES first, then defaults
                 let matchedTheme = null;
-                
+
                 console.log('[Theme] Using themeId:', themeId);
-                
+
                 if (themeId && EVENT_THEMES && EVENT_THEMES[themeId]) {
                     matchedTheme = EVENT_THEMES[themeId];
                     console.log('[Theme] Found in EVENT_THEMES:', themeId);
@@ -11962,16 +11987,16 @@
                 if (matchedTheme) {
                     // Store current theme globally for use by other functions
                     App.currentTheme = matchedTheme;
-                    
+
                     // Debug log
                     console.log('[Theme] Applied theme:', matchedTheme);
-                    
+
                     // Use color1/color2 format (matches admin.html)
                     const color1 = matchedTheme.color1 || (matchedTheme.gradient ? matchedTheme.gradient[0] : '#111');
                     const color2 = matchedTheme.color2 || (matchedTheme.gradient ? matchedTheme.gradient[1] : '#333');
-                    
+
                     eventBar.style.background = `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
-                    
+
                     // Use theme logo
                     if (matchedTheme.logo) {
                         eventLogo.src = matchedTheme.logo;
@@ -11981,7 +12006,7 @@
                         eventLogo.style.display = 'none';
                         pdcLogo.style.display = 'block';
                     }
-                    
+
                     // Apply CSS class for visit-board and other CSS-only styles
                     const cssClass = matchedTheme.theme || matchedTheme.cssClass;
                     if (cssClass) {
@@ -11989,12 +12014,12 @@
                         if (bottomBar) bottomBar.classList.add(cssClass);
                         if (visitBoard) visitBoard.classList.add(cssClass);
                     }
-                    
+
                     // Apply bottom bar gradient from theme data
                     if (bottomBar) {
                         bottomBar.style.background = `linear-gradient(135deg, ${color2} 0%, ${color1} 100%)`;
                     }
-                    
+
                     // Apply leg name color from theme data
                     if (bottomBar && matchedTheme.legNameColor) {
                         const legNames = bottomBar.querySelectorAll('.leg-name');
@@ -12011,7 +12036,7 @@
                     }
                 }
             },
-            
+
             // Apply active player theme gradient from database
             applyActivePlayerTheme: (activeIdx) => {
                 const theme = App.currentTheme;
@@ -12019,12 +12044,12 @@
                 const card1 = document.getElementById('card-p1');
                 const nameStrip0 = card0 ? card0.querySelector('.name-strip') : null;
                 const nameStrip1 = card1 ? card1.querySelector('.name-strip') : null;
-                
+
                 // Default inactive gradient
                 const inactiveGradient = 'linear-gradient(to bottom, #4c6478, #2f4254)';
                 // Default active gradient (red)
                 const defaultActiveGradient = 'linear-gradient(to bottom, #e00000, #9a0000)';
-                
+
                 if (theme && theme.activeGradient) {
                     const activeGradient = `linear-gradient(to bottom, ${theme.activeGradient[0]}, ${theme.activeGradient[1]})`;
                     if (nameStrip0) nameStrip0.style.background = activeIdx === 0 ? activeGradient : inactiveGradient;
@@ -12034,7 +12059,7 @@
                     if (nameStrip1) nameStrip1.style.background = activeIdx === 1 ? defaultActiveGradient : inactiveGradient;
                 }
             },
-            
+
             startMatch: (p1Override, p2Override, targetOverride) => {
                 requestWakeLock();
                 SOUND_180.load();
@@ -12292,7 +12317,7 @@
 
                 document.getElementById('card-p0').className = `player-card ${pIdx === 0 ? 'active' : ''}`;
                 document.getElementById('card-p1').className = `player-card ${pIdx === 1 ? 'active' : ''}`;
-                
+
                 // Apply dynamic active gradient from theme data
                 App.applyActivePlayerTheme(pIdx);
 
@@ -12460,7 +12485,7 @@
                 const current = App.matchState.currentThrower;
                 document.getElementById('card-p0').className = `player-card ${current === 0 ? 'active' : ''}`;
                 document.getElementById('card-p1').className = `player-card ${current === 1 ? 'active' : ''}`;
-                
+
                 // Apply dynamic active gradient from theme data
                 App.applyActivePlayerTheme(current);
 
@@ -12894,8 +12919,17 @@
             },
 
             getGameState: () => {
+                // Prune season state to remove bulky participation data
+                const prunedSeason = { ...Season.state };
+                if (prunedSeason.completedEvents) {
+                    prunedSeason.completedEvents = prunedSeason.completedEvents.map(ev => {
+                        const { participations, ...rest } = ev;
+                        return rest;
+                    });
+                }
+
                 const state = {
-                    season: Season.state,
+                    season: prunedSeason,
                     app: {
                         config: App.config
                     },
@@ -13250,7 +13284,7 @@
     <!-- PW8 Install Button -->
     <button id="pwa-install-btn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
         </svg>
         Install App
     </button>
@@ -13276,28 +13310,28 @@
                     .then(registration => {
                         console.log('SW registered:', registration);
                         swRegistration = registration;
-                        
+
                         // Check for updates immediately
                         registration.update();
-                        
+
                         // Check for updates every 30 seconds
                         setInterval(() => {
                             registration.update();
                             console.log('Checking for SW updates...');
                         }, 30000);
-                        
+
                         // Also check when page becomes visible again
                         document.addEventListener('visibilitychange', () => {
                             if (document.visibilityState === 'visible') {
                                 registration.update();
                             }
                         });
-                        
+
                         // Listen for new service worker installing
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             console.log('New service worker installing...');
-                            
+
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                     // New version available - auto reload
@@ -13311,13 +13345,13 @@
                     .catch(error => {
                         console.log('SW registration failed:', error);
                     });
-                
+
                 // Listen for controller change (new SW took over)
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     console.log('New service worker activated, reloading page...');
                     window.location.reload();
                 });
-                
+
                 // Listen for messages from SW
                 navigator.serviceWorker.addEventListener('message', event => {
                     if (event.data && event.data.type === 'SW_UPDATED') {

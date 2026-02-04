@@ -74,6 +74,7 @@ server {
     server_name localhost;
     root $WEB_ROOT;
     index index.html index.php;
+    client_max_body_size 50M;
     
     # Main site
     location / {
