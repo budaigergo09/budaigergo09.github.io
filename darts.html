@@ -3235,6 +3235,7 @@
             <div class="event-info-header" id="info-header">EVENT NAME</div>
             <div class="event-info-details" id="info-details"></div>
             <div id="info-results"></div>
+            <div id="info-actions" style="margin-top: 15px;"></div>
             <button class="close-event-info" onclick="Season.closeEventInfo()">CLOSE</button>
         </div>
     </div>
@@ -5644,24 +5645,28 @@
             },
 
             // Determine dart type from score
-            getDartType: (score) => {
+            // isCheckoutDart: if true, even numbers can be doubles; if false, prefer treble interpretation
+            getDartType: (score, isCheckoutDart = false) => {
                 if (score === 0) return { score: 0, isDouble: false, isTreble: false, isBull: false, display: '0' };
                 if (score === 50) return { score: 50, isDouble: true, isTreble: false, isBull: true, display: 'D-BULL' };
                 if (score === 25) return { score: 25, isDouble: false, isTreble: false, isBull: true, display: 'S-BULL' };
 
-                // Check if treble (divisible by 3 and result is 1-20)
+                // Check if treble (divisible by 3 and result is 1-20) - ALWAYS prefer treble for scoring darts
                 if (score % 3 === 0 && score / 3 >= 1 && score / 3 <= 20 && score > 20) {
                     return { score: score, isDouble: false, isTreble: true, isBull: false, display: `T${score / 3}` };
                 }
-                // Check if double (even and half is 1-20)
-                if (score % 2 === 0 && score / 2 >= 1 && score / 2 <= 20) {
+                
+                // Check if double - ONLY if this is a checkout dart
+                if (isCheckoutDart && score % 2 === 0 && score / 2 >= 1 && score / 2 <= 20) {
                     return { score: score, isDouble: true, isTreble: false, isBull: false, display: `D${score / 2}` };
                 }
-                // Single
+                
+                // Single (1-20)
                 if (score >= 1 && score <= 20) {
                     return { score: score, isDouble: false, isTreble: false, isBull: false, display: `${score}` };
                 }
 
+                // For any other score, display as-is (shouldn't happen with realistic generation)
                 return { score: score, isDouble: false, isTreble: false, isBull: false, display: `${score}` };
             },
 
@@ -5680,11 +5685,11 @@
             },
 
             // Animate a single dart throw
-            animateDart: (dartNumber, score, delay = 0) => {
+            animateDart: (dartNumber, score, isCheckoutDart, delay = 0) => {
                 if (!Dartboard.enabled) return;
 
                 setTimeout(() => {
-                    const dartInfo = Dartboard.getDartType(score);
+                    const dartInfo = Dartboard.getDartType(score, isCheckoutDart);
                     const pos = Dartboard.getPosition(score, dartInfo.isDouble, dartInfo.isTreble, dartInfo.isBull);
 
                     // Create dart marker
@@ -5726,7 +5731,8 @@
             },
 
             // Show visit animation (all 3 darts)
-            showVisit: (darts) => {
+            // isCheckout: true if this visit ended the leg (last dart is a double)
+            showVisit: (darts, isCheckout = false) => {
                 if (!Dartboard.enabled) return;
 
                 Dartboard.clearDarts();
@@ -5747,7 +5753,9 @@
                         }
                     }, i * 400);
 
-                    Dartboard.animateDart(i + 1, score, i * 400);
+                    // Only the last dart of a checkout visit is a double
+                    const isCheckoutDart = isCheckout && (i === darts.length - 1);
+                    Dartboard.animateDart(i + 1, score, isCheckoutDart, i * 400);
                 });
             }
         };
@@ -6079,6 +6087,23 @@
                 const isETQualTC = eventType === 'et-qual-tc';
                 const isWCQualIntl = eventType === 'wc-qual-intl';
                 const isWCQualTC = eventType === 'wc-qual-tc';
+                const isETHostNation = eventType === 'et-host-nation';
+
+                // For ET Host Nation qualifiers, get already qualified players
+                let etAlreadyQualified = new Set();
+                if (isETHostNation && eventName) {
+                    const match = eventName.match(/ET(\d+)/);
+                    if (match) {
+                        const targetEvent = 500 + parseInt(match[1]);
+                        const etQualData = Season.state.etQualifiers?.[targetEvent];
+                        if (etQualData) {
+                            (etQualData.tc || []).forEach(name => etAlreadyQualified.add(name));
+                            (etQualData.host || []).forEach(name => etAlreadyQualified.add(name));
+                            (etQualData.nb || []).forEach(name => etAlreadyQualified.add(name));
+                            (etQualData.east || []).forEach(name => etAlreadyQualified.add(name));
+                        }
+                    }
+                }
 
                 // For ET Tour Card Qualifiers, build exclusion list (top 16 world + top 16 pro tour)
                 let excludedNames = new Set();
@@ -6159,7 +6184,10 @@
                         if (isWCQualTC && (excludedNames.has(p.name) || !p.tourCard)) continue;
 
                         // If it's WC International Qualifier or ET Host Nation, do NOT allow auto-qualified players
-                        if ((isWCQualIntl || eventType === 'et-host-nation') && excludedNames.has(p.name)) continue;
+                        if ((isWCQualIntl || isETHostNation) && excludedNames.has(p.name)) continue;
+
+                        // If it's ET Host Nation, exclude players already qualified for this ET
+                        if (isETHostNation && etAlreadyQualified.has(p.name)) continue;
 
                         // Regional filtering for WC International Qualifiers and ET Host Nation
                         if (regionFilter && !regionFilter.includes(p.country)) continue;
@@ -7024,6 +7052,112 @@
                 }
             },
 
+            simulateToEvent: async (targetIdx) => {
+                // Close the event info modal
+                Season.closeEventInfo();
+
+                const targetEvent = Season.events[targetIdx];
+                const eventsToSim = targetIdx - Season.state.activeEventIndex;
+
+                if (eventsToSim <= 0) {
+                    alert("Cannot simulate - this event is already active or completed.");
+                    return;
+                }
+
+                if (!confirm(`⚡ SIMULATE TO ${targetEvent.name}?\n\nThis will auto-play ${eventsToSim} event${eventsToSim > 1 ? 's' : ''} until this tournament is next.\n\nThis cannot be undone.`)) return;
+
+                const overlay = document.createElement('div');
+                overlay.id = 'season-sim-overlay';
+                overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Arial, sans-serif;";
+                overlay.innerHTML = `
+                    <div style="text-align:center; max-width:600px;">
+                        <div style="font-size:32px; font-weight:bold; margin-bottom:20px; color:var(--pdc-gold);">⚡ SIMULATING TO EVENT...</div>
+                        <div id="sim-progress" style="font-size:18px; color:#fff; margin-bottom:10px; min-height:40px; line-height:1.5;">Initializing...</div>
+                        <div id="sim-speed" style="font-size:14px; color:#aaa; margin-bottom:30px;"></div>
+                        <button id="sim-stop-btn" style="padding:12px 30px; font-size:16px; font-weight:bold; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s;">STOP SIMULATION</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                const progressDiv = document.getElementById('sim-progress');
+                const speedDiv = document.getElementById('sim-speed');
+                const stopBtn = document.getElementById('sim-stop-btn');
+                let shouldStop = false;
+
+                stopBtn.addEventListener('click', () => {
+                    shouldStop = true;
+                    stopBtn.disabled = true;
+                    stopBtn.style.opacity = '0.5';
+                    progressDiv.innerText = 'Stopping simulation...';
+                });
+
+                stopBtn.addEventListener('mouseover', () => {
+                    if (!stopBtn.disabled) stopBtn.style.background = '#c23030';
+                });
+                stopBtn.addEventListener('mouseout', () => {
+                    if (!stopBtn.disabled) stopBtn.style.background = '#e74c3c';
+                });
+
+                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+                Season.isBulkSim = true;
+                Season.silentSimulation = true;
+
+                try {
+                    const startTime = performance.now();
+                    let eventsSimulated = 0;
+                    const totalEvents = eventsToSim;
+                    const BATCH_SIZE = 10;
+
+                    while (Season.state.activeEventIndex < targetIdx && !shouldStop) {
+                        const batchStart = Season.state.activeEventIndex;
+                        const batchEnd = Math.min(batchStart + BATCH_SIZE, targetIdx);
+
+                        for (let i = batchStart; i < batchEnd && !shouldStop; i++) {
+                            Season.startEvent(i, true);
+                            eventsSimulated++;
+                        }
+
+                        const ev = Season.events[Math.min(Season.state.activeEventIndex, targetIdx - 1)];
+                        const elapsed = (performance.now() - startTime) / 1000;
+                        const eventsPerSec = (eventsSimulated / elapsed).toFixed(1);
+                        const remaining = totalEvents - eventsSimulated;
+                        const eta = remaining > 0 ? Math.ceil(remaining / (eventsSimulated / elapsed)) : 0;
+
+                        progressDiv.innerText = `Simulating: ${ev.name} (${eventsSimulated}/${totalEvents})`;
+                        speedDiv.innerText = `Speed: ${eventsPerSec} events/sec | ETA: ${eta}s`;
+
+                        await sleep(0);
+                    }
+
+                    if (shouldStop) {
+                        progressDiv.innerText = "SIMULATION STOPPED";
+                    } else {
+                        progressDiv.innerText = `READY: ${targetEvent.name} is now next!`;
+                        const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
+                        speedDiv.innerText = `Completed ${eventsSimulated} events in ${totalTime}s`;
+                    }
+
+                    Season.recalculateProTourOOM();
+                    Season.recalculateChallengeTourOOM();
+
+                    Persistence.save();
+
+                    await sleep(1500);
+                    document.body.removeChild(overlay);
+
+                    Season.renderUI();
+
+                } catch (e) {
+                    console.error(e);
+                    if (document.body.contains(overlay)) document.body.removeChild(overlay);
+                    alert("Simulation interrupted due to error.");
+                } finally {
+                    Season.isBulkSim = false;
+                    Season.silentSimulation = false;
+                }
+            },
+
             init: () => {
                 // Load events from defaults if not already loaded from DB
                 if (Season.events.length === 0) {
@@ -7201,6 +7335,33 @@
                     resultsDiv.innerHTML = resHtml;
                 } else {
                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
+                }
+
+                // Actions div - show "Simulate to this event" button for future events
+                const actionsDiv = document.getElementById('info-actions');
+                if (idx > Season.state.activeEventIndex) {
+                    // This is a future event - show simulate button
+                    actionsDiv.innerHTML = `
+                        <button onclick="Season.simulateToEvent(${idx})" style="
+                            width: 100%;
+                            padding: 12px;
+                            background: linear-gradient(135deg, #e65100, #ff6d00);
+                            border: none;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 14px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            transition: all 0.3s;
+                        " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                            ⚡ SIMULATE TO THIS EVENT
+                        </button>
+                    `;
+                } else if (idx === Season.state.activeEventIndex && !completed) {
+                    // This is the current active event
+                    actionsDiv.innerHTML = `<div style="text-align:center; color:var(--pdc-gold); font-size:12px;">This is the next event to play</div>`;
+                } else {
+                    actionsDiv.innerHTML = '';
                 }
 
                 const modal = document.getElementById('event-info-modal');
@@ -8133,7 +8294,17 @@
                         pool = PLAYERS_DB.filter(p => p.tourCard && !exclude.has(p.name));
                     } else if (ev.type === "et-host-nation") {
                         const hostCode = HOST_NATION[ev.targetEvent];
-                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode) : [];
+                        // Get already qualified players for this ET (from TC qualifier etc.)
+                        const alreadyQualified = new Set();
+                        const etQualData = Season.state.etQualifiers?.[ev.targetEvent];
+                        if (etQualData) {
+                            (etQualData.tc || []).forEach(name => alreadyQualified.add(name));
+                            (etQualData.host || []).forEach(name => alreadyQualified.add(name));
+                            (etQualData.nb || []).forEach(name => alreadyQualified.add(name));
+                            (etQualData.east || []).forEach(name => alreadyQualified.add(name));
+                        }
+                        // Exclude players from host nation who are already qualified
+                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode && !alreadyQualified.has(p.name)) : [];
                         generationRegion = hostCode; // Regen using host nation
                     } else if (ev.type === "et-east-european") {
                         pool = PLAYERS_DB.filter(p => REGION_MAP.east.includes(p.country));
@@ -12878,8 +13049,44 @@
             },
             
             // Generate plausible dart scores for dartboard visualization
+            // Realistic rules: singles (1-20, 25), trebles (3-60 divisible by 3), doubles ONLY on checkout
             generateDartScores: (total, dartsThrown, endLeg, checkoutScore) => {
                 const darts = [];
+                
+                // Valid scoring darts (no doubles unless checkout)
+                // Singles: 1-20, 25 (outer bull)
+                // Trebles: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60
+                const TREBLES = [60, 57, 54, 51, 48, 45, 42, 39, 36, 33, 30, 27, 24, 21, 18, 15, 12, 9, 6, 3];
+                const SINGLES = [20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 25];
+                
+                // Helper to get a realistic scoring dart (single or treble, max 60)
+                const getRealisticScoringDart = (maxScore) => {
+                    const capped = Math.min(maxScore, 60);
+                    if (capped <= 0) return 0;
+                    
+                    // Higher chance of trebles for good scores
+                    if (capped >= 60 && Math.random() < 0.35) return 60;  // T20
+                    if (capped >= 57 && Math.random() < 0.25) return 57;  // T19
+                    if (capped >= 54 && Math.random() < 0.15) return 54;  // T18
+                    
+                    // Otherwise pick a realistic single or small treble
+                    if (Math.random() < 0.6) {
+                        // Single - prefer 20, 19, 18 area
+                        const preferredSingles = [20, 19, 18, 1, 5, 12, 9];
+                        const validSingles = preferredSingles.filter(s => s <= capped);
+                        if (validSingles.length > 0) {
+                            return validSingles[Math.floor(Math.random() * validSingles.length)];
+                        }
+                        return Math.min(capped, Math.floor(Math.random() * 20) + 1);
+                    } else {
+                        // Treble
+                        const validTrebles = TREBLES.filter(t => t <= capped);
+                        if (validTrebles.length > 0) {
+                            return validTrebles[Math.floor(Math.random() * Math.min(3, validTrebles.length))];
+                        }
+                        return Math.min(capped, 20);
+                    }
+                };
                 
                 if (total === 180) {
                     return [60, 60, 60];
@@ -12889,51 +13096,78 @@
                     return [0, 0, 0].slice(0, dartsThrown);
                 }
                 
-                // If ended leg with checkout, last dart is the checkout
-                if (endLeg && checkoutScore > 0) {
+                // If ended leg with checkout, last dart is a double (or bull)
+                if (endLeg && total > 0) {
                     let remaining = total;
-                    // Work backwards - last dart was the checkout (a double or bull)
-                    let lastDart = checkoutScore;
-                    if (checkoutScore <= 40 && checkoutScore % 2 === 0) {
-                        lastDart = checkoutScore; // Double
-                    } else if (checkoutScore === 50) {
-                        lastDart = 50; // Bull
+                    
+                    // Determine the checkout double
+                    // Common checkouts end on D20, D16, D10, D8, D4, D2, Bull
+                    let lastDart;
+                    if (total === 50) {
+                        lastDart = 50; // Bull finish
+                    } else if (total <= 40 && total % 2 === 0) {
+                        lastDart = total; // Direct double
+                    } else {
+                        // Need to figure out what double was hit
+                        // For higher checkouts, assume common doubles
+                        const possibleDoubles = [40, 32, 20, 16, 10, 8, 4, 2];
+                        lastDart = possibleDoubles.find(d => d <= total && (total - d) <= 120) || 40;
                     }
-                    remaining -= lastDart;
+                    
+                    remaining = total - lastDart;
                     
                     if (dartsThrown === 1) {
                         return [lastDart];
                     } else if (dartsThrown === 2) {
-                        return [remaining, lastDart];
+                        // First dart was a setup, second was checkout
+                        const firstDart = Math.min(60, remaining);
+                        return [firstDart, lastDart];
                     } else {
-                        // Split remaining between first two darts
-                        const first = Math.min(60, Math.max(0, remaining));
-                        const second = remaining - first;
-                        return [first >= 0 ? first : 0, second >= 0 ? second : 0, lastDart];
+                        // Three darts: two setup, one checkout
+                        let first = 0, second = 0;
+                        if (remaining >= 60) {
+                            first = 60;
+                            second = Math.min(60, remaining - 60);
+                        } else if (remaining > 0) {
+                            first = getRealisticScoringDart(remaining);
+                            second = remaining - first;
+                            if (second < 0) second = 0;
+                            if (second > 60) {
+                                first = remaining - 60;
+                                second = 60;
+                            }
+                        }
+                        return [first, second, lastDart];
                     }
                 }
                 
-                // Normal scoring visit
+                // Normal scoring visit (no checkout) - only singles and trebles, max 60 each
                 let remaining = total;
                 for (let i = 0; i < dartsThrown; i++) {
+                    if (remaining <= 0) {
+                        darts.push(0);
+                        continue;
+                    }
+                    
                     if (i === dartsThrown - 1) {
-                        darts.push(remaining);
+                        // Last dart gets whatever is remaining (capped at 60)
+                        darts.push(Math.min(60, remaining));
                     } else {
-                        // Generate a plausible score
-                        let dart;
-                        if (remaining >= 60 && Math.random() < 0.4) {
-                            dart = 60; // T20
-                        } else if (remaining >= 57 && Math.random() < 0.3) {
-                            dart = 57; // T19
-                        } else if (remaining >= 20) {
-                            dart = Math.random() < 0.6 ? 20 : Math.floor(Math.random() * 20) + 1;
-                        } else {
-                            dart = Math.min(remaining, Math.floor(Math.random() * 20) + 1);
-                        }
-                        dart = Math.min(dart, remaining);
+                        const dart = getRealisticScoringDart(remaining);
                         darts.push(dart);
                         remaining -= dart;
                     }
+                }
+                
+                // Validate: ensure total matches and no dart exceeds 60
+                const sum = darts.reduce((a, b) => a + b, 0);
+                if (sum !== total) {
+                    // Fallback: redistribute evenly
+                    const perDart = Math.floor(total / dartsThrown);
+                    const remainder = total % dartsThrown;
+                    return Array(dartsThrown).fill(0).map((_, i) => 
+                        Math.min(60, perDart + (i < remainder ? 1 : 0))
+                    );
                 }
                 
                 return darts;
@@ -13006,7 +13240,7 @@
                     if (Dartboard.enabled) {
                         const checkoutScore = result.endLeg ? result.points : 0;
                         const dartScores = App.generateDartScores(result.points, result.dartsThrown, result.endLeg, checkoutScore);
-                        Dartboard.showVisit(dartScores);
+                        Dartboard.showVisit(dartScores, result.endLeg);
                         delay = Math.max(delay, dartScores.length * 400 + 800);
                     }
 
