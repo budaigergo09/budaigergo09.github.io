@@ -1287,7 +1287,7 @@
         }
 
         .btn-play-mini {
-            background: #3498db;
+            background: #dc3545;
             color: white;
             border: none;
             padding: 6px 12px;
@@ -1299,7 +1299,7 @@
         }
 
         .btn-play-mini:hover {
-            background: #2980b9;
+            background: #c82333;
         }
 
         .btn-sim-mini {
@@ -3706,9 +3706,12 @@
 
         // Career global wrappers
         function showNewCareer() {
-            if (typeof Career !== 'undefined') {
-                if (Career.showNewCareer) Career.showNewCareer();
-                else if (Career.showCreation) Career.showCreation();
+            if (typeof Career !== 'undefined' && Career.showCreation) {
+                Career.showCreation();
+            } else {
+                // Fallback: directly show the creation screen
+                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+                document.getElementById('career-creation-screen').style.display = 'flex';
             }
         }
         function loadCareer() {
