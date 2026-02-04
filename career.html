@@ -677,6 +677,376 @@
             color: var(--pdc-gold);
             font-weight: bold;
         }
+
+        /* ==================== TOURNAMENT BRACKET STYLES ==================== */
+        #tournament-screen {
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            max-width: 100%;
+            padding: 0;
+        }
+
+        .tournament-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.9));
+            padding: 15px 20px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .tournament-header h2 {
+            font-size: 20px;
+            color: var(--pdc-gold);
+        }
+
+        .tournament-header .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bracket-wrapper {
+            display: flex;
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+            padding: 30px 20px;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            gap: 60px;
+        }
+
+        .bracket-round-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 300px;
+            flex-shrink: 0;
+        }
+
+        .round-column-header {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.6), rgba(15, 21, 37, 0.6));
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .round-column-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--pdc-gold);
+            text-transform: uppercase;
+        }
+
+        .round-column-format {
+            font-size: 11px;
+            color: #8fa3ad;
+        }
+
+        .bracket-matches-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bracket-match-wrapper {
+            position: relative;
+        }
+
+        .bracket-match {
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-left: 4px solid rgba(255, 215, 0, 0.4);
+            padding: 10px 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-height: 58px;
+        }
+
+        .bracket-match:hover {
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            transform: scale(1.02);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .bracket-match.completed {
+            border-left-color: var(--pdc-gold);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .bracket-match.player-match {
+            border-color: var(--pdc-green);
+            border-left-color: var(--pdc-green);
+            box-shadow: 0 0 15px rgba(0, 179, 89, 0.3);
+        }
+
+        .bm-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bm-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bm-flag {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            object-fit: cover;
+        }
+
+        .bm-name {
+            flex: 1;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bm-score {
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .bm-avg {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .btn-play-match {
+            background: linear-gradient(135deg, var(--pdc-green), #009944);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-play-match:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-sim-match {
+            background: linear-gradient(135deg, #666, #444);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        /* Match Screen */
+        #match-screen {
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 60px);
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+        }
+
+        .match-header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .match-header h2 {
+            color: var(--pdc-gold);
+            font-size: 18px;
+        }
+
+        .match-header .round-info {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            gap: 30px;
+        }
+
+        .player-box {
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .player-box img {
+            width: 60px;
+            height: 40px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .player-box .name {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .player-box .score {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--pdc-gold);
+        }
+
+        .player-box .remaining {
+            font-size: 36px;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .player-box.active {
+            transform: scale(1.05);
+        }
+
+        .player-box.active .name {
+            color: var(--pdc-gold);
+        }
+
+        .vs-divider {
+            font-size: 24px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .leg-info {
+            text-align: center;
+            padding: 10px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .dart-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .dart-btn {
+            padding: 15px;
+            background: #1a1f35;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dart-btn:hover {
+            border-color: var(--pdc-gold);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .dart-btn.checkout {
+            background: rgba(0, 179, 89, 0.2);
+            border-color: var(--pdc-green);
+        }
+
+        /* Match Result Modal */
+        .match-result-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .match-result-content {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 2px solid var(--pdc-gold);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .match-result-content h2 {
+            color: var(--pdc-gold);
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .match-result-content .winner-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .match-result-content .final-score {
+            font-size: 36px;
+            color: var(--pdc-gold);
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .match-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .match-stats .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .match-stats .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--pdc-gold);
+        }
+
+        .match-stats .stat-label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .bracket-wrapper {
+                padding: 15px 10px;
+                gap: 40px;
+            }
+            .bracket-round-column {
+                min-width: 260px;
+            }
+            .bracket-match {
+                min-height: 50px;
+                padding: 8px 10px;
+            }
+        }
     </style>
 </head>
 
@@ -952,6 +1322,68 @@
         </div>
     </div>
 
+    <!-- Tournament Bracket Screen -->
+    <div id="tournament-screen">
+        <div class="tournament-header">
+            <h2 id="tourn-title">Tournament Name</h2>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="CareerTournament.simCurrentRound()">⏩ SIM ROUND</button>
+                <button class="btn btn-danger" onclick="CareerTournament.exitTournament()">❌ EXIT</button>
+            </div>
+        </div>
+        <div class="bracket-wrapper" id="bracket-container"></div>
+    </div>
+
+    <!-- Match Screen -->
+    <div id="match-screen">
+        <div class="match-header">
+            <h2 id="match-event-name">Event Name</h2>
+            <div class="round-info" id="match-round-info">Round - First to X</div>
+        </div>
+        <div class="scoreboard">
+            <div class="player-box" id="p1-box">
+                <img id="p1-flag" src="" alt="">
+                <div class="name" id="p1-name">Player 1</div>
+                <div class="score" id="p1-legs">0</div>
+                <div class="remaining" id="p1-remaining">501</div>
+            </div>
+            <div class="vs-divider">VS</div>
+            <div class="player-box" id="p2-box">
+                <img id="p2-flag" src="" alt="">
+                <div class="name" id="p2-name">Player 2</div>
+                <div class="score" id="p2-legs">0</div>
+                <div class="remaining" id="p2-remaining">501</div>
+            </div>
+        </div>
+        <div class="leg-info" id="leg-info">Leg 1 - Player 1 to throw</div>
+        <div style="text-align: center; padding: 20px;">
+            <button class="btn btn-gold" onclick="CareerMatch.throwDart()" id="btn-throw">🎯 THROW</button>
+            <button class="btn btn-secondary" onclick="CareerMatch.simLeg()" style="margin-left: 10px;">⏩ SIM LEG</button>
+            <button class="btn btn-secondary" onclick="CareerMatch.simMatch()" style="margin-left: 10px;">⏭️ SIM MATCH</button>
+        </div>
+        <div id="visit-log" style="text-align: center; padding: 10px; color: #888; max-height: 150px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- Match Result Modal -->
+    <div class="match-result-modal" id="match-result-modal">
+        <div class="match-result-content">
+            <h2>MATCH COMPLETE</h2>
+            <div class="winner-name" id="result-winner">Winner Name</div>
+            <div class="final-score" id="result-score">3 - 1</div>
+            <div class="match-stats">
+                <div class="stat">
+                    <div class="stat-value" id="result-avg-1">95.5</div>
+                    <div class="stat-label">P1 Average</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="result-avg-2">92.3</div>
+                    <div class="stat-label">P2 Average</div>
+                </div>
+            </div>
+            <button class="btn btn-gold" onclick="CareerMatch.closeResult()" style="width: 100%;">CONTINUE</button>
+        </div>
+    </div>
+
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
@@ -1059,6 +1491,73 @@
     <script src="shared.js"></script>
 
     <script>
+        // ==================== ROUND FORMATS (from darts.html) ====================
+        const ROUND_FORMATS = {
+            'masters': { L16: 6, QF: 6, SF: 8, F: 8 },
+            'major': { QF: 10, SF: 10, F: 11 },
+            'minor': { L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'matchplay': { L32: 10, L16: 11, QF: 16, SF: 17, F: 18 },
+            'masters-final': { L32: 6, L16: 6, QF: 10, SF: 11, F: 11 },
+            'grandprix': { L32: 2, L16: 3, QF: 3, SF: 5, F: 6 },
+            'european-championship': { L32: 6, L16: 6, QF: 10, SF: 11, F: 11 },
+            'europeanf': { L32: 6, L16: 6, QF: 10, SF: 11, F: 11 },
+            'players': { L128: 6, L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'challenge': { L128: 5, L64: 5, L32: 5, L16: 5, QF: 5, SF: 6, F: 6 },
+            'grandslam': { Group: 5, L16: 10, QF: 16, SF: 16, F: 16 },
+            'grand-slam': { Group: 5, L16: 10, QF: 16, SF: 16, F: 16 },
+            'playersf': { L64: 6, L32: 6, L16: 10, QF: 10, SF: 11, F: 11 },
+            'pc-finals': { L64: 6, L32: 6, L16: 10, QF: 10, SF: 11, F: 11 },
+            'q-school': { L256: 5, L128: 5, L64: 5, L32: 5, L16: 5, QF: 5, SF: 6, F: 6 },
+            'world': { L128: 3, L64: 3, L32: 4, L16: 4, QF: 5, SF: 6, F: 7 },
+            'uk-open': { L128: 6, L64: 6, L32: 6, L16: 10, QF: 10, SF: 11, F: 11 },
+            'et-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'et-host-nation': { QF: 6, SF: 7, F: 8 },
+            'et-east-european': { L16: 6, QF: 6, SF: 7, F: 8 },
+            'et-nordic-baltic': { L16: 6, QF: 6, SF: 7, F: 8 },
+            'ws-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'gs-qual-tc': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'wmasters-qual': { L64: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'winmaudm': { L32: 6, L16: 6, QF: 6, SF: 7, F: 8 },
+            'premier-league': { L16: 6, QF: 6, SF: 8, F: 10 },
+            'ws-finals': { L32: 6, L16: 6, QF: 6, SF: 7, F: 8 }
+        };
+
+        // ==================== PRIZE STRUCTURE (from darts.html) ====================
+        const PRIZE_STRUCTURE = {
+            'masters': { 16: 1000, 8: 3000, 4: 5000, 2: 8000, 1: 12000 },
+            'masters-final': { 32: 5000, 16: 10000, 8: 17500, 4: 30000, 2: 60000, 1: 100000 },
+            'q-school': { 256: 0, 128: 0, 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'minor': { 32: 2500, 16: 4000, 8: 6000, 4: 8500, 2: 12000, 1: 30000 },
+            'major': { 128: 0, 64: 2500, 32: 5000, 16: 10000, 8: 20000, 4: 40000, 2: 80000, 1: 150000 },
+            'world': { 128: 15000, 64: 25000, 32: 35000, 16: 60000, 8: 100000, 4: 200000, 2: 400000, 1: 1000000 },
+            'players': { 128: 0, 64: 1000, 32: 2000, 16: 3000, 8: 5000, 4: 7500, 2: 10000, 1: 15000 },
+            'challenge': { 128: 0, 64: 100, 32: 250, 16: 350, 8: 750, 4: 1000, 2: 2000, 1: 3000 },
+            'uk-open': { 160: 0, 128: 1000, 96: 1500, 64: 2500, 32: 5000, 16: 10000, 8: 15000, 4: 30000, 2: 50000, 1: 110000 },
+            'et-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-host-nation': { 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-east-european': { 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'et-nordic-baltic': { 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'ws-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'gs-qual-tc': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'wmasters-qual': { 64: 0, 32: 0, 16: 0, 8: 0, 4: 0, 2: 0, 1: 0 },
+            'winmaudm': { 32: 5000, 16: 10000, 8: 17500, 4: 30000, 2: 50000, 1: 100000 },
+            'matchplay': { 32: 10000, 16: 15000, 8: 30000, 4: 50000, 2: 100000, 1: 200000 },
+            'european-championship': { 32: 7500, 16: 15000, 8: 25000, 4: 40000, 2: 60000, 1: 120000 },
+            'europeanf': { 32: 7500, 16: 15000, 8: 25000, 4: 40000, 2: 60000, 1: 120000 },
+            'grandprix': { 32: 7500, 16: 15000, 8: 25000, 4: 40000, 2: 60000, 1: 120000 },
+            'pc-finals': { 64: 3000, 32: 6500, 16: 10000, 8: 20000, 4: 30000, 2: 60000, 1: 120000 },
+            'playersf': { 64: 3000, 32: 6500, 16: 10000, 8: 20000, 4: 30000, 2: 60000, 1: 120000 },
+            'grandslam': { 32: 5000, 16: 12250, 8: 25000, 4: 50000, 2: 70000, 1: 150000 },
+            'grand-slam': { 32: 5000, 16: 12250, 8: 25000, 4: 50000, 2: 70000, 1: 150000 },
+            'premier-league': { 16: 5000, 8: 10000, 4: 25000, 2: 50000, 1: 100000 },
+            'ws-finals': { 32: 5000, 16: 10000, 8: 15000, 4: 25000, 2: 50000, 1: 100000 }
+        };
+
+        // Helper to get round name from player count
+        function getRoundName(playersInRound) {
+            return { 256: "L256", 128: "L128", 64: "L64", 32: "L32", 16: "L16", 8: "QF", 4: "SF", 2: "F" }[playersInRound] || "R" + playersInRound;
+        }
+
         // ==================== PLAYER DATABASE ====================
         // This will be populated from database or use defaults
         let PLAYERS_DB = [
@@ -1702,18 +2201,21 @@
                 document.getElementById('event-modal').classList.remove('active');
             },
 
-            // Enter event (simplified simulation)
+            // Enter event - starts actual tournament bracket
             enterEvent: () => {
                 Career.closeEventModal();
                 
+                const ev = Career.state.events[Career.currentEventIdx];
+                CareerTournament.start(ev);
+            },
+
+            // Called when tournament is complete
+            finishTournament: (result) => {
                 const ev = Career.state.events[Career.currentEventIdx];
                 const p = Career.state.player;
                 
                 // Add fatigue for playing
                 p.fatigue = Math.min(100, p.fatigue + 15);
-                
-                // Simulate tournament result based on player skill
-                const result = Career.simulateTournament(ev);
                 
                 // Record result
                 Career.state.completedEvents.push({
@@ -1749,52 +2251,13 @@
                 // Move to next event
                 Career.state.currentEventIndex++;
                 
+                // Return to dashboard
+                document.getElementById('tournament-screen').style.display = 'none';
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('dashboard-screen').classList.add('active');
+                
                 Career.renderDashboard();
                 Career.notify(`${ev.name}: ${result.position} - £${result.prize.toLocaleString()}`, 'success');
-            },
-
-            // Simplified tournament simulation
-            simulateTournament: (event) => {
-                const p = Career.state.player;
-                const effectiveAvg = p.avg * (1 - p.fatigue / 200) * (0.8 + p.form / 250);
-                
-                // Calculate probability based on effective average vs field
-                const fieldStrength = 92; // Average field strength
-                const skillDiff = effectiveAvg - fieldStrength;
-                
-                // Base probability of winning
-                let winProb = 0.02 + (skillDiff / 100) * 0.3;
-                winProb = Math.max(0.001, Math.min(0.5, winProb));
-                
-                const rand = Math.random();
-                
-                // Determine position
-                let position, prize;
-                
-                if (rand < winProb) {
-                    position = '1st';
-                    prize = Math.floor(event.prize * 0.2);
-                } else if (rand < winProb * 3) {
-                    position = '2nd';
-                    prize = Math.floor(event.prize * 0.1);
-                } else if (rand < winProb * 6) {
-                    position = 'SF';
-                    prize = Math.floor(event.prize * 0.05);
-                } else if (rand < winProb * 12) {
-                    position = 'QF';
-                    prize = Math.floor(event.prize * 0.025);
-                } else if (rand < winProb * 24) {
-                    position = 'L16';
-                    prize = Math.floor(event.prize * 0.0125);
-                } else if (rand < winProb * 48) {
-                    position = 'L32';
-                    prize = Math.floor(event.prize * 0.006);
-                } else {
-                    position = 'L64';
-                    prize = Math.floor(event.prize * 0.003);
-                }
-                
-                return { position, prize };
             },
 
             // Update qualifications based on results
@@ -2113,6 +2576,587 @@
                     localStorage.removeItem('pdc_career_save');
                     Career.notify('Career save deleted.', 'success');
                 }
+            }
+        };
+
+        // ==================== CAREER TOURNAMENT SYSTEM ====================
+        const CareerTournament = {
+            state: {
+                active: false,
+                event: null,
+                bracketData: [],
+                rounds: [],
+                currentRound: 0,
+                playerPosition: null, // Track player's position in bracket
+                playerEliminated: false,
+                prizeWon: 0
+            },
+
+            // Start a tournament
+            start: (event) => {
+                const playerCount = event.players || 128;
+                const numRounds = Math.log2(playerCount);
+                const eventType = event.type || 'players';
+                
+                // Build rounds configuration from ROUND_FORMATS
+                const formats = ROUND_FORMATS[eventType] || ROUND_FORMATS['players'];
+                const rounds = [];
+                let playersInRound = playerCount;
+                
+                for (let i = 0; i < numRounds; i++) {
+                    const roundName = getRoundName(playersInRound);
+                    rounds.push({
+                        name: roundName,
+                        target: formats[roundName] || 6,
+                        playersRemaining: playersInRound
+                    });
+                    playersInRound = playersInRound / 2;
+                }
+                
+                // Build participant list
+                const careerPlayer = { ...Career.state.player, isCareerPlayer: true };
+                let participants = [careerPlayer];
+                
+                // Add other eligible players
+                const eligiblePlayers = CareerTournament.getEligiblePlayers(event);
+                
+                // Shuffle and take needed count
+                for (let i = eligiblePlayers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [eligiblePlayers[i], eligiblePlayers[j]] = [eligiblePlayers[j], eligiblePlayers[i]];
+                }
+                
+                participants = participants.concat(eligiblePlayers.slice(0, playerCount - 1));
+                
+                // Seed the bracket
+                const seededBracket = CareerTournament.seedBracket(participants, playerCount);
+                
+                // Find player's position
+                const playerIdx = seededBracket.findIndex(p => p && p.isCareerPlayer);
+                
+                // Create first round matches
+                const r0 = [];
+                for (let i = 0; i < seededBracket.length; i += 2) {
+                    r0.push({
+                        p1: seededBracket[i],
+                        p2: seededBracket[i + 1],
+                        winner: null,
+                        score: null,
+                        averages: null
+                    });
+                }
+                
+                // Initialize state
+                CareerTournament.state = {
+                    active: true,
+                    event: event,
+                    bracketData: [r0],
+                    rounds: rounds,
+                    currentRound: 0,
+                    playerPosition: Math.floor(playerIdx / 2),
+                    playerEliminated: false,
+                    prizeWon: 0
+                };
+                
+                // Initialize remaining rounds
+                for (let i = 1; i < numRounds; i++) {
+                    CareerTournament.state.bracketData.push([]);
+                }
+                
+                // Show tournament screen
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('tournament-screen').style.display = 'flex';
+                document.getElementById('tourn-title').textContent = event.name;
+                
+                CareerTournament.renderBracket();
+            },
+
+            getEligiblePlayers: (event) => {
+                const type = event.type || 'players';
+                let eligible = [];
+                
+                if (type === 'q-school') {
+                    eligible = PLAYERS_DB.filter(p => !p.tourCard && p.name !== Career.state.player.name);
+                } else if (type === 'challenge') {
+                    eligible = PLAYERS_DB.filter(p => !p.tourCard && p.name !== Career.state.player.name);
+                } else {
+                    eligible = PLAYERS_DB.filter(p => p.tourCard && p.name !== Career.state.player.name);
+                }
+                
+                return eligible.map(p => ({ ...p }));
+            },
+
+            seedBracket: (participants, size) => {
+                // Sort by average (descending)
+                const sorted = [...participants].sort((a, b) => {
+                    if (!a) return 1;
+                    if (!b) return -1;
+                    return (b.avg || 0) - (a.avg || 0);
+                });
+                
+                // Add seed numbers
+                sorted.forEach((p, i) => {
+                    if (p) p.seed = i + 1;
+                });
+                
+                // Generate bracket order
+                const order = CareerTournament.generateBracketOrder(size);
+                const bracket = [];
+                
+                order.forEach(seedNum => {
+                    if (seedNum <= sorted.length) {
+                        bracket.push(sorted[seedNum - 1]);
+                    } else {
+                        bracket.push(null);
+                    }
+                });
+                
+                return bracket;
+            },
+
+            generateBracketOrder: (size) => {
+                if (size === 2) return [1, 2];
+                if (size === 1) return [1];
+                
+                const halfSize = size / 2;
+                const topHalf = CareerTournament.generateBracketOrder(halfSize);
+                const bottomHalf = topHalf.map(seed => size + 1 - seed);
+                
+                const result = [];
+                for (let i = 0; i < topHalf.length; i++) {
+                    result.push(topHalf[i]);
+                    result.push(bottomHalf[i]);
+                }
+                return result;
+            },
+
+            renderBracket: () => {
+                const container = document.getElementById('bracket-container');
+                container.innerHTML = '';
+                
+                CareerTournament.state.rounds.forEach((roundInfo, roundIdx) => {
+                    const matches = CareerTournament.state.bracketData[roundIdx] || [];
+                    const column = document.createElement('div');
+                    column.className = 'bracket-round-column';
+                    
+                    // Header
+                    const header = document.createElement('div');
+                    header.className = 'round-column-header';
+                    header.innerHTML = `
+                        <div class="round-column-name">${roundInfo.name}</div>
+                        <div class="round-column-format">First to ${roundInfo.target} Legs</div>
+                    `;
+                    column.appendChild(header);
+                    
+                    // Matches list
+                    const matchesList = document.createElement('div');
+                    matchesList.className = 'bracket-matches-list';
+                    
+                    if (matches.length === 0) {
+                        matchesList.innerHTML = '<div style="text-align:center; color:#555; padding:20px;">Awaiting Results</div>';
+                    } else {
+                        matches.forEach((m, idx) => {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'bracket-match-wrapper';
+                            if (m.winner) wrapper.classList.add('completed');
+                            
+                            const card = document.createElement('div');
+                            card.className = 'bracket-match';
+                            if (m.winner) card.classList.add('completed');
+                            
+                            // Check if this is player's match
+                            const isPlayerMatch = (m.p1 && m.p1.isCareerPlayer) || (m.p2 && m.p2.isCareerPlayer);
+                            if (isPlayerMatch && !m.winner) card.classList.add('player-match');
+                            
+                            const getPlayerHTML = (p, score, avg, isWinner) => {
+                                if (!p) return '<div class="bm-row" style="color:#333;">TBD</div>';
+                                const flag = `https://flagcdn.com/w40/${Career.getCountryCode(p.country)}.png`;
+                                const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : 
+                                             (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
+                                const seedTxt = p.seed && !m.winner ? ` (${p.seed})` : '';
+                                const avgTxt = avg ? ` (${avg})` : '';
+                                const youTag = p.isCareerPlayer ? ' <span style="color:var(--pdc-green); font-size:10px;">YOU</span>' : '';
+                                
+                                return `
+                                    <div class="bm-row" style="${style}">
+                                        <img src="${flag}" class="bm-flag" onerror="this.style.display='none'">
+                                        <span class="bm-name">${p.name}${seedTxt}${youTag}</span>
+                                        <span class="bm-avg">${avgTxt}</span>
+                                        <span class="bm-score">${score !== null ? score : ''}</span>
+                                    </div>
+                                `;
+                            };
+                            
+                            let html = '<div class="bm-content">';
+                            html += getPlayerHTML(m.p1, m.score?.[0], m.averages?.[0], m.winner === m.p1);
+                            html += getPlayerHTML(m.p2, m.score?.[1], m.averages?.[1], m.winner === m.p2);
+                            html += '</div>';
+                            
+                            // Add action buttons for playable matches
+                            if (!m.winner && m.p1 && m.p2 && roundIdx === CareerTournament.state.currentRound) {
+                                if (isPlayerMatch) {
+                                    html += `<button class="btn-play-match" onclick="CareerTournament.playMatch(${roundIdx}, ${idx})">▶ PLAY</button>`;
+                                } else {
+                                    html += `<button class="btn-sim-match" onclick="CareerTournament.simMatch(${roundIdx}, ${idx})">SIM</button>`;
+                                }
+                            }
+                            
+                            card.innerHTML = html;
+                            wrapper.appendChild(card);
+                            matchesList.appendChild(wrapper);
+                        });
+                    }
+                    
+                    column.appendChild(matchesList);
+                    container.appendChild(column);
+                });
+            },
+
+            playMatch: (roundIdx, matchIdx) => {
+                const match = CareerTournament.state.bracketData[roundIdx][matchIdx];
+                const roundInfo = CareerTournament.state.rounds[roundIdx];
+                
+                CareerMatch.start(match, roundInfo, roundIdx, matchIdx);
+            },
+
+            simMatch: (roundIdx, matchIdx) => {
+                const match = CareerTournament.state.bracketData[roundIdx][matchIdx];
+                const roundInfo = CareerTournament.state.rounds[roundIdx];
+                const target = roundInfo.target;
+                
+                // Fast simulation
+                let s1 = 0, s2 = 0;
+                const eff1 = match.p1.avg || 85;
+                const eff2 = match.p2.avg || 85;
+                let winProbP1 = 0.50 + ((eff1 - eff2) * 0.025);
+                winProbP1 = Math.max(0.01, Math.min(0.99, winProbP1));
+                
+                while (s1 < target && s2 < target) {
+                    if (Math.random() < winProbP1) s1++; else s2++;
+                }
+                
+                match.score = [s1, s2];
+                match.winner = (s1 > s2) ? match.p1 : match.p2;
+                match.averages = [
+                    (eff1 + (Math.random() * 10 - 5)).toFixed(1),
+                    (eff2 + (Math.random() * 10 - 5)).toFixed(1)
+                ];
+                
+                CareerTournament.checkRoundComplete();
+                CareerTournament.renderBracket();
+            },
+
+            simCurrentRound: () => {
+                const roundIdx = CareerTournament.state.currentRound;
+                const matches = CareerTournament.state.bracketData[roundIdx];
+                
+                matches.forEach((m, idx) => {
+                    if (!m.winner && m.p1 && m.p2) {
+                        // Check if it's player's match
+                        const isPlayerMatch = (m.p1 && m.p1.isCareerPlayer) || (m.p2 && m.p2.isCareerPlayer);
+                        if (!isPlayerMatch) {
+                            CareerTournament.simMatch(roundIdx, idx);
+                        }
+                    }
+                });
+            },
+
+            checkRoundComplete: () => {
+                const roundIdx = CareerTournament.state.currentRound;
+                const matches = CareerTournament.state.bracketData[roundIdx];
+                
+                // Check if all matches are complete
+                const allDone = matches.every(m => m.winner);
+                if (!allDone) return;
+                
+                // Check if player was eliminated
+                const playerMatch = matches.find(m => 
+                    (m.p1 && m.p1.isCareerPlayer) || (m.p2 && m.p2.isCareerPlayer)
+                );
+                
+                if (playerMatch) {
+                    const playerWon = playerMatch.winner && playerMatch.winner.isCareerPlayer;
+                    if (!playerWon) {
+                        CareerTournament.state.playerEliminated = true;
+                        CareerTournament.endTournament();
+                        return;
+                    }
+                }
+                
+                // Advance to next round
+                if (roundIdx < CareerTournament.state.rounds.length - 1) {
+                    CareerTournament.advanceRound();
+                } else {
+                    // Tournament complete
+                    CareerTournament.endTournament();
+                }
+            },
+
+            advanceRound: () => {
+                const roundIdx = CareerTournament.state.currentRound;
+                const matches = CareerTournament.state.bracketData[roundIdx];
+                const nextRound = [];
+                
+                // Create next round matches from winners
+                for (let i = 0; i < matches.length; i += 2) {
+                    nextRound.push({
+                        p1: matches[i].winner,
+                        p2: matches[i + 1] ? matches[i + 1].winner : null,
+                        winner: null,
+                        score: null,
+                        averages: null
+                    });
+                }
+                
+                CareerTournament.state.bracketData[roundIdx + 1] = nextRound;
+                CareerTournament.state.currentRound++;
+                CareerTournament.renderBracket();
+            },
+
+            endTournament: () => {
+                const event = CareerTournament.state.event;
+                const eventType = event.type || 'players';
+                const prizeStructure = PRIZE_STRUCTURE[eventType] || PRIZE_STRUCTURE['players'];
+                
+                // Determine player's final position
+                let position = 'L64';
+                let playersRemaining = event.players;
+                
+                if (CareerTournament.state.playerEliminated) {
+                    // Player was eliminated - find which round
+                    const elimRound = CareerTournament.state.currentRound;
+                    playersRemaining = CareerTournament.state.rounds[elimRound].playersRemaining;
+                    position = getRoundName(playersRemaining);
+                } else {
+                    // Player won the tournament
+                    const lastRoundMatches = CareerTournament.state.bracketData[CareerTournament.state.rounds.length - 1];
+                    if (lastRoundMatches && lastRoundMatches[0]) {
+                        const finalMatch = lastRoundMatches[0];
+                        if (finalMatch.winner && finalMatch.winner.isCareerPlayer) {
+                            position = '1st';
+                            playersRemaining = 1;
+                        } else {
+                            position = '2nd';
+                            playersRemaining = 2;
+                        }
+                    }
+                }
+                
+                // Calculate prize money
+                const prize = prizeStructure[playersRemaining] || 0;
+                
+                CareerTournament.state.active = false;
+                
+                // Return result to Career
+                Career.finishTournament({
+                    position: position,
+                    prize: prize
+                });
+            },
+
+            exitTournament: () => {
+                if (confirm('Are you sure you want to exit? You will forfeit the tournament.')) {
+                    CareerTournament.state.playerEliminated = true;
+                    CareerTournament.endTournament();
+                }
+            }
+        };
+
+        // ==================== CAREER MATCH SYSTEM ====================
+        const CareerMatch = {
+            state: {
+                active: false,
+                match: null,
+                roundInfo: null,
+                roundIdx: 0,
+                matchIdx: 0,
+                p1Score: 0,
+                p2Score: 0,
+                p1Remaining: 501,
+                p2Remaining: 501,
+                currentThrower: 1,
+                legNumber: 1,
+                p1TotalPoints: 0,
+                p2TotalPoints: 0,
+                p1Darts: 0,
+                p2Darts: 0,
+                visitLog: []
+            },
+
+            start: (match, roundInfo, roundIdx, matchIdx) => {
+                CareerMatch.state = {
+                    active: true,
+                    match: match,
+                    roundInfo: roundInfo,
+                    roundIdx: roundIdx,
+                    matchIdx: matchIdx,
+                    p1Score: 0,
+                    p2Score: 0,
+                    p1Remaining: 501,
+                    p2Remaining: 501,
+                    currentThrower: 1,
+                    legNumber: 1,
+                    legStarter: 1,
+                    p1TotalPoints: 0,
+                    p2TotalPoints: 0,
+                    p1Darts: 0,
+                    p2Darts: 0,
+                    visitLog: []
+                };
+                
+                // Show match screen
+                document.getElementById('tournament-screen').style.display = 'none';
+                document.getElementById('match-screen').style.display = 'flex';
+                
+                CareerMatch.renderMatch();
+            },
+
+            renderMatch: () => {
+                const s = CareerMatch.state;
+                const m = s.match;
+                const target = s.roundInfo.target;
+                
+                document.getElementById('match-event-name').textContent = CareerTournament.state.event.name;
+                document.getElementById('match-round-info').textContent = `${s.roundInfo.name} - First to ${target} Legs`;
+                
+                // Player 1
+                document.getElementById('p1-flag').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p1.country)}.png`;
+                document.getElementById('p1-name').textContent = m.p1.name + (m.p1.isCareerPlayer ? ' (YOU)' : '');
+                document.getElementById('p1-legs').textContent = s.p1Score;
+                document.getElementById('p1-remaining').textContent = s.p1Remaining;
+                
+                // Player 2
+                document.getElementById('p2-flag').src = `https://flagcdn.com/w80/${Career.getCountryCode(m.p2.country)}.png`;
+                document.getElementById('p2-name').textContent = m.p2.name + (m.p2.isCareerPlayer ? ' (YOU)' : '');
+                document.getElementById('p2-legs').textContent = s.p2Score;
+                document.getElementById('p2-remaining').textContent = s.p2Remaining;
+                
+                // Active player highlight
+                document.getElementById('p1-box').classList.toggle('active', s.currentThrower === 1);
+                document.getElementById('p2-box').classList.toggle('active', s.currentThrower === 2);
+                
+                // Leg info
+                const throwerName = s.currentThrower === 1 ? m.p1.name : m.p2.name;
+                document.getElementById('leg-info').textContent = `Leg ${s.legNumber} - ${throwerName} to throw`;
+                
+                // Visit log
+                document.getElementById('visit-log').innerHTML = s.visitLog.slice(-10).map(v => 
+                    `<div style="color:${v.checkout ? 'var(--pdc-green)' : '#888'};">${v.player}: ${v.score}${v.checkout ? ' ✓' : ''}</div>`
+                ).join('');
+            },
+
+            throwDart: () => {
+                const s = CareerMatch.state;
+                const m = s.match;
+                const player = s.currentThrower === 1 ? m.p1 : m.p2;
+                const remaining = s.currentThrower === 1 ? s.p1Remaining : s.p2Remaining;
+                
+                // Use shared Engine to throw
+                const visit = Engine.throwVisit(player, remaining);
+                
+                // Update remaining
+                if (s.currentThrower === 1) {
+                    s.p1Remaining -= visit.points;
+                    s.p1TotalPoints += visit.points;
+                    s.p1Darts += visit.dartsThrown;
+                } else {
+                    s.p2Remaining -= visit.points;
+                    s.p2TotalPoints += visit.points;
+                    s.p2Darts += visit.dartsThrown;
+                }
+                
+                // Log visit
+                s.visitLog.push({
+                    player: player.name,
+                    score: visit.points,
+                    checkout: visit.endLeg
+                });
+                
+                // Check for leg win
+                if (visit.endLeg) {
+                    CareerMatch.winLeg(s.currentThrower);
+                } else {
+                    // Switch thrower
+                    s.currentThrower = s.currentThrower === 1 ? 2 : 1;
+                    CareerMatch.renderMatch();
+                }
+            },
+
+            simLeg: () => {
+                const s = CareerMatch.state;
+                
+                // Simulate until leg ends
+                while (s.p1Remaining > 0 && s.p2Remaining > 0) {
+                    CareerMatch.throwDart();
+                    if (!s.active) return; // Match might have ended
+                }
+            },
+
+            simMatch: () => {
+                const s = CareerMatch.state;
+                const target = s.roundInfo.target;
+                
+                while (s.p1Score < target && s.p2Score < target) {
+                    CareerMatch.simLeg();
+                    if (!s.active) return;
+                }
+            },
+
+            winLeg: (winner) => {
+                const s = CareerMatch.state;
+                const target = s.roundInfo.target;
+                
+                if (winner === 1) {
+                    s.p1Score++;
+                } else {
+                    s.p2Score++;
+                }
+                
+                // Check for match win
+                if (s.p1Score >= target || s.p2Score >= target) {
+                    CareerMatch.endMatch();
+                } else {
+                    // Reset for next leg
+                    s.legNumber++;
+                    s.p1Remaining = 501;
+                    s.p2Remaining = 501;
+                    // Alternate starter
+                    s.legStarter = s.legStarter === 1 ? 2 : 1;
+                    s.currentThrower = s.legStarter;
+                    CareerMatch.renderMatch();
+                }
+            },
+
+            endMatch: () => {
+                const s = CareerMatch.state;
+                const m = s.match;
+                
+                // Calculate averages
+                const avg1 = s.p1Darts > 0 ? ((s.p1TotalPoints / s.p1Darts) * 3).toFixed(1) : '0.0';
+                const avg2 = s.p2Darts > 0 ? ((s.p2TotalPoints / s.p2Darts) * 3).toFixed(1) : '0.0';
+                
+                // Update match result
+                m.score = [s.p1Score, s.p2Score];
+                m.winner = s.p1Score > s.p2Score ? m.p1 : m.p2;
+                m.averages = [avg1, avg2];
+                
+                s.active = false;
+                
+                // Show result modal
+                document.getElementById('result-winner').textContent = m.winner.name + ' WINS!';
+                document.getElementById('result-score').textContent = `${s.p1Score} - ${s.p2Score}`;
+                document.getElementById('result-avg-1').textContent = avg1;
+                document.getElementById('result-avg-2').textContent = avg2;
+                document.getElementById('match-result-modal').style.display = 'flex';
+            },
+
+            closeResult: () => {
+                document.getElementById('match-result-modal').style.display = 'none';
+                document.getElementById('match-screen').style.display = 'none';
+                document.getElementById('tournament-screen').style.display = 'flex';
+                
+                CareerTournament.checkRoundComplete();
+                CareerTournament.renderBracket();
             }
         };
 
