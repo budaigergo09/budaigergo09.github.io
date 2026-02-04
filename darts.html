@@ -3733,12 +3733,21 @@
             // Now show season mode window as requested
             console.log('ACTION: Showing Season Mode window...');
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            const seasonScreen = document.getElementById('season-screen');
-            if (seasonScreen) {
-                seasonScreen.style.display = 'flex';
-                console.log('SUCCESS: Season screen displayed');
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            const seasonTab = document.getElementById('tab-season');
+            if (seasonTab) {
+                seasonTab.classList.add('active');
+                seasonTab.style.display = 'block';
+                console.log('SUCCESS: Season tab displayed');
+                
+                // Also trigger Season mode initialization if available
+                if (typeof Season !== 'undefined' && Season.renderSchedule) {
+                    Season.renderSchedule();
+                    console.log('Season.renderSchedule() called');
+                }
             } else {
-                console.error('ERROR: season-screen element not found!');
+                console.error('ERROR: tab-season element not found!');
             }
             
             console.log('=== NEW CAREER DEBUG END ===');
@@ -15051,12 +15060,6 @@
     <button onclick="AuthSystem.showModal()"
         style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">👤
         ACCOUNT</button>
-
-    <!-- DEBUG: New Career Button -->
-    <button id="debug-new-career-btn" onclick="showNewCareer()"
-        style="position: fixed; bottom: 95px; right: 12px; z-index: 9999; background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-        🎯 NEW CAREER (DEBUG)
-    </button>
 
     <!-- PW8 Install Button -->
     <button id="pwa-install-btn">
