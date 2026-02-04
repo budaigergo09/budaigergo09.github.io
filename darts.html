@@ -2439,7 +2439,6 @@
             min-height: 0;
             overflow-y: auto;
         }
-
     </style>
 </head>
 
@@ -2895,7 +2894,6 @@
             <img id="pdc-logo" src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
             <img id="event-logo" class="event-logo" src="" style="display:none;">
             <span id="txt-event-header">EVENT NAME</span>
-
             <button class="btn-icon" onclick="togglePause()"
                 style="position: absolute; right: 10px; top: 0px; height: 36px;">⏸</button>
         </div>
@@ -3055,7 +3053,6 @@
             <div class="event-info-header" id="info-header">EVENT NAME</div>
             <div class="event-info-details" id="info-details"></div>
             <div id="info-results"></div>
-            <div id="info-actions" style="margin-top: 15px;"></div>
             <button class="close-event-info" onclick="Season.closeEventInfo()">CLOSE</button>
         </div>
     </div>
@@ -5629,23 +5626,6 @@
                 const isETQualTC = eventType === 'et-qual-tc';
                 const isWCQualIntl = eventType === 'wc-qual-intl';
                 const isWCQualTC = eventType === 'wc-qual-tc';
-                const isETHostNation = eventType === 'et-host-nation';
-
-                // For ET Host Nation qualifiers, get already qualified players
-                let etAlreadyQualified = new Set();
-                if (isETHostNation && eventName) {
-                    const match = eventName.match(/ET(\d+)/);
-                    if (match) {
-                        const targetEvent = 500 + parseInt(match[1]);
-                        const etQualData = Season.state.etQualifiers?.[targetEvent];
-                        if (etQualData) {
-                            (etQualData.tc || []).forEach(name => etAlreadyQualified.add(name));
-                            (etQualData.host || []).forEach(name => etAlreadyQualified.add(name));
-                            (etQualData.nb || []).forEach(name => etAlreadyQualified.add(name));
-                            (etQualData.east || []).forEach(name => etAlreadyQualified.add(name));
-                        }
-                    }
-                }
 
                 // For ET Tour Card Qualifiers, build exclusion list (top 16 world + top 16 pro tour)
                 let excludedNames = new Set();
@@ -5726,10 +5706,7 @@
                         if (isWCQualTC && (excludedNames.has(p.name) || !p.tourCard)) continue;
 
                         // If it's WC International Qualifier or ET Host Nation, do NOT allow auto-qualified players
-                        if ((isWCQualIntl || isETHostNation) && excludedNames.has(p.name)) continue;
-
-                        // If it's ET Host Nation, exclude players already qualified for this ET
-                        if (isETHostNation && etAlreadyQualified.has(p.name)) continue;
+                        if ((isWCQualIntl || eventType === 'et-host-nation') && excludedNames.has(p.name)) continue;
 
                         // Regional filtering for WC International Qualifiers and ET Host Nation
                         if (regionFilter && !regionFilter.includes(p.country)) continue;
@@ -6594,112 +6571,6 @@
                 }
             },
 
-            simulateToEvent: async (targetIdx) => {
-                // Close the event info modal
-                Season.closeEventInfo();
-
-                const targetEvent = Season.events[targetIdx];
-                const eventsToSim = targetIdx - Season.state.activeEventIndex;
-
-                if (eventsToSim <= 0) {
-                    alert("Cannot simulate - this event is already active or completed.");
-                    return;
-                }
-
-                if (!confirm(`⚡ SIMULATE TO ${targetEvent.name}?\n\nThis will auto-play ${eventsToSim} event${eventsToSim > 1 ? 's' : ''} until this tournament is next.\n\nThis cannot be undone.`)) return;
-
-                const overlay = document.createElement('div');
-                overlay.id = 'season-sim-overlay';
-                overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Arial, sans-serif;";
-                overlay.innerHTML = `
-                    <div style="text-align:center; max-width:600px;">
-                        <div style="font-size:32px; font-weight:bold; margin-bottom:20px; color:var(--pdc-gold);">⚡ SIMULATING TO EVENT...</div>
-                        <div id="sim-progress" style="font-size:18px; color:#fff; margin-bottom:10px; min-height:40px; line-height:1.5;">Initializing...</div>
-                        <div id="sim-speed" style="font-size:14px; color:#aaa; margin-bottom:30px;"></div>
-                        <button id="sim-stop-btn" style="padding:12px 30px; font-size:16px; font-weight:bold; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s;">STOP SIMULATION</button>
-                    </div>
-                `;
-                document.body.appendChild(overlay);
-
-                const progressDiv = document.getElementById('sim-progress');
-                const speedDiv = document.getElementById('sim-speed');
-                const stopBtn = document.getElementById('sim-stop-btn');
-                let shouldStop = false;
-
-                stopBtn.addEventListener('click', () => {
-                    shouldStop = true;
-                    stopBtn.disabled = true;
-                    stopBtn.style.opacity = '0.5';
-                    progressDiv.innerText = 'Stopping simulation...';
-                });
-
-                stopBtn.addEventListener('mouseover', () => {
-                    if (!stopBtn.disabled) stopBtn.style.background = '#c23030';
-                });
-                stopBtn.addEventListener('mouseout', () => {
-                    if (!stopBtn.disabled) stopBtn.style.background = '#e74c3c';
-                });
-
-                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-                Season.isBulkSim = true;
-                Season.silentSimulation = true;
-
-                try {
-                    const startTime = performance.now();
-                    let eventsSimulated = 0;
-                    const totalEvents = eventsToSim;
-                    const BATCH_SIZE = 10;
-
-                    while (Season.state.activeEventIndex < targetIdx && !shouldStop) {
-                        const batchStart = Season.state.activeEventIndex;
-                        const batchEnd = Math.min(batchStart + BATCH_SIZE, targetIdx);
-
-                        for (let i = batchStart; i < batchEnd && !shouldStop; i++) {
-                            Season.startEvent(i, true);
-                            eventsSimulated++;
-                        }
-
-                        const ev = Season.events[Math.min(Season.state.activeEventIndex, targetIdx - 1)];
-                        const elapsed = (performance.now() - startTime) / 1000;
-                        const eventsPerSec = (eventsSimulated / elapsed).toFixed(1);
-                        const remaining = totalEvents - eventsSimulated;
-                        const eta = remaining > 0 ? Math.ceil(remaining / (eventsSimulated / elapsed)) : 0;
-
-                        progressDiv.innerText = `Simulating: ${ev.name} (${eventsSimulated}/${totalEvents})`;
-                        speedDiv.innerText = `Speed: ${eventsPerSec} events/sec | ETA: ${eta}s`;
-
-                        await sleep(0);
-                    }
-
-                    if (shouldStop) {
-                        progressDiv.innerText = "SIMULATION STOPPED";
-                    } else {
-                        progressDiv.innerText = `READY: ${targetEvent.name} is now next!`;
-                        const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
-                        speedDiv.innerText = `Completed ${eventsSimulated} events in ${totalTime}s`;
-                    }
-
-                    Season.recalculateProTourOOM();
-                    Season.recalculateChallengeTourOOM();
-
-                    Persistence.save();
-
-                    await sleep(1500);
-                    document.body.removeChild(overlay);
-
-                    Season.renderUI();
-
-                } catch (e) {
-                    console.error(e);
-                    if (document.body.contains(overlay)) document.body.removeChild(overlay);
-                    alert("Simulation interrupted due to error.");
-                } finally {
-                    Season.isBulkSim = false;
-                    Season.silentSimulation = false;
-                }
-            },
-
             init: () => {
                 // Load events from defaults if not already loaded from DB
                 if (Season.events.length === 0) {
@@ -6877,33 +6748,6 @@
                     resultsDiv.innerHTML = resHtml;
                 } else {
                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
-                }
-
-                // Actions div - show "Simulate to this event" button for future events
-                const actionsDiv = document.getElementById('info-actions');
-                if (idx > Season.state.activeEventIndex) {
-                    // This is a future event - show simulate button
-                    actionsDiv.innerHTML = `
-                        <button onclick="Season.simulateToEvent(${idx})" style="
-                            width: 100%;
-                            padding: 12px;
-                            background: linear-gradient(135deg, #e65100, #ff6d00);
-                            border: none;
-                            color: white;
-                            font-weight: bold;
-                            font-size: 14px;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            transition: all 0.3s;
-                        " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                            ⚡ SIMULATE TO THIS EVENT
-                        </button>
-                    `;
-                } else if (idx === Season.state.activeEventIndex && !completed) {
-                    // This is the current active event
-                    actionsDiv.innerHTML = `<div style="text-align:center; color:var(--pdc-gold); font-size:12px;">This is the next event to play</div>`;
-                } else {
-                    actionsDiv.innerHTML = '';
                 }
 
                 const modal = document.getElementById('event-info-modal');
@@ -7836,17 +7680,7 @@
                         pool = PLAYERS_DB.filter(p => p.tourCard && !exclude.has(p.name));
                     } else if (ev.type === "et-host-nation") {
                         const hostCode = HOST_NATION[ev.targetEvent];
-                        // Get already qualified players for this ET (from TC qualifier etc.)
-                        const alreadyQualified = new Set();
-                        const etQualData = Season.state.etQualifiers?.[ev.targetEvent];
-                        if (etQualData) {
-                            (etQualData.tc || []).forEach(name => alreadyQualified.add(name));
-                            (etQualData.host || []).forEach(name => alreadyQualified.add(name));
-                            (etQualData.nb || []).forEach(name => alreadyQualified.add(name));
-                            (etQualData.east || []).forEach(name => alreadyQualified.add(name));
-                        }
-                        // Exclude players from host nation who are already qualified
-                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode && !alreadyQualified.has(p.name)) : [];
+                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode) : [];
                         generationRegion = hostCode; // Regen using host nation
                     } else if (ev.type === "et-east-european") {
                         pool = PLAYERS_DB.filter(p => REGION_MAP.east.includes(p.country));
@@ -12586,7 +12420,6 @@
                 document.getElementById('overlay-180').style.display = 'flex';
                 setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
             },
-            
             gameLoop: () => {
                 if (App.isPaused) return;
 
