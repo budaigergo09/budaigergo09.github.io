@@ -3053,6 +3053,7 @@
             <div class="event-info-header" id="info-header">EVENT NAME</div>
             <div class="event-info-details" id="info-details"></div>
             <div id="info-results"></div>
+            <div id="info-actions" style="margin-top:15px;"></div>
             <button class="close-event-info" onclick="Season.closeEventInfo()">CLOSE</button>
         </div>
     </div>
@@ -6467,6 +6468,110 @@
                 winmauQualifiers: []
             },
 
+            simulateToEvent: async (targetIdx) => {
+                const targetEvent = Season.events[targetIdx];
+                const eventsToSim = targetIdx - Season.state.activeEventIndex;
+                
+                if (eventsToSim <= 0) {
+                    alert("Cannot simulate - this event is current or already completed.");
+                    return;
+                }
+                
+                if (!confirm(`⚡ SIMULATE TO ${targetEvent.name}?\n\nThis will simulate ${eventsToSim} event(s) and stop before this event starts.\n\nThis cannot be undone.`)) return;
+                
+                Season.closeEventInfo();
+
+                const overlay = document.createElement('div');
+                overlay.id = 'season-sim-overlay';
+                overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Arial, sans-serif;";
+                overlay.innerHTML = `
+                    <div style="text-align:center; max-width:600px;">
+                        <div style="font-size:32px; font-weight:bold; margin-bottom:20px; color:var(--pdc-gold);">⚡ SIMULATING TO EVENT...</div>
+                        <div id="sim-progress" style="font-size:18px; color:#fff; margin-bottom:10px; min-height:40px; line-height:1.5;">Initializing...</div>
+                        <div id="sim-speed" style="font-size:14px; color:#aaa; margin-bottom:30px;"></div>
+                        <button id="sim-stop-btn" style="padding:12px 30px; font-size:16px; font-weight:bold; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; transition:all 0.3s;">STOP SIMULATION</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                const progressDiv = document.getElementById('sim-progress');
+                const speedDiv = document.getElementById('sim-speed');
+                const stopBtn = document.getElementById('sim-stop-btn');
+                let shouldStop = false;
+
+                stopBtn.addEventListener('click', () => {
+                    shouldStop = true;
+                    stopBtn.disabled = true;
+                    stopBtn.style.opacity = '0.5';
+                    progressDiv.innerText = 'Stopping simulation...';
+                });
+
+                stopBtn.addEventListener('mouseover', () => {
+                    if (!stopBtn.disabled) stopBtn.style.background = '#c23030';
+                });
+                stopBtn.addEventListener('mouseout', () => {
+                    if (!stopBtn.disabled) stopBtn.style.background = '#e74c3c';
+                });
+
+                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+                Season.isBulkSim = true;
+                Season.silentSimulation = true;
+
+                try {
+                    const startTime = performance.now();
+                    let eventsSimulated = 0;
+                    const totalEvents = eventsToSim;
+                    const BATCH_SIZE = 10;
+
+                    while (Season.state.activeEventIndex < targetIdx && !shouldStop) {
+                        const batchStart = Season.state.activeEventIndex;
+                        const batchEnd = Math.min(batchStart + BATCH_SIZE, targetIdx);
+
+                        for (let i = batchStart; i < batchEnd && !shouldStop; i++) {
+                            Season.startEvent(i, true);
+                            eventsSimulated++;
+                        }
+
+                        const ev = Season.events[Math.min(Season.state.activeEventIndex, targetIdx - 1)];
+                        const elapsed = (performance.now() - startTime) / 1000;
+                        const eventsPerSec = elapsed > 0 ? (eventsSimulated / elapsed).toFixed(1) : '0';
+                        const remaining = totalEvents - eventsSimulated;
+                        const eta = remaining > 0 && eventsSimulated > 0 ? Math.ceil(remaining / (eventsSimulated / elapsed)) : 0;
+
+                        progressDiv.innerText = `Simulating: ${ev.name} (${eventsSimulated}/${totalEvents})`;
+                        speedDiv.innerText = `Speed: ${eventsPerSec} events/sec | ETA: ${eta}s`;
+
+                        await sleep(0);
+                    }
+
+                    if (shouldStop) {
+                        progressDiv.innerText = "SIMULATION STOPPED";
+                    } else {
+                        progressDiv.innerText = `Ready for: ${targetEvent.name}`;
+                        const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
+                        speedDiv.innerText = `Completed ${eventsSimulated} events in ${totalTime}s`;
+                    }
+
+                    Season.recalculateProTourOOM();
+                    Season.recalculateChallengeTourOOM();
+                    Persistence.save();
+
+                    await sleep(1500);
+                    document.body.removeChild(overlay);
+
+                    Season.renderUI();
+
+                } catch (e) {
+                    console.error(e);
+                    if (document.body.contains(overlay)) document.body.removeChild(overlay);
+                    alert("Simulation interrupted due to error.");
+                } finally {
+                    Season.isBulkSim = false;
+                    Season.silentSimulation = false;
+                }
+            },
+
             simulateRemainingSeason: async () => {
                 if (!confirm("⚠️ SIMULATE ENTIRE SEASON?\n\nThis will auto-play all remaining tournaments using the simulation engine.\n\nThis cannot be undone.")) return;
 
@@ -6732,6 +6837,7 @@
                 document.getElementById('info-details').innerHTML = details;
 
                 const resultsDiv = document.getElementById('info-results');
+                const actionsDiv = document.getElementById('info-actions');
                 if (completed) {
                     let resHtml = `
                         <div class="event-info-results">
@@ -6746,8 +6852,33 @@
 
                     resHtml += `</div>`;
                     resultsDiv.innerHTML = resHtml;
+                    actionsDiv.innerHTML = '';
                 } else {
                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
+                    
+                    // Show "Simulate to this event" button if this is a future event (not the current one)
+                    if (idx > Season.state.activeEventIndex) {
+                        const eventsToSim = idx - Season.state.activeEventIndex;
+                        actionsDiv.innerHTML = `
+                            <button onclick="Season.simulateToEvent(${idx})" style="
+                                width:100%; 
+                                padding:12px; 
+                                background:linear-gradient(135deg, #3498db, #2980b9); 
+                                color:white; 
+                                border:none; 
+                                border-radius:6px; 
+                                font-weight:bold; 
+                                cursor:pointer;
+                                font-size:14px;
+                                transition: all 0.3s;
+                            " onmouseover="this.style.background='linear-gradient(135deg, #2980b9, #1a5276)'" 
+                               onmouseout="this.style.background='linear-gradient(135deg, #3498db, #2980b9)'">
+                                ⚡ SIMULATE TO THIS EVENT (${eventsToSim} event${eventsToSim > 1 ? 's' : ''})
+                            </button>
+                        `;
+                    } else {
+                        actionsDiv.innerHTML = '';
+                    }
                 }
 
                 const modal = document.getElementById('event-info-modal');
