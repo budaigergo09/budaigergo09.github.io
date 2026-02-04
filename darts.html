@@ -348,6 +348,8 @@
 
         .btn-gold,
         .btn-blue,
+        .btn-sim,
+        .btn-watch,
         .btn-hub-action {
             font-weight: 900;
             cursor: pointer;
@@ -848,9 +850,9 @@
             }
 
             .btn-play-mini {
-                padding: 4px 8px;
-                font-size: 10px;
-                min-height: 28px;
+                padding: 6px 12px;
+                font-size: 11px;
+                min-height: 32px;
             }
 
             .match-nav-btn {
@@ -1283,13 +1285,35 @@
         }
 
         .btn-play-mini {
-            background: var(--pdc-red);
+            background: #3498db;
             color: white;
             border: none;
-            padding: 4px 8px;
-            font-size: 10px;
+            padding: 6px 12px;
+            font-size: 11px;
             font-weight: bold;
-            border-radius: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-play-mini:hover {
+            background: #2980b9;
+        }
+
+        .btn-sim-mini {
+            background: var(--pdc-green);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-sim-mini:hover {
+            opacity: 0.8;
         }
 
         .match-select-cb {
@@ -2775,7 +2799,7 @@
         .career-ev-meta { font-size: 11px; color: #888; text-transform: uppercase; }
         .career-ev-status { font-size: 12px; font-weight: bold; color: var(--pdc-gold); padding: 4px 10px; background: rgba(255, 215, 0, 0.1); border-radius: 4px; }
 
-        .btn-play-mini, .btn-sim-mini {
+        .btn-career-play-mini, .btn-career-sim-mini {
             margin-top: 8px;
             width: 100%;
             padding: 6px;
@@ -2785,8 +2809,8 @@
             cursor: pointer;
             border: none;
         }
-        .btn-play-mini { background: var(--pdc-green); color: white; }
-        .btn-sim-mini { background: #444; color: #aaa; }
+        .btn-career-play-mini { background: var(--pdc-green); color: white; }
+        .btn-career-sim-mini { background: #444; color: #aaa; }
 
         #career-bracket-container {
             display: flex;
@@ -7592,13 +7616,13 @@
 
                         if (isInProgress) {
                             action = `
-                                <button class="btn-play-mini" style="background:#3498db; font-weight:bold;" onclick="event.stopPropagation(); Tournament.resumeEvent()">▶ RESUME</button>
-                                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
+                                <button class="btn-play-mini" onclick="event.stopPropagation(); Tournament.resumeEvent()">▶ RESUME</button>
+                                <button class="btn-sim-mini" style="margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
                             `;
                         } else {
                             action = `
                                 <button class="btn-play-mini" onclick="event.stopPropagation(); Season.startEvent(${idx}, false)">PLAY</button>
-                                <button class="btn-play-mini" style="background:var(--pdc-green); margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
+                                <button class="btn-sim-mini" style="margin-left:5px;" onclick="event.stopPropagation(); Season.startEvent(${idx}, true)">SIM</button>
                             `;
                         }
                     }
@@ -13939,6 +13963,16 @@
                 if (typeof Persistence !== 'undefined') Persistence.save('career');
             },
 
+            loadGame: () => {
+                Career.init();
+                if (Career.state.player) {
+                    Career.renderDashboard();
+                } else {
+                    alert("No saved career found! Please create a new one.");
+                    Career.showCreation();
+                }
+            },
+
             showCreation: () => {
                 document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
                 document.getElementById('career-creation-screen').style.display = 'flex';
@@ -14059,7 +14093,32 @@
             },
 
             showMainMenu: () => {
-                App.switchTab('setup');
+                switchTab('single');
+            },
+
+            showNewCareer: () => {
+                Career.showCreation();
+            },
+
+            deleteSave: () => {
+                if (confirm("Are you sure you want to delete your career save?")) {
+                    localStorage.removeItem('pdc_career_save');
+                    Career.state = {
+                        active: false,
+                        player: null,
+                        week: 1,
+                        money: 0,
+                        rank: 128,
+                        tourCard: false,
+                        history: [],
+                        stats: { played: 0, won: 0, titles: 0, bestAvg: 0, highOut: 0 }
+                    };
+                    location.reload();
+                }
+            },
+
+            startCareer: () => {
+                Career.createPlayer();
             },
 
             renderDashboard: () => {
@@ -14477,8 +14536,8 @@
                             let html = `<div class="bm-content">${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2)}</div>`;
                             
                             if (!m.winner && roundIdx === CareerTournament.state.currentRound && m.p1 && m.p2) {
-                                if (isPlayerMatch) html += `<div class="bm-action"><button class="btn-play-mini" onclick="CareerTournament.playMatch(${roundIdx}, ${idx})">PLAY</button></div>`;
-                                else html += `<div class="bm-action"><button class="btn-sim-mini" onclick="CareerTournament.simMatch(${roundIdx}, ${idx})">SIM</button></div>`;
+                                if (isPlayerMatch) html += `<div class="bm-action"><button class="btn-career-play-mini" onclick="CareerTournament.playMatch(${roundIdx}, ${idx})">PLAY</button></div>`;
+                                else html += `<div class="bm-action"><button class="btn-career-sim-mini" onclick="CareerTournament.simMatch(${roundIdx}, ${idx})">SIM</button></div>`;
                             }
                             
                             card.innerHTML = html;
