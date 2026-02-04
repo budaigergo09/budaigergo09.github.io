@@ -2439,6 +2439,150 @@
             min-height: 0;
             overflow-y: auto;
         }
+
+        /* ==================== DARTBOARD VISUALIZATION ==================== */
+        #dartboard-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--pdc-gold);
+        }
+
+        #dartboard-container.active {
+            display: block;
+        }
+
+        .dartboard-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        @media (min-width: 600px) {
+            .dartboard-wrapper {
+                width: 400px;
+                height: 400px;
+            }
+        }
+
+        .dartboard-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .dart-marker {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 30% 30%, #ff4444, #aa0000);
+            border: 2px solid #ffcc00;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: dartLand 0.3s ease-out forwards;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.8), 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .dart-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(to bottom, #333, #666);
+            transform: translate(-50%, 0) rotate(15deg);
+            transform-origin: top center;
+            border-radius: 0 0 2px 2px;
+        }
+
+        @keyframes dartLand {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            70% { transform: translate(-50%, -50%) scale(1.3); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .dartboard-score-display {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--pdc-gold);
+            font-family: 'Roboto Condensed';
+        }
+
+        .dartboard-dart-scores {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .dart-score-item {
+            background: #222;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            color: white;
+            min-width: 50px;
+            text-align: center;
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+
+        .dart-score-item.active {
+            opacity: 1;
+            background: var(--pdc-red);
+            transform: scale(1.1);
+        }
+
+        .dart-score-item.scored {
+            opacity: 1;
+            background: #333;
+        }
+
+        #btn-dartboard-toggle {
+            position: absolute;
+            right: 50px;
+            top: 0px;
+            height: 36px;
+            width: 36px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        #btn-dartboard-toggle.active {
+            color: var(--pdc-gold);
+        }
+
+        .dartboard-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: var(--pdc-red);
+            border: 2px solid white;
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 
@@ -2894,6 +3038,7 @@
             <img id="pdc-logo" src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
             <img id="event-logo" class="event-logo" src="" style="display:none;">
             <span id="txt-event-header">EVENT NAME</span>
+            <button id="btn-dartboard-toggle" onclick="Dartboard.toggle()" title="Toggle Dartboard">🎯</button>
             <button class="btn-icon" onclick="togglePause()"
                 style="position: absolute; right: 10px; top: 0px; height: 36px;">⏸</button>
         </div>
@@ -2936,6 +3081,43 @@
                     <div class="leg-name" id="bot-name-p1">NAME</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- DARTBOARD VISUALIZATION -->
+    <div id="dartboard-container">
+        <button class="dartboard-close" onclick="Dartboard.hide()">✕</button>
+        <div class="dartboard-wrapper">
+            <svg class="dartboard-svg" viewBox="0 0 400 400" id="dartboard-svg">
+                <!-- Outer black ring -->
+                <circle cx="200" cy="200" r="195" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+                <!-- Double ring outer -->
+                <circle cx="200" cy="200" r="170" fill="#222"/>
+                
+                <!-- Number segments - alternating colors -->
+                <g id="dartboard-segments"></g>
+                
+                <!-- Treble ring -->
+                <circle cx="200" cy="200" r="107" fill="none" stroke="#222" stroke-width="1"/>
+                <circle cx="200" cy="200" r="99" fill="none" stroke="#222" stroke-width="1"/>
+                
+                <!-- Single bull (outer bull) -->
+                <circle cx="200" cy="200" r="16" fill="#1b8c1b" stroke="#0a0a0a" stroke-width="1"/>
+                <!-- Double bull (inner bull / bullseye) -->
+                <circle cx="200" cy="200" r="6.5" fill="#cc0000" stroke="#0a0a0a" stroke-width="1"/>
+                
+                <!-- Number labels -->
+                <g id="dartboard-numbers" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle"></g>
+            </svg>
+            <div id="dart-markers"></div>
+        </div>
+        <div class="dartboard-score-display">
+            <span id="dartboard-total">0</span>
+        </div>
+        <div class="dartboard-dart-scores">
+            <div class="dart-score-item" id="dart-1">-</div>
+            <div class="dart-score-item" id="dart-2">-</div>
+            <div class="dart-score-item" id="dart-3">-</div>
         </div>
     </div>
 
@@ -5090,14 +5272,157 @@
 
         const Logic = {
             isValidTarget: (t) => (t >= 1 && t <= 20) || t === 25 || t === 50 || (t > 20 && t <= 60 && t % 3 === 0),
+            // High checkouts that can be finished in 3 darts (for 9-darter attempts)
+            HIGH_CHECKOUTS: {
+                170: { first: 60, second: 60, double: 50 },  // T20, T20, Bull
+                167: { first: 60, second: 57, double: 50 },  // T20, T19, Bull
+                164: { first: 60, second: 54, double: 50 },  // T20, T18, Bull
+                161: { first: 60, second: 51, double: 50 },  // T20, T17, Bull
+                160: { first: 60, second: 60, double: 40 },  // T20, T20, D20
+                158: { first: 60, second: 60, double: 38 },  // T20, T20, D19
+                157: { first: 60, second: 57, double: 40 },  // T20, T19, D20
+                156: { first: 60, second: 60, double: 36 },  // T20, T20, D18
+                155: { first: 60, second: 57, double: 38 },  // T20, T19, D19
+                154: { first: 60, second: 54, double: 40 },  // T20, T18, D20
+                153: { first: 60, second: 57, double: 36 },  // T20, T19, D18
+                152: { first: 60, second: 60, double: 32 },  // T20, T20, D16
+                151: { first: 60, second: 57, double: 34 },  // T20, T19, D17
+                150: { first: 60, second: 60, double: 30 },  // T20, T20, D15
+                149: { first: 60, second: 57, double: 32 },  // T20, T19, D16
+                148: { first: 60, second: 60, double: 28 },  // T20, T20, D14
+                147: { first: 60, second: 57, double: 30 },  // T20, T19, D15
+                146: { first: 60, second: 54, double: 32 },  // T20, T18, D16
+                145: { first: 60, second: 57, double: 28 },  // T20, T19, D14
+                144: { first: 60, second: 60, double: 24 },  // T20, T20, D12
+                143: { first: 60, second: 57, double: 26 },  // T20, T19, D13
+                142: { first: 60, second: 54, double: 28 },  // T20, T18, D14
+                141: { first: 60, second: 57, double: 24 },  // T20, T19, D12
+                140: { first: 60, second: 60, double: 20 },  // T20, T20, D10
+                139: { first: 60, second: 57, double: 22 },  // T20, T19, D11
+                138: { first: 60, second: 54, double: 24 },  // T20, T18, D12
+                137: { first: 60, second: 57, double: 20 },  // T20, T19, D10
+                136: { first: 60, second: 60, double: 16 },  // T20, T20, D8
+                135: { first: 60, second: 57, double: 18 },  // T20, T19, D9
+                134: { first: 60, second: 54, double: 20 },  // T20, T18, D10
+                133: { first: 60, second: 57, double: 16 },  // T20, T19, D8
+                132: { first: 60, second: 60, double: 12 },  // T20, T20, D6
+                131: { first: 60, second: 57, double: 14 },  // T20, T19, D7
+                130: { first: 60, second: 60, double: 10 },  // T20, T20, D5
+                129: { first: 60, second: 57, double: 12 },  // T20, T19, D6
+                128: { first: 60, second: 54, double: 14 },  // T20, T18, D7
+                127: { first: 60, second: 57, double: 10 },  // T20, T19, D5
+                126: { first: 60, second: 54, double: 12 },  // T20, T18, D6
+                125: { first: 60, second: 57, double: 8 },   // T20, T19, D4
+                124: { first: 60, second: 54, double: 10 },  // T20, T18, D5
+                123: { first: 60, second: 57, double: 6 },   // T20, T19, D3
+                122: { first: 60, second: 54, double: 8 },   // T20, T18, D4
+                121: { first: 60, second: 57, double: 4 },   // T20, T19, D2
+                120: { first: 60, second: 60, double: 0 },   // T20, 20, Bull (special)
+                119: { first: 60, second: 57, double: 2 },   // T20, T19, D1
+                118: { first: 60, second: 18, double: 40 },  // T20, 18, D20
+                117: { first: 60, second: 17, double: 40 },  // T20, 17, D20
+                116: { first: 60, second: 16, double: 40 },  // T20, 16, D20
+                115: { first: 60, second: 15, double: 40 },  // T20, 15, D20
+                114: { first: 60, second: 14, double: 40 },  // T20, 14, D20
+                113: { first: 60, second: 13, double: 40 },  // T20, 13, D20
+                112: { first: 60, second: 12, double: 40 },  // T20, 12, D20
+                111: { first: 60, second: 11, double: 40 },  // T20, 11, D20
+                110: { first: 60, second: 10, double: 40 },  // T20, 10, D20
+                109: { first: 60, second: 9, double: 40 },   // T20, 9, D20
+                108: { first: 60, second: 8, double: 40 },   // T20, 8, D20
+                107: { first: 60, second: 7, double: 40 },   // T20, 7, D20
+                106: { first: 60, second: 6, double: 40 },   // T20, 6, D20
+                105: { first: 60, second: 5, double: 40 },   // T20, 5, D20
+                104: { first: 60, second: 4, double: 40 },   // T20, 4, D20
+                103: { first: 60, second: 3, double: 40 },   // T20, 3, D20
+                102: { first: 60, second: 2, double: 40 },   // T20, 2, D20
+                101: { first: 60, second: 1, double: 40 },   // T20, 1, D20
+            },
+            // Attempt a high checkout (100+) - returns { points, endLeg, dartsUsed }
+            attemptHighCheckout: (player, score, isDecider) => {
+                const route = Logic.HIGH_CHECKOUTS[score];
+                if (!route) return null;
+                
+                let totalPts = 0;
+                let dartsUsed = 0;
+                
+                // First dart (typically T20)
+                dartsUsed++;
+                const firstHitProb = 0.40 + ((player.avg - 85) * 0.012);  // Better players hit more trebles
+                if (Math.random() < firstHitProb) {
+                    totalPts += route.first;
+                } else {
+                    // Miss - hit single or adjacent
+                    const missScore = route.first === 60 ? (Math.random() < 0.7 ? 20 : (Math.random() < 0.5 ? 1 : 5)) : Math.floor(route.first / 3);
+                    return { points: missScore, endLeg: false, dartsUsed: 1 };
+                }
+                
+                // Second dart
+                dartsUsed++;
+                let secondHitProb = route.second >= 51 ? (0.38 + ((player.avg - 85) * 0.01)) : 0.90;  // Trebles harder than singles
+                if (route.second === 50) secondHitProb = 0.25 + ((player.co - 35) * 0.008);  // Bull is special
+                
+                if (Math.random() < secondHitProb) {
+                    totalPts += route.second;
+                } else {
+                    // Miss second dart
+                    let missScore;
+                    if (route.second >= 51) {
+                        missScore = Math.floor(route.second / 3);  // Hit single instead of treble
+                    } else if (route.second === 50) {
+                        missScore = Math.random() < 0.6 ? 25 : (Math.random() < 0.5 ? 1 : 5);  // Miss bull
+                    } else {
+                        missScore = route.second;  // Singles usually hit
+                    }
+                    return { points: totalPts + missScore, endLeg: false, dartsUsed: 2 };
+                }
+                
+                // Third dart (double)
+                dartsUsed++;
+                player.stats.coAtt++;
+                let doubleProb = (player.co / 100) * 1.10;  // Slightly boosted for going for the 9-darter
+                if (isDecider) doubleProb *= 0.92;
+                if (route.double === 50) doubleProb *= 0.65;  // Bull harder
+                
+                if (Math.random() < doubleProb) {
+                    player.stats.coHit++;
+                    return { points: totalPts + route.double, endLeg: true, dartsUsed: 3 };
+                } else {
+                    // Miss double
+                    const missScore = route.double === 50 ? (Math.random() < 0.5 ? 25 : 0) : (Math.random() < 0.65 ? route.double / 2 : 0);
+                    return { points: totalPts + missScore, endLeg: false, dartsUsed: 3 };
+                }
+            },
             processVisit: (player, isDecider) => {
                 let score = player.score;
                 let visitTotal = 0;
                 let rhythm = 0;
+                
+                // Check if on a 9-darter attempt (6 darts thrown = 2x180, now on 3rd visit)
+                // Also check for any high checkout opportunity on first dart of visit
+                const isNineDarterAttempt = player.stats.darts === 6 && score >= 100 && score <= 170 && 
+                    ![169, 168, 166, 165, 163, 162, 159].includes(score) && Logic.HIGH_CHECKOUTS[score];
+                
+                if (isNineDarterAttempt) {
+                    // Go for the 9-darter!
+                    const result = Logic.attemptHighCheckout(player, score, isDecider);
+                    if (result) {
+                        return { points: result.points, endLeg: result.endLeg, dartsThrown: result.dartsUsed };
+                    }
+                }
+                
                 for (let d = 1; d <= 3; d++) {
                     if (score <= 1) return { points: 0, endLeg: false, dartsThrown: d };
                     let pts = 0;
                     if (score <= 170 && ![169, 168, 166, 165, 163, 162, 159].includes(score)) {
+                        // Check for high checkout opportunity mid-visit (e.g., after hitting 60, left with 110)
+                        if (d === 1 && score >= 100 && Logic.HIGH_CHECKOUTS[score]) {
+                            const result = Logic.attemptHighCheckout(player, score, isDecider);
+                            if (result) {
+                                return { points: visitTotal + result.points, endLeg: result.endLeg, dartsThrown: result.dartsUsed };
+                            }
+                        }
+                        
                         if (score <= 40 && score % 2 === 0) {
                             player.stats.coAtt++;
                             const isFav = (score / 2 === player.fav);
@@ -5153,6 +5478,277 @@
                     if (score === 0) return { points: visitTotal, endLeg: true, dartsThrown: d };
                 }
                 return { points: visitTotal, endLeg: false, dartsThrown: 3 };
+            }
+        };
+
+        // ================= DARTBOARD VISUALIZATION SYSTEM =================
+        window.Dartboard = {
+            enabled: false,
+            currentDarts: [],
+            // Dartboard number order (clockwise from top)
+            numbers: [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5],
+            // Colors for segments
+            colors: {
+                black: '#1a1a1a',
+                white: '#f5deb3',
+                red: '#cc0000',
+                green: '#1b8c1b'
+            },
+
+            init: () => {
+                Dartboard.drawBoard();
+                // Load preference from localStorage
+                const saved = localStorage.getItem('pdc_dartboard_enabled');
+                if (saved === 'true') {
+                    Dartboard.enabled = true;
+                    document.getElementById('btn-dartboard-toggle')?.classList.add('active');
+                }
+            },
+
+            drawBoard: () => {
+                const segmentsG = document.getElementById('dartboard-segments');
+                const numbersG = document.getElementById('dartboard-numbers');
+                if (!segmentsG || !numbersG) return;
+
+                segmentsG.innerHTML = '';
+                numbersG.innerHTML = '';
+
+                const cx = 200, cy = 200;
+                const outerDouble = 170, innerDouble = 160;
+                const outerTreble = 107, innerTreble = 99;
+                const outerSingle = 160, innerSingle = 107;
+                const outerBull = 16, innerBull = 6.5;
+
+                for (let i = 0; i < 20; i++) {
+                    const num = Dartboard.numbers[i];
+                    const startAngle = (i * 18 - 99) * Math.PI / 180;
+                    const endAngle = ((i + 1) * 18 - 99) * Math.PI / 180;
+
+                    const isEven = i % 2 === 0;
+                    const singleColor = isEven ? Dartboard.colors.black : Dartboard.colors.white;
+                    const doubleColor = isEven ? Dartboard.colors.red : Dartboard.colors.green;
+                    const trebleColor = isEven ? Dartboard.colors.red : Dartboard.colors.green;
+
+                    // Double segment
+                    segmentsG.appendChild(Dartboard.createSegment(cx, cy, innerDouble, outerDouble, startAngle, endAngle, doubleColor));
+                    // Outer single segment
+                    segmentsG.appendChild(Dartboard.createSegment(cx, cy, outerTreble, innerDouble, startAngle, endAngle, singleColor));
+                    // Treble segment
+                    segmentsG.appendChild(Dartboard.createSegment(cx, cy, innerTreble, outerTreble, startAngle, endAngle, trebleColor));
+                    // Inner single segment
+                    segmentsG.appendChild(Dartboard.createSegment(cx, cy, outerBull, innerTreble, startAngle, endAngle, singleColor));
+
+                    // Number label
+                    const labelAngle = (i * 18 - 90) * Math.PI / 180;
+                    const labelR = 183;
+                    const lx = cx + labelR * Math.cos(labelAngle);
+                    const ly = cy + labelR * Math.sin(labelAngle);
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', lx);
+                    text.setAttribute('y', ly + 5);
+                    text.textContent = num;
+                    numbersG.appendChild(text);
+                }
+            },
+
+            createSegment: (cx, cy, r1, r2, startAngle, endAngle, fill) => {
+                const x1 = cx + r1 * Math.cos(startAngle);
+                const y1 = cy + r1 * Math.sin(startAngle);
+                const x2 = cx + r2 * Math.cos(startAngle);
+                const y2 = cy + r2 * Math.sin(startAngle);
+                const x3 = cx + r2 * Math.cos(endAngle);
+                const y3 = cy + r2 * Math.sin(endAngle);
+                const x4 = cx + r1 * Math.cos(endAngle);
+                const y4 = cy + r1 * Math.sin(endAngle);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const d = `M ${x1} ${y1} L ${x2} ${y2} A ${r2} ${r2} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${r1} ${r1} 0 0 0 ${x1} ${y1} Z`;
+                path.setAttribute('d', d);
+                path.setAttribute('fill', fill);
+                path.setAttribute('stroke', '#0a0a0a');
+                path.setAttribute('stroke-width', '0.5');
+                return path;
+            },
+
+            toggle: () => {
+                Dartboard.enabled = !Dartboard.enabled;
+                localStorage.setItem('pdc_dartboard_enabled', Dartboard.enabled);
+                const btn = document.getElementById('btn-dartboard-toggle');
+                if (Dartboard.enabled) {
+                    btn?.classList.add('active');
+                    Dartboard.show();
+                } else {
+                    btn?.classList.remove('active');
+                    Dartboard.hide();
+                }
+            },
+
+            show: () => {
+                document.getElementById('dartboard-container')?.classList.add('active');
+            },
+
+            hide: () => {
+                document.getElementById('dartboard-container')?.classList.remove('active');
+            },
+
+            // Get position on board for a given score
+            getPosition: (score, isDouble = false, isTreble = false, isBull = false) => {
+                const cx = 200, cy = 200;
+
+                // Bull
+                if (score === 50 || (score === 25 && isBull)) {
+                    const r = score === 50 ? 3 : 11;
+                    const angle = Math.random() * 2 * Math.PI;
+                    const offset = Math.random() * r;
+                    return {
+                        x: cx + offset * Math.cos(angle),
+                        y: cy + offset * Math.sin(angle)
+                    };
+                }
+
+                // Find the number segment
+                let baseNum = score;
+                if (isDouble) baseNum = score / 2;
+                else if (isTreble) baseNum = score / 3;
+
+                const segmentIndex = Dartboard.numbers.indexOf(baseNum);
+                if (segmentIndex === -1) {
+                    // Unknown score - place randomly
+                    return { x: cx + (Math.random() - 0.5) * 100, y: cy + (Math.random() - 0.5) * 100 };
+                }
+
+                // Calculate angle for this segment (center of segment)
+                const segmentAngle = (segmentIndex * 18 - 90) * Math.PI / 180;
+                const angleSpread = (Math.random() - 0.5) * 14 * Math.PI / 180; // Random within segment
+                const angle = segmentAngle + angleSpread;
+
+                // Calculate radius based on type
+                let r;
+                if (isDouble) {
+                    r = 163 + Math.random() * 6; // Double ring
+                } else if (isTreble) {
+                    r = 101 + Math.random() * 5; // Treble ring
+                } else {
+                    // Single - either inner or outer
+                    if (Math.random() < 0.5) {
+                        r = 45 + Math.random() * 50; // Inner single
+                    } else {
+                        r = 115 + Math.random() * 40; // Outer single
+                    }
+                }
+
+                return {
+                    x: cx + r * Math.cos(angle),
+                    y: cy + r * Math.sin(angle)
+                };
+            },
+
+            // Determine dart type from score
+            getDartType: (score) => {
+                if (score === 0) return { score: 0, isDouble: false, isTreble: false, isBull: false, display: '0' };
+                if (score === 50) return { score: 50, isDouble: true, isTreble: false, isBull: true, display: 'D-BULL' };
+                if (score === 25) return { score: 25, isDouble: false, isTreble: false, isBull: true, display: 'S-BULL' };
+
+                // Check if treble (divisible by 3 and result is 1-20)
+                if (score % 3 === 0 && score / 3 >= 1 && score / 3 <= 20 && score > 20) {
+                    return { score: score, isDouble: false, isTreble: true, isBull: false, display: `T${score / 3}` };
+                }
+                // Check if double (even and half is 1-20)
+                if (score % 2 === 0 && score / 2 >= 1 && score / 2 <= 20) {
+                    return { score: score, isDouble: true, isTreble: false, isBull: false, display: `D${score / 2}` };
+                }
+                // Single
+                if (score >= 1 && score <= 20) {
+                    return { score: score, isDouble: false, isTreble: false, isBull: false, display: `${score}` };
+                }
+
+                return { score: score, isDouble: false, isTreble: false, isBull: false, display: `${score}` };
+            },
+
+            // Clear darts from board
+            clearDarts: () => {
+                Dartboard.currentDarts = [];
+                const markersDiv = document.getElementById('dart-markers');
+                if (markersDiv) markersDiv.innerHTML = '';
+                document.getElementById('dart-1').textContent = '-';
+                document.getElementById('dart-2').textContent = '-';
+                document.getElementById('dart-3').textContent = '-';
+                document.getElementById('dart-1').className = 'dart-score-item';
+                document.getElementById('dart-2').className = 'dart-score-item';
+                document.getElementById('dart-3').className = 'dart-score-item';
+                document.getElementById('dartboard-total').textContent = '0';
+            },
+
+            // Animate a single dart throw
+            animateDart: (dartNumber, score, delay = 0) => {
+                if (!Dartboard.enabled) return;
+
+                setTimeout(() => {
+                    const dartInfo = Dartboard.getDartType(score);
+                    const pos = Dartboard.getPosition(score, dartInfo.isDouble, dartInfo.isTreble, dartInfo.isBull);
+
+                    // Create dart marker
+                    const marker = document.createElement('div');
+                    marker.className = 'dart-marker';
+                    
+                    // Convert SVG coordinates to percentage for absolute positioning
+                    const wrapper = document.querySelector('.dartboard-wrapper');
+                    if (wrapper) {
+                        const wrapperRect = wrapper.getBoundingClientRect();
+                        const scale = wrapperRect.width / 400;
+                        marker.style.left = `${pos.x * scale}px`;
+                        marker.style.top = `${pos.y * scale}px`;
+                    }
+
+                    const markersDiv = document.getElementById('dart-markers');
+                    if (markersDiv) markersDiv.appendChild(marker);
+
+                    // Update score display
+                    const dartEl = document.getElementById(`dart-${dartNumber}`);
+                    if (dartEl) {
+                        dartEl.textContent = dartInfo.display;
+                        dartEl.className = 'dart-score-item scored';
+                    }
+
+                    // Update total
+                    Dartboard.currentDarts.push(score);
+                    const total = Dartboard.currentDarts.reduce((a, b) => a + b, 0);
+                    document.getElementById('dartboard-total').textContent = total;
+
+                    // Play sound effect
+                    try {
+                        const audio = new Audio('dart-hit.mp3');
+                        audio.volume = 0.3;
+                        audio.play().catch(() => {});
+                    } catch (e) {}
+
+                }, delay);
+            },
+
+            // Show visit animation (all 3 darts)
+            showVisit: (darts) => {
+                if (!Dartboard.enabled) return;
+
+                Dartboard.clearDarts();
+                Dartboard.show();
+
+                // Highlight first dart
+                document.getElementById('dart-1').className = 'dart-score-item active';
+
+                // Animate each dart with delay
+                darts.forEach((score, i) => {
+                    setTimeout(() => {
+                        // Remove active from current, add to next
+                        if (i > 0) {
+                            document.getElementById(`dart-${i}`).className = 'dart-score-item scored';
+                        }
+                        if (i < 2 && darts[i + 1] !== undefined) {
+                            document.getElementById(`dart-${i + 2}`).className = 'dart-score-item active';
+                        }
+                    }, i * 400);
+
+                    Dartboard.animateDart(i + 1, score, i * 400);
+                });
             }
         };
 
@@ -8457,7 +9053,7 @@
                     }
 
                     Season.state.activeEventIndex++;
-                    // DON'T set inProgress to false here - let the caller handle it via setTimeout to prevent cascade
+                    Season.state.inProgress = false;
                     Tournament.state.active = false;
 
                     if (!isBulkSim) {
@@ -8470,10 +9066,8 @@
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
                         App.switchTab('season');
-                        // Set guard to prevent cascading auto-starts
-                        if (!Season.guardAgainstAutoStart) {
-                            Season.guardAgainstAutoStart = true;
-                        }
+                        // Clear guard to allow starting next events
+                        Season.guardAgainstAutoStart = false;
                         Season.renderUI();
                         Tournament.showCelebration("PREMIER LEAGUE CHAMPION", winnerName, [winnerName]);
                     }
@@ -9403,21 +9997,20 @@
                     Season.state.premierLeague.standings[finalMatch.winner.name].money += 10000;
                 }
 
-                // Final loser: 3 points
-                const finalLoser = finalMatch.winner === finalMatch.p1 ? finalMatch.p2 : finalMatch.p1;
-                if (finalLoser) {
+                // Final loser: 3 points (compare by name to handle object reference issues)
+                const finalLoser = finalMatch.winner.name === finalMatch.p1.name ? finalMatch.p2 : finalMatch.p1;
+                if (finalLoser && finalLoser.name !== finalMatch.winner.name) {
                     Season.state.premierLeague.standings[finalLoser.name].points += 3;
                     Season.state.premierLeague.standings[finalLoser.name].runnerUpFinishes += 1;
                 }
 
-                // SF finishers: 2 points each
+                // SF finishers: 2 points each (compare by name to handle object reference issues)
                 [sf1, sf2].forEach(sf => {
-                    const loser1 = sf.winner === sf.p1 ? sf.p2 : sf.p1;
-                    const loser2 = sf.winner === sf.p2 ? sf.p1 : sf.p2;
+                    const loser = sf.winner.name === sf.p1.name ? sf.p2 : sf.p1;
 
-                    if (loser1 && finalLoser.name !== loser1.name) {
-                        Season.state.premierLeague.standings[loser1.name].points += 2;
-                        Season.state.premierLeague.standings[loser1.name].semiFinalFinishes += 1;
+                    if (loser && loser.name !== finalMatch.winner.name && loser.name !== finalLoser.name) {
+                        Season.state.premierLeague.standings[loser.name].points += 2;
+                        Season.state.premierLeague.standings[loser.name].semiFinalFinishes += 1;
                     }
                 });
             },
@@ -11757,6 +12350,9 @@
 
                 // Initialize Season logic (will only init if no data exists)
                 Season.init();
+                
+                // Initialize Dartboard visualization
+                Dartboard.init();
 
                 // OOM Tab logic
                 document.getElementById("btn-main-oom").onclick = () => { Season.state.activeOOMView = "main"; Season.renderUI(); };
@@ -12280,6 +12876,69 @@
                 document.getElementById('overlay-180').style.display = 'flex';
                 setTimeout(() => { document.getElementById('overlay-180').style.display = 'none'; }, 1500);
             },
+            
+            // Generate plausible dart scores for dartboard visualization
+            generateDartScores: (total, dartsThrown, endLeg, checkoutScore) => {
+                const darts = [];
+                
+                if (total === 180) {
+                    return [60, 60, 60];
+                }
+                
+                if (total === 0) {
+                    return [0, 0, 0].slice(0, dartsThrown);
+                }
+                
+                // If ended leg with checkout, last dart is the checkout
+                if (endLeg && checkoutScore > 0) {
+                    let remaining = total;
+                    // Work backwards - last dart was the checkout (a double or bull)
+                    let lastDart = checkoutScore;
+                    if (checkoutScore <= 40 && checkoutScore % 2 === 0) {
+                        lastDart = checkoutScore; // Double
+                    } else if (checkoutScore === 50) {
+                        lastDart = 50; // Bull
+                    }
+                    remaining -= lastDart;
+                    
+                    if (dartsThrown === 1) {
+                        return [lastDart];
+                    } else if (dartsThrown === 2) {
+                        return [remaining, lastDart];
+                    } else {
+                        // Split remaining between first two darts
+                        const first = Math.min(60, Math.max(0, remaining));
+                        const second = remaining - first;
+                        return [first >= 0 ? first : 0, second >= 0 ? second : 0, lastDart];
+                    }
+                }
+                
+                // Normal scoring visit
+                let remaining = total;
+                for (let i = 0; i < dartsThrown; i++) {
+                    if (i === dartsThrown - 1) {
+                        darts.push(remaining);
+                    } else {
+                        // Generate a plausible score
+                        let dart;
+                        if (remaining >= 60 && Math.random() < 0.4) {
+                            dart = 60; // T20
+                        } else if (remaining >= 57 && Math.random() < 0.3) {
+                            dart = 57; // T19
+                        } else if (remaining >= 20) {
+                            dart = Math.random() < 0.6 ? 20 : Math.floor(Math.random() * 20) + 1;
+                        } else {
+                            dart = Math.min(remaining, Math.floor(Math.random() * 20) + 1);
+                        }
+                        dart = Math.min(dart, remaining);
+                        darts.push(dart);
+                        remaining -= dart;
+                    }
+                }
+                
+                return darts;
+            },
+            
             gameLoop: () => {
                 if (App.isPaused) return;
 
@@ -12305,6 +12964,11 @@
                         al.style.opacity = pIdx === 0 ? 1 : 0;
                         ar.style.opacity = pIdx === 1 ? 1 : 0;
                     }
+                }
+                
+                // Clear dartboard for new visit
+                if (Dartboard.enabled) {
+                    Dartboard.clearDarts();
                 }
 
                 setTimeout(() => {
@@ -12336,6 +13000,14 @@
                     } else if (result.points === 167) {
                         SOUND_167.play().catch(e => console.log(e));
                         delay = 2000;
+                    }
+                    
+                    // Animate dartboard if enabled
+                    if (Dartboard.enabled) {
+                        const checkoutScore = result.endLeg ? result.points : 0;
+                        const dartScores = App.generateDartScores(result.points, result.dartsThrown, result.endLeg, checkoutScore);
+                        Dartboard.showVisit(dartScores);
+                        delay = Math.max(delay, dartScores.length * 400 + 800);
                     }
 
                     const rows = document.getElementById('visit-container').children;
