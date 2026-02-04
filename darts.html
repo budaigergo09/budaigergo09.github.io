@@ -13051,130 +13051,239 @@
             
             // Generate plausible dart scores for dartboard visualization
             // Realistic rules: singles (1-20, 25), trebles (3-60 divisible by 3), doubles ONLY on checkout
-            generateDartScores: (total, dartsThrown, endLeg, checkoutScore) => {
-                const darts = [];
+            // player: full player object with avg, co, form, confidence, fatigue, fav
+            // isDecider: true if in a pressure situation (deciding leg/set)
+            generateDartScores: (total, dartsThrown, endLeg, checkoutScore, player = null, isDecider = false) => {
+                // Extract player attributes with defaults
+                const playerAvg = player?.avg || 95;
+                const playerCO = player?.co || 40;
+                const playerForm = player?.form ?? 50;
+                const playerConfidence = player?.confidence ?? 50;
+                const playerFatigue = player?.fatigue ?? 0;
+                const playerFav = player?.fav || 20; // Favorite double
                 
-                // Valid dartboard scores - ONLY these values are possible from a single dart
-                // Singles: 1-20, 25 (outer bull)
-                // Doubles: 2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40, 50 (bull)
-                // Trebles: 3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60
-                const SINGLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25];
-                const DOUBLES = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 50];
-                const TREBLES = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60];
+                // Calculate dynamic performance modifier (same as PlayerState.getPerformanceModifier)
+                // form: 0-100, confidence: 0-100, fatigue: 0-100
+                const performanceMod = ((playerForm - 50) * 0.002) + ((playerConfidence - 50) * 0.003) - (playerFatigue * 0.002);
                 
-                // All valid scoring darts (singles + trebles, no doubles during scoring phase)
-                const SCORING_DARTS = [...new Set([...SINGLES, ...TREBLES])].sort((a, b) => b - a);
-                // All valid checkout darts (doubles only)
-                const CHECKOUT_DARTS = DOUBLES.slice().sort((a, b) => b - a);
+                // Effective average includes performance modifier (-0.3 to +0.3 range scaled to avg points)
+                const effectiveAvg = playerAvg + (performanceMod * 30);
                 
-                // Helper to get a valid scoring dart that doesn't exceed maxScore
-                const getValidScoringDart = (maxScore) => {
-                    const validDarts = SCORING_DARTS.filter(d => d <= maxScore);
-                    if (validDarts.length === 0) return 0;
-                    
-                    // Prefer high trebles for scoring
-                    if (maxScore >= 60 && Math.random() < 0.35) return 60;  // T20
-                    if (maxScore >= 57 && Math.random() < 0.25) return 57;  // T19
-                    if (maxScore >= 54 && Math.random() < 0.15) return 54;  // T18
-                    
-                    // Mix of singles and trebles
-                    if (Math.random() < 0.5) {
-                        // Prefer high singles (20, 19, 18 area)
-                        const highSingles = [20, 19, 18, 17, 16, 25].filter(s => s <= maxScore);
-                        if (highSingles.length > 0) {
-                            return highSingles[Math.floor(Math.random() * highSingles.length)];
-                        }
-                    }
-                    
-                    // Random valid dart
-                    return validDarts[Math.floor(Math.random() * Math.min(10, validDarts.length))];
+                // Skill factor based on effective average (0.0 to 1.0 scale)
+                // 85 avg = 0.0 (amateur), 100 avg = 0.5 (good), 115 avg = 1.0 (elite)
+                const skillFactor = Math.max(0, Math.min(1, (effectiveAvg - 85) / 30));
+                
+                // Checkout modifier based on player's CO stat and pressure
+                const checkoutMod = (playerCO - 40) / 60; // -0.67 to +1.0 range
+                const pressureMod = isDecider ? -0.05 : 0;
+                
+                // Standard checkout chart - realistic routes used by professional players
+                const CHECKOUT_CHART = {
+                    // 170-100 (3 dart checkouts)
+                    170: [60, 60, 50], 167: [60, 57, 50], 164: [60, 54, 50], 161: [60, 51, 50],
+                    160: [60, 60, 40], 158: [60, 60, 38], 157: [60, 57, 40], 156: [60, 60, 36],
+                    155: [60, 57, 38], 154: [60, 54, 40], 153: [60, 57, 36], 152: [60, 60, 32],
+                    151: [60, 57, 34], 150: [60, 60, 30], 149: [60, 57, 32], 148: [60, 60, 28],
+                    147: [60, 57, 30], 146: [60, 54, 32], 145: [60, 57, 28], 144: [60, 60, 24],
+                    143: [60, 57, 26], 142: [60, 54, 28], 141: [60, 51, 30], 140: [60, 60, 20],
+                    139: [60, 57, 22], 138: [60, 54, 24], 137: [60, 57, 20], 136: [60, 60, 16],
+                    135: [60, 57, 18], 134: [60, 54, 20], 133: [60, 57, 16], 132: [60, 60, 12],
+                    131: [60, 57, 14], 130: [60, 60, 10], 129: [60, 57, 12], 128: [60, 54, 14],
+                    127: [60, 57, 10], 126: [60, 54, 12], 125: [60, 57, 8], 124: [60, 54, 10],
+                    123: [60, 57, 6], 122: [60, 54, 8], 121: [60, 51, 10], 120: [60, 20, 40],
+                    119: [60, 19, 40], 118: [60, 18, 40], 117: [60, 17, 40], 116: [60, 16, 40],
+                    115: [60, 15, 40], 114: [60, 14, 40], 113: [60, 13, 40], 112: [60, 12, 40],
+                    111: [60, 11, 40], 110: [60, 10, 40], 109: [60, 9, 40], 108: [60, 8, 40],
+                    107: [60, 7, 40], 106: [60, 6, 40], 105: [60, 5, 40], 104: [60, 4, 40],
+                    103: [60, 3, 40], 102: [60, 2, 40], 101: [60, 1, 40], 100: [60, 40],
+                    // 99-61 (2 dart checkouts)
+                    99: [57, 42], 98: [60, 38], 97: [57, 40], 96: [60, 36], 95: [57, 38],
+                    94: [54, 40], 93: [57, 36], 92: [60, 32], 91: [57, 34], 90: [60, 30],
+                    89: [57, 32], 88: [60, 28], 87: [57, 30], 86: [54, 32], 85: [57, 28],
+                    84: [60, 24], 83: [57, 26], 82: [60, 22], 81: [57, 24], 80: [60, 20],
+                    79: [57, 22], 78: [54, 24], 77: [57, 20], 76: [60, 16], 75: [57, 18],
+                    74: [54, 20], 73: [57, 16], 72: [60, 12], 71: [57, 14], 70: [60, 10],
+                    69: [57, 12], 68: [60, 8], 67: [57, 10], 66: [54, 12], 65: [57, 8],
+                    64: [16, 48], 63: [57, 6], 62: [54, 8], 61: [57, 4],
+                    // 60-41 (1-2 dart checkouts)
+                    60: [20, 40], 59: [19, 40], 58: [18, 40], 57: [17, 40], 56: [16, 40],
+                    55: [15, 40], 54: [14, 40], 53: [13, 40], 52: [12, 40], 51: [11, 40],
+                    50: [50], 49: [9, 40], 48: [16, 32], 47: [15, 32], 46: [14, 32],
+                    45: [13, 32], 44: [12, 32], 43: [11, 32], 42: [10, 32], 41: [9, 32],
+                    // 40 and below (direct doubles or setup)
+                    40: [40], 39: [7, 32], 38: [38], 37: [5, 32], 36: [36], 35: [3, 32],
+                    34: [34], 33: [1, 32], 32: [32], 31: [7, 24], 30: [30], 29: [5, 24],
+                    28: [28], 27: [3, 24], 26: [26], 25: [9, 16], 24: [24], 23: [7, 16],
+                    22: [22], 21: [5, 16], 20: [20], 19: [3, 16], 18: [18], 17: [1, 16],
+                    16: [16], 15: [7, 8], 14: [14], 13: [5, 8], 12: [12], 11: [3, 8],
+                    10: [10], 9: [1, 8], 8: [8], 7: [3, 4], 6: [6], 5: [1, 4],
+                    4: [4], 3: [1, 2], 2: [2]
                 };
                 
-                // Helper to find valid darts that sum to exact target
-                const findValidCombination = (target, numDarts, allowDoubles) => {
-                    const available = allowDoubles ? [...new Set([...SCORING_DARTS, ...DOUBLES])].sort((a,b) => b-a) : SCORING_DARTS;
-                    const result = [];
-                    let remaining = target;
+                // Dartboard layout - numbers around the board clockwise from top
+                // 20 is at top, going clockwise: 20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5
+                const BOARD_ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+                
+                // Adjacent numbers to 20 (the scoring area most players aim for)
+                const T20_AREA = [20, 1, 5, 18]; // T20 and nearby misses
+                const T19_AREA = [19, 3, 7, 17]; // T19 and nearby misses
+                // Wider miss area for lower skilled players
+                const WIDE_MISS = [1, 5, 12, 9, 14, 11, 8, 16, 7, 19, 3, 17, 2, 15, 10, 6, 13, 4, 18];
+                
+                // Track rhythm during visit (hitting big scores builds rhythm)
+                let currentRhythm = 0;
+                
+                // Get realistic scoring dart (aiming at T20 or T19 section)
+                // Probability adjustments based on skill + rhythm + form/confidence:
+                // - Elite in form: 55% treble, 25% target single, 15% adj treble, 5% adj single
+                // - Good in form: 40% treble, 25% target single, 20% adj treble, 15% adj single  
+                // - Amateur tired: 15% treble, 20% target single, 15% adj treble, 50% wide miss
+                const getScoringDart = (maxScore, preferT19 = false, rhythmBonus = 0) => {
+                    if (maxScore <= 0) return 0;
                     
-                    for (let i = 0; i < numDarts - 1; i++) {
-                        const valid = available.filter(d => d <= remaining && d <= 60);
-                        if (valid.length === 0) {
-                            result.push(0);
-                        } else {
-                            // Try to leave a valid remainder
-                            let chosen = valid[0];
-                            for (const d of valid) {
-                                const rem = remaining - d;
-                                if (rem === 0 || available.some(v => v === rem)) {
-                                    chosen = d;
-                                    break;
-                                }
-                            }
-                            result.push(chosen);
-                            remaining -= chosen;
-                        }
+                    const area = preferT19 ? T19_AREA : T20_AREA;
+                    const roll = Math.random();
+                    
+                    // Rhythm bonus (hitting 60/57 builds rhythm like the real scoring engine)
+                    const rhythmMod = rhythmBonus * 0.05; // Up to 5% boost
+                    
+                    // Treble hit probability: 15% (tired amateur) to 55% (elite in form)
+                    const baseTreble = 0.15 + (skillFactor * 0.35) + rhythmMod;
+                    const trebleChance = Math.min(0.60, baseTreble);
+                    
+                    // Target single probability: 20% to 25%
+                    const singleChance = trebleChance + 0.20 + (skillFactor * 0.05);
+                    
+                    // Adjacent treble probability: 15% to 20%
+                    const adjTrebleChance = singleChance + 0.15 + (skillFactor * 0.05);
+                    // Rest is adjacent single or wide miss
+                    
+                    if (roll < trebleChance) {
+                        // Hit the treble they're aiming for
+                        const treble = preferT19 ? 57 : 60;
+                        if (treble <= maxScore) return treble;
+                    }
+                    if (roll < singleChance) {
+                        // Hit single of what they aimed at
+                        const single = preferT19 ? 19 : 20;
+                        if (single <= maxScore) return single;
+                    }
+                    if (roll < adjTrebleChance) {
+                        // Hit adjacent treble
+                        const adjTrebles = preferT19 ? [51, 21] : [60, 15, 54]; // T17, T7 or T20, T5, T18
+                        const valid = adjTrebles.filter(t => t <= maxScore);
+                        if (valid.length > 0) return valid[Math.floor(Math.random() * valid.length)];
                     }
                     
-                    // Last dart
-                    if (remaining <= 0) {
-                        result.push(0);
-                    } else if (available.includes(remaining)) {
-                        result.push(remaining);
-                    } else {
-                        // Can't hit exact, adjust previous darts
-                        result.push(Math.min(60, remaining));
+                    // Lower skill or fatigued = more likely to hit wide miss
+                    const wideMissChance = (1 - skillFactor) * 0.6;
+                    if (Math.random() < wideMissChance) {
+                        // Wide miss for lower skilled/fatigued players
+                        const valid = WIDE_MISS.filter(s => s <= maxScore);
+                        if (valid.length > 0) return valid[Math.floor(Math.random() * valid.length)];
+                    }
+                    
+                    // Adjacent single (normal miss)
+                    const adjSingles = area.filter(s => s <= maxScore);
+                    if (adjSingles.length > 0) {
+                        return adjSingles[Math.floor(Math.random() * adjSingles.length)];
+                    }
+                    
+                    // Fallback
+                    return Math.min(maxScore, 20);
+                };
+                
+                // Generate scoring darts for a visit (not a checkout)
+                const generateScoringVisit = (target, numDarts) => {
+                    const result = [];
+                    let remaining = target;
+                    let rhythm = 0;
+                    
+                    for (let i = 0; i < numDarts; i++) {
+                        if (remaining <= 0) {
+                            result.push(0);
+                            continue;
+                        }
+                        
+                        // Alternate between T20 and T19 areas occasionally (elite players vary more)
+                        const preferT19 = Math.random() < (0.10 + skillFactor * 0.10);
+                        const dart = getScoringDart(Math.min(60, remaining), preferT19, rhythm);
+                        result.push(dart);
+                        remaining -= dart;
+                        
+                        // Build rhythm on big scores (same as Engine.getScoringHit)
+                        if (dart >= 57) rhythm = 1;
+                        else rhythm = 0;
+                    }
+                    
+                    // Validate sum matches
+                    const sum = result.reduce((a, b) => a + b, 0);
+                    if (sum !== target && result.length > 0) {
+                        // Adjust last dart
+                        const diff = target - sum;
+                        result[result.length - 1] = Math.max(0, Math.min(60, result[result.length - 1] + diff));
                     }
                     
                     return result;
                 };
                 
-                if (total === 180) {
-                    return [60, 60, 60];
-                }
+                // Special cases
+                if (total === 180) return [60, 60, 60];
+                if (total === 0) return Array(dartsThrown).fill(0);
                 
-                if (total === 0) {
-                    return [0, 0, 0].slice(0, dartsThrown);
-                }
-                
-                // If ended leg with checkout, last dart must be a double
+                // If this is a checkout (leg ended)
                 if (endLeg && total > 0) {
-                    let remaining = total;
+                    const route = CHECKOUT_CHART[total];
                     
-                    // Determine the checkout double
-                    let lastDart;
-                    if (total === 50) {
-                        lastDart = 50; // Bull finish
-                    } else if (CHECKOUT_DARTS.includes(total)) {
-                        lastDart = total; // Direct double
-                    } else {
-                        // Find a valid double that leaves valid setup
-                        for (const dbl of CHECKOUT_DARTS) {
-                            if (dbl <= total && (total - dbl) <= 120) {
-                                lastDart = dbl;
-                                break;
-                            }
+                    if (route) {
+                        // Use the standard checkout route
+                        if (route.length === dartsThrown) {
+                            return route;
+                        } else if (route.length < dartsThrown) {
+                            // Pad with zeros or scoring darts at start
+                            const padding = dartsThrown - route.length;
+                            return [...Array(padding).fill(0), ...route];
+                        } else {
+                            // Route is longer than darts thrown - take last N darts
+                            return route.slice(-dartsThrown);
                         }
-                        if (!lastDart) lastDart = CHECKOUT_DARTS.find(d => d <= total) || 2;
                     }
                     
-                    remaining = total - lastDart;
+                    // No standard route - construct one
+                    // Find a valid double to finish on
+                    const DOUBLES = [50, 40, 38, 36, 34, 32, 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2];
+                    let finishDouble = null;
+                    
+                    for (const dbl of DOUBLES) {
+                        if (dbl <= total) {
+                            finishDouble = dbl;
+                            break;
+                        }
+                    }
+                    
+                    if (!finishDouble) finishDouble = 2;
+                    const setup = total - finishDouble;
                     
                     if (dartsThrown === 1) {
-                        return [lastDart];
+                        return [finishDouble];
                     } else if (dartsThrown === 2) {
-                        // First dart setup, must be valid
-                        const firstDart = SCORING_DARTS.find(d => d === remaining) || 
-                                         SCORING_DARTS.find(d => d <= remaining) || 0;
-                        return [firstDart, lastDart];
+                        return [setup, finishDouble];
                     } else {
-                        // Three darts: two setup, one checkout
-                        const setup = findValidCombination(remaining, 2, false);
-                        return [...setup, lastDart];
+                        // 3 darts - generate setup darts
+                        if (setup <= 60) {
+                            return [0, setup, finishDouble];
+                        } else if (setup <= 120) {
+                            const first = Math.min(60, setup);
+                            const second = setup - first;
+                            return [first, second, finishDouble];
+                        } else {
+                            return [60, setup - 60, finishDouble];
+                        }
                     }
                 }
                 
-                // Normal scoring visit (no checkout) - only singles and trebles
-                return findValidCombination(total, dartsThrown, false);
+                // Normal scoring visit - focus on T20/T19 area
+                return generateScoringVisit(total, dartsThrown);
             },
             
             gameLoop: () => {
@@ -13243,7 +13352,7 @@
                     // Animate dartboard if enabled
                     if (Dartboard.enabled) {
                         const checkoutScore = result.endLeg ? result.points : 0;
-                        const dartScores = App.generateDartScores(result.points, result.dartsThrown, result.endLeg, checkoutScore);
+                        const dartScores = App.generateDartScores(result.points, result.dartsThrown, result.endLeg, checkoutScore, p, isDecider);
                         Dartboard.showVisit(dartScores, result.endLeg);
                         delay = Math.max(delay, dartScores.length * 400 + 800);
                     }
