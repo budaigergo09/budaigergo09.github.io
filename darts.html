@@ -3467,16 +3467,31 @@
     <!-- CAREER SCREENS -->
     <div id="career-creation-screen">
         <div class="header" style="background: #111; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pdc-gold);">
-            <h1 style="font-size: 18px; color: var(--pdc-gold); margin: 0;">CREATE CHARACTER</h1>
+            <h1 style="font-size: 18px; color: var(--pdc-gold); margin: 0;">NEW CAREER</h1>
             <button class="btn-icon" onclick="showCareerMainMenu()">✕</button>
         </div>
         <div style="padding: 20px; max-width: 600px; margin: 0 auto; width: 100%;">
-            <div class="player-type-toggle" style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="type-btn active" id="type-custom" onclick="setCareerPlayerType('custom')">CUSTOM PLAYER</button>
-                <button class="type-btn" id="type-existing" onclick="setCareerPlayerType('existing')">EXISTING PRO</button>
+            
+            <!-- OPTION SELECTION -->
+            <div id="career-type-selection" style="text-align:center;">
+                <h2 style="color:var(--pdc-gold); margin-bottom:20px;">Choose Your Path</h2>
+                <div style="display:flex; flex-direction:column; gap:15px; max-width:350px; margin:0 auto;">
+                    <button class="btn-gold" onclick="showCareerCustomForm()" style="padding:20px; font-size:16px;">
+                        <div style="font-size:24px; margin-bottom:5px;">🎯</div>
+                        CREATE NEW CHARACTER
+                        <div style="font-size:11px; color:#aaa; margin-top:5px;">Start from scratch with your own player</div>
+                    </button>
+                    <button class="btn-blue" onclick="showCareerExistingForm()" style="padding:20px; font-size:16px;">
+                        <div style="font-size:24px; margin-bottom:5px;">⭐</div>
+                        PLAY AS EXISTING PRO
+                        <div style="font-size:11px; color:#ccc; margin-top:5px;">Take control of a real PDC player</div>
+                    </button>
+                </div>
             </div>
 
-            <div id="custom-form">
+            <!-- CUSTOM PLAYER FORM (hidden by default) -->
+            <div id="custom-form" style="display:none;">
+                <button class="btn-icon" onclick="showCareerTypeSelection()" style="margin-bottom:15px;">← Back</button>
                 <div class="creation-section">
                     <h2>Personal Details</h2>
                     <div class="form-group">
@@ -3527,17 +3542,20 @@
                         </div>
                     </div>
                 </div>
+                <button class="btn-gold" style="padding:15px; font-size:18px; margin-top:10px; width:100%;" onclick="startCareer()">START CAREER</button>
             </div>
 
+            <!-- EXISTING PLAYER FORM (hidden by default) -->
             <div id="career-existing-form" style="display:none;">
+                <button class="btn-icon" onclick="showCareerTypeSelection()" style="margin-bottom:15px;">← Back</button>
                 <div class="creation-section">
                     <h2>Select Professional</h2>
-                    <input type="text" id="career-player-search-box" placeholder="Search player..." onkeyup="filterCareerPlayers()" style="margin-bottom:10px;">
+                    <input type="text" id="career-player-search-box" placeholder="Search player..." onkeyup="filterCareerPlayers()" style="margin-bottom:10px; width:100%; padding:10px; border-radius:4px; border:1px solid #444; background:#222; color:white;">
                     <div id="career-player-list-container" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
                 </div>
+                <button class="btn-gold" style="padding:15px; font-size:18px; margin-top:10px; width:100%;" onclick="startCareer()">START CAREER</button>
             </div>
 
-            <button class="btn-gold" style="padding:15px; font-size:18px; margin-top:10px;" onclick="startCareer()">START CAREER</button>
         </div>
     </div>
 
@@ -3706,51 +3724,20 @@
 
         // Career global wrappers
         function showNewCareer() {
-            console.log('=== NEW CAREER DEBUG START ===');
-            console.log('Timestamp:', new Date().toISOString());
-            console.log('typeof Career:', typeof Career);
-            console.log('Career object:', Career);
-            
-            if (typeof Career !== 'undefined') {
-                console.log('Career.showCreation exists:', typeof Career.showCreation === 'function');
-                console.log('Career.showNewCareer exists:', typeof Career.showNewCareer === 'function');
-                console.log('Career.state:', Career.state);
-                console.log('All Career methods:', Object.keys(Career));
-            }
-            
-            // Check for career-creation-screen element
-            const creationScreen = document.getElementById('career-creation-screen');
-            console.log('career-creation-screen element:', creationScreen);
-            console.log('career-creation-screen display:', creationScreen ? creationScreen.style.display : 'N/A');
-            
-            // List all screens and their display states
-            const allScreens = document.querySelectorAll('.screen');
-            console.log('Total .screen elements found:', allScreens.length);
-            allScreens.forEach((s, i) => {
-                console.log(`Screen ${i}: id=${s.id}, display=${s.style.display}`);
-            });
-            
-            // Now show season mode window as requested
-            console.log('ACTION: Showing Season Mode window...');
+            // Hide all screens and tabs
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             
-            const seasonTab = document.getElementById('tab-season');
-            if (seasonTab) {
-                seasonTab.classList.add('active');
-                seasonTab.style.display = 'block';
-                console.log('SUCCESS: Season tab displayed');
+            // Show the career creation screen
+            const creationScreen = document.getElementById('career-creation-screen');
+            if (creationScreen) {
+                creationScreen.style.display = 'flex';
                 
-                // Also trigger Season mode initialization if available
-                if (typeof Season !== 'undefined' && Season.renderSchedule) {
-                    Season.renderSchedule();
-                    console.log('Season.renderSchedule() called');
+                // Initialize the creation screen if Career object exists
+                if (typeof Career !== 'undefined' && Career.showCreation) {
+                    Career.showCreation();
                 }
-            } else {
-                console.error('ERROR: tab-season element not found!');
             }
-            
-            console.log('=== NEW CAREER DEBUG END ===');
         }
         function loadCareer() {
             if (typeof Career !== 'undefined' && Career.loadGame) Career.loadGame();
@@ -3768,6 +3755,31 @@
         function trainCareer() { if(typeof Career !== 'undefined') Career.train(); }
         function showCareerMainMenu() { if(typeof Career !== 'undefined') Career.showMainMenu(); }
         function setCareerPlayerType(type) { if(typeof Career !== 'undefined') Career.setPlayerType(type); }
+        
+        function showCareerTypeSelection() {
+            document.getElementById('career-type-selection').style.display = 'block';
+            document.getElementById('custom-form').style.display = 'none';
+            document.getElementById('career-existing-form').style.display = 'none';
+            if (typeof Career !== 'undefined') Career.playerType = null;
+        }
+        
+        function showCareerCustomForm() {
+            document.getElementById('career-type-selection').style.display = 'none';
+            document.getElementById('custom-form').style.display = 'block';
+            document.getElementById('career-existing-form').style.display = 'none';
+            if (typeof Career !== 'undefined') Career.playerType = 'custom';
+        }
+        
+        function showCareerExistingForm() {
+            document.getElementById('career-type-selection').style.display = 'none';
+            document.getElementById('custom-form').style.display = 'none';
+            document.getElementById('career-existing-form').style.display = 'block';
+            if (typeof Career !== 'undefined') {
+                Career.playerType = 'existing';
+                Career.renderPlayerList();
+            }
+        }
+        
         function closeCareerEventModal() { if(typeof Career !== 'undefined' && Career.closeEventModal) Career.closeEventModal(); }
         function enterCareerEvent() { if(typeof Career !== 'undefined' && Career.enterEvent) Career.enterEvent(); }
         function updateCareerStartingStats() { if(typeof Career !== 'undefined') Career.updateStartingStats(); }
@@ -14226,8 +14238,8 @@
                 if (!list) return;
                 list.innerHTML = '';
                 
-                // Get next 5 events
-                const events = Season.events.slice(Career.state.week - 1, Career.state.week + 4);
+                // Get next 8 events
+                const events = Season.events.slice(Career.state.week - 1, Career.state.week + 7);
                 
                 events.forEach((ev, idx) => {
                     const card = document.createElement('div');
@@ -14235,21 +14247,34 @@
                     if (idx === 0) card.classList.add('next-up');
                     
                     const isEligible = Career.checkEligibility(ev);
-                    let statusTxt = 'UPCOMING';
-                    if (idx === 0) statusTxt = isEligible ? 'PLAY EVENT' : 'NOT ELIGIBLE';
+                    let statusTxt = isEligible ? 'ELIGIBLE' : 'NOT ELIGIBLE';
+                    let statusClass = isEligible ? 'eligible' : 'ineligible';
+                    if (idx === 0) {
+                        statusTxt = isEligible ? '▶ ENTER' : 'NOT ELIGIBLE';
+                        statusClass = isEligible ? 'playable' : 'ineligible';
+                    }
+                    
+                    // Eligibility reason
+                    let eligReason = '';
+                    if (!isEligible) {
+                        if (ev.type === 'q-school' && Career.state.tourCard) eligReason = '(Already have Tour Card)';
+                        else if ((ev.type === 'players' || ev.type === 'minor' || ev.type === 'major') && !Career.state.tourCard) eligReason = '(Requires Tour Card)';
+                    }
                     
                     card.innerHTML = `
                         <div class="career-ev-info">
                             <div class="career-ev-name">${ev.name}</div>
                             <div class="career-ev-meta">${ev.type.toUpperCase()} | ${ev.players} Players | £${(ev.prize || 0).toLocaleString()}</div>
+                            ${eligReason ? `<div style="color:#f44336; font-size:10px;">${eligReason}</div>` : ''}
                         </div>
-                        <div class="career-ev-status ${idx === 0 && isEligible ? 'playable' : ''}">${statusTxt}</div>
+                        <div class="career-ev-status ${statusClass}" style="${!isEligible ? 'background:#c0392b; opacity:0.7;' : ''}">${statusTxt}</div>
                     `;
                     
-                    if (idx === 0 && isEligible) {
-                        card.onclick = () => Career.showEventModal(ev);
-                        card.style.cursor = 'pointer';
-                    }
+                    // All events are clickable to show details
+                    card.onclick = () => Career.showEventModal(ev);
+                    card.style.cursor = 'pointer';
+                    if (!isEligible) card.style.opacity = '0.6';
+                    
                     list.appendChild(card);
                 });
             },
@@ -14356,31 +14381,39 @@
 
             rest: () => {
                 const p = Career.state.player;
-                if (p.fatigue < 10) return alert('You are already well rested!');
-                if (!confirm('Take a week off to rest? (Fatigue -30, Form -5)')) return;
+                if (p.fatigue < 5) return alert('You are already well rested!');
+                if (!confirm('Take a week off to rest?\n\n• Fatigue: -35\n• Form: -3\n\nResting helps you recover but you may lose some sharpness.')) return;
                 
-                p.fatigue = Math.max(0, p.fatigue - 30);
-                p.form = Math.max(0, p.form - 5);
+                p.fatigue = Math.max(0, p.fatigue - 35);
+                p.form = Math.max(0, p.form - 3);
                 Career.state.week++;
                 
                 Career.save();
                 Career.renderDashboard();
-                alert('You feel refreshed!');
+                alert(`You feel refreshed!\n\nFatigue: ${Math.round(p.fatigue)}%\nForm: ${Math.round(p.form)}`);
             },
 
             train: () => {
                 const p = Career.state.player;
                 if (p.fatigue > 80) return alert('You are too tired to train! Rest first.');
-                if (!confirm('Spend a week training? (Avg +0.1, Fatigue +15, Form +10)')) return;
                 
-                p.avg += 0.1;
-                p.fatigue = Math.min(100, p.fatigue + 15);
-                p.form = Math.min(100, p.form + 10);
+                // Calculate improvements based on current level
+                const avgGain = p.avg < 90 ? 0.2 : (p.avg < 95 ? 0.1 : 0.05);
+                const checkoutGain = p.checkout < 45 ? 0.5 : (p.checkout < 50 ? 0.3 : 0.1);
+                const formGain = 10;
+                const fatigueGain = 20;
+                
+                if (!confirm(`Spend a week training?\n\n• Average: +${avgGain.toFixed(2)}\n• Checkout %: +${checkoutGain.toFixed(1)}%\n• Form: +${formGain}\n• Fatigue: +${fatigueGain}\n\nTraining improves your skills but tires you out.`)) return;
+                
+                p.avg = Math.min(105, p.avg + avgGain);
+                p.checkout = Math.min(60, (p.checkout || 35) + checkoutGain);
+                p.form = Math.min(100, p.form + formGain);
+                p.fatigue = Math.min(100, p.fatigue + fatigueGain);
                 Career.state.week++;
                 
                 Career.save();
                 Career.renderDashboard();
-                alert('Training complete! Your average is now ' + p.avg.toFixed(1));
+                alert(`Training complete!\n\nAverage: ${p.avg.toFixed(1)}\nCheckout: ${(p.checkout || 35).toFixed(1)}%\nForm: ${Math.round(p.form)}\nFatigue: ${Math.round(p.fatigue)}%`);
             },
 
             advanceWeek: () => {
@@ -14404,12 +14437,34 @@
             },
 
             checkEligibility: (ev) => {
+                // Q-School - only if you DON'T have a tour card
                 if (ev.type === 'q-school') return !Career.state.tourCard;
+                
+                // Challenge Tour - for players without tour card
                 if (ev.type === 'challenge') return !Career.state.tourCard;
-                // Tour card events
-                if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'major' || ev.type === 'major-fixed') {
+                
+                // Development Tour - open to all
+                if (ev.type === 'dev-tour') return true;
+                
+                // Players Championship / Euro Tours / UK Open Qualifiers - requires Tour Card
+                if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'euro-tour') {
                     return Career.state.tourCard;
                 }
+                
+                // Major events - requires Tour Card OR high ranking
+                if (ev.type === 'major' || ev.type === 'major-fixed') {
+                    return Career.state.tourCard || Career.state.rank <= 32;
+                }
+                
+                // World Championship - Tour Card holders + qualifiers
+                if (ev.type === 'world') {
+                    return Career.state.tourCard || Career.state.rank <= 96;
+                }
+                
+                // Open events (UK Open, World Series) - anyone can enter
+                if (ev.type === 'open') return true;
+                
+                // Default - allow entry
                 return true;
             },
 
@@ -14424,16 +14479,29 @@
                 
                 const isEligible = Career.checkEligibility(ev);
                 const eligDiv = document.getElementById('career-cev-eligibility');
+                const enterBtn = document.getElementById('career-btn-enter-event');
+                
                 if (isEligible) {
-                    eligDiv.innerText = "ELIGIBLE";
+                    eligDiv.innerHTML = "<strong>✓ ELIGIBLE</strong><br><span style='font-size:11px;'>You can enter this tournament</span>";
                     eligDiv.style.background = "rgba(0,128,0,0.2)";
                     eligDiv.style.color = "#4caf50";
-                    document.getElementById('career-btn-enter-event').style.display = 'block';
+                    enterBtn.style.display = 'block';
+                    enterBtn.disabled = false;
                 } else {
-                    eligDiv.innerText = "NOT ELIGIBLE";
+                    // Show reason for ineligibility
+                    let reason = 'You cannot enter this event.';
+                    if (ev.type === 'q-school' && Career.state.tourCard) {
+                        reason = 'You already have a Tour Card.';
+                    } else if ((ev.type === 'players' || ev.type === 'minor' || ev.type === 'euro-tour') && !Career.state.tourCard) {
+                        reason = 'Requires PDC Tour Card. Win Q-School or Challenge Tour events to earn one.';
+                    } else if ((ev.type === 'major' || ev.type === 'major-fixed') && !Career.state.tourCard && Career.state.rank > 32) {
+                        reason = 'Requires Tour Card or Top 32 ranking.';
+                    }
+                    
+                    eligDiv.innerHTML = `<strong>✗ NOT ELIGIBLE</strong><br><span style='font-size:11px;'>${reason}</span>`;
                     eligDiv.style.background = "rgba(255,0,0,0.2)";
                     eligDiv.style.color = "#f44336";
-                    document.getElementById('career-btn-enter-event').style.display = 'none';
+                    enterBtn.style.display = 'none';
                 }
                 
                 modal.style.display = 'flex';
