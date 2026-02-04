@@ -1216,7 +1216,7 @@
                 
                 const filtered = PLAYERS_DB.filter(p => 
                     p.name.toLowerCase().includes(searchTerm)
-                ).slice(0, 50);
+                );
                 
                 container.innerHTML = filtered.map(p => {
                     const avgDisplay = (typeof p.avg === 'number') ? p.avg.toFixed(1) : '85.0';
@@ -1242,21 +1242,79 @@
             },
 
             getCountryCode: (country) => {
-                const codes = {
-                    'england': 'gb-eng', 'scotland': 'gb-sct', 'wales': 'gb-wls',
-                    'netherlands': 'nl', 'belgium': 'be', 'germany': 'de',
-                    'austria': 'at', 'australia': 'au', 'usa': 'us',
-                    'canada': 'ca', 'ireland': 'ie', 'northern ireland': 'gb-nir',
-                    'poland': 'pl', 'czech republic': 'cz', 'hungary': 'hu',
-                    'portugal': 'pt', 'spain': 'es', 'france': 'fr',
-                    'japan': 'jp', 'philippines': 'ph', 'china': 'cn',
-                    'south africa': 'za', 'new zealand': 'nz', 'sweden': 'se',
-                    'denmark': 'dk', 'norway': 'no', 'finland': 'fi',
-                    'lithuania': 'lt', 'latvia': 'lv', 'greece': 'gr',
-                    'italy': 'it', 'croatia': 'hr', 'slovakia': 'sk',
-                    'singapore': 'sg', 'hong kong': 'hk', 'brazil': 'br'
+                if (!country) return 'gb-eng';
+                const c = country.toLowerCase().trim();
+                
+                // Short codes from database
+                const shortCodes = {
+                    'eng': 'gb-eng', 'sco': 'gb-sct', 'wal': 'gb-wls', 'nir': 'gb-nir',
+                    'nl': 'nl', 'bel': 'be', 'ger': 'de', 'aut': 'at', 'aus': 'au',
+                    'usa': 'us', 'can': 'ca', 'irl': 'ie', 'pl': 'pl', 'pol': 'pl',
+                    'cze': 'cz', 'hun': 'hu', 'por': 'pt', 'esp': 'es', 'fra': 'fr',
+                    'jpn': 'jp', 'phi': 'ph', 'chn': 'cn', 'rsa': 'za', 'nzl': 'nz',
+                    'swe': 'se', 'den': 'dk', 'nor': 'no', 'fin': 'fi', 'lit': 'lt',
+                    'lat': 'lv', 'gre': 'gr', 'ita': 'it', 'cro': 'hr', 'svk': 'sk',
+                    'sgp': 'sg', 'hkg': 'hk', 'bra': 'br', 'sui': 'ch', 'rou': 'ro',
+                    'ukr': 'ua', 'rus': 'ru', 'svn': 'si', 'srb': 'rs', 'mex': 'mx',
+                    'arg': 'ar', 'col': 'co', 'chl': 'cl', 'tha': 'th', 'mys': 'my',
+                    'ind': 'in', 'kor': 'kr', 'twn': 'tw', 'idn': 'id', 'gbr': 'gb'
                 };
-                return codes[country.toLowerCase()] || 'un';
+                
+                // Full country names
+                const fullNames = {
+                    'england': 'gb-eng', 'scotland': 'gb-sct', 'wales': 'gb-wls',
+                    'northern ireland': 'gb-nir', 'netherlands': 'nl', 'belgium': 'be',
+                    'germany': 'de', 'austria': 'at', 'australia': 'au', 'usa': 'us',
+                    'united states': 'us', 'canada': 'ca', 'ireland': 'ie', 'poland': 'pl',
+                    'czech republic': 'cz', 'czechia': 'cz', 'hungary': 'hu', 
+                    'portugal': 'pt', 'spain': 'es', 'france': 'fr', 'japan': 'jp',
+                    'philippines': 'ph', 'china': 'cn', 'south africa': 'za',
+                    'new zealand': 'nz', 'sweden': 'se', 'denmark': 'dk', 'norway': 'no',
+                    'finland': 'fi', 'lithuania': 'lt', 'latvia': 'lv', 'greece': 'gr',
+                    'italy': 'it', 'croatia': 'hr', 'slovakia': 'sk', 'singapore': 'sg',
+                    'hong kong': 'hk', 'brazil': 'br', 'switzerland': 'ch', 'romania': 'ro',
+                    'ukraine': 'ua', 'russia': 'ru', 'slovenia': 'si', 'serbia': 'rs',
+                    'mexico': 'mx', 'argentina': 'ar', 'colombia': 'co', 'chile': 'cl',
+                    'thailand': 'th', 'malaysia': 'my', 'india': 'in', 'south korea': 'kr',
+                    'taiwan': 'tw', 'indonesia': 'id', 'united kingdom': 'gb'
+                };
+                
+                return shortCodes[c] || fullNames[c] || 'gb-eng';
+            },
+
+            // Get short country code for eligibility checking
+            getCountryShortCode: (country) => {
+                if (!country) return 'eng';
+                const c = country.toLowerCase().trim();
+                
+                // If already a short code, return it
+                const shortCodes = ['eng', 'sco', 'wal', 'nir', 'irl', 'nl', 'bel', 'ger', 'aut', 'aus',
+                    'usa', 'can', 'pl', 'pol', 'cze', 'hun', 'por', 'esp', 'fra', 'jpn', 'phi', 'chn',
+                    'rsa', 'nzl', 'swe', 'den', 'nor', 'fin', 'lit', 'lat', 'gre', 'ita', 'cro', 'svk',
+                    'sgp', 'hkg', 'bra', 'sui', 'rou', 'ukr', 'rus', 'svn', 'srb', 'mex', 'arg', 'col',
+                    'chl', 'tha', 'mys', 'ind', 'kor', 'twn', 'idn', 'gbr'];
+                if (shortCodes.includes(c)) return c;
+                
+                // Convert full names to short codes
+                const fullToShort = {
+                    'england': 'eng', 'scotland': 'sco', 'wales': 'wal',
+                    'northern ireland': 'nir', 'ireland': 'irl', 'netherlands': 'nl',
+                    'belgium': 'bel', 'germany': 'ger', 'austria': 'aut', 'australia': 'aus',
+                    'usa': 'usa', 'united states': 'usa', 'canada': 'can', 'poland': 'pl',
+                    'czech republic': 'cze', 'czechia': 'cze', 'hungary': 'hun',
+                    'portugal': 'por', 'spain': 'esp', 'france': 'fra', 'japan': 'jpn',
+                    'philippines': 'phi', 'china': 'chn', 'south africa': 'rsa',
+                    'new zealand': 'nzl', 'sweden': 'swe', 'denmark': 'den', 'norway': 'nor',
+                    'finland': 'fin', 'lithuania': 'lit', 'latvia': 'lat', 'greece': 'gre',
+                    'italy': 'ita', 'croatia': 'cro', 'slovakia': 'svk', 'singapore': 'sgp',
+                    'hong kong': 'hkg', 'brazil': 'bra', 'switzerland': 'sui', 'romania': 'rou',
+                    'ukraine': 'ukr', 'russia': 'rus', 'slovenia': 'svn', 'serbia': 'srb',
+                    'mexico': 'mex', 'argentina': 'arg', 'colombia': 'col', 'chile': 'chl',
+                    'thailand': 'tha', 'malaysia': 'mys', 'india': 'ind', 'south korea': 'kor',
+                    'taiwan': 'twn', 'indonesia': 'idn', 'united kingdom': 'gbr'
+                };
+                
+                return fullToShort[c] || 'eng';
             },
 
             // Start new career
@@ -1329,7 +1387,9 @@
                         euroChamp: false,
                         pcFinals: false,
                         grandSlam: false,
-                        worlds: false
+                        worldSeries: false,
+                        worlds: false,
+                        winmauMasters: false
                     }
                 };
                 
@@ -1431,58 +1491,175 @@
                 }).join('');
             },
 
-            // Check eligibility for an event
+            // Check eligibility for an event (matches darts.html logic)
             checkEligibility: (event) => {
                 const p = Career.state.player;
                 const rank = Career.getWorldRank();
+                const type = event.type || '';
+                const playerCountry = Career.getCountryShortCode(p.country);
                 
-                // Tour card required events
+                // Q-School: Must NOT have tour card, must be in eligible region
+                if (type === 'q-school') {
+                    if (p.tourCard) {
+                        return { eligible: false, reason: 'Tour Card holders cannot enter' };
+                    }
+                    if (event.eligibleRegions && event.eligibleRegions.length > 0) {
+                        if (!event.eligibleRegions.includes(playerCountry)) {
+                            return { eligible: false, reason: `Not in eligible region (${event.location?.toUpperCase() || 'Region'})` };
+                        }
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Challenge Tour: Must NOT have tour card
+                if (type === 'challenge') {
+                    if (p.tourCard) {
+                        return { eligible: false, reason: 'Tour Card holders cannot enter' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Tour card required events (Players Championship, Premier League, most events)
                 if (event.cardRequired && !p.tourCard) {
                     return { eligible: false, reason: 'No Tour Card' };
                 }
                 
-                // Invitational events (top 8 or special invites)
-                if (event.invitational && rank > 16) {
-                    return { eligible: false, reason: 'Not Invited' };
-                }
-                
-                // Top 32 events (World Matchplay, World Grand Prix)
-                if (event.top32 && rank > 32) {
-                    return { eligible: false, reason: 'Not Top 32' };
-                }
-                
-                // European Championship (Euro Tour qualification)
-                if (event.euroTourQual && !Career.state.qualifications.euroChamp) {
-                    return { eligible: false, reason: 'Not Qualified' };
-                }
-                
-                // PC Finals
-                if (event.pcQualification && !Career.state.qualifications.pcFinals) {
-                    return { eligible: false, reason: 'Not Qualified' };
-                }
-                
-                // Grand Slam
-                if (event.gsQualification && !Career.state.qualifications.grandSlam) {
-                    return { eligible: false, reason: 'Not Qualified' };
-                }
-                
-                // World Championship
-                if (event.worldsQualification) {
-                    if (rank > 32 && !Career.state.qualifications.worlds) {
-                        return { eligible: false, reason: 'Not Qualified' };
+                // Premier League - Top 8 only (invitation based)
+                if (type === 'premier-league' || type === 'premier-league-playoff') {
+                    if (rank > 8) {
+                        return { eligible: false, reason: 'Top 8 Only (Invitation)' };
                     }
-                }
-                
-                // UK Open (needs qualifier or Tour Card)
-                if (event.qualifierRequired && !Career.state.qualifications.ukOpen && !p.tourCard) {
-                    return { eligible: false, reason: 'Need Qualifier' };
-                }
-                
-                // Team events - always eligible if from a participating nation
-                if (event.teamEvent) {
                     return { eligible: true, reason: '' };
                 }
                 
+                // World Masters qualifiers - open to all
+                if (type === 'wmasters-qual') {
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Winmau World Masters - Tour card required, qualification based
+                if (type === 'winmaudm') {
+                    if (!p.tourCard) {
+                        return { eligible: false, reason: 'No Tour Card' };
+                    }
+                    if (!Career.state.qualifications.winmauMasters && rank > 24) {
+                        return { eligible: false, reason: 'Not Qualified (Need top 24 or qualifier win)' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Masters events (World Series) - Top 16 invitation
+                if (type === 'masters') {
+                    if (rank > 16) {
+                        return { eligible: false, reason: 'Top 16 Only (Invitation)' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // ET Qualifiers - various requirements
+                if (type === 'et-qual-tc') {
+                    if (!p.tourCard) {
+                        return { eligible: false, reason: 'No Tour Card' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                if (type === 'et-host-nation' || type === 'et-east-european' || type === 'et-nordic-baltic') {
+                    // Regional qualifiers - check if player is from eligible region
+                    if (event.eligibleRegions && event.eligibleRegions.length > 0) {
+                        if (!event.eligibleRegions.includes(playerCountry)) {
+                            return { eligible: false, reason: 'Not in eligible region' };
+                        }
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // European Tour (Minor) events - Tour card required
+                if (type === 'minor') {
+                    if (!p.tourCard) {
+                        return { eligible: false, reason: 'No Tour Card' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // UK Open - Open entry but ranked players get better seeding
+                if (type === 'uk-open') {
+                    return { eligible: true, reason: '' };
+                }
+                
+                // World Matchplay - Top 16 OOM + Top 16 Pro Tour
+                if (type === 'matchplay') {
+                    if (rank > 32) {
+                        return { eligible: false, reason: 'Not in Top 32' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // World Grand Prix - Top 32 OOM (double start format)
+                if (type === 'grandprix') {
+                    if (rank > 32) {
+                        return { eligible: false, reason: 'Not in Top 32' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // European Championship - Top 32 European Order of Merit
+                if (type === 'european-championship') {
+                    if (rank > 32) {
+                        return { eligible: false, reason: 'Not in Top 32' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Players Championship Finals - Top 64 Pro Tour Order of Merit
+                if (type === 'pc-finals') {
+                    if (rank > 64 && !Career.state.qualifications.pcFinals) {
+                        return { eligible: false, reason: 'Not in Top 64 Pro Tour' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Grand Slam - Major winners + qualifiers
+                if (type === 'grand-slam' || type === 'grandslam') {
+                    if (!Career.state.qualifications.grandSlam && rank > 16) {
+                        return { eligible: false, reason: 'Not Qualified (Need major win or top ranking)' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // World Series Finals - World Series qualifiers
+                if (type === 'ws-finals') {
+                    if (!Career.state.qualifications.worldSeries && rank > 24) {
+                        return { eligible: false, reason: 'Not Qualified' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // World Championship - Top 32 + qualifiers
+                if (type === 'world') {
+                    if (rank > 32 && !Career.state.qualifications.worlds) {
+                        return { eligible: false, reason: 'Not Qualified (Need Top 32 or qualifier)' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // World Championship qualifiers
+                if (type === 'wc-qual-intl' || type === 'wc-qual-tc') {
+                    if (type === 'wc-qual-tc' && !p.tourCard) {
+                        return { eligible: false, reason: 'No Tour Card' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Grand Slam / World Series qualifiers
+                if (type === 'gs-qual-tc' || type === 'ws-qual-tc') {
+                    if (!p.tourCard) {
+                        return { eligible: false, reason: 'No Tour Card' };
+                    }
+                    return { eligible: true, reason: '' };
+                }
+                
+                // Default: eligible if has tour card or event doesn't require it
                 return { eligible: true, reason: '' };
             },
 
@@ -1493,9 +1670,9 @@
                 
                 document.getElementById('modal-event-name').textContent = ev.name;
                 document.getElementById('modal-event-date').textContent = ev.date;
-                document.getElementById('modal-event-type').textContent = ev.type.toUpperCase().replace(/-/g, ' ');
+                document.getElementById('modal-event-type').textContent = (ev.type || 'event').toUpperCase().replace(/-/g, ' ');
                 document.getElementById('modal-event-players').textContent = `Players: ${ev.players}`;
-                document.getElementById('modal-event-prize').textContent = `Prize Pool: £${ev.prize.toLocaleString()}`;
+                document.getElementById('modal-event-prize').textContent = ev.prize > 0 ? `Prize Pool: £${ev.prize.toLocaleString()}` : 'No Prize Money';
                 
                 const eligibility = Career.checkEligibility(ev);
                 const eligDiv = document.getElementById('modal-eligibility');
@@ -1622,29 +1799,72 @@
 
             // Update qualifications based on results
             updateQualifications: (event, position) => {
-                // UK Open qualifier
-                if (event.type === 'qualifier' && (position === '1st' || position === '2nd')) {
-                    Career.state.qualifications.ukOpen = true;
+                const type = event.type || '';
+                const isWin = position === '1st';
+                const isFinal = position === '1st' || position === '2nd';
+                const isSF = position === 'SF' || isFinal;
+                
+                // Q-School win gives Tour Card
+                if (type === 'q-school' && isWin) {
+                    Career.state.player.tourCard = true;
+                    Career.notify('🎉 You earned a PDC Tour Card!', 'success');
                 }
                 
-                // Euro Tour wins qualify for European Championship
-                if (event.type === 'euro-tour' && position === '1st') {
+                // Winmau World Masters qualifier win
+                if (type === 'wmasters-qual' && isWin) {
+                    Career.state.qualifications.winmauMasters = true;
+                }
+                
+                // European Tour (Minor) wins/finals qualify for European Championship
+                if (type === 'minor' && isFinal) {
                     Career.state.qualifications.euroChamp = true;
                 }
                 
-                // PC wins/finals
-                if (event.type === 'players' && (position === '1st' || position === '2nd' || position === 'SF')) {
+                // Players Championship good performances qualify for PC Finals
+                if (type === 'players' && isSF) {
                     Career.state.qualifications.pcFinals = true;
                 }
                 
+                // Masters (World Series) event wins qualify for WS Finals
+                if (type === 'masters' && isWin) {
+                    Career.state.qualifications.worldSeries = true;
+                }
+                
                 // Major wins qualify for Grand Slam
-                if (event.type === 'major' && position === '1st') {
+                const majorTypes = ['matchplay', 'grandprix', 'uk-open', 'european-championship', 'world', 'pc-finals', 'ws-finals', 'winmaudm'];
+                if (majorTypes.includes(type) && isWin) {
                     Career.state.qualifications.grandSlam = true;
                 }
                 
-                // Top 32 qualifies for worlds
+                // Challenge Tour good performances
+                if (type === 'challenge' && isWin) {
+                    // Challenge Tour winners can qualify for various events
+                    Career.state.qualifications.pcFinals = true;
+                }
+                
+                // World Championship qualifiers
+                if ((type === 'wc-qual-intl' || type === 'wc-qual-tc') && isWin) {
+                    Career.state.qualifications.worlds = true;
+                }
+                
+                // Grand Slam qualifiers
+                if (type === 'gs-qual-tc' && isWin) {
+                    Career.state.qualifications.grandSlam = true;
+                }
+                
+                // World Series qualifiers
+                if (type === 'ws-qual-tc' && isWin) {
+                    Career.state.qualifications.worldSeries = true;
+                }
+                
+                // Top 32 in OOM qualifies for worlds
                 if (Career.getWorldRank() <= 32) {
                     Career.state.qualifications.worlds = true;
+                }
+                
+                // Top 64 qualifies for PC Finals
+                if (Career.getWorldRank() <= 64) {
+                    Career.state.qualifications.pcFinals = true;
                 }
             },
 
@@ -1928,20 +2148,55 @@
 
                 // If we got tournaments from DB, convert to career format
                 if (dbTournaments && dbTournaments.length > 0) {
-                    EVENTS_DB = dbTournaments.map((t, idx) => ({
-                        id: idx + 1,
-                        name: t.name,
-                        date: t.startDate || t.date || `Week ${idx + 1}`,
-                        type: t.type || 'players',
-                        players: t.playerCount || t.players || 128,
-                        prize: t.prizeMoney || t.prize || 75000,
-                        cardRequired: t.cardRequired || false,
-                        invitational: t.type === 'world-series',
-                        top32: t.name && (t.name.includes('Matchplay') || t.name.includes('Grand Prix')),
-                        euroTourQual: t.type === 'europeanf',
-                        gsQualification: t.type === 'grandslam',
-                        worldsQualification: t.type === 'world'
-                    }));
+                    // Prize money by event type (same as darts.html)
+                    const PRIZE_MONEY = {
+                        'q-school': 0,
+                        'challenge': 10000,
+                        'players': 75000,
+                        'minor': 175000,
+                        'masters': 60000,
+                        'winmaudm': 300000,
+                        'wmasters-qual': 10000,
+                        'premier-league': 50000,
+                        'premier-league-playoff': 250000,
+                        'uk-open': 500000,
+                        'matchplay': 800000,
+                        'grandprix': 600000,
+                        'european-championship': 500000,
+                        'pc-finals': 500000,
+                        'grand-slam': 650000,
+                        'grandslam': 650000,
+                        'ws-finals': 300000,
+                        'world': 2500000,
+                        'et-qual-tc': 10000,
+                        'et-host-nation': 10000,
+                        'et-east-european': 10000,
+                        'et-nordic-baltic': 10000,
+                        'wc-qual-intl': 15000,
+                        'wc-qual-tc': 15000,
+                        'gs-qual-tc': 10000,
+                        'ws-qual-tc': 10000
+                    };
+                    
+                    EVENTS_DB = dbTournaments.map((t, idx) => {
+                        const eventType = t.type || 'players';
+                        return {
+                            id: t.id || idx + 1,
+                            name: t.name,
+                            date: t.date || `Week ${idx + 1}`,
+                            type: eventType,
+                            format: t.format || 'legs',
+                            players: t.players || 128,
+                            prize: t.prize || PRIZE_MONEY[eventType] || 75000,
+                            cardRequired: t.cardRequired === true,
+                            location: t.location || null,
+                            eligibleRegions: t.eligibleRegions || [],
+                            region: t.region || null,
+                            targetEvent: t.targetEvent || null,
+                            slots: t.slots || null,
+                            night: t.night || null
+                        };
+                    });
                     console.log("[Career] Loaded " + EVENTS_DB.length + " tournaments from database");
                 } else {
                     console.log("[Career] Using " + EVENTS_DB.length + " default tournaments");

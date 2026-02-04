@@ -269,11 +269,12 @@ window.DataLoader = {
     },
 
     async loadTournaments() {
+        // First try API
         try {
             const response = await fetch(API_BASE + '/tournaments');
             const data = await response.json();
             if (data.success && data.tournaments && data.tournaments.length > 0) {
-                console.log('[DataLoader] Loaded ' + data.tournaments.length + ' tournaments from database');
+                console.log('[DataLoader] Loaded ' + data.tournaments.length + ' tournaments from API');
                 return data.tournaments.map(t => ({
                     ...t,
                     cardRequired: Boolean(t.cardRequired),
@@ -281,8 +282,25 @@ window.DataLoader = {
                 }));
             }
         } catch (e) {
-            console.log('[DataLoader] Could not load tournaments from database, using defaults');
+            console.log('[DataLoader] Could not load tournaments from API, trying local file...');
         }
+        
+        // Fallback to local tournaments.json
+        try {
+            const response = await fetch('tournaments.json');
+            const tournaments = await response.json();
+            if (tournaments && tournaments.length > 0) {
+                console.log('[DataLoader] Loaded ' + tournaments.length + ' tournaments from tournaments.json');
+                return tournaments.map(t => ({
+                    ...t,
+                    cardRequired: Boolean(t.cardRequired),
+                    eligibleRegions: Array.isArray(t.eligibleRegions) ? t.eligibleRegions : []
+                }));
+            }
+        } catch (e) {
+            console.log('[DataLoader] Could not load tournaments from local file');
+        }
+        
         return null;
     }
 };
