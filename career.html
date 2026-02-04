@@ -2773,8 +2773,8 @@
                                 const flag = `https://flagcdn.com/w40/${Career.getCountryCode(p.country)}.png`;
                                 const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : 
                                              (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
-                                const seedTxt = p.seed && !m.winner ? ` (${p.seed})` : '';
-                                const avgTxt = avg ? ` (${avg})` : '';
+                                const seedTxt = (p.seed !== undefined && p.seed !== null && !m.winner) ? ` (${p.seed})` : '';
+                                const avgTxt = (avg !== undefined && avg !== null) ? ` (${avg})` : '';
                                 const youTag = p.isCareerPlayer ? ' <span style="color:var(--pdc-green); font-size:10px;">YOU</span>' : '';
                                 
                                 return `
@@ -3051,8 +3051,10 @@
                 const player = s.currentThrower === 1 ? m.p1 : m.p2;
                 const remaining = s.currentThrower === 1 ? s.p1Remaining : s.p2Remaining;
                 
-                // Use shared Engine to throw
-                const visit = Engine.throwVisit(player, remaining);
+                // Set player score for processVisit (same engine as darts.html)
+                player.score = remaining;
+                const isDecider = (s.p1Legs === s.target - 1 && s.p2Legs === s.target - 1);
+                const visit = Logic.processVisit(player, isDecider);
                 
                 // Update remaining
                 if (s.currentThrower === 1) {
