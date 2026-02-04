@@ -853,6 +853,8 @@
                 padding: 6px 12px;
                 font-size: 11px;
                 min-height: 32px;
+                width: 50%;
+        
             }
 
             .match-nav-btn {
@@ -3157,14 +3159,14 @@
                     <p style="color:#888; margin-bottom: 30px;">Build your legacy, climb the rankings, and become a World Champion.</p>
                     
                     <div id="career-menu-logged-in" style="display:none; flex-direction:column; gap:15px; width:100%; max-width:300px; margin:0 auto;">
-                        <button class="btn-gold" id="btn-continue-career" onclick="Career.loadGame()" style="padding:15px;">CONTINUE CAREER</button>
-                        <button class="btn-blue" onclick="Career.showNewCareer()" style="padding:15px;">NEW CAREER</button>
-                        <button class="btn-blue" style="background:#444;" onclick="Career.deleteSave()" style="padding:15px;">DELETE SAVE</button>
+                        <button class="btn-gold" id="btn-continue-career" onclick="loadCareer()" style="padding:15px;">CONTINUE CAREER</button>
+                        <button class="btn-blue" onclick="showNewCareer()" style="padding:15px;">NEW CAREER</button>
+                        <button class="btn-blue" style="background:#444;" onclick="deleteCareerSave()" style="padding:15px;">DELETE SAVE</button>
                     </div>
 
                     <div id="career-menu-logged-out" style="flex-direction:column; gap:15px; width:100%; max-width:300px; margin:0 auto; display:flex;">
-                         <button class="btn-gold" onclick="Career.loadGame()" style="padding:15px;">CONTINUE CAREER</button>
-                         <button class="btn-blue" onclick="Career.showNewCareer()" style="padding:15px;">NEW CAREER</button>
+                         <button class="btn-gold" onclick="loadCareer()" style="padding:15px;">CONTINUE CAREER</button>
+                         <button class="btn-blue" onclick="showNewCareer()" style="padding:15px;">NEW CAREER</button>
                          <div style="margin-top:20px; padding:15px; background:rgba(255,215,0,0.05); border-radius:8px; border:1px solid rgba(255,215,0,0.1);">
                             <p style="font-size:12px; color:#aaa;">Log in to sync your career across devices.</p>
                             <button class="btn-gold" onclick="AuthSystem.showModal()" style="margin-top:10px; font-size:12px; padding:8px;">LOGIN / REGISTER</button>
@@ -3466,12 +3468,12 @@
     <div id="career-creation-screen">
         <div class="header" style="background: #111; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pdc-gold);">
             <h1 style="font-size: 18px; color: var(--pdc-gold); margin: 0;">CREATE CHARACTER</h1>
-            <button class="btn-icon" onclick="Career.showMainMenu()">✕</button>
+            <button class="btn-icon" onclick="showCareerMainMenu()">✕</button>
         </div>
         <div style="padding: 20px; max-width: 600px; margin: 0 auto; width: 100%;">
             <div class="player-type-toggle" style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="type-btn active" id="type-custom" onclick="Career.setPlayerType('custom')">CUSTOM PLAYER</button>
-                <button class="type-btn" id="type-existing" onclick="Career.setPlayerType('existing')">EXISTING PRO</button>
+                <button class="type-btn active" id="type-custom" onclick="setCareerPlayerType('custom')">CUSTOM PLAYER</button>
+                <button class="type-btn" id="type-existing" onclick="setCareerPlayerType('existing')">EXISTING PRO</button>
             </div>
 
             <div id="custom-form">
@@ -3504,7 +3506,7 @@
                     <h2>Difficulty / Starting Level</h2>
                     <div class="form-group">
                         <label>Initial Skill</label>
-                        <select id="career-player-level-input" onchange="Career.updateStartingStats()">
+                        <select id="career-player-level-input" onchange="updateCareerStartingStats()">
                             <option value="amateur">Amateur (65-70 Avg)</option>
                             <option value="semi-pro" selected>Semi-Pro (75-80 Avg)</option>
                             <option value="professional">Professional (85-88 Avg)</option>
@@ -3530,12 +3532,12 @@
             <div id="career-existing-form" style="display:none;">
                 <div class="creation-section">
                     <h2>Select Professional</h2>
-                    <input type="text" id="career-player-search-box" placeholder="Search player..." onkeyup="Career.filterPlayers()" style="margin-bottom:10px;">
+                    <input type="text" id="career-player-search-box" placeholder="Search player..." onkeyup="filterCareerPlayers()" style="margin-bottom:10px;">
                     <div id="career-player-list-container" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px;"></div>
                 </div>
             </div>
 
-            <button class="btn-gold" style="padding:15px; font-size:18px; margin-top:10px;" onclick="Career.startCareer()">START CAREER</button>
+            <button class="btn-gold" style="padding:15px; font-size:18px; margin-top:10px;" onclick="startCareer()">START CAREER</button>
         </div>
     </div>
 
@@ -3544,8 +3546,8 @@
             <h1 style="color:var(--pdc-gold); margin:0; font-size:18px;">CAREER DASHBOARD</h1>
             <div style="display:flex; gap:10px;">
                 <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#0066cc;" onclick="AuthSystem.showModal()">👤 ACCOUNT</button>
-                <button class="btn-gold" style="padding: 8px 15px; font-size:12px;" onclick="Career.saveGame()">💾 SAVE</button>
-                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#444;" onclick="Career.exitToMainMenu()">EXIT</button>
+                <button class="btn-gold" style="padding: 8px 15px; font-size:12px;" onclick="saveCareer()">💾 SAVE</button>
+                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#444;" onclick="exitCareer()">EXIT</button>
             </div>
         </div>
 
@@ -3575,7 +3577,7 @@
             <div class="week-display">
                 <div class="week">Week <span id="career-current-week">1</span> of 52</div>
                 <div class="date" id="career-current-date">January 2026</div>
-                <button class="btn-gold" onclick="Career.advanceWeek()" style="margin-top:10px; padding: 10px 20px; background:#333; color:white; font-size:11px;">⏭️ SKIP WEEK</button>
+                <button class="btn-gold" onclick="advanceCareerWeek()" style="margin-top:10px; padding: 10px 20px; background:#333; color:white; font-size:11px;">⏭️ SKIP WEEK</button>
             </div>
 
             <div class="dashboard-grid">
@@ -3596,9 +3598,9 @@
             </div>
 
             <div class="tabs" style="background:none; border:none; margin-bottom:15px; box-shadow:none;">
-                <button class="tab-btn active" onclick="Career.switchTab('schedule')" id="ctab-schedule">📅 SCHEDULE</button>
-                <button class="tab-btn" onclick="Career.switchTab('standings')" id="ctab-standings">🏆 STANDINGS</button>
-                <button class="tab-btn" onclick="Career.switchTab('stats')" id="ctab-stats">📊 STATS</button>
+                <button class="tab-btn active" onclick="switchCareerTab('schedule')" id="ctab-schedule">📅 SCHEDULE</button>
+                <button class="tab-btn" onclick="switchCareerTab('standings')" id="ctab-standings">🏆 STANDINGS</button>
+                <button class="tab-btn" onclick="switchCareerTab('stats')" id="ctab-stats">📊 STATS</button>
             </div>
 
             <div id="ctent-schedule" class="tab-content active" style="padding:0; background:none; box-shadow:none; border:none; display:flex;">
@@ -3607,8 +3609,8 @@
 
             <div id="ctent-standings" class="tab-content" style="padding:0; background:none; box-shadow:none; border:none; display:none;">
                  <div class="standings-nav" style="margin-bottom:15px;">
-                    <button class="active" onclick="Career.switchStandings('oom')">WORLD RANKINGS</button>
-                    <button onclick="Career.switchStandings('protour')">PRO TOUR</button>
+                    <button class="active" onclick="switchCareerStandings('oom')">WORLD RANKINGS</button>
+                    <button onclick="switchCareerStandings('protour')">PRO TOUR</button>
                  </div>
                  <div id="career-standings-content" style="background:rgba(0,0,0,0.2); border-radius:8px; padding:10px;"></div>
             </div>
@@ -3630,12 +3632,12 @@
             </div>
 
             <div class="action-buttons" style="margin-top:30px;">
-                <button class="action-btn" onclick="Career.rest()" id="career-btn-rest">
+                <button class="action-btn" onclick="restCareer()" id="career-btn-rest">
                     <div class="icon">😴</div>
                     <div class="title">REST</div>
                     <div class="desc">Recover fatigue</div>
                 </button>
-                <button class="action-btn" onclick="Career.train()" id="career-btn-train">
+                <button class="action-btn" onclick="trainCareer()" id="career-btn-train">
                     <div class="icon">🎯</div>
                     <div class="title">TRAIN</div>
                     <div class="desc">Improve stats</div>
@@ -3648,8 +3650,8 @@
         <div class="header" style="background: #111; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pdc-gold); flex-shrink: 0;">
             <h1 id="career-tourn-title" style="margin:0; font-size:18px;">TOURNAMENT</h1>
             <div style="display:flex; gap:10px;">
-                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#00b359;" onclick="CareerTournament.simCurrentRound()">⏩ SIM ROUND</button>
-                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#9a0000;" onclick="CareerTournament.exitTournament()">❌ EXIT</button>
+                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#00b359;" onclick="simCareerTournamentRound()">⏩ SIM ROUND</button>
+                <button class="btn-gold" style="padding: 8px 15px; font-size:12px; background:#9a0000;" onclick="exitCareerTournament()">❌ EXIT</button>
             </div>
         </div>
         <div class="bracket-wrapper" id="career-bracket-display" style="flex:1; overflow:auto;"></div>
@@ -3666,22 +3668,22 @@
             </div>
             <div id="career-cev-eligibility" style="padding:10px; border-radius:4px; margin-bottom:20px; text-align:center;"></div>
             <div style="display:flex; gap:10px;">
-                <button class="btn-gold" style="flex:1; background:#444;" onclick="Career.closeEventModal()">CLOSE</button>
-                <button class="btn-gold" id="career-btn-enter-event" style="flex:1;" onclick="Career.enterEvent()">ENTER</button>
+                <button class="btn-gold" style="flex:1; background:#444;" onclick="closeCareerEventModal()">CLOSE</button>
+                <button class="btn-gold" id="career-btn-enter-event" style="flex:1;" onclick="enterCareerEvent()">ENTER</button>
             </div>
         </div>
     </div>
 
-    <div class="match-result-modal" id="career-match-complete-modal">
+    <div class="match-result-modal" id="career-match-result-modal">
         <div class="match-result-content">
             <h2 style="margin-top:0;">MATCH COMPLETE</h2>
-            <div class="winner-name" id="career-cres-winner">Winner</div>
-            <div class="final-score" id="career-cres-score">0 - 0</div>
+            <div class="winner-name" id="career-result-winner">Winner</div>
+            <div class="final-score" id="career-result-score">0 - 0</div>
             <div class="match-stats">
-                <div><div id="career-cres-avg-0" style="font-size:20px; font-weight:900;">0.0</div><div style="font-size:10px; color:#888;">AVG</div></div>
-                <div><div id="career-cres-avg-1" style="font-size:20px; font-weight:900;">0.0</div><div style="font-size:10px; color:#888;">AVG</div></div>
+                <div><div id="career-result-avg-0" style="font-size:20px; font-weight:900;">0.0</div><div style="font-size:10px; color:#888;">AVG</div></div>
+                <div><div id="career-result-avg-1" style="font-size:20px; font-weight:900;">0.0</div><div style="font-size:10px; color:#888;">AVG</div></div>
             </div>
-            <button class="btn-gold" onclick="CareerMatch.closeResult()" style="width:100%; padding:15px;">CONTINUE</button>
+            <button class="btn-gold" onclick="closeCareerMatchResult()" style="width:100%; padding:15px;">CONTINUE</button>
         </div>
     </div>
 
@@ -3701,6 +3703,37 @@
         function resumeFromReload() { App && App.resumeFromReload(); }
         function simulateMatchToEnd() { App && App.simulateMatchToEnd(); }
         function selectPlayer(id, idx) { App && App.selectPlayer(id, idx); }
+
+        // Career global wrappers
+        function showNewCareer() {
+            if (typeof Career !== 'undefined') {
+                if (Career.showNewCareer) Career.showNewCareer();
+                else if (Career.showCreation) Career.showCreation();
+            }
+        }
+        function loadCareer() {
+            if (typeof Career !== 'undefined' && Career.loadGame) Career.loadGame();
+        }
+        function deleteCareerSave() {
+            if (typeof Career !== 'undefined' && Career.deleteSave) Career.deleteSave();
+        }
+        function startCareer() { if(typeof Career !== 'undefined') Career.startCareer(); }
+        function saveCareer() { if(typeof Career !== 'undefined') Career.saveGame(); }
+        function exitCareer() { if(typeof Career !== 'undefined') Career.exitToMainMenu(); }
+        function advanceCareerWeek() { if(typeof Career !== 'undefined') Career.advanceWeek(); }
+        function switchCareerTab(tab) { if(typeof Career !== 'undefined') Career.switchTab(tab); }
+        function switchCareerStandings(type) { if(typeof Career !== 'undefined') Career.switchStandings(type); }
+        function restCareer() { if(typeof Career !== 'undefined') Career.rest(); }
+        function trainCareer() { if(typeof Career !== 'undefined') Career.train(); }
+        function showCareerMainMenu() { if(typeof Career !== 'undefined') Career.showMainMenu(); }
+        function setCareerPlayerType(type) { if(typeof Career !== 'undefined') Career.setPlayerType(type); }
+        function closeCareerEventModal() { if(typeof Career !== 'undefined' && Career.closeEventModal) Career.closeEventModal(); }
+        function enterCareerEvent() { if(typeof Career !== 'undefined' && Career.enterEvent) Career.enterEvent(); }
+        function updateCareerStartingStats() { if(typeof Career !== 'undefined') Career.updateStartingStats(); }
+        function filterCareerPlayers() { if(typeof Career !== 'undefined') Career.filterPlayers(); }
+        function simCareerTournamentRound() { if(typeof CareerTournament !== 'undefined') CareerTournament.simCurrentRound(); }
+        function exitCareerTournament() { if(typeof CareerTournament !== 'undefined') CareerTournament.exitTournament(); }
+        function closeCareerMatchResult() { if(typeof CareerMatch !== 'undefined') CareerMatch.closeResult(); }
 
         function getBestFromCountry(code) {
             return [...PLAYERS_DB]
@@ -13932,7 +13965,7 @@
         };
 
         // ==================== CAREER MODE LOGIC ====================
-        const Career = {
+        window.Career = {
             state: {
                 active: false,
                 player: null,
@@ -14173,7 +14206,7 @@
                     `;
                     
                     if (idx === 0 && isEligible) {
-                        card.onclick = () => Career.startEvent(ev);
+                        card.onclick = () => Career.showEventModal(ev);
                         card.style.cursor = 'pointer';
                     }
                     list.appendChild(card);
@@ -14333,10 +14366,49 @@
                 if (ev.type === 'q-school') return !Career.state.tourCard;
                 if (ev.type === 'challenge') return !Career.state.tourCard;
                 // Tour card events
-                if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'major') {
+                if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'major' || ev.type === 'major-fixed') {
                     return Career.state.tourCard;
                 }
                 return true;
+            },
+
+            showEventModal: (ev) => {
+                const modal = document.getElementById('career-event-details-modal');
+                if (!modal) return;
+                
+                document.getElementById('career-cev-name').innerText = ev.name;
+                document.getElementById('career-cev-type').innerText = (ev.type || 'EVENT').toUpperCase();
+                document.getElementById('career-cev-players').innerText = (ev.players || 128) + " Players";
+                document.getElementById('career-cev-prize').innerText = "PRIZE: £" + (ev.prize || 0).toLocaleString();
+                
+                const isEligible = Career.checkEligibility(ev);
+                const eligDiv = document.getElementById('career-cev-eligibility');
+                if (isEligible) {
+                    eligDiv.innerText = "ELIGIBLE";
+                    eligDiv.style.background = "rgba(0,128,0,0.2)";
+                    eligDiv.style.color = "#4caf50";
+                    document.getElementById('career-btn-enter-event').style.display = 'block';
+                } else {
+                    eligDiv.innerText = "NOT ELIGIBLE";
+                    eligDiv.style.background = "rgba(255,0,0,0.2)";
+                    eligDiv.style.color = "#f44336";
+                    document.getElementById('career-btn-enter-event').style.display = 'none';
+                }
+                
+                modal.style.display = 'flex';
+                Career.selectedEvent = ev;
+            },
+
+            closeEventModal: () => {
+                const modal = document.getElementById('career-event-details-modal');
+                if (modal) modal.style.display = 'none';
+            },
+
+            enterEvent: () => {
+                if (Career.selectedEvent) {
+                    Career.closeEventModal();
+                    CareerTournament.start(Career.selectedEvent);
+                }
             },
 
             startEvent: (event) => {
@@ -14377,7 +14449,7 @@
             }
         };
 
-        const CareerTournament = {
+        window.CareerTournament = {
             state: { active: false },
             start: (event) => {
                 const playerCount = event.players || 128;
@@ -14609,6 +14681,15 @@
                 });
             },
 
+            exitTournament: () => {
+                if (confirm('Are you sure you want to EXIT the tournament? Any unsaved progress (simmed matches) will be saved, but the tournament progress itself is managed in real-time. Continuing?')) {
+                    CareerTournament.state.active = false;
+                    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+                    document.getElementById('career-screen').style.display = 'block';
+                    Career.renderDashboard();
+                }
+            },
+
             checkRoundComplete: () => {
                 const roundIdx = CareerTournament.state.currentRound;
                 const matches = CareerTournament.state.bracketData[roundIdx];
@@ -14731,6 +14812,8 @@
                     document.getElementById('career-match-result-modal').style.display = 'flex';
                     document.getElementById('career-result-winner').textContent = match.winner.name + ' WINS!';
                     document.getElementById('career-result-score').textContent = scoreStr;
+                    document.getElementById('career-result-avg-0').textContent = avgs[0];
+                    document.getElementById('career-result-avg-1').textContent = avgs[1];
                     
                     // If it was a major upset, add to news
                     const winnerPlayer = App.players[winnerIdx];
