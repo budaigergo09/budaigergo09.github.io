@@ -3706,13 +3706,42 @@
 
         // Career global wrappers
         function showNewCareer() {
-            if (typeof Career !== 'undefined' && Career.showCreation) {
-                Career.showCreation();
-            } else {
-                // Fallback: directly show the creation screen
-                document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-                document.getElementById('career-creation-screen').style.display = 'flex';
+            console.log('=== NEW CAREER DEBUG START ===');
+            console.log('Timestamp:', new Date().toISOString());
+            console.log('typeof Career:', typeof Career);
+            console.log('Career object:', Career);
+            
+            if (typeof Career !== 'undefined') {
+                console.log('Career.showCreation exists:', typeof Career.showCreation === 'function');
+                console.log('Career.showNewCareer exists:', typeof Career.showNewCareer === 'function');
+                console.log('Career.state:', Career.state);
+                console.log('All Career methods:', Object.keys(Career));
             }
+            
+            // Check for career-creation-screen element
+            const creationScreen = document.getElementById('career-creation-screen');
+            console.log('career-creation-screen element:', creationScreen);
+            console.log('career-creation-screen display:', creationScreen ? creationScreen.style.display : 'N/A');
+            
+            // List all screens and their display states
+            const allScreens = document.querySelectorAll('.screen');
+            console.log('Total .screen elements found:', allScreens.length);
+            allScreens.forEach((s, i) => {
+                console.log(`Screen ${i}: id=${s.id}, display=${s.style.display}`);
+            });
+            
+            // Now show season mode window as requested
+            console.log('ACTION: Showing Season Mode window...');
+            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+            const seasonScreen = document.getElementById('season-screen');
+            if (seasonScreen) {
+                seasonScreen.style.display = 'flex';
+                console.log('SUCCESS: Season screen displayed');
+            } else {
+                console.error('ERROR: season-screen element not found!');
+            }
+            
+            console.log('=== NEW CAREER DEBUG END ===');
         }
         function loadCareer() {
             if (typeof Career !== 'undefined' && Career.loadGame) Career.loadGame();
@@ -15022,6 +15051,12 @@
     <button onclick="AuthSystem.showModal()"
         style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #0066cc; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">👤
         ACCOUNT</button>
+
+    <!-- DEBUG: New Career Button -->
+    <button id="debug-new-career-btn" onclick="showNewCareer()"
+        style="position: fixed; bottom: 95px; right: 12px; z-index: 9999; background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+        🎯 NEW CAREER (DEBUG)
+    </button>
 
     <!-- PW8 Install Button -->
     <button id="pwa-install-btn">
