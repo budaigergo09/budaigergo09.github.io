@@ -6639,6 +6639,8 @@
             showEventInfo: (idx) => {
                 const ev = Season.events[idx];
                 const completed = Season.state.completedEvents.find(c => c.id === ev.id);
+                const isFutureEvent = idx > Season.state.activeEventIndex;
+                const isCurrentEvent = idx === Season.state.activeEventIndex;
 
                 document.getElementById('info-header').innerText = ev.name;
 
@@ -6670,6 +6672,18 @@
 
                     resHtml += `</div>`;
                     resultsDiv.innerHTML = resHtml;
+                } else if (isFutureEvent) {
+                    // Show "Simulate to this Event" button for future events
+                    resultsDiv.innerHTML = `
+                        <div style="text-align:center; margin-top:15px;">
+                            <div style="color:#888; margin-bottom:15px;">Event has not started yet</div>
+                            <button class="btn-sim" style="padding:12px 24px; font-size:14px;" onclick="Season.closeEventInfo(); Season.simulateToEvent(${idx})">
+                                ⚡ SIMULATE TO THIS EVENT
+                            </button>
+                        </div>
+                    `;
+                } else if (isCurrentEvent) {
+                    resultsDiv.innerHTML = `<div style="text-align:center; color:var(--pdc-gold); margin-top:15px;">This is the current event</div>`;
                 } else {
                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
                 }
