@@ -11009,6 +11009,59 @@
                 Persistence.save();
             },
 
+            updateThemeSelector: function () {
+                const themeEl = document.getElementById('tourn-theme');
+                if (!themeEl) return;
+
+                const currentValue = themeEl.value;
+                const themes = EVENT_THEMES || DataLoader.getDefaultThemes();
+
+                // Clear existing preset options but keep Default and Custom
+                const defaultOpt = themeEl.options[0]; // Default / Auto
+                const customOpt = themeEl.options[themeEl.options.length - 1]; // Custom Theme...
+
+                themeEl.innerHTML = '';
+                themeEl.appendChild(defaultOpt);
+
+                // Mapping of technical IDs to readable names
+                const nameMap = {
+                    'world': 'World Championship (Green/Gold)',
+                    'matchplay': 'World Matchplay (Red/Blue)',
+                    'premier-league': 'Premier League (Blue/Neon)',
+                    'grandprix': 'World Grand Prix (Blue/Teal)',
+                    'grandslam': 'Grand Slam (Orange/Black)',
+                    'uk-open': 'UK Open (Yellow/Red)',
+                    'players': 'Players Championship (Red/Black)',
+                    'playersf': 'Players Championship Finals',
+                    'europeanf': 'European Championship (Purple/Silver)',
+                    'masters': 'The Masters (Gold/Black)',
+                    'winmaudm': 'Winmau World Masters (Black/White)',
+                    'wmasters-qual': 'Winmau Qualifiers',
+                    'challenge': 'Challenge Tour',
+                    'q-school': 'Q-School',
+                    'wc-qual-intl': 'WC International Qualifier',
+                    'gs-qual-tc': 'Grand Slam Qualifier'
+                };
+
+                // Add themes from EVENT_THEMES
+                Object.keys(themes).forEach(id => {
+                    // Skip 'minor' as it's the fallback base, and duplicates or internal types if needed
+                    if (id === 'minor' || id.includes('qual-tc') || id.includes('host-nation')) return;
+
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = nameMap[id] || (id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, ' '));
+                    themeEl.appendChild(option);
+                });
+
+                themeEl.appendChild(customOpt);
+
+                // Restore previous value if it still exists
+                if (Array.from(themeEl.options).some(opt => opt.value === currentValue)) {
+                    themeEl.value = currentValue;
+                }
+            },
+
             createBracketColumn: (roundInfo, roundIdx, matches, activeRoundIdx, matchIndexOffset = 0) => {
                 const column = document.createElement('div');
                 column.className = 'bracket-round-column';
@@ -13148,6 +13201,7 @@
                         // Refresh UI
                         if (typeof Season !== 'undefined' && Season.renderUI) {
                             Season.renderUI();
+                            Tournament.updateThemeSelector();
                         }
 
                         if (loadBtn) {
@@ -13200,6 +13254,7 @@
 
                 // Themes are always loaded (server or defaults)
                 console.log("[Init] Event themes loaded:", Object.keys(EVENT_THEMES).length);
+                Tournament.updateThemeSelector();
 
                 console.log("App starting, RAW_PLAYERS length:", RAW_PLAYERS.length);
                 console.log("PLAYERS_DB length:", PLAYERS_DB.length);
