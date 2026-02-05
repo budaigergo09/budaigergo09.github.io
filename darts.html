@@ -10912,20 +10912,29 @@
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
             leaveEvent: () => {
-                if (!Tournament.state.active) return;
-
                 // Save current tournament state
                 Persistence.save();
 
-                // Hide tournament hub and show season screen
-                document.getElementById('tournament-hub').style.display = 'none';
-                document.getElementById('setup-screen').style.display = 'flex';
+                // Hide tournament hub and show setup/hub screen
+                const hub = document.getElementById('tournament-hub');
+                const setup = document.getElementById('setup-screen');
+                if (hub) hub.style.display = 'none';
+                if (setup) setup.style.display = 'flex';
 
-                // Switch to season tab
-                App.switchTab('season');
-                Season.renderUI();
+                // Detect origin tab (where the user started the tournament from)
+                // If the tournament tab button is active, it was a custom tournament
+                const isCustomTab = document.getElementById('tab-btn-tourn')?.classList.contains('active');
+                const targetTab = isCustomTab ? 'tourn' : 'season';
 
-                console.log('[Tournament.leaveEvent] Event paused and saved');
+                if (typeof App !== 'undefined' && App.switchTab) {
+                    App.switchTab(targetTab);
+                }
+
+                if (targetTab === 'season' && typeof Season !== 'undefined' && Season.renderUI) {
+                    Season.renderUI();
+                }
+
+                console.log(`[Tournament.leaveEvent] Left event, returning to ${targetTab} tab`);
             },
 
             resumeEvent: () => {
