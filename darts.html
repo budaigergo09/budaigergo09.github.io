@@ -6552,7 +6552,7 @@
 
                 if (!confirm(confirmMsg)) return;
 
-                // If logged in, clear server save
+                // If logged in, clear server save FIRST and wait for it to complete
                 if (isLoggedIn) {
                     try {
                         await AuthSystem.apiCall('/save', 'POST', { data: null });
@@ -6584,7 +6584,7 @@
                     year: 2026,
                     proTourOOM: {},
                     proTourHistory: [],
-                    challengeTourOOM: [], // Fix: Initialize as empty structures
+                    challengeTourOOM: {},
                     challengeTourHistory: [],
                     worldSeriesOOM: {},
                     worldSeriesHistory: [],
@@ -6603,21 +6603,26 @@
                         currentNight: 0,
                         playoffQualifiers: []
                     },
-                    qSchool: {
-                        ukOOM: {}, euOOM: {},
-                        ukFinalStageWinners: [], euFinalStageWinners: [],
-                        ukFinalStageQualified: [], euFinalStageQualified: [],
-                        ukParticipants: [], euParticipants: [],
-                        ukTourCards: 0, euTourCards: 0,
-                        ukTourCardWinners: [], euTourCardWinners: []
-                    },
                     ukOpenQualifiers: [],
-                    winmauQualifiers: []
+                    winmauQualifiers: [],
+                    etQualifiers: {}
                 };
+
+                // Reset Tournament state
+                Tournament.state = {
+                    active: false,
+                    bracketData: [],
+                    currentActiveRound: 0,
+                    viewingRound: 0,
+                    selectedPlayerIndices: new Set(),
+                    matchQueue: []
+                };
+
+                // Reinitialize season (this also sets up OOM from fresh PLAYERS_DB)
                 Season.init();
                 Persistence.save();
 
-                // Save the fresh state to cloud if logged in
+                // Save the fresh state to cloud if logged in (and wait for it)
                 if (isLoggedIn) {
                     try {
                         await AuthSystem.saveToCloud();
@@ -6627,7 +6632,10 @@
                     }
                 }
 
-                location.reload();
+                // Switch to season tab and show success message (no reload needed)
+                App.switchTab('season');
+                Season.renderUI();
+                alert("Career Mode has been reset!");
             },
 
             closeEventInfo: () => {
