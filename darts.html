@@ -5115,6 +5115,45 @@
 
         const Logic = {
             isValidTarget: (t) => (t >= 1 && t <= 20) || t === 25 || t === 50 || (t > 20 && t <= 60 && t % 3 === 0),
+
+            getCheckoutTarget: (score, darts) => {
+                // Recursively find a target to finish in 'darts' number of darts
+                if (darts <= 0 || score < 2 || score > 170) return null;
+                const nonFinishable = [169, 168, 166, 165, 163, 162, 159];
+                if (nonFinishable.includes(score)) return null;
+
+                // 1. One dart checkout
+                if (darts >= 1) {
+                    if (score <= 40 && score % 2 === 0) return { target: score, type: 'double' };
+                    if (score === 50) return { target: 50, type: 'double' };
+                }
+
+                if (darts === 1) return null;
+
+                // 2. Multi-dart checkout paths
+                // Priority: Triples that leave common doubles
+                const triples = [20, 19, 18, 17, 16, 15];
+                const leaves = [40, 32, 36, 24, 16, 8, 50];
+
+                for (let t of triples) {
+                    const val = t * 3;
+                    if (score - val >= 2) {
+                        const path = Logic.getCheckoutTarget(score - val, darts - 1);
+                        if (path) return { target: val, type: 'triple' };
+                    }
+                }
+
+                // Singles
+                for (let s = 20; s >= 1; s--) {
+                    if (score - s >= 2) {
+                        const path = Logic.getCheckoutTarget(score - s, darts - 1);
+                        if (path) return { target: s, type: 'single' };
+                    }
+                }
+
+                return null;
+            },
+
             processVisit: (player, isDecider) => {
                 let score = player.score;
                 let visitTotal = 0;
@@ -5122,57 +5161,59 @@
                 for (let d = 1; d <= 3; d++) {
                     if (score <= 1) return { points: 0, endLeg: false, dartsThrown: d };
                     let pts = 0;
-                    if (score <= 170 && ![169, 168, 166, 165, 163, 162, 159].includes(score)) {
-                        if (score <= 40 && score % 2 === 0) {
+
+                    const dartsRem = 4 - d;
+                    const coPath = Logic.getCheckoutTarget(score, dartsRem);
+
+                    if (coPath) {
+                        // Attempt the checkout path
+                        if (coPath.type === 'double') {
                             player.stats.coAtt++;
-                            const isFav = (score / 2 === player.fav);
-                            const res = Engine.getCheckoutHit(score, player.co, isDecider, isFav);
+                            const isFav = (coPath.target / 2 === player.fav);
+                            const res = Engine.getCheckoutHit(coPath.target, player.co, isDecider, isFav);
                             if (res.double) {
                                 player.stats.coHit++;
                                 return { points: visitTotal + res.pts, endLeg: true, dartsThrown: d };
                             }
                             pts = res.pts;
+                            // Bust check for D1
                             if (score === 2 && pts === 1) return { points: 0, endLeg: false, dartsThrown: d };
+                        } else {
+                            // Triple or Single setup
+                            pts = Engine.getSetupHit(coPath.target, player.avg);
                         }
-                        else if (score === 50) {
-                            player.stats.coAtt++;
-                            const res = Engine.getCheckoutHit(50, player.co, isDecider, false);
-                            if (res.double) {
-                                player.stats.coHit++;
-                                return { points: visitTotal + 50, endLeg: true, dartsThrown: d };
-                            }
-                            pts = res.pts;
-                        }
+                    }
+                    else if (score <= 170 && ![169, 168, 166, 165, 163, 162, 159].includes(score)) {
+                        // Standard setup/cleanup logic for non-checkout darts
+                        if (score > 70) pts = Engine.getScoringHit(player.avg, rhythm, true);
                         else {
-                            if (score > 70) pts = Engine.getScoringHit(player.avg, rhythm, true);
+                            let target = 0;
+                            let idealLeave = player.fav * 2;
+                            let required = score - idealLeave;
+                            if (Logic.isValidTarget(required)) target = required;
                             else {
-                                let target = 0;
-                                let idealLeave = player.fav * 2;
-                                let required = score - idealLeave;
-                                if (Logic.isValidTarget(required)) target = required;
-                                else {
-                                    const leaves = [40, 32, 24, 16, 8, 4, 2];
-                                    let found = false;
-                                    for (let l of leaves) {
-                                        let diff = score - l;
-                                        if (diff > 0 && Logic.isValidTarget(diff)) { target = diff; found = true; break; }
-                                    }
-                                    if (!found) {
-                                        if (score > 2) {
-                                            let tryLeave2 = score - 2;
-                                            target = Logic.isValidTarget(tryLeave2) ? tryLeave2 : 1;
-                                        } else target = 0;
-                                    }
+                                const leaves = [40, 32, 24, 16, 8, 4, 2];
+                                let found = false;
+                                for (let l of leaves) {
+                                    let diff = score - l;
+                                    if (diff > 0 && Logic.isValidTarget(diff)) { target = diff; found = true; break; }
                                 }
-                                if (target > 0) pts = Engine.getSetupHit(target, player.avg);
-                                else pts = 0;
+                                if (!found) {
+                                    if (score > 2) {
+                                        let tryLeave2 = score - 2;
+                                        target = Logic.isValidTarget(tryLeave2) ? tryLeave2 : 1;
+                                    } else target = 0;
+                                }
                             }
+                            if (target > 0) pts = Engine.getSetupHit(target, player.avg);
+                            else pts = 0;
                         }
                     }
                     else {
                         pts = Engine.getScoringHit(player.avg, rhythm, false);
                         if (pts >= 57) rhythm = 1; else rhythm = 0;
                     }
+
                     if (score - pts < 2 && score - pts !== 0) return { points: 0, endLeg: false, dartsThrown: 3 };
                     score -= pts; visitTotal += pts;
                     if (score === 0) return { points: visitTotal, endLeg: true, dartsThrown: d };
@@ -7247,6 +7288,7 @@
             },
 
             startEvent: (idx, isSim) => {
+                Tournament.setSelectionMethod('manual'); // Ensure season events use manual logic
                 // Initialize guard if not set
                 if (typeof Season.guardAgainstAutoStart === 'undefined') {
                     Season.guardAgainstAutoStart = false;
@@ -9581,6 +9623,11 @@
             forceShowFinalAnimation: false,
             roundAdvanceAnimating: false,
             pendingAdvanceAction: null,
+            getCurrentEvent: () => {
+                const isCustomTab = document.getElementById('tab-tourn')?.classList.contains('active');
+                if (isCustomTab) return null;
+                return (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+            },
 
 
             setMode: (mode) => {
@@ -9599,10 +9646,7 @@
                 if (method === 'manual') Tournament.updatePlayerSelectUI();
             },
             startGrandSlamGroupStage: () => {
-                // ========================
-                // GRAND SLAM GROUP STAGE
-                // 32 players in 8 groups of 4, round-robin format
-                // ========================
+                const ev = Tournament.getCurrentEvent();
                 const isBulkSim = typeof Season !== 'undefined' && Season.isBulkSim;
 
                 const size = isBulkSim ? 32 : parseInt(document.getElementById('tourn-size').value);
@@ -9696,8 +9740,7 @@
                 // ========================
                 const totalPlayers = participants.length;
 
-                // Check event type to determine seeding rules
-                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const ev = Tournament.getCurrentEvent();
                 const isEuropeanTour = ev && ev.type === 'european-tour';
                 const isUkOpen = ev && ev.name && ev.name.includes('UK OPEN');
                 const fullSeeding = isEuropeanTour || isUkOpen;
@@ -9863,8 +9906,7 @@
                 const container = document.getElementById('player-list-container');
                 if (container.children.length > 0) return;
 
-                // Get event and apply regional restrictions
-                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const ev = Tournament.getCurrentEvent();
                 let regionFilter = null;
 
                 // Apply strict regional filtering for qualifier events
@@ -9907,8 +9949,7 @@
                 const chk = document.getElementById(`chk-${idx}`);
                 const div = document.getElementById(`p-opt-${idx}`);
 
-                // Check regional restrictions before allowing selection
-                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const ev = Tournament.getCurrentEvent();
                 const player = PLAYERS_DB[idx];
 
                 if (set.has(idx)) {
@@ -9948,7 +9989,7 @@
                 }
             },
             start: () => {
-                const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                const ev = Tournament.getCurrentEvent();
                 let size = parseInt(document.getElementById('tourn-size')?.value) || (ev ? ev.players : 32);
 
                 // ===== VALIDATION =====
@@ -9962,7 +10003,7 @@
                         alert("Please select at least 2 players to create a tournament.");
                         return;
                     }
-                    if (Tournament.state.selectedPlayerIndices.size < size && Tournament.state.selectedPlayerIndices.size < 2) {
+                    if (Tournament.state.selectedPlayerIndices.size < size) {
                         alert(`You selected ${Tournament.state.selectedPlayerIndices.size} players but tournament requires ${size}. Please select more players or reduce tournament size.`);
                         return;
                     }
@@ -10031,7 +10072,8 @@
                 // Save Custom Theme - but ONLY for manual tournaments, not Season events
                 // Season.startEvent() already sets Tournament.config.theme from themePreset
                 const themeEl = document.getElementById('tourn-theme');
-                const isSeasonEvent = typeof Season !== 'undefined' && Season.state.inProgress;
+                const isCustomTab = document.getElementById('tab-tourn')?.classList.contains('active');
+                const isSeasonEvent = !isCustomTab && typeof Season !== 'undefined' && Season.state.inProgress;
                 if (themeEl && !isSeasonEvent) {
                     if (themeEl.value === 'custom') {
                         const c1 = document.getElementById('theme-col-1').value;
@@ -10189,7 +10231,8 @@
             },
 
             getRoundTarget: function (roundIndex) {
-                const ev = Season.events[Season.state.activeEventIndex];
+                const ev = Tournament.getCurrentEvent() || (typeof Season !== 'undefined' && Season.state.inProgress ? Season.events[Season.state.activeEventIndex] : null);
+                if (!ev) return 5;
                 const players = ev.players / Math.pow(2, roundIndex);
 
                 let roundName = "F";
@@ -10896,6 +10939,9 @@
                 const hubTitle = document.getElementById('tourn-hub-title');
                 if (hubTitle) hubTitle.innerText = tournName;
 
+                // Apply theme colors to the hub
+                if (App.applyEventColors) App.applyEventColors(tournName);
+
                 // Check if this is group stage
                 if (Tournament.config.isGroupStage) {
                     Tournament.renderGrandSlamGroupStage();
@@ -10986,7 +11032,7 @@
                             const seedTxt = p && p.seed ? `(${p.seed})` : '';
 
                             // Add Q-School points if applicable
-                            const currentEvent = Season.events[Season.state.activeEventIndex];
+                            const currentEvent = Tournament.getCurrentEvent();
                             let pointsTxt = '';
                             if (currentEvent && currentEvent.type === 'q-school' && p) {
                                 const oom = currentEvent.location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
@@ -11934,10 +11980,29 @@
 
                 // ================= THEME RESOLUTION =================
                 let themeConfig = null;
-                if (typeof Tournament !== 'undefined' && Tournament.config.theme) {
-                    themeConfig = Tournament.config.theme;
-                } else if (typeof App !== 'undefined' && App.config.theme) {
-                    themeConfig = App.config.theme;
+                const isCustomTab = document.getElementById('tab-tourn')?.classList.contains('active');
+                const setupScreenVisible = document.getElementById('setup-screen')?.style.display !== 'none';
+
+                // prioritize UI selection if in custom tab setup
+                if (isCustomTab && setupScreenVisible && !Tournament.state.active) {
+                    const themeEl = document.getElementById('tourn-theme');
+                    if (themeEl) {
+                        if (themeEl.value === 'custom') {
+                            const c1 = document.getElementById('theme-col-1')?.value || '#000';
+                            const c2 = document.getElementById('theme-col-2')?.value || '#fff';
+                            themeConfig = { mode: 'custom', color1: c1, color2: c2 };
+                        } else if (themeEl.value !== 'default') {
+                            themeConfig = { mode: 'preset', id: themeEl.value };
+                        }
+                    }
+                }
+
+                if (!themeConfig) {
+                    if (typeof Tournament !== 'undefined' && Tournament.config.theme) {
+                        themeConfig = Tournament.config.theme;
+                    } else if (typeof App !== 'undefined' && App.config.theme) {
+                        themeConfig = App.config.theme;
+                    }
                 }
 
                 // Normalization
