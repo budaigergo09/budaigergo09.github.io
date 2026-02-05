@@ -6392,6 +6392,17 @@
 
             simulateRemainingSeason: async () => {
                 if (!confirm("⚠️ SIMULATE ENTIRE SEASON?\n\nThis will auto-play all remaining tournaments using the simulation engine.\n\nThis cannot be undone.")) return;
+                await Season.simulateToEvent(Season.events.length);
+            },
+
+            simulateToEvent: async (targetIdx) => {
+                const isFullSeason = targetIdx === Season.events.length;
+                const targetEvent = isFullSeason ? null : Season.events[targetIdx];
+                const confirmMsg = isFullSeason
+                    ? "⚠️ SIMULATE ENTIRE SEASON?\n\nThis will auto-play all remaining tournaments using the simulation engine."
+                    : `⚠️ SIMULATE UP TO ${targetEvent.name}?\n\nThis will auto-play all tournaments before this event.`;
+
+                if (!isFullSeason && !confirm(confirmMsg)) return;
 
                 const overlay = document.createElement('div');
                 overlay.id = 'season-sim-overlay';
@@ -6418,13 +6429,6 @@
                     progressDiv.innerText = 'Stopping simulation...';
                 });
 
-                stopBtn.addEventListener('mouseover', () => {
-                    if (!stopBtn.disabled) stopBtn.style.background = '#c23030';
-                });
-                stopBtn.addEventListener('mouseout', () => {
-                    if (!stopBtn.disabled) stopBtn.style.background = '#e74c3c';
-                });
-
                 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
                 Season.isBulkSim = true;
@@ -6433,37 +6437,35 @@
                 try {
                     const startTime = performance.now();
                     let eventsSimulated = 0;
-                    const totalEvents = Season.events.length - Season.state.activeEventIndex;
-                    const BATCH_SIZE = 10; // Process events in batches for speed
+                    const initialIdx = Season.state.activeEventIndex;
+                    const totalToSimulate = targetIdx - initialIdx;
+                    const BATCH_SIZE = 10;
 
-                    while (Season.state.activeEventIndex < Season.events.length && !shouldStop) {
+                    while (Season.state.activeEventIndex < targetIdx && !shouldStop) {
                         const batchStart = Season.state.activeEventIndex;
-                        const batchEnd = Math.min(batchStart + BATCH_SIZE, Season.events.length);
+                        const batchEnd = Math.min(batchStart + BATCH_SIZE, targetIdx);
 
-                        // Process batch of events without UI updates
                         for (let i = batchStart; i < batchEnd && !shouldStop; i++) {
                             Season.startEvent(i, true);
                             eventsSimulated++;
                         }
 
-                        // Update UI after each batch
                         const ev = Season.events[Math.min(Season.state.activeEventIndex, Season.events.length - 1)];
                         const elapsed = (performance.now() - startTime) / 1000;
                         const eventsPerSec = (eventsSimulated / elapsed).toFixed(1);
-                        const remaining = totalEvents - eventsSimulated;
+                        const remaining = totalToSimulate - eventsSimulated;
                         const eta = remaining > 0 ? Math.ceil(remaining / (eventsSimulated / elapsed)) : 0;
 
-                        progressDiv.innerText = `Simulating: ${ev.name} (${Season.state.activeEventIndex + 1}/${Season.events.length})`;
+                        progressDiv.innerText = `Simulating: ${ev.name} (${Season.state.activeEventIndex}/${targetIdx})`;
                         speedDiv.innerText = `Speed: ${eventsPerSec} events/sec | ETA: ${eta}s`;
 
-                        // Yield to browser for UI update
                         await sleep(0);
                     }
 
                     if (shouldStop) {
                         progressDiv.innerText = "SIMULATION STOPPED";
                     } else {
-                        progressDiv.innerText = "SEASON COMPLETE!";
+                        progressDiv.innerText = isFullSeason ? "SEASON COMPLETE!" : "SIMULATION COMPLETE!";
                         const totalTime = ((performance.now() - startTime) / 1000).toFixed(1);
                         speedDiv.innerText = `Completed ${eventsSimulated} events in ${totalTime}s`;
                     }
@@ -6475,13 +6477,12 @@
                     }
 
                     Persistence.save();
-
                     await sleep(1500);
                     document.body.removeChild(overlay);
-
                     Season.renderUI();
+
                     if (!shouldStop) {
-                        alert("Season Simulation Finished!");
+                        alert(isFullSeason ? "Season Simulation Finished!" : `Simulation up to ${targetEvent.name} Finished!`);
                     }
 
                 } catch (e) {
@@ -7588,6 +7589,27 @@
                     let pool = PLAYERS_DB;
                     let generationRegion = null; // Store region for regen
 
+                    // Build exclusion set for players already qualified for the main ET event
+                    // These are top 16 Main OOM (seeds) and top 16 Pro Tour OOM (qualifiers)
+                    const alreadyQualified = new Set();
+
+                    // Top 16 Main OOM seeds
+                    const mainOOMSorted = [...PLAYERS_DB]
+                        .filter(p => p.tourCard)
+                        .sort((a, b) => (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0));
+                    mainOOMSorted.slice(0, 16).forEach(p => alreadyQualified.add(p.name));
+
+                    // Top 16 Pro Tour OOM qualifiers (excluding those already in seeds)
+                    const proOOMSorted = [...PLAYERS_DB]
+                        .filter(p => p.tourCard)
+                        .sort((a, b) => (Season.state.proTourOOM[b.name] || 0) - (Season.state.proTourOOM[a.name] || 0));
+                    proOOMSorted.slice(0, 32).forEach(p => {
+                        // Add to qualified set (first 16 not already in seeds)
+                        if (!alreadyQualified.has(p.name) && alreadyQualified.size < 32) {
+                            alreadyQualified.add(p.name);
+                        }
+                    });
+
                     if (ev.type === "et-qual-tc") {
                         // Exclude top 16 Main OOM (by world ranking) and top 16 Pro Tour OOM
                         const exclude = new Set();
@@ -7604,13 +7626,16 @@
                         pool = PLAYERS_DB.filter(p => p.tourCard && !exclude.has(p.name));
                     } else if (ev.type === "et-host-nation") {
                         const hostCode = HOST_NATION[ev.targetEvent];
-                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode) : [];
+                        // Filter by host nation AND exclude already-qualified players
+                        pool = hostCode ? PLAYERS_DB.filter(p => p.country === hostCode && !alreadyQualified.has(p.name)) : [];
                         generationRegion = hostCode; // Regen using host nation
                     } else if (ev.type === "et-east-european") {
-                        pool = PLAYERS_DB.filter(p => REGION_MAP.east.includes(p.country));
+                        // Exclude already-qualified players from East European qualifier
+                        pool = PLAYERS_DB.filter(p => REGION_MAP.east.includes(p.country) && !alreadyQualified.has(p.name));
                         generationRegion = "east";
                     } else if (ev.type === "et-nordic-baltic") {
-                        pool = PLAYERS_DB.filter(p => REGION_MAP.nordic.includes(p.country));
+                        // Exclude already-qualified players from Nordic/Baltic qualifier
+                        pool = PLAYERS_DB.filter(p => REGION_MAP.nordic.includes(p.country) && !alreadyQualified.has(p.name));
                         generationRegion = "nordic";
                     }
 
@@ -9477,14 +9502,15 @@
                     Season.state.premierLeague.standings[finalLoser.name].runnerUpFinishes += 1;
                 }
 
-                // SF finishers: 2 points each
+                // SF finishers: 2 points each (the losers of the SF matches)
                 [sf1, sf2].forEach(sf => {
-                    const loser1 = sf.winner === sf.p1 ? sf.p2 : sf.p1;
-                    const loser2 = sf.winner === sf.p2 ? sf.p1 : sf.p2;
+                    const sfLoser = sf.winner === sf.p1 ? sf.p2 : sf.p1;
 
-                    if (loser1 && finalLoser.name !== loser1.name) {
-                        Season.state.premierLeague.standings[loser1.name].points += 2;
-                        Season.state.premierLeague.standings[loser1.name].semiFinalFinishes += 1;
+                    // Only award SF points if this player didn't make it to the final
+                    // (finalLoser already got runner-up points, so skip them)
+                    if (sfLoser && sfLoser.name !== finalLoser.name) {
+                        Season.state.premierLeague.standings[sfLoser.name].points += 2;
+                        Season.state.premierLeague.standings[sfLoser.name].semiFinalFinishes += 1;
                     }
                 });
             },
