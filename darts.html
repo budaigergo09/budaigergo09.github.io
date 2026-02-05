@@ -5214,7 +5214,7 @@
                         if (pts >= 57) rhythm = 1; else rhythm = 0;
                     }
 
-                    if (score - pts < 2 && score - pts !== 0) return { points: 0, endLeg: false, dartsThrown: 3 };
+                    if (score - pts < 2 && score - pts !== 0) return { points: 0, endLeg: false, dartsThrown: d };
                     score -= pts; visitTotal += pts;
                     if (score === 0) return { points: visitTotal, endLeg: true, dartsThrown: d };
                 }
@@ -9889,7 +9889,7 @@
                     div.className = 'tourn-input-group';
 
                     const ev = Season.events[Season.state.activeEventIndex];
-                    const val = Tournament.getRoundTarget(i);
+                    const val = Tournament.getRoundTarget(i, roundsNeeded);
 
                     const isLocked = Tournament.config.lockRounds;
                     const inputStyle = isLocked ? 'opacity: 0.7; cursor: not-allowed;' : '';
@@ -10089,7 +10089,7 @@
                 const numRounds = Math.log2(nextPowerOf2);
 
                 // Only rebuild rounds if they haven't been pre-configured
-                if (!Tournament.config.rounds || Tournament.config.rounds.length === 0) {
+                if (isCustomTab || !Tournament.config.rounds || Tournament.config.rounds.length === 0) {
                     Tournament.config.rounds = [];
 
                     for (let i = 0; i < numRounds; i++) {
@@ -10230,9 +10230,20 @@
                 if (next >= 0 && next < Tournament.config.rounds.length) { Tournament.state.viewingRound = next; Tournament.renderHub(); }
             },
 
-            getRoundTarget: function (roundIndex) {
-                const ev = Tournament.getCurrentEvent() || (typeof Season !== 'undefined' && Season.state.inProgress ? Season.events[Season.state.activeEventIndex] : null);
-                if (!ev) return 5;
+            getRoundTarget: function (roundIndex, totalRounds) {
+                const ev = Tournament.getCurrentEvent();
+                if (!ev) {
+                    // Smart defaults for custom tournaments
+                    if (!totalRounds) {
+                        const size = parseInt(document.getElementById('tourn-size')?.value || 32);
+                        totalRounds = Math.log2(size);
+                    }
+                    const distFromFinal = totalRounds - 1 - roundIndex;
+                    if (distFromFinal === 0) return 11; // Final
+                    if (distFromFinal === 1) return 11; // Semi-Final
+                    if (distFromFinal === 2) return 10; // Quarter-Final
+                    return 6; // Early rounds
+                }
                 const players = ev.players / Math.pow(2, roundIndex);
 
                 let roundName = "F";
@@ -11121,7 +11132,7 @@
                 App.config.mode = Tournament.config.mode;
                 App.config.tiebreak = Tournament.config.tiebreak;
                 if (Tournament.config.mode === 'sets') {
-                    const ev = (typeof Season !== 'undefined' && Season.events) ? Season.events[Season.state.activeEventIndex] : null;
+                    const ev = Tournament.getCurrentEvent();
                     if (ev && ev.type === 'winmaudm') {
                         App.config.setLegs = 3; // Best of 3 legs per set (first to 2 wins the set)
                     } else {
@@ -11242,7 +11253,7 @@
 
                         // Skip news/rivalry tracking in bulk sim for speed
                         if (!isBulkSim) {
-                            const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                            const ev = Tournament.getCurrentEvent();
                             const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
 
                             const isUpset = winnerIdx > loserIdx + 20;
@@ -11314,7 +11325,7 @@
                     const rankLose = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.findIndex(p => p.name === loserCopy.name) + 1 : 0;
 
                     // Get proper event name
-                    const ev = (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                    const ev = Tournament.getCurrentEvent();
                     const eventName = ev ? ev.name : (Tournament.config?.name || App.config?.event || "Tournament");
 
                     console.log('[NEWS] Match result:', winnerCopy.name, '(#' + rankWin + ') beat', loserCopy.name, '(#' + rankLose + ')');
