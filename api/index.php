@@ -115,8 +115,12 @@ function getDB() {
         theme TEXT,
         activeGradient1 TEXT,
         activeGradient2 TEXT,
-        legNameColor TEXT
+        legNameColor TEXT,
+        is_deleted INTEGER NOT NULL DEFAULT 0
     )');
+    
+    // Add is_deleted column if it doesn't exist
+    $db->exec('ALTER TABLE themes ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0');
     
     return $db;
 }
@@ -320,7 +324,8 @@ function getThemesWithOverrides($eventThemes) {
             'activeGradient' => $row['activeGradient1'] && $row['activeGradient2'] 
                 ? [$row['activeGradient1'], $row['activeGradient2']] 
                 : null,
-            'legNameColor' => $row['legNameColor'] ?: 'white'
+            'legNameColor' => $row['legNameColor'] ?: 'white',
+            'is_deleted' => (bool)$row['is_deleted']
         ];
         // Remove null activeGradient
         if (!$themes[$id]['activeGradient']) {
@@ -328,7 +333,10 @@ function getThemesWithOverrides($eventThemes) {
         }
     }
     
-    return $themes;
+    // Filter out deleted themes
+    return array_filter($themes, function($t) {
+        return !isset($t['is_deleted']) || !$t['is_deleted'];
+    });
 }
 
 // API Routes
@@ -883,11 +891,20 @@ switch ($uri) {
                         'activeGradient2' => $custom['activeGradient2'] ?: '',
                         'legNameColor' => $custom['legNameColor'] ?: 'white',
                         'isCustom' => true,
-                        'isDefault' => false
+                        'isDefault' => false,
+                        'isDeleted' => (bool)($custom['is_deleted'] ?? 0)
                     ];
                 }
                 
-                jsonResponse(['success' => true, 'themes' => $allThemes]);
+                // Final filtering: If it's custom and deleted, hide it completely. 
+                // If it's default and deleted, hide it from the list unless we want to allow management.
+                // For now, let's keep all in the admin list but mark them, OR just hide them.
+                // User wants to DELETE, so let's hide them from the standard grid.
+                $adminThemes = array_filter($allThemes, function($t) {
+                    return !($t['isDeleted'] ?? false);
+                });
+                
+                jsonResponse(['success' => true, 'themes' => array_values($adminThemes)]);
             }
             
             // Save/Update a theme
@@ -900,8 +917,8 @@ switch ($uri) {
                 }
                 
                 $stmt = $db->prepare('INSERT OR REPLACE INTO themes 
-                    (id, color1, color2, logo, theme, activeGradient1, activeGradient2, legNameColor) 
-                    VALUES (:id, :color1, :color2, :logo, :theme, :ag1, :ag2, :legNameColor)');
+                    (id, color1, color2, logo, theme, activeGradient1, activeGradient2, legNameColor, is_deleted) 
+                    VALUES (:id, :color1, :color2, :logo, :theme, :ag1, :ag2, :legNameColor, 0)');
                 $stmt->bindValue(':id', $input['id'], SQLITE3_TEXT);
                 $stmt->bindValue(':color1', $input['color1'], SQLITE3_TEXT);
                 $stmt->bindValue(':color2', $input['color2'], SQLITE3_TEXT);
@@ -915,14 +932,44 @@ switch ($uri) {
                 jsonResponse(['success' => true]);
             }
             
-            // Delete a custom theme (reset to default)
+            // Delete a theme (soft-delete defaults, hard-delete customs)
             if (preg_match('/^themes\/(.+)$/', $adminRoute, $m) && $method === 'DELETE') {
                 $themeId = $m[1];
                 $db = getDB();
-                $stmt = $db->prepare('DELETE FROM themes WHERE id = :id');
-                $stmt->bindValue(':id', $themeId, SQLITE3_TEXT);
-                $stmt->execute();
-                jsonResponse(['success' => true, 'message' => 'Theme reset to default']);
+                
+                // Check if it's a default theme
+                global $EVENT_THEMES;
+                if (isset($EVENT_THEMES[$themeId])) {
+                    // It's a default theme, mark as deleted in overrides table
+                    $stmt = $db->prepare('INSERT OR REPLACE INTO themes 
+                        (id, color1, color2, logo, theme, activeGradient1, activeGradient2, legNameColor, is_deleted) 
+                        SELECT id, color1, color2, logo, theme, activeGradient1, activeGradient2, legNameColor, 1 
+                        FROM themes WHERE id = :id 
+                        UNION ALL 
+                        SELECT :id2, :c1, :c2, :l, :t, :ag1, :ag2, :lnc, 1 
+                        WHERE NOT EXISTS (SELECT 1 FROM themes WHERE id = :id3)');
+                    
+                    // This is complex because we need to insert a default if it doesn't exist yet
+                    $def = $EVENT_THEMES[$themeId];
+                    $stmt->bindValue(':id', $themeId, SQLITE3_TEXT);
+                    $stmt->bindValue(':id2', $themeId, SQLITE3_TEXT);
+                    $stmt->bindValue(':id3', $themeId, SQLITE3_TEXT);
+                    $stmt->bindValue(':c1', $def['color1'], SQLITE3_TEXT);
+                    $stmt->bindValue(':c2', $def['color2'], SQLITE3_TEXT);
+                    $stmt->bindValue(':l', $def['logo'] ?? '', SQLITE3_TEXT);
+                    $stmt->bindValue(':t', $def['theme'] ?? '', SQLITE3_TEXT);
+                    $stmt->bindValue(':ag1', $def['activeGradient'][0] ?? '', SQLITE3_TEXT);
+                    $stmt->bindValue(':ag2', $def['activeGradient'][1] ?? '', SQLITE3_TEXT);
+                    $stmt->bindValue(':lnc', $def['legNameColor'] ?? 'white', SQLITE3_TEXT);
+                    $stmt->execute();
+                    jsonResponse(['success' => true, 'message' => 'Default theme hidden']);
+                } else {
+                    // It's a custom theme, permanent delete
+                    $stmt = $db->prepare('DELETE FROM themes WHERE id = :id');
+                    $stmt->bindValue(':id', $themeId, SQLITE3_TEXT);
+                    $stmt->execute();
+                    jsonResponse(['success' => true, 'message' => 'Custom theme deleted']);
+                }
             }
             
             // ==================== ADMIN PLAYER ROUTES ====================

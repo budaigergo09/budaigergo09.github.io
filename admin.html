@@ -1848,9 +1848,7 @@
                 const customBadge = t.isCustom ? '<span style="background:#00b359; color:#fff; padding:2px 6px; border-radius:3px; font-size:10px; margin-left:5px;">CUSTOM</span>' : '';
                 const defaultBadge = t.isDefault ? '' : '<span style="background:#ff9800; color:#fff; padding:2px 6px; border-radius:3px; font-size:10px; margin-left:5px;">NEW</span>';
 
-                const deleteBtn = t.isDefault
-                    ? `<button class="btn btn-delete" onclick="resetTheme('${t.id}')" title="Reset to default" style="flex: 0 0 35px;">↺</button>`
-                    : `<button class="btn btn-delete" onclick="deleteTheme('${t.id}')" title="Delete theme" style="flex: 0 0 35px;">Del</button>`;
+                const deleteBtn = `<button class="btn btn-delete" onclick="deleteTheme('${t.id}')" title="Delete theme" style="flex: 0 0 35px;">Del</button>`;
 
                 return `
                 <div style="background: linear-gradient(145deg, #1a1f35, #0f1525); border: 1px solid #333; border-radius: 8px; overflow: hidden;">
@@ -1917,14 +1915,14 @@
             document.getElementById('edit-theme-legcolor').value = legColorHex;
             document.getElementById('edit-theme-legcolor-text').value = legColor;
 
-            // Show/hide delete/reset button in modal
-            const btnReset = document.getElementById('btn-reset-theme');
+            // Show/hide delete button in modal
+            const btnDelete = document.getElementById('btn-reset-theme');
             if (theme) {
-                btnReset.style.display = 'inline-block';
-                btnReset.innerText = theme.isDefault ? 'Reset to Default' : 'Delete Theme';
-                btnReset.style.background = '#9a0000';
+                btnDelete.style.display = 'inline-block';
+                btnDelete.innerText = 'Delete Theme';
+                btnDelete.style.background = '#9a0000';
             } else {
-                btnReset.style.display = 'none';
+                btnDelete.style.display = 'none';
             }
 
             updateThemePreview();
@@ -2006,12 +2004,13 @@
         }
 
         async function deleteTheme(id) {
-            if (!confirm(`Permanently delete "${id}" theme?`)) return;
+            if (!confirm(`Are you sure you want to delete the "${id}" theme?`)) return;
             try {
                 const response = await fetch(API_BASE + '/admin/themes/' + encodeURIComponent(id), { method: 'DELETE' });
                 const result = await response.json();
                 if (result.success) {
                     loadThemes();
+                    closeThemeModal();
                 } else {
                     alert('Failed to delete theme: ' + (result.error || 'Unknown error'));
                 }
@@ -2020,35 +2019,9 @@
             }
         }
 
-        async function resetTheme(id) {
-            if (!confirm(`Reset "${id}" theme to default values?`)) return;
-
-            try {
-                const response = await fetch(API_BASE + '/admin/themes/' + encodeURIComponent(id), { method: 'DELETE' });
-                const result = await response.json();
-                if (result.success) {
-                    loadThemes();
-                } else {
-                    alert('Failed to reset theme: ' + (result.error || 'Unknown error'));
-                }
-            } catch (e) {
-                alert('Failed to reset theme');
-            }
-        }
-
         function resetThemeToDefault() {
             const id = document.getElementById('edit-theme-original-id').value;
-            if (!id) return;
-
-            const theme = themes.find(t => t.id === id);
-            if (!theme) return;
-
-            closeThemeModal();
-            if (theme.isDefault) {
-                resetTheme(id);
-            } else {
-                deleteTheme(id);
-            }
+            if (id) deleteTheme(id);
         }
 
         // ==================== USERS ====================
