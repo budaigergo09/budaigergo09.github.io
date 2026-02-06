@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PDC Sim 2026 (Mobile)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
+    <title>PDC Sim 2026 (Optimized)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Roboto+Condensed:wght@400;700&display=swap"
+        rel="stylesheet">
 
     <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#0a0e1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PDC Sim">
@@ -17,43 +19,62 @@
     <link rel="icon" type="image/png" href="icon.png">
 
     <style>
-        /* ==================== MODERN VARIABLES ==================== */
+        /* ==================== GLOBAL STYLES ==================== */
         :root {
-            --pdc-red: #ef4444;
-            --pdc-gold: #fbbf24;
-            --pdc-green: #10b981;
-            --pdc-blue: #3b82f6;
-            
-            --bg-dark: #0f172a; /* Slate 900 */
-            --bg-card: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
-            --bg-header: rgba(15, 23, 42, 0.85);
-            
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            
-            --shadow-app: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --glass: blur(12px);
+            --pdc-red: #d50000;
+            --pdc-dark-red: #9a0000;
+            --pdc-blue: #0e2a3a;
+            --pdc-bg: #0a0e1a;
+            --pdc-gold: #ffd700;
+            --text-grey: #8fa3ad;
+            --input-bg: #f5f5f5;
+            --pdc-green: #00b359;
+            --card-bg: linear-gradient(145deg, #1a1f35, #0f1525);
+            --hover-glow: rgba(255, 215, 0, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
         body {
             margin: 0;
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, var(--bg-dark) 70%);
-            color: var(--text-main);
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Roboto', sans-serif;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 100dvh; /* Dynamic Viewport Height for mobile */
-            -webkit-tap-highlight-color: transparent;
+            height: 100dvh;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ==================== LAYOUT & CONTAINERS ==================== */
-        #setup-screen, #tournament-hub, #post-match-screen, #match-screen {
+        /* SCROLLBARS */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--pdc-gold), #cc9900);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pdc-gold);
+        }
+
+        /* ==================== LAYOUT COMPONENTS ==================== */
+        #setup-screen,
+        #tournament-hub,
+        #post-match-screen,
+        #match-screen {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -61,639 +82,2388 @@
             display: none;
             flex-direction: column;
             z-index: 10;
-            background: var(--bg-dark);
-            padding-bottom: 80px; /* Space for Bottom Nav */
         }
 
-        /* Setup Box becomes the full screen content area */
-        .setup-box {
-            background: transparent;
-            backdrop-filter: none;
-            border: none;
-            box-shadow: none;
-            width: 100%;
-            max-width: 100%;
-            height: 100%;
-            padding: 20px;
+        #setup-screen {
+            display: flex;
+            background: linear-gradient(135deg, #0f1729 0%, #1a2642 50%, #0f1729 100%);
+            backdrop-filter: blur(10px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 5px;
             box-sizing: border-box;
-            overflow-y: auto;
-            /* Extra scroll space so content doesn't get hidden behind bottom nav */
-            padding-bottom: 100px; 
         }
 
-        /* Content Containers */
+        .setup-box {
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.95));
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            height: 90dvh;
+            max-height: 900px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 215, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: linear-gradient(180deg, rgba(12, 16, 28, 0.9), rgba(8, 11, 20, 0.95));
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
+            min-height: 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: #999;
+            font-family: 'Roboto Condensed';
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #ccc;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 215, 0, 0.08);
+            color: var(--pdc-gold);
+            border-bottom: 3px solid var(--pdc-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
         .tab-content {
+            padding: 10px;
             display: none;
             flex-direction: column;
-            gap: 16px;
-            animation: fadeIn 0.3s ease;
-        }
-        .tab-content.active { display: flex; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ==================== BOTTOM NAVIGATION (NEW) ==================== */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: var(--glass);
-            -webkit-backdrop-filter: var(--glass);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 500;
-            padding-bottom: env(safe-area-inset-bottom);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-        }
-
-        .nav-item {
+            gap: 8px;
+            overflow-y: auto;
             flex: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .qschool-view,
+        .oom-view {
+            display: none;
+            width: 100%;
+        }
+
+        .qschool-view.active {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 10px;
-            font-weight: 600;
-            gap: 4px;
-            padding: 8px 0;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            flex: 1;
+            min-height: 0;
         }
 
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-            transition: transform 0.2s;
-        }
-
-        .nav-item.active {
-            color: var(--pdc-gold);
-        }
-
-        .nav-item.active svg {
-            transform: translateY(-2px);
-            filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
-        }
-
-        /* Hide the old tabs class */
-        .tabs { display: none !important; }
-
-        /* ==================== CARDS & INPUTS ==================== */
-        /* Input Groups */
-        .pc-row {
+        .oom-view.active {
             display: flex;
-            flex-direction: column; /* Stack on mobile by default */
-            gap: 16px;
-        }
-        
-        @media (min-width: 600px) {
-            .pc-row { flex-direction: row; }
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
         }
 
-        label {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-            display: block;
+        /* EVENT INFO MODAL */
+        #event-info-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #event-info-modal.active {
+            opacity: 1;
+        }
+
+        .event-info-box {
+            background: linear-gradient(145deg, #1a1f35, #0f1525);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #event-info-modal.active .event-info-box {
+            transform: scale(1);
+        }
+
+        .event-info-header {
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--pdc-gold);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+        }
+
+        .event-info-details {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .event-info-details p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 4px;
+        }
+
+        .event-info-results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .event-info-results h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #aaa;
             text-transform: uppercase;
         }
 
-        input[type="text"], select, input[type="number"] {
-            width: 100%;
-            height: 50px; /* Taller touch target */
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
-            color: white;
-            padding: 0 16px;
-            font-size: 16px; /* Prevents iOS zoom */
-            font-family: 'Roboto Condensed', sans-serif;
+        .close-event-info {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
             font-weight: bold;
-            transition: border-color 0.3s;
-            box-sizing: border-box;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            width: 100px;
+            transition: all 0.2s;
         }
 
-        input:focus, select:focus {
+        .close-event-info:hover {
+            background: #444;
+            color: var(--pdc-gold);
+        }
+
+        /* CONTROLS */
+        input,
+        select {
+            padding: 10px 14px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            color: #222;
             outline: none;
-            border-color: var(--pdc-gold);
-            background: rgba(0, 0, 0, 0.2);
+            width: 100%;
+            box-sizing: border-box;
+            height: 40px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
 
-        /* Format Buttons (Sets/Legs) */
+        input:hover,
+        select:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--pdc-gold);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1), var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
         .format-row {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-md);
-            padding: 4px;
             display: flex;
-            gap: 0;
+            gap: 10px;
         }
 
         .format-btn {
             flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 700;
-            box-shadow: none;
+            padding: 10px;
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-weight: bold;
             cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            height: 40px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .format-btn:hover {
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: #ddd;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .format-btn.selected {
-            background: var(--bg-card);
-            color: var(--pdc-gold);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, var(--pdc-gold), #cc9900);
+            color: #000;
+            border-color: var(--pdc-gold);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
         }
 
-        /* Main Action Buttons */
-        .btn-gold, .btn-blue, .btn-sim, .btn-watch, .advancement-continue {
-            width: 100%;
-            height: 56px;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 1px;
+        .btn-gold,
+        .btn-blue,
+        .btn-hub-action {
+            font-weight: 900;
+            cursor: pointer;
+            padding: 12px 20px;
+            font-size: 14px;
             text-transform: uppercase;
             border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 12px 0;
-            cursor: pointer;
+            border-radius: 10px;
+            width: 100%;
+            flex-shrink: 0;
+            font-family: 'Roboto Condensed';
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-family: 'Roboto Condensed', sans-serif;
         }
 
-        .btn-gold, .advancement-continue {
-            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
-            color: #0f172a;
+        .btn-gold {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #111;
+            margin: 5px 0;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
-        
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.5);
+        }
+
+        .btn-gold:active {
+            transform: translateY(0);
+        }
+
         .btn-blue {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-hub-action {
+            font-size: 12px;
+            color: white;
+            flex: 1;
         }
 
         .btn-sim {
             background: linear-gradient(135deg, var(--pdc-green), #009647);
-            color: white;
+            box-shadow: 0 4px 15px rgba(0, 179, 89, 0.3);
         }
 
-        /* Checkbox Row (Toggle Style) */
-        .checkbox-row {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
-            padding: 16px;
+        .btn-sim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 179, 89, 0.5);
+        }
+
+        .btn-watch {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .btn-watch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+        }
+
+        /* LISTS */
+        .search-dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-results-list {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            width: 100%;
+            max-height: 220px;
+            overflow-y: auto;
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-top: 10px;
+            gap: 10px;
+            font-size: 12px;
+            color: #ddd;
+            transition: all 0.2s ease;
         }
-        
-        .checkbox-row input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            margin: 0;
+
+        .search-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--pdc-gold);
+            padding-left: 16px;
+        }
+
+        .search-item img {
+            width: 18px;
+            height: 12px;
+            object-fit: cover;
+        }
+
+        .player-selector-box {
+            display: none;
+            flex-direction: column;
+            background: #111;
+            border: 1px solid #444;
+            margin-top: 5px;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .player-list-container {
+            height: 200px;
+            overflow-y: auto;
+            background: #161616;
+            border-top: 1px solid #333;
+        }
+
+        .tc-badge {
+            font-size: 9px;
+            background: var(--pdc-gold);
+            color: black;
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin-left: auto;
+            font-weight: bold;
+        }
+
+        .tourn-config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 5px;
+            max-height: 120px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            padding: 12px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-row:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: rgba(255, 215, 0, 0.2);
+            transform: translateX(3px);
+        }
+
+        .checkbox-row input {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
             accent-color: var(--pdc-gold);
         }
 
-        /* ==================== NEWS FEED ==================== */
-        .news-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-left: 4px solid #666;
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow-app);
-        }
-        
-        .news-card.win { border-left-color: var(--pdc-gold); }
-        .news-card.upset { border-left-color: var(--pdc-red); }
-        
-        .news-filters {
-            position: sticky;
-            top: 0;
-            background: rgba(15, 23, 42, 0.95);
-            z-index: 10;
-            padding: 10px 0;
-            margin: 0 -20px 10px -20px; /* Bleed to edges */
+        .pc-row {
             display: flex;
-            overflow-x: auto;
+            flex-direction: column;
             gap: 8px;
-            padding-left: 20px;
-            -webkit-overflow-scrolling: touch;
         }
-        
-        .news-filters::-webkit-scrollbar { display: none; }
 
-        .filter-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 13px;
-            white-space: nowrap;
-            color: white;
+        label {
             font-weight: bold;
-        }
-        
-        .filter-btn.active {
-            background: var(--text-main);
-            color: var(--bg-dark);
+            font-size: 10px;
+            color: #8fa3ad;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
         }
 
-        /* ==================== SEASON / LISTS ==================== */
+        /* SEASON UI */
         .season-list {
-            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 2px;
+            padding-bottom: 16px;
         }
 
         .season-event {
-            background: var(--bg-card);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-left: 4px solid transparent;
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            padding: 14px;
+            border-radius: 10px;
+            border-left: 4px solid rgba(255, 255, 255, 0.2);
             display: flex;
-            align-items: center;
             justify-content: space-between;
-        }
-        
-        .season-event.active {
-            border-left-color: var(--pdc-gold);
-            background: linear-gradient(90deg, rgba(251, 191, 36, 0.1) 0%, rgba(30, 41, 59, 0.7) 100%);
-        }
-
-        .season-event-logo {
-            height: 32px;
-            margin-right: 12px;
-        }
-
-        .btn-play-mini {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-            border: none;
-            background: var(--pdc-red);
-            color: white;
-            cursor: pointer;
-        }
-
-        /* ==================== MATCH SCREEN ==================== */
-        /* Cleaner header */
-        .event-bar {
-            background: var(--bg-header);
-            backdrop-filter: var(--glass);
-            height: 50px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .scoreboard-header {
-            height: auto;
-            padding: 20px 0;
-            display: flex;
-        }
-
-        .player-card {
-            background: transparent;
-            border: none;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .name-strip {
-            background: transparent !important;
-            justify-content: flex-start;
-            padding-left: 15px;
-            display: flex;
-            align-items: center;
-            height: 30px;
-            border: none;
-        }
-        
-        .player-card:last-child .name-strip {
-            justify-content: flex-end;
-            padding-right: 15px;
-            flex-direction: row-reverse;
-        }
-
-        .flag {
-            width: 24px; 
-            height: 16px;
-            border-radius: 2px;
-            margin: 0 8px;
-        }
-
-        .p-name {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-        }
-        
-        .active .p-name {
-            color: white;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-
-        .score-strip {
-            background: transparent;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .p-score {
-            font-size: 72px; /* Huge score */
-            font-weight: 200; /* Thin font */
-            color: white;
-            text-align: center;
-            font-variant-numeric: tabular-nums;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            line-height: 1;
-            margin: 5px 0;
-        }
-        
-        .p-avg {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: bold;
-        }
-
-        /* Visit Board (History) */
-        .visit-board {
-            background: rgba(0,0,0,0.3) !important;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 10px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .visit-row {
-            font-size: 18px;
-            padding: 4px 20px;
             opacity: 0.7;
-            display: grid;
-            grid-template-columns: 1fr 30px 40px 30px 1fr;
-            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
         }
-        .visit-row:last-child {
-            opacity: 1;
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--pdc-gold);
-        }
-        
-        .v-score { text-align: center; font-weight: bold;}
-        .v-round { font-size: 10px; color: #666; text-align: center; }
 
-        /* Bottom Bar (Legs/Sets) */
-        .bottom-bar {
-            height: 80px;
-            background: #0f172a;
-            padding-bottom: env(safe-area-inset-bottom);
-            position: relative;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .season-event:hover {
+            opacity: 0.85;
+            transform: translateX(4px);
         }
-        
-        .legs-display {
-            gap: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
+
+        .season-event.active {
+            opacity: 1;
+            border-left-color: var(--pdc-gold);
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2), inset 0 0 30px rgba(255, 215, 0, 0.05);
         }
-        
-        .main-score {
-            font-size: 40px;
-            color: var(--pdc-gold);
-            font-weight: bold;
-            font-family: 'Roboto Condensed';
+
+        .season-event.completed {
+            opacity: 0.5;
+            border-left-color: var(--pdc-green);
+            text-decoration: line-through;
         }
-        
-        .sub-score {
-            font-size: 20px;
-            color: #fff;
-            opacity: 0.6;
-            font-weight: bold;
-        }
-        
-        .leg-label {
+
+        .s-date {
             font-size: 10px;
+            color: #888;
             font-weight: bold;
-            color: #666;
             text-transform: uppercase;
         }
 
-        /* ==================== TOURNAMENT HUB ==================== */
-        .hub-header {
-            background: var(--bg-header);
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .s-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin: 2px 0;
         }
-        
-        .hub-title {
-            font-size: 18px;
+
+        .s-winner {
+            font-size: 11px;
+            color: var(--pdc-gold);
+        }
+
+        .season-event-logo {
+            height: 24px;
+            opacity: 0.8;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        /* UPDATED OOM STYLES */
+        .oom-container {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            background: linear-gradient(145deg, rgba(0, 0, 0, 0.6), rgba(10, 14, 26, 0.8));
+            backdrop-filter: blur(5px);
+            border-radius: 8px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .oom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            table-layout: fixed;
+            height: fit-content;
+        }
+
+        /* Sticky header with solid background so content doesn't show under it */
+        .oom-table th {
+            text-align: left;
+            color: #fff;
+            border-bottom: 2px solid var(--pdc-gold);
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg, #1a1f35, #12172a);
+            backdrop-filter: blur(10px);
+            z-index: 5;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            font-weight: 700;
+        }
+
+        .oom-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #222;
+        }
+
+        .oom-pos {
+            width: 30px;
             font-weight: bold;
             color: var(--pdc-gold);
-            margin-bottom: 10px;
             text-align: center;
+        }
+
+        .oom-money {
+            text-align: right;
+            color: #ccc;
+            font-family: 'Roboto Condensed';
+            font-weight: bold;
+        }
+
+        /* OOM Tabs */
+        .oom-nav {
+            display: flex;
+            gap: 0;
+            background: #111;
+            margin-top: 10px;
+            border-radius: 4px 4px 0 0;
+            overflow: hidden;
+            border: 1px solid #333;
+            border-bottom: none;
+        }
+
+        .oom-nav-btn {
+            flex: 1;
+            padding: 8px;
+            background: #1a1a1a;
+            color: #888;
+            border: none;
+            border-right: 1px solid #333;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .oom-nav-btn:last-child {
+            border-right: none;
+        }
+
+        .oom-nav-btn.active {
+            background: #081b26;
+            color: white;
+            border-bottom: 3px solid var(--pdc-gold);
+        }
+
+        /* HUB & BRACKET */
+        #tournament-hub {
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0a0e1a 100%);
+            z-index: 90;
+            padding: 0;
+        }
+
+        .hub-header {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.9));
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            flex-shrink: 0;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            gap: 15px;
+        }
+
+        .hub-header img {
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .hub-title {
+            font-size: 20px;
+            color: var(--pdc-gold);
+            font-family: 'Roboto Condensed';
+            font-weight: bold;
         }
 
         .hub-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 10px;
-            width: 100%;
         }
 
-        .btn-hub-action {
-            width: auto;
-            height: 44px;
-            font-size: 12px;
-            border-radius: 8px;
-            margin: 0;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+        .btn-reset-hub {
+            background: linear-gradient(145deg, #9a0000, #7a0000);
             color: white;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
-        
-        .btn-hub-action.btn-sim { background: rgba(16, 185, 129, 0.2); border-color: var(--pdc-green); }
-        .btn-hub-action.btn-watch { background: rgba(251, 191, 36, 0.1); border-color: var(--pdc-gold); color: var(--pdc-gold); }
+
+        .btn-reset-hub:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(154, 0, 0, 0.4);
+        }
 
         .bracket-wrapper {
-            padding: 20px;
-            /* Horizontal Snap Scrolling */
-            scroll-snap-type: x mandatory;
             display: flex;
-            overflow-x: auto;
             flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+            padding: 30px 20px;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
         }
 
         .bracket-round-column {
-            scroll-snap-align: center;
-            min-width: 85vw; /* Almost full width on mobile */
-            margin-right: 10px;
             display: flex;
             flex-direction: column;
+            gap: 8px;
+            min-width: 320px;
+            flex-shrink: 0;
+            position: relative;
         }
-        
+
         .round-column-header {
             text-align: center;
             padding: 10px;
-            background: rgba(255,255,255,0.05);
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.6), rgba(15, 21, 37, 0.6));
             border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            flex-shrink: 0;
         }
 
-        .bracket-match {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .round-column-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--pdc-gold);
+            text-transform: uppercase;
+            margin-bottom: 3px;
         }
-        
-        .bm-row {
+
+        .round-column-format {
+            font-size: 11px;
+            color: #8fa3ad;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .bracket-wrapper {
+                padding: 15px 10px;
+            }
+
+            .bracket-round-column {
+                min-width: 280px;
+            }
+
+            .bracket-match {
+                min-height: 50px;
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            .bm-flag {
+                width: 16px;
+                height: 12px;
+            }
+
+            .bm-name {
+                font-size: 12px;
+            }
+
+            .bm-score {
+                font-size: 14px;
+                min-width: 18px;
+            }
+
+            .bm-avg {
+                font-size: 10px;
+            }
+
+            .round-column-header {
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+
+            .round-column-name {
+                font-size: 14px;
+            }
+
+            .round-column-format {
+                font-size: 10px;
+            }
+
+            .btn-play-mini {
+                padding: 4px 8px;
+                font-size: 10px;
+                min-height: 28px;
+            }
+
+            .match-nav-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .hub-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .hub-actions {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .hub-actions button {
+                font-size: 11px;
+                padding: 8px 12px;
+            }
+
+            .advancement-container {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            .advancement-title {
+                font-size: 24px;
+            }
+
+            .advancement-player {
+                min-width: 120px;
+            }
+
+            .advancement-player-name {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bracket-round-column {
+                min-width: 240px;
+            }
+
+            .bracket-match {
+                font-size: 12px;
+            }
+
+            .bm-name {
+                font-size: 11px;
+                max-width: 130px;
+            }
+
+            .round-column-name {
+                font-size: 12px;
+            }
+
+            .match-select-cb {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        .bracket-matches-list {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+            position: relative;
+        }
+
+        /* Tournament Bracket Lines - Single Side */
+        .bracket-match-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        /* Horizontal line extending right from each match */
+        .bracket-match-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            width: 30px;
+            height: 2px;
+            background: rgba(255, 215, 0, 0.7);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        /* Vertical line connecting odd match (top of pair) downward */
+        .bracket-match-wrapper:nth-child(odd):not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: calc(100% + 30px);
+            top: 50%;
+            width: 2px;
+            height: calc(50% + 30px);
+            background: rgba(255, 215, 0, 0.7);
+            z-index: 1;
+        }
+
+        /* Vertical line connecting even match (bottom of pair) upward */
+        .bracket-match-wrapper:nth-child(even)::after {
+            content: '';
+            position: absolute;
+            left: calc(100% + 30px);
+            bottom: 50%;
+            width: 2px;
+            height: calc(50% + 30px);
+            background: rgba(255, 215, 0, 0.7);
+            z-index: 1;
+        }
+
+        /* Last round - no lines */
+        .bracket-round-column:last-child .bracket-match-wrapper::before,
+        .bracket-round-column:last-child .bracket-match-wrapper::after {
+            display: none;
+        }
+
+        /* Completed match highlighting */
+        .bracket-match-wrapper.completed::before {
+            background: var(--pdc-gold);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            height: 3px;
+        }
+
+        .bracket-match-wrapper.completed:nth-child(odd):not(:last-child)::after,
+        .bracket-match-wrapper.completed:nth-child(even)::after {
+            background: var(--pdc-gold);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            width: 3px;
+        }
+
+        /* Compact Bracket Match */
+        .bracket-match {
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-left: 4px solid rgba(255, 215, 0, 0.4);
+            padding: 10px 14px;
+            border-radius: 10px;
+            display: flex;
             align-items: center;
-            padding: 4px 0;
-        }
-        
-        .bm-name { font-size: 14px; font-weight: bold; }
-        .bm-score { font-size: 16px; font-weight: 900; color: var(--pdc-gold); }
-
-        /* Remove the connection lines for cleaner mobile look */
-        .bracket-match-wrapper::before,
-        .bracket-match-wrapper::after {
-            display: none !important;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-height: 58px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
         }
 
-        /* ==================== MODALS ==================== */
-        #event-info-modal {
+        .bracket-match:hover {
+            background: linear-gradient(145deg, #1f2540, #161b30);
+            transform: scale(1.02);
+            border-color: rgba(255, 215, 0, 0.3);
+            border-left-color: rgba(255, 215, 0, 0.6);
+            box-shadow: var(--shadow-md);
+        }
+
+        .bracket-match.completed {
+            border-left-color: var(--pdc-gold);
+            border-color: rgba(255, 215, 0, 0.3);
+            opacity: 1;
+        }
+
+        .bracket-match.completed:hover {
+            border-left-color: var(--pdc-gold);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+
+        /* Player advancement animation */
+        .bracket-match.just-won {
+            animation: matchWinPulse 0.8s ease-out;
+        }
+
+        @keyframes matchWinPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* ADVANCEMENT ANIMATION */
+        #advancement-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: flex-end; /* Sheet style */
-        }
-        
-        .event-info-box {
-            background: #1e293b;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 24px 24px 0 0;
-            width: 100%;
-            padding: 30px;
-            box-sizing: border-box;
-            animation: slideUp 0.3s forwards;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        
-        .event-info-header { font-size: 24px; font-weight: 900; color: var(--pdc-gold); margin-bottom: 20px; text-transform: uppercase;}
-        .close-event-info { background: #333; color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-top: 20px;}
-
-        /* ==================== SEARCH DROPDOWN ==================== */
-        .search-dropdown-container { position: relative; }
-        .search-results-list {
-            position: absolute;
-            top: 100%; left: 0; right: 0;
-            background: #1e293b;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            max-height: 250px;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.95);
             z-index: 200;
             display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(15px);
+            animation: overlayFadeIn 0.3s ease-out;
         }
-        
-        .search-item {
-            padding: 14px 16px;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+
+        @keyframes overlayFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .advancement-container {
+            background: linear-gradient(145deg, #1a1f35, #12172a);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid var(--pdc-gold);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 100px rgba(255, 215, 0, 0.3);
+            animation: advancementSlideIn 0.5s ease-out;
+        }
+
+        @keyframes advancementSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .advancement-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--pdc-gold);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .advancement-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #8fa3ad;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        .advancement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .advancement-player {
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.03));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            animation: playerSlideIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-30px);
         }
-        .search-item img { width: 20px; border-radius: 2px; }
 
-        /* OOM Table Improvements */
-        .oom-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .oom-table th { background: #1e293b; position: sticky; top: 0; z-index: 2; padding: 10px; text-align: left; }
-        .oom-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .oom-pos { font-weight: bold; color: var(--pdc-gold); width: 30px; text-align: center;}
-        .oom-money { text-align: right; font-family: 'Roboto Condensed'; font-weight: bold; }
-        .oom-nav { display: flex; overflow-x: auto; background: #0f172a; border-bottom: 1px solid #333; }
-        .oom-nav-btn { flex: 1; padding: 12px; background: none; border: none; color: #888; font-weight: bold; white-space: nowrap; border-bottom: 2px solid transparent;}
-        .oom-nav-btn.active { color: white; border-bottom-color: var(--pdc-gold); }
+        @keyframes playerSlideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-        /* Scrollbar hiding for cleaner UI */
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        
-        /* Stats Screen */
-        .stats-header { background: var(--bg-header); padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 100px 1fr; gap: 10px; padding: 20px; }
-        .stat-row { display: contents; }
-        .stat-label { font-size: 10px; color: #888; text-transform: uppercase; text-align: center; display: flex; align-items: center; justify-content: center;}
-        .stat-val { font-size: 24px; font-weight: bold; text-align: center; padding: 10px 0;}
-        .stat-val.winner { color: var(--pdc-gold); }
-        .p-head img { width: 40px; height: 26px; margin-bottom: 5px; border-radius: 4px; }
-        
-        /* Buttons */
-        #btn-emergency-reset { position: fixed; bottom: 80px; left: 10px; z-index: 1000; background: rgba(239, 68, 68, 0.8); border:none; padding: 5px 10px; border-radius: 4px; color: white; font-size: 10px;}
-        #pwa-install-btn { position: fixed; bottom: 80px; right: 10px; z-index: 1000; background: var(--pdc-gold); border:none; padding: 8px 12px; border-radius: 20px; font-weight: bold; color: black; display: flex; align-items: center; gap: 5px;}
-        #pwa-install-btn svg { width: 16px; }
-        #pwa-install-btn.hidden { display: none; }
-        
-        /* Intro Overlay */
-        #clean-intro { background: #0f172a; }
-        .intro-name { font-size: 40px; }
-        
+        .advancement-player:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .advancement-player:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .advancement-player:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .advancement-player:nth-child(4) {
+            animation-delay: 0.25s;
+        }
+
+        .advancement-player:nth-child(5) {
+            animation-delay: 0.3s;
+        }
+
+        .advancement-player:nth-child(6) {
+            animation-delay: 0.35s;
+        }
+
+        .advancement-player:nth-child(7) {
+            animation-delay: 0.4s;
+        }
+
+        .advancement-player:nth-child(8) {
+            animation-delay: 0.45s;
+        }
+
+        .advancement-player:nth-child(n+9) {
+            animation-delay: 0.5s;
+        }
+
+        .advancement-flag {
+            width: 36px;
+            height: 24px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .advancement-player-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            flex: 1;
+        }
+
+        .advancement-player-avg {
+            font-size: 12px;
+            color: var(--pdc-gold);
+            font-weight: bold;
+        }
+
+        .advancement-continue {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--pdc-gold), #ffed4e);
+            color: #111;
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .advancement-continue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .match-nav-btn {
+            background: transparent;
+            border: none;
+            color: #555;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 0 8px;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .match-nav-btn:hover {
+            color: var(--pdc-gold);
+        }
+
+        .bm-content {
+            flex: 1;
+            padding: 0;
+        }
+
+        .bm-row {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 3px;
+        }
+
+        .bm-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .bm-flag {
+            width: 18px;
+            height: 12px;
+            object-fit: cover;
+        }
+
+        .bm-name {
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            max-width: 130px;
+            font-size: 13px;
+        }
+
+        .bm-avg {
+            font-size: 10px;
+            color: #777;
+            font-family: 'Roboto Condensed';
+        }
+
+        .bm-score {
+            font-size: 14px;
+            margin-left: auto;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            color: var(--pdc-gold);
+        }
+
+        .bm-action {
+            margin-left: 5px;
+        }
+
+        .btn-play-mini {
+            background: var(--pdc-red);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 2px;
+        }
+
+        .match-select-cb {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--pdc-gold);
+            cursor: pointer;
+            margin: 0 5px;
+            flex-shrink: 0;
+        }
+
+        /* MATCH SCREEN */
+        .event-bar {
+            height: 36px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border-bottom: 1px solid #444;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .event-bar img {
+            height: 24px;
+        }
+
+        .event-logo {
+            height: 28px !important;
+            opacity: 1 !important;
+        }
+
+        .event-bar span {
+            font-size: 12px;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        .scoreboard-header {
+            display: flex;
+            height: 130px;
+            flex-shrink: 0;
+        }
+
+        .player-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .name-strip {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(to bottom, #4c6478, #2f4254);
+            border-bottom: 1px solid #000;
+            padding: 0 5px;
+            position: relative;
+        }
+
+        .score-strip {
+            flex: 1;
+            background: linear-gradient(to bottom, #e4eaf0, #cfd7df);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #e00000, #9a0000);
+        }
+
+        /* Event-specific active player colors */
+        .scoreboard-header.theme-world-championship .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #1E7F43, #0C3B2E) !important;
+        }
+
+        .scoreboard-header.theme-premier-league .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #FFD100, #796d02) !important;
+        }
+
+        .scoreboard-header.theme-matchplay .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #B22222, #8B0000) !important;
+        }
+
+        .scoreboard-header.theme-uk-open .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #8402db, #C8102E) !important;
+        }
+
+        .scoreboard-header.theme-grand-slam .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #FF8C00, #D97706) !important;
+        }
+
+        .scoreboard-header.theme-european .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #C0C0C0, #5B2D8B) !important;
+        }
+
+        .scoreboard-header.theme-world-grandprix .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #fd0202, #000000) !important;
+        }
+
+        .scoreboard-header.theme-players-championship .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #C8102E, #111111) !important;
+        }
+
+        .scoreboard-header.theme-world-series .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #000000, #7A0000) !important;
+        }
+
+        .scoreboard-header.theme-winmau .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #FFFFFF, #000000) !important;
+        }
+
+        .scoreboard-header.theme-masters .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #D4AF37, #000000) !important;
+        }
+
+        .scoreboard-header.theme-minor .player-card.active .name-strip {
+            background: linear-gradient(to bottom, #2E2E2E, #1A1A1A) !important;
+        }
+
+        /* Bottom bar theme colors */
+        .bottom-bar.theme-world-championship .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-premier-league .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-matchplay .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-uk-open .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-grand-slam .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-european .leg-name {
+            color: #000 !important;
+        }
+
+        .bottom-bar.theme-world-grandprix .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-players-championship .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-world-series .leg-name {
+            color: white !important;
+        }
+
+        .bottom-bar.theme-winmau .leg-name {
+            color: #000 !important;
+        }
+
+        .bottom-bar.theme-masters .leg-name {
+            color: #000 !important;
+        }
+
+        .bottom-bar.theme-minor .leg-name {
+            color: white !important;
+        }
+
+        .flag {
+            height: 16px;
+            width: 24px;
+            object-fit: cover;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .p-name {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .p-score {
+            font-size: 50px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: -2px;
+            color: #222;
+        }
+
+        .p-avg {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 2px;
+            color: #333;
+            text-transform: uppercase;
+        }
+
+        .starter-dot {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            background-color: var(--pdc-gold);
+            border-radius: 50%;
+            position: absolute;
+            left: 8px;
+            display: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .visit-board {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            padding: 10px 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .visit-row {
+            display: grid;
+            grid-template-columns: 1fr 30px 80px 30px 1fr;
+            width: 100%;
+            max-width: 500px;
+            align-items: center;
+            margin-bottom: 4px;
+            min-height: 36px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .v-score {
+            font-family: 'Roboto Condensed';
+            font-size: 26px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .v-round {
+            color: var(--text-grey);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .v-arrow {
+            color: var(--pdc-gold);
+            font-size: 16px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        /* Theme-specific v-arrow colors for player round indicator */
+        .visit-board.theme-world-championship .v-arrow {
+            color: #1E7F43;
+        }
+
+        .visit-board.theme-premier-league .v-arrow {
+            color: #FFD100;
+        }
+
+        .visit-board.theme-matchplay .v-arrow {
+            color: #B22222;
+        }
+
+        .visit-board.theme-uk-open .v-arrow {
+            color: #8402db;
+        }
+
+        .visit-board.theme-grand-slam .v-arrow {
+            color: #FF8C00;
+        }
+
+        .visit-board.theme-european .v-arrow {
+            color: #5B2D8B;
+        }
+
+        .visit-board.theme-world-grandprix .v-arrow {
+            color: #fd0202;
+        }
+
+        .visit-board.theme-players-championship .v-arrow {
+            color: #C8102E;
+        }
+
+        .visit-board.theme-world-series .v-arrow {
+            color: #7A0000;
+        }
+
+        .visit-board.theme-winmau .v-arrow {
+            color: #888888;
+        }
+
+        .visit-board.theme-masters .v-arrow {
+            color: #D4AF37;
+        }
+
+        .visit-board.theme-minor .v-arrow {
+            color: #666666;
+        }
+
+        /* Theme-specific visit-board background colors */
+        .visit-board.theme-world-championship {
+            background: linear-gradient(180deg, rgba(30, 127, 67, 0.3) 0%, rgba(12, 59, 46, 0.5) 100%);
+        }
+
+        .visit-board.theme-premier-league {
+            background: linear-gradient(180deg, rgba(255, 209, 0, 0.15) 0%, rgba(121, 109, 2, 0.3) 100%);
+        }
+
+        .visit-board.theme-matchplay {
+            background: linear-gradient(180deg, rgba(178, 34, 34, 0.3) 0%, rgba(139, 0, 0, 0.5) 100%);
+        }
+
+        .visit-board.theme-uk-open {
+            background: linear-gradient(180deg, rgba(132, 2, 219, 0.3) 0%, rgba(200, 16, 46, 0.3) 100%);
+        }
+
+        .visit-board.theme-grand-slam {
+            background: linear-gradient(180deg, rgba(255, 140, 0, 0.3) 0%, rgba(217, 119, 6, 0.4) 100%);
+        }
+
+        .visit-board.theme-european {
+            background: linear-gradient(180deg, rgba(192, 192, 192, 0.2) 0%, rgba(91, 45, 139, 0.4) 100%);
+        }
+
+        .visit-board.theme-world-grandprix {
+            background: linear-gradient(180deg, rgba(253, 2, 2, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .visit-board.theme-players-championship {
+            background: linear-gradient(180deg, rgba(200, 16, 46, 0.3) 0%, rgba(17, 17, 17, 0.5) 100%);
+        }
+
+        .visit-board.theme-world-series {
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(122, 0, 0, 0.4) 100%);
+        }
+
+        .visit-board.theme-winmau {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+        }
+
+        .visit-board.theme-masters {
+            background: linear-gradient(180deg, rgba(212, 175, 55, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .visit-board.theme-minor {
+            background: linear-gradient(180deg, rgba(46, 46, 46, 0.5) 0%, rgba(26, 26, 26, 0.6) 100%);
+        }
+
+        .bottom-bar {
+            height: 60px;
+            background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Theme-specific bottom bar styles */
+        .bottom-bar.theme-world-championship {
+            background: linear-gradient(135deg, #1E7F43, #0C3B2E);
+        }
+
+        .bottom-bar.theme-premier-league {
+            background: linear-gradient(135deg, #FFD100, #796d02);
+        }
+
+        .bottom-bar.theme-matchplay {
+            background: linear-gradient(135deg, #B22222, #8B0000);
+        }
+
+        .bottom-bar.theme-uk-open {
+            background: linear-gradient(135deg, #8402db, #C8102E);
+        }
+
+        .bottom-bar.theme-grand-slam {
+            background: linear-gradient(135deg, #FF8C00, #D97706);
+        }
+
+        .bottom-bar.theme-european {
+            background: linear-gradient(135deg, #C0C0C0, #5B2D8B);
+        }
+
+        .bottom-bar.theme-world-grandprix {
+            background: linear-gradient(135deg, #fd0202, #000000);
+        }
+
+        .bottom-bar.theme-players-championship {
+            background: linear-gradient(135deg, #C8102E, #111111);
+        }
+
+        .bottom-bar.theme-world-series {
+            background: linear-gradient(135deg, #000000, #7A0000);
+        }
+
+        .bottom-bar.theme-winmau {
+            background: linear-gradient(135deg, #FFFFFF, #000000);
+        }
+
+        .bottom-bar.theme-masters {
+            background: linear-gradient(135deg, #D4AF37, #000000);
+        }
+
+        .bottom-bar.theme-minor {
+            background: linear-gradient(135deg, #2E2E2E, #1A1A1A);
+        }
+
+        /* Gold background - white text */
+        .bottom-bar.theme-premier-league .leg-name,
+        .bottom-bar.theme-masters .leg-name {
+            color: white !important;
+        }
+
+        .legs-display {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .score-box-left {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            padding-right: 15px;
+        }
+
+        .score-box-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 15px;
+            padding-left: 15px;
+        }
+
+        .leg-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
+        }
+
+        .main-score {
+            font-size: 32px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            min-width: 25px;
+            text-align: center;
+        }
+
+        .sub-score {
+            font-size: 20px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+            opacity: 0.7;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .leg-label {
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+            width: 40px;
+        }
+
+        /* POST MATCH STATS */
+        #post-match-screen {
+            display: none;
+            background: linear-gradient(135deg, #0f1729 0%, #1a2642 50%, #0f1729 100%);
+            z-index: 110;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .stats-header {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.9));
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--pdc-gold);
+            box-sizing: border-box;
+            flex-shrink: 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .stats-title {
+            font-size: 22px;
+            color: var(--pdc-gold);
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .stats-subtitle {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 130px 1fr;
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 10px;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 11px;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-val {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-family: 'Roboto Condensed';
+        }
+
+        .stat-val.winner {
+            color: var(--pdc-gold);
+        }
+
+        .stat-row {
+            display: contents;
+        }
+
+        .p-head {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .p-head img {
+            width: 36px;
+            height: 24px;
+            border: 1px solid #555;
+        }
+
+        .p-head span {
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* OVERLAYS */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            flex-direction: column;
+        }
+
+        .intro-box {
+            background: #b00000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid white;
+            width: 80%;
+            max-width: 300px;
+        }
+
+        .end-box {
+            background: #222;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid #444;
+            width: 90%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .end-winner {
+            font-size: 32px;
+            color: var(--pdc-gold);
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .end-score {
+            font-size: 40px;
+            background: #444;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .game-shot-box,
+        .high-checkout-box {
+            background: #009900;
+            color: white;
+            font-size: clamp(20px, 10vw, 60px);
+            font-weight: 900;
+            padding: 20px;
+            width: 80%;
+            border: 2px solid white;
+            animation: popIn 0.3s forwards;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .high-checkout-box {
+            background: #1b4dff;
+        }
+
+        .one-eighty-box {
+            background: var(--pdc-red);
+            color: white;
+            font-size: 25vw;
+            font-weight: 900;
+            padding: 10px 40px;
+            border: 4px solid white;
+            animation: popIn 0.3s forwards;
+            text-transform: uppercase;
+            transform: rotate(-5deg);
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.5);
+            font-family: 'Roboto Condensed';
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.5);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        /* INTRO ANIM */
+        #clean-intro {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            display: none;
+            background: linear-gradient(135deg, #081a2f 0%, #000814 70%);
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+
+        .intro-bg-lines {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .03) 0px, rgba(255, 255, 255, .03) 1px, transparent 1px, transparent 6px);
+            animation: bgMove 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes bgMove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 200px 0;
+            }
+        }
+
+        .intro-card {
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(180deg, #0c1f3a, #000814);
+            border-radius: 6px;
+            padding: 40px 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, .9);
+            animation: cardIn 1.2s ease forwards, glowPulse 2.5s ease-in-out infinite alternate;
+        }
+
+        .intro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #e10600, #ffffff, #001c54);
+            border-radius: 6px 6px 0 0;
+        }
+
+        @keyframes cardIn {
+            from {
+                transform: translateY(40px) scale(.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glowPulse {
+            from {
+                box-shadow: 0 0 30px rgba(255, 204, 0, .2);
+            }
+
+            to {
+                box-shadow: 0 0 70px rgba(255, 204, 0, .6);
+            }
+        }
+
+        .intro-event {
+            font-size: 18px;
+            letter-spacing: 4px;
+            color: #e10600;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .intro-vs-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .intro-name {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: white;
+            text-transform: uppercase;
+            animation: textSlide 1s ease forwards;
+            line-height: 1.1;
+        }
+
+        .intro-nation {
+            margin-top: 5px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #4da3ff;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .intro-vs-text {
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            opacity: 0.5;
+        }
+
+        .intro-sub {
+            letter-spacing: 6px;
+            opacity: .7;
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes textSlide {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .intro-side {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            max-width: 160px;
+            background: linear-gradient(180deg, #001c54, #000814);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 1;
+            animation: sideSlide 1s ease forwards;
+        }
+
+        .intro-left {
+            left: 0;
+            border-right: 1px solid #333;
+        }
+
+        .intro-right {
+            right: 0;
+            border-left: 1px solid #333;
+        }
+
+        @keyframes sideSlide {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .intro-flag-img {
+            width: 60%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            animation: flagPop .8s ease forwards;
+        }
+
+        .intro-side-text {
+            font-size: 18px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+        }
+
+        @keyframes flagPop {
+            0% {
+                transform: scale(.2);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .dart-anim {
+            position: absolute;
+            top: 40%;
+            left: -200px;
+            width: 180px;
+            height: auto;
+            opacity: 0.25;
+            transform: rotate(-15deg);
+            animation: dartThrow 3s ease-out forwards;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes dartThrow {
+            0% {
+                transform: translateX(0) rotate(-20deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: .35;
+            }
+
+            100% {
+                transform: translateX(150vw) rotate(5deg);
+                opacity: 0;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (min-width: 768px) {
+            .setup-box {
+                max-width: 750px;
+            }
+
+            .pc-row {
+                flex-direction: row;
+                gap: 20px;
+            }
+
+            .pc-row>div {
+                flex: 1;
+            }
+
+            .p-name {
+                font-size: 22px;
+                max-width: none;
+            }
+
+            .p-score {
+                font-size: 65px;
+            }
+
+            .flag {
+                width: 30px;
+                height: 20px;
+            }
+
+            .bracket-container {
+                max-width: 800px;
+            }
+
+            .leg-name {
+                display: block;
+            }
+
+            .intro-name {
+                font-size: 44px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tourn-config-grid {
+                grid-template-columns: 1fr;
+                max-height: 150px;
+            }
+
+            .leg-name {
+                display: none;
+            }
+
+            .bm-name {
+                max-width: 100px;
+            }
+
+            .intro-name {
+                font-size: 26px;
+            }
+
+            .intro-side {
+                width: 40px;
+            }
+
+            .intro-side-text {
+                font-size: 12px;
+            }
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+        }
+
+        .btn-icon:hover {
+            color: var(--pdc-gold);
+        }
+
+        .btn-exit-small {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #9a0000;
+            color: white;
+            border: none;
+            font-size: 10px;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* PWA Install Button */
+        #pwa-install-btn {
+            position: fixed;
+            bottom: 70px;
+            right: 12px;
+            z-index: 10000;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #111;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'Roboto Condensed', sans-serif;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        #pwa-install-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.7);
+        }
+
+        #pwa-install-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        #pwa-install-btn.hidden {
+            display: none;
+        }
+
+        /* EMERGENCY RESET */
+        #btn-emergency-reset {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 9999999;
+            background: #9a0000;
+            color: white;
+            padding: 8px 12px;
+            border: 2px solid white;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            animation: fadeOutReset 5s forwards;
+        }
+
+        @keyframes fadeOutReset {
+            0% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+
+        /* --- OPTIMIZED PLAYER SELECTOR (Smaller) --- */
+        .player-option {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            /* Reduced padding */
+            border-bottom: 1px solid #2a2a2a;
+            cursor: pointer;
+            min-height: 28px;
+            /* Force smaller height */
+        }
+
+        .player-option img {
+            width: 16px;
+            /* Smaller flag */
+            height: 11px;
+            margin-right: 8px;
+        }
+
+        .player-option span {
+            font-size: 11px;
+            /* Smaller font */
+            font-weight: bold;
+        }
+
+        .player-option input {
+            width: 14px;
+            height: 14px;
+            margin-right: 8px;
+        }
+
+        /* --- STANDINGS HUB NAVIGATION --- */
+        .standings-nav {
+            display: flex;
+            gap: 5px;
+            padding: 5px;
+            background: #111;
+            border-bottom: 1px solid #333;
+            overflow-x: auto;
+        }
+
+        .standings-nav button {
+            flex: 1;
+            padding: 8px 4px;
+            background: #1a1f35;
+            border: 1px solid #333;
+            color: #888;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .standings-nav button.active {
+            background: var(--pdc-gold);
+            color: black;
+            border-color: var(--pdc-gold);
+        }
+
+        .standing-section {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 0 5px 10px 5px;
+        }
+
+        .standing-section.active {
+            display: flex;
+        }
+
+        .standing-section>div:first-of-type {
+            flex-shrink: 0;
+        }
+
+        .oom-view {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        #premier-league-standings,
+        #qschool-standings-uk,
+        #qschool-standings-eu {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -703,12 +2473,124 @@
     <button id="btn-emergency-reset" onclick="localStorage.clear(); location.reload();">⚠️ RESET APP</button>
 
     <!-- SETUP SCREEN -->
-    <div id="setup-screen" style="display:flex;">
+    <div id="setup-screen">
         <div class="setup-box">
-            <!-- TABS REMOVED, using bottom nav -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE
+                    MATCH</button>
+                <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
+                <button class="tab-btn" onclick="switchTab('season')" id="tab-btn-season">SEASON</button>
+                <!-- Merged Tab -->
+                <button class="tab-btn" onclick="switchTab('standings')" id="tab-btn-standings">STANDINGS</button>
+                <button class="tab-btn" onclick="switchTab('news')" id="tab-btn-news">NEWS</button>
+            </div>
 
             <!-- NEWS TAB -->
             <div id="tab-news" class="tab-content" style="padding:0;">
+                <style>
+                    .news-card {
+                        background: linear-gradient(145deg, #1f2430, #141822);
+                        padding: 12px;
+                        border-radius: 6px;
+                        border-left: 3px solid #666;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+                        position: relative;
+                        transition: transform 0.2s;
+                    }
+
+                    .news-card:hover {
+                        transform: translateX(2px);
+                        background: linear-gradient(145deg, #252b3a, #1a1e2a);
+                    }
+
+                    .news-card.high {
+                        border-left-color: var(--pdc-gold);
+                        box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+                    }
+
+                    .news-card.medium {
+                        border-left-color: #3498db;
+                    }
+
+                    .news-card.win {
+                        border-left-color: #FFD700;
+                    }
+
+                    .news-card.rivalry {
+                        border-left-color: #e74c3c;
+                        background: linear-gradient(145deg, #2a1f1f, #1a1414);
+                    }
+
+                    .news-card.upset {
+                        border-left-color: #9b59b6;
+                    }
+
+                    .news-card.rank {
+                        border-left-color: #f39c12;
+                    }
+
+                    .news-card.withdrawal {
+                        border-left-color: #7f8c8d;
+                    }
+
+                    .news-card.replacement {
+                        border-left-color: #16a085;
+                    }
+
+                    .news-header {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 4px;
+                        font-size: 10px;
+                        color: #888;
+                        text-transform: uppercase;
+                        font-weight: bold;
+                    }
+
+                    .news-title {
+                        font-size: 13px;
+                        color: #ececec;
+                        line-height: 1.4;
+                        font-weight: 500;
+                    }
+
+                    .news-type-icon {
+                        margin-right: 5px;
+                        opacity: 0.7;
+                    }
+
+                    .news-filters {
+                        display: flex;
+                        gap: 5px;
+                        flex-wrap: wrap;
+                        padding: 10px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-bottom: 1px solid #333;
+                    }
+
+                    .filter-btn {
+                        background: transparent;
+                        border: 1px solid #444;
+                        color: #aaa;
+                        padding: 4px 10px;
+                        border-radius: 12px;
+                        font-size: 11px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+
+                    .filter-btn:hover {
+                        border-color: #777;
+                        color: #fff;
+                    }
+
+                    .filter-btn.active {
+                        background: var(--pdc-gold);
+                        color: #000;
+                        border-color: var(--pdc-gold);
+                        font-weight: bold;
+                    }
+                </style>
                 <div class="news-filters">
                     <button class="filter-btn active" onclick="NewsSystem.setFilter('all')">ALL</button>
                     <button class="filter-btn" onclick="NewsSystem.setFilter('major')">MAJORS</button>
@@ -716,7 +2598,8 @@
                     <button class="filter-btn" onclick="NewsSystem.setFilter('withdrawal')">WITHDRAWALS</button>
                     <button class="filter-btn" onclick="NewsSystem.setFilter('upset')">UPSETS</button>
                 </div>
-                <div id="news-feed" style="padding-bottom: 20px;">
+                <div id="news-feed"
+                    style="padding: 10px; display:flex; flex-direction:column; gap:8px; overflow-y:auto; flex:1;">
                     <!-- News Item Template -->
                     <div style="text-align:center; padding: 20px; color:#666; font-size:12px;">No news yet...</div>
                 </div>
@@ -724,13 +2607,10 @@
 
             <!-- SINGLE MATCH TAB -->
             <div id="tab-single" class="tab-content active">
-                <div class="pc-row">
-                    <div style="flex:1">
-                        <label>Event Name</label>
-                        <input type="text" id="inp-event" value="PDC MATCHPLAY">
-                    </div>
+                <div>
+                    <label>Event Name</label>
+                    <input type="text" id="inp-event" value="PDC MATCHPLAY">
                 </div>
-                
                 <div>
                     <label>Format</label>
                     <div class="format-row">
@@ -738,9 +2618,8 @@
                         <button class="format-btn" id="btn-legs" onclick="setMode('legs')">LEGS</button>
                     </div>
                 </div>
-                
                 <div class="pc-row">
-                    <div style="flex:1">
+                    <div>
                         <label id="lbl-target">Target</label>
                         <select id="inp-target">
                             <option value="1">1</option>
@@ -749,7 +2628,7 @@
                             <option value="7" selected>7</option>
                         </select>
                     </div>
-                    <div id="legs-per-set-div" style="flex:1">
+                    <div id="legs-per-set-div">
                         <label>Legs/Set</label>
                         <select id="inp-set-legs">
                             <option value="3">3</option>
@@ -757,9 +2636,8 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="pc-row">
-                    <div style="flex:1">
+                    <div>
                         <label>Player 1</label>
                         <div class="search-dropdown-container">
                             <input type="text" id="inp-p1-text" placeholder="Search Player 1..."
@@ -767,7 +2645,7 @@
                             <div class="search-results-list" id="list-p1"></div>
                         </div>
                     </div>
-                    <div style="flex:1">
+                    <div>
                         <label>Player 2</label>
                         <div class="search-dropdown-container">
                             <input type="text" id="inp-p2-text" placeholder="Search Player 2..."
@@ -776,12 +2654,11 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
-                    <label for="inp-tiebreak" style="margin:0; color:#ddd; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
                     <input type="checkbox" id="inp-tiebreak">
+                    <label for="inp-tiebreak"
+                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by 2)</label>
                 </div>
-                
                 <button class="btn-gold" onclick="startMatch()">START MATCH</button>
             </div>
 
@@ -791,38 +2668,42 @@
                     <label>Event Name</label>
                     <input type="text" id="tourn-event-name" value="CUSTOM TOURNAMENT">
                 </div>
-                
                 <div>
                     <label>Theme</label>
                     <select id="tourn-theme" onchange="toggleCustomTheme()">
                         <option value="default">Default / Auto</option>
-                        <option value="world">World Championship</option>
-                        <option value="matchplay">World Matchplay</option>
-                        <option value="premier">Premier League</option>
-                        <option value="grandprix">World Grand Prix</option>
-                        <option value="grandslam">Grand Slam</option>
-                        <option value="ukopen">UK Open</option>
-                        <option value="players">Players Championship</option>
-                        <option value="european">European Championship</option>
-                        <option value="masters">The Masters</option>
+                        <option value="world">World Championship (Green/Gold)</option>
+                        <option value="matchplay">World Matchplay (Red/Blue)</option>
+                        <option value="premier">Premier League (Blue/Neon)</option>
+                        <option value="grandprix">World Grand Prix (Blue/Teal)</option>
+                        <option value="grandslam">Grand Slam (Orange/Black)</option>
+                        <option value="ukopen">UK Open (Yellow/Red)</option>
+                        <option value="players">Players Championship (Red/Black)</option>
+                        <option value="european">European Championship (Purple/Silver)</option>
+                        <option value="worldseries">World Series (Maroon/Black)</option>
+                        <option value="masters">The Masters (Gold/Black)</option>
+                        <option value="winmau">Winmau (Black/White)</option>
                         <option value="custom">✨ Custom Theme...</option>
                     </select>
-                    <div id="custom-theme-options" style="display:none; margin-top:10px;">
+                    <div id="custom-theme-options"
+                        style="display:none; margin-top:10px; padding:10px; background:#222; border:1px solid #444; border-radius:4px;">
+                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">Custom Gradient Colors</div>
                         <div style="display:flex; gap:10px;">
                             <div style="flex:1;">
-                                <label style="font-size:10px;">Start</label>
-                                <input type="color" id="theme-col-1" value="#000000" style="width:100%; height:40px; border:none; padding:0; border-radius: 8px;">
+                                <label style="font-size:10px;">Start Color</label>
+                                <input type="color" id="theme-col-1" value="#000000"
+                                    style="width:100%; height:30px; border:none; padding:0;">
                             </div>
                             <div style="flex:1;">
-                                <label style="font-size:10px;">End</label>
-                                <input type="color" id="theme-col-2" value="#ffffff" style="width:100%; height:40px; border:none; padding:0; border-radius: 8px;">
+                                <label style="font-size:10px;">End Color</label>
+                                <input type="color" id="theme-col-2" value="#ffffff"
+                                    style="width:100%; height:30px; border:none; padding:0;">
                             </div>
                         </div>
                     </div>
                 </div>
-                
                 <div class="pc-row">
-                    <div style="flex:1">
+                    <div>
                         <label>Players</label>
                         <select id="tourn-size" onchange="Tournament.updateConfigUI()">
                             <option value="4">4 (Semi-Finals)</option>
@@ -831,34 +2712,41 @@
                             <option value="32" selected>32 (Last 32)</option>
                             <option value="64">64 (Last 64)</option>
                             <option value="128">128 (Last 128)</option>
+                            <option value="256">256 (Last 256)</option>
                         </select>
                     </div>
-                    <div style="flex:1">
+                    <div>
                         <label>Selection</label>
                         <div class="format-row">
-                            <button class="format-btn selected" id="sel-random" onclick="Tournament.setSelectionMethod('random')">RANDOM</button>
-                            <button class="format-btn" id="sel-manual" onclick="Tournament.setSelectionMethod('manual')">MANUAL</button>
+                            <button class="format-btn selected" id="sel-random"
+                                onclick="Tournament.setSelectionMethod('random')">RANDOM</button>
+                            <button class="format-btn" id="sel-manual"
+                                onclick="Tournament.setSelectionMethod('manual')">MANUAL</button>
                         </div>
                     </div>
                 </div>
-                
-                <div id="manual-selector" class="player-selector-box" style="display:none; margin-top:10px;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> / <span id="sel-total">32</span></label>
-                        <button onclick="Tournament.clearSelection()" style="background:#444; border:none; color:white; border-radius:4px; font-size:10px; padding:4px 8px;">CLEAR ALL</button>
+                <div id="manual-selector" class="player-selector-box">
+                    <div class="selector-header">
+                        <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> /
+                            <span id="sel-total">32</span></label>
+                        <button onclick="Tournament.clearSelection()"
+                            style="background:#444; border:1px solid #555; color:#ccc; font-size:10px; cursor:pointer; padding:4px 8px;">CLEAR</button>
                     </div>
-                    <input type="text" id="player-search" placeholder="Search name..." onkeyup="Tournament.filterPlayerList()" style="margin-bottom:10px;">
-                    <div class="player-list-container" id="player-list-container" style="max-height:200px; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:8px;"></div>
+                    <div style="padding:10px; border-bottom:1px solid #333;">
+                        <input type="text" id="player-search" placeholder="Search name..."
+                            onkeyup="Tournament.filterPlayerList()" style="padding:8px; font-size:14px;">
+                    </div>
+                    <div class="player-list-container" id="player-list-container"></div>
                 </div>
-                
                 <div>
                     <label>Format</label>
                     <div class="format-row">
-                        <button class="format-btn selected" id="tourn-mode-sets" onclick="Tournament.setMode('sets')">SETS</button>
-                        <button class="format-btn" id="tourn-mode-legs" onclick="Tournament.setMode('legs')">LEGS</button>
+                        <button class="format-btn selected" id="tourn-mode-sets"
+                            onclick="Tournament.setMode('sets')">SETS</button>
+                        <button class="format-btn" id="tourn-mode-legs"
+                            onclick="Tournament.setMode('legs')">LEGS</button>
                     </div>
                 </div>
-                
                 <div id="tourn-legs-per-set-div">
                     <label>Legs/Set</label>
                     <select id="inp-tourn-set-legs">
@@ -866,53 +2754,71 @@
                         <option value="5">5</option>
                     </select>
                 </div>
-                
                 <label>Distances (First to X)</label>
-                <div class="tourn-config-grid" id="tourn-rounds-container" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"></div>
-                
+                <div class="tourn-config-grid" id="tourn-rounds-container"></div>
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
-                    <label for="tourn-tiebreak" style="margin:0; color:#ddd; font-size:14px; text-transform:none;">Tiebreak (Win by 2)</label>
                     <input type="checkbox" id="tourn-tiebreak">
+                    <label for="tourn-tiebreak"
+                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by
+                        2)</label>
                 </div>
-                
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
             </div>
 
             <!-- SEASON TAB -->
             <div id="tab-season" class="tab-content">
-                <div style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:900; color:var(--pdc-gold); letter-spacing:1px;">
-                    SEASON <span id="season-year-disp">2026</span>
-                </div>
-                
+                <div
+                    style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">
+                    PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
 
-                <div id="season-controls" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;">
-                    <button class="btn-sim" onclick="Season.simulateRemainingSeason()">⚡ SIMULATE SEASON</button>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <button class="btn-gold" style="background:#0066cc; margin:0;" onclick="AuthSystem.showModal()">👤 ACCOUNT</button>
-                        <button class="btn-gold" style="background:#9a0000; margin:0;" onclick="Season.reset()">RESET</button>
+                <div class="oom-nav" style="display:none;">
+                    <button id="btn-main-oom" class="oom-nav-btn active">Main Order of Merit</button>
+                    <button id="btn-protour-oom" class="oom-nav-btn">Pro Tour</button>
+                    <button id="btn-challenge-oom" class="oom-nav-btn">Challenge</button>
+                    <button id="btn-ws-oom" class="oom-nav-btn">World Series</button>
+                </div>
+                <div class="oom-container" style="display:none;">
+                    <table class="oom-table" id="season-oom"></table>
+                </div>
+
+                <div id="season-controls" style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-sim" style="flex:1; padding:15px;"
+                            onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                        <button class="btn-gold" onclick="AuthSystem.showModal()"
+                            style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
                     </div>
+                    <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET
+                        CAREER</button>
                 </div>
             </div>
 
-            <!-- STANDINGS TAB -->
+            <!-- MERGED STANDINGS TAB -->
             <div id="tab-standings" class="tab-content">
-                <div class="oom-nav" style="border-radius:12px 12px 0 0; overflow:hidden;">
-                    <button class="oom-nav-btn active" onclick="switchStandingSection('oom')" id="std-btn-oom">OOM</button>
-                    <button class="oom-nav-btn" onclick="switchStandingSection('premier')" id="std-btn-premier">PL</button>
-                    <button class="oom-nav-btn" onclick="switchStandingSection('qschool')" id="std-btn-qschool">Q-School</button>
+                <div class="standings-nav">
+                    <button class="std-btn active" onclick="switchStandingSection('oom')" id="std-btn-oom">Order of
+                        Merit</button>
+                    <button class="std-btn" onclick="switchStandingSection('premier')" id="std-btn-premier">Premier
+                        League</button>
+                    <button class="std-btn" onclick="switchStandingSection('qschool')"
+                        id="std-btn-qschool">Q-School</button>
                 </div>
 
                 <!-- OOM SECTION -->
                 <div id="section-oom" class="standing-section active">
-                    <div style="display:flex; gap:5px; margin:10px 0; overflow-x:auto; padding-bottom:5px;">
-                        <button class="filter-btn active" onclick="switchOOMView('main')" id="oom-btn-main">MAIN</button>
-                        <button class="filter-btn" onclick="switchOOMView('pro')" id="oom-btn-pro">PRO</button>
-                        <button class="filter-btn" onclick="switchOOMView('challenge')" id="oom-btn-challenge">CHALLENGE</button>
-                        <button class="filter-btn" onclick="switchOOMView('ws')" id="oom-btn-ws">SERIES</button>
-                        <button class="filter-btn" onclick="switchOOMView('form')" id="oom-btn-form">FORM</button>
+                    <div style="display:flex; gap:5px; margin:10px 0;">
+                        <button class="tab-btn active" onclick="switchOOMView('main')" id="oom-btn-main"
+                            style="flex:1; padding:6px; font-size:10px;">MAIN</button>
+                        <button class="tab-btn" onclick="switchOOMView('pro')" id="oom-btn-pro"
+                            style="flex:1; padding:6px; font-size:10px;">PRO TOUR</button>
+                        <button class="tab-btn" onclick="switchOOMView('challenge')" id="oom-btn-challenge"
+                            style="flex:1; padding:6px; font-size:10px;">CHALLENGE</button>
+                        <button class="tab-btn" onclick="switchOOMView('ws')" id="oom-btn-ws"
+                            style="flex:1; padding:6px; font-size:10px;">W. SERIES</button>
+                        <button class="tab-btn" onclick="switchOOMView('form')" id="oom-btn-form"
+                            style="flex:1; padding:6px; font-size:10px;">FORM/FATIGUE</button>
                     </div>
-                    
                     <div class="oom-view active" id="oom-view-main">
                         <table class="oom-table" id="oom-hub-main"></table>
                     </div>
@@ -931,65 +2837,42 @@
                 </div>
 
                 <!-- PREMIER LEAGUE SECTION -->
-                <div id="section-premier" class="standing-section" style="display:none;">
-                    <div style="text-align:center; margin:10px 0; font-size:16px; font-weight:bold; color:var(--pdc-gold);">PREMIER LEAGUE</div>
+                <div id="section-premier" class="standing-section">
+                    <div
+                        style="text-align:center; margin:10px 0; font-size:16px; font-weight:bold; color:var(--pdc-gold);">
+                        PREMIER LEAGUE</div>
                     <div id="premier-league-standings"></div>
                 </div>
 
                 <!-- Q-SCHOOL SECTION -->
-                <div id="section-qschool" class="standing-section" style="display:none;">
-                    <div style="text-align:center; margin:10px 0; font-size:16px; font-weight:bold; color:var(--pdc-gold);">Q-SCHOOL</div>
-                    <div style="display:flex; gap:10px; margin-bottom:10px; justify-content:center;">
-                        <button class="filter-btn active" onclick="switchQSchoolView('uk')" id="qschool-btn-uk" style="width:100px;">UK</button>
-                        <button class="filter-btn" onclick="switchQSchoolView('eu')" id="qschool-btn-eu" style="width:100px;">EU</button>
+                <div id="section-qschool" class="standing-section">
+                    <div
+                        style="text-align:center; margin:10px 0; font-size:16px; font-weight:bold; color:var(--pdc-gold);">
+                        Q-SCHOOL</div>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <button class="tab-btn active" onclick="switchQSchoolView('uk')" id="qschool-btn-uk"
+                            style="flex:1; padding:8px;">UK</button>
+                        <button class="tab-btn" onclick="switchQSchoolView('eu')" id="qschool-btn-eu"
+                            style="flex:1; padding:8px;">EU</button>
                     </div>
                     <div id="qschool-standings-uk" class="qschool-view active"></div>
-                    <div id="qschool-standings-eu" class="qschool-view" style="display:none;"></div>
+                    <div id="qschool-standings-eu" class="qschool-view"></div>
                 </div>
             </div>
         </div>
-        
-        <!-- MODERN BOTTOM NAVIGATION -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" onclick="switchTab('single')" id="nav-btn-single">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/><path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"/></svg>
-                <span>Match</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchTab('tourn')" id="nav-btn-tourn">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2zm-4-8h2v2H8V5zm0 4h2v2H8V9zm0 4h2v2H8v-2zM5 5h2v2H5V5zm0 4h2v2H5V9zm0 4h2v2H5v-2zm14 14H5v-2h14v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V5h2v2z"/></svg>
-                <span>Tourn</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchTab('season')" id="nav-btn-season">
-                <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-                <span>Season</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchTab('standings')" id="nav-btn-standings">
-                <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-                <span>Rankings</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchTab('news')" id="nav-btn-news">
-                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-6h11v6zm0-8H4V6h11v4zm5 8h-4v-6h4v6zm0-8h-4V6h4v4z"/></svg>
-                <span>News</span>
-            </button>
-        </nav>
     </div>
 
     <!-- TOURNAMENT HUB -->
     <div id="tournament-hub">
         <div class="hub-header">
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            <div id="tourn-round-info" style="text-align:center; font-size:12px; color:#aaa; margin-bottom:5px;">
-                <span id="tourn-round-name">Round 1</span> • <span id="tourn-round-fmt">Format</span>
-            </div>
             <div class="hub-actions">
-                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Round</button>
+                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current
+                    Round</button>
                 <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
-                <button class="btn-hub-action" style="border-color:#3b82f6; background:rgba(59,130,246,0.1);" onclick="Tournament.leaveEvent()">← Leave</button>
-                <button class="btn-hub-action" style="border-color:#ef4444; background:rgba(239,68,68,0.1);" onclick="Persistence.clear()">RESET</button>
+                <button class="btn-hub-action" style="background:#3498db;" onclick="Tournament.leaveEvent()">← Leave
+                    Event</button>
+                <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
             </div>
         </div>
 
@@ -997,43 +2880,52 @@
     </div>
 
     <!-- CLEAN INTRO -->
-    <div id="clean-intro" style="position:fixed; inset:0; z-index:9999; display:none; background:#0f172a; align-items:center; justify-content:center; flex-direction:column; color:white;">
-        <!-- Re-using existing structure logic via JS, styled by new CSS -->
+    <div id="clean-intro">
+        <img src="darts.png" class="dart-anim" onerror="this.style.display='none'">
         <div class="intro-bg-lines"></div>
-        <div class="intro-card" style="background:transparent; box-shadow:none; border:none; text-align:center;">
-            <div class="intro-event" id="ci-event" style="font-size:14px; color:var(--pdc-gold); letter-spacing:2px; margin-bottom:40px;">EVENT NAME</div>
-            
-            <div style="font-size:40px; font-weight:900; line-height:1; margin-bottom:10px;" id="ci-p1">PLAYER 1</div>
-            <div style="font-size:16px; color:#64748b; margin-bottom:40px; text-transform:uppercase;" id="ci-n1">COUNTRY</div>
-            
-            <div style="font-size:20px; font-weight:bold; color:#ef4444; margin-bottom:40px;">VS</div>
-            
-            <div style="font-size:40px; font-weight:900; line-height:1; margin-bottom:10px;" id="ci-p2">PLAYER 2</div>
-            <div style="font-size:16px; color:#64748b; margin-bottom:40px; text-transform:uppercase;" id="ci-n2">COUNTRY</div>
-            
-            <div style="font-size:12px; letter-spacing:4px; opacity:0.5; margin-top:20px;">GAME ON</div>
+
+        <div class="intro-side intro-left">
+            <img class="intro-flag-img" id="ci-flag-1" src="" alt="">
+            <div class="intro-side-text" id="ci-nation-1">ENG</div>
         </div>
-        <!-- Hidden elements required by JS logic -->
-        <img id="ci-flag-1" style="display:none;"><div id="ci-nation-1" style="display:none;"></div>
-        <img id="ci-flag-2" style="display:none;"><div id="ci-nation-2" style="display:none;"></div>
+
+        <div class="intro-card">
+            <div class="intro-event" id="ci-event">EVENT NAME</div>
+            <div class="intro-vs-box">
+                <div>
+                    <div class="intro-name" id="ci-p1">PLAYER 1</div>
+                    <div class="intro-nation" id="ci-n1">ENGLAND</div>
+                </div>
+                <div class="intro-vs-text">VS</div>
+                <div>
+                    <div class="intro-name" id="ci-p2">PLAYER 2</div>
+                    <div class="intro-nation" id="ci-n2">GERMANY</div>
+                </div>
+            </div>
+            <div class="intro-sub">GAME ON</div>
+        </div>
+
+        <div class="intro-side intro-right">
+            <img class="intro-flag-img" id="ci-flag-2" src="" alt="">
+            <div class="intro-side-text" id="ci-nation-2">GER</div>
+        </div>
     </div>
 
     <!-- MATCH SCREEN -->
     <div id="match-screen">
         <div class="event-bar">
-            <button onclick="Persistence.clear()" style="position: absolute; left: 10px; background:transparent; border:none; color:#64748b; font-size:20px;">✕</button>
-            <span id="txt-event-header" style="font-weight:bold; font-size:12px; letter-spacing:1px; color:white;">EVENT NAME</span>
-            <button onclick="togglePause()" style="position: absolute; right: 10px; background:transparent; border:none; color:white; font-size:20px;">⏸</button>
-            
-            <!-- Hidden logos for JS compatibility -->
-            <img id="pdc-logo" src="" style="display:none;">
-            <img id="event-logo" src="" style="display:none;">
+            <button class="btn-exit-small" style="position: absolute; left: 10px; top: 5px; right:auto;"
+                onclick="Persistence.clear()">EXIT</button>
+            <img id="pdc-logo" src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" alt="PDC">
+            <img id="event-logo" class="event-logo" src="" style="display:none;">
+            <span id="txt-event-header">EVENT NAME</span>
+            <button class="btn-icon" onclick="togglePause()"
+                style="position: absolute; right: 10px; top: 0px; height: 36px;">⏸</button>
         </div>
-        
         <div class="scoreboard-header" id="scoreboard-header">
             <div class="player-card" id="card-p0">
                 <div class="name-strip">
-                    <div class="starter-dot" id="dot-p0" style="width:6px; height:6px; background:var(--pdc-gold); border-radius:50%; margin-right:8px; display:none;"></div>
+                    <div class="starter-dot" id="dot-p0"></div>
                     <img class="flag" id="flag-p0" src="" alt="">
                     <span class="p-name" id="name-p0">PLAYER 1</span>
                 </div>
@@ -1042,10 +2934,9 @@
                     <div class="p-avg" id="avg-p0">AVG 0.00</div>
                 </div>
             </div>
-            
             <div class="player-card" id="card-p1">
                 <div class="name-strip">
-                    <div class="starter-dot" id="dot-p1" style="width:6px; height:6px; background:var(--pdc-gold); border-radius:50%; margin-right:8px; display:none;"></div>
+                    <div class="starter-dot" id="dot-p1"></div>
                     <img class="flag" id="flag-p1" src="" alt="">
                     <span class="p-name" id="name-p1">PLAYER 2</span>
                 </div>
@@ -1055,25 +2946,19 @@
                 </div>
             </div>
         </div>
-        
         <div class="visit-board" id="visit-container"></div>
-        
         <div class="bottom-bar">
             <div class="legs-display">
-                <div class="score-box-left" style="text-align:right;">
+                <div class="score-box-left">
+                    <div class="leg-name" id="bot-name-p0">NAME</div>
                     <div class="main-score" id="bot-sets-p0">0</div>
                     <div class="sub-score" id="bot-legs-p0">0</div>
-                    <!-- Hidden Name for JS compat -->
-                    <div class="leg-name" id="bot-name-p0" style="display:none;">P1</div>
                 </div>
-                
                 <div class="leg-label"><span id="lbl-score-type">SETS</span></div>
-                
-                <div class="score-box-right" style="text-align:left;">
-                    <div class="main-score" id="bot-sets-p1">0</div>
+                <div class="score-box-right">
                     <div class="sub-score" id="bot-legs-p1">0</div>
-                    <!-- Hidden Name for JS compat -->
-                    <div class="leg-name" id="bot-name-p1" style="display:none;">P2</div>
+                    <div class="main-score" id="bot-sets-p1">0</div>
+                    <div class="leg-name" id="bot-name-p1">NAME</div>
                 </div>
             </div>
         </div>
@@ -1082,24 +2967,24 @@
     <!-- POST MATCH STATS -->
     <div id="post-match-screen">
         <div class="stats-header">
-            <div class="stats-title" style="color:var(--pdc-gold); font-weight:900; font-size:20px; letter-spacing:1px;">MATCH STATISTICS</div>
-            <div class="stats-subtitle" id="stats-event-name" style="color:#64748b; font-size:12px; margin-top:5px;">Event Name</div>
+            <div class="stats-title">MATCH STATISTICS</div>
+            <div class="stats-subtitle" id="stats-event-name">Event Name</div>
         </div>
 
         <div class="stats-grid">
-            <div class="p-head" id="stats-p0-head" style="display:flex; flex-direction:column; align-items:center;">
+            <div class="p-head" id="stats-p0-head">
                 <img src="" id="stats-p0-flag">
-                <span id="stats-p0-name" style="font-weight:bold; font-size:14px; margin-top:5px;">Player 1</span>
+                <span id="stats-p0-name">Player 1</span>
             </div>
             <div></div>
-            <div class="p-head" id="stats-p1-head" style="display:flex; flex-direction:column; align-items:center;">
+            <div class="p-head" id="stats-p1-head">
                 <img src="" id="stats-p1-flag">
-                <span id="stats-p1-name" style="font-weight:bold; font-size:14px; margin-top:5px;">Player 2</span>
+                <span id="stats-p1-name">Player 2</span>
             </div>
 
             <div class="stat-row">
                 <div class="stat-val" id="st-avg-0">0.00</div>
-                <div class="stat-label">Average</div>
+                <div class="stat-label">3-Dart Avg</div>
                 <div class="stat-val" id="st-avg-1">0.00</div>
             </div>
             <div class="stat-row">
@@ -1109,73 +2994,80 @@
             </div>
             <div class="stat-row">
                 <div class="stat-val" id="st-co-0">0%</div>
-                <div class="stat-label">Checkout</div>
+                <div class="stat-label">Checkout %</div>
                 <div class="stat-val" id="st-co-1">0%</div>
             </div>
             <div class="stat-row">
                 <div class="stat-val" id="st-high-0">0</div>
-                <div class="stat-label">High Out</div>
+                <div class="stat-label">Highest Out</div>
                 <div class="stat-val" id="st-high-1">0</div>
             </div>
             <div class="stat-row">
                 <div class="stat-val" id="st-tonplus-0">0</div>
-                <div class="stat-label">100+ Out</div>
+                <div class="stat-label">100+ Checkouts</div>
                 <div class="stat-val" id="st-tonplus-1">0</div>
             </div>
             <div class="stat-row" id="row-legs-won" style="display:none;">
                 <div class="stat-val" id="st-legs-0">0</div>
-                <div class="stat-label">Legs</div>
+                <div class="stat-label">Legs Won</div>
                 <div class="stat-val" id="st-legs-1">0</div>
             </div>
         </div>
 
-        <div style="padding:20px;">
-            <button class="btn-gold" id="btn-stats-continue" onclick="returnToMenu()">CONTINUE</button>
-        </div>
+        <button class="btn-gold" id="btn-stats-continue" style="width:90%; max-width:400px; margin-bottom: 20px;"
+            onclick="returnToMenu()">CONTINUE</button>
     </div>
 
     <!-- OVERLAYS -->
-    <div id="overlay-intro" class="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; flex-direction:column; z-index:50;">
-        <div class="intro-box" style="background:#b91c1c; border:2px solid white; padding:20px; text-align:center; min-width:250px;">
-            <div class="intro-title" id="intro-title-txt" style="font-size:18px; font-weight:bold; text-transform:uppercase;">Leg 1</div>
-            <div class="intro-name" id="intro-name-txt" style="font-size:28px; font-weight:900; margin:10px 0; text-transform:uppercase;">Player</div>
-            <div style="margin-top:5px; font-size:12px; color:#ddd;">TO THROW FIRST</div>
+    <div id="overlay-intro" class="overlay">
+        <div class="intro-box">
+            <div class="intro-title" id="intro-title-txt" style="font-size:24px; font-weight:bold;">Leg 1</div>
+            <div class="intro-name" id="intro-name-txt" style="font-size:30px; font-weight:bold; margin:10px 0;">
+                Player
+                Name</div>
+            <div style="margin-top:10px; font-size:14px; color:#ddd;">TO THROW FIRST</div>
         </div>
     </div>
-    
-    <div id="overlay-shot" class="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:50;"></div>
-    
-    <div id="overlay-180" class="overlay" style="display:none; position:fixed; inset:0; align-items:center; justify-content:center; z-index:60; pointer-events:none;">
-        <div style="font-size:120px; font-weight:900; color:#ef4444; text-shadow: 4px 4px 0px white, 8px 8px 0px black; transform:rotate(-10deg);">180</div>
+    <div id="overlay-shot" class="overlay"></div>
+    <div id="overlay-180" class="overlay">
+        <div class="one-eighty-box">180</div>
     </div>
 
-    <div id="overlay-end" class="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:50;">
-        <div class="end-box" style="text-align:center;">
-            <div style="color:#aaa; font-size:12px; letter-spacing:2px;">MATCH WINNER</div>
-            <div class="end-winner" id="end-winner-name" style="font-size:32px; color:var(--pdc-gold); font-weight:900; margin:20px 0;">PLAYER</div>
-            <div class="end-score" id="end-score-txt" style="font-size:40px; font-weight:bold; margin-bottom:30px;">0 - 0</div>
+    <div id="overlay-end" class="overlay">
+        <div class="end-box">
+            <img src="https://seeklogo.com/images/P/pdc-darts-logo-A3945B413E-seeklogo.com.png" height="40"
+                style="margin-bottom:20px;">
+            <div style="color:#aaa;">MATCH WINNER</div>
+            <div class="end-winner" id="end-winner-name">PLAYER</div>
+            <div class="end-score" id="end-score-txt">0 - 0</div>
             <button class="btn-gold" id="btn-end-match">VIEW STATS</button>
         </div>
     </div>
 
     <!-- PAUSE / RESUME OVERLAY -->
-    <div id="overlay-resume" class="overlay" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(5px); align-items:center; justify-content:center; z-index:50;">
-        <div class="end-box" style="width:80%; max-width:300px; text-align:center;">
-            <div style="font-size:20px; font-weight:bold; margin-bottom:10px; color:var(--pdc-gold);">MATCH PAUSED</div>
-            <div id="pause-info-text" style="color:white; font-size:14px; font-weight:bold; margin-bottom:30px; text-transform:uppercase;">FORMAT INFO</div>
+    <div id="overlay-resume" class="overlay">
+        <div class="end-box">
+            <div style="font-size:20px; font-weight:bold; margin-bottom:10px; color:var(--pdc-gold);">MATCH PAUSED
+            </div>
+            <div id="pause-info-text"
+                style="color:white; font-size:14px; font-weight:bold; margin-bottom:20px; text-transform:uppercase;">
+                FORMAT INFO</div>
 
-            <button class="btn-gold" onclick="resumeFromReload()">RESUME</button>
-            <button class="btn-sim" style="margin-top:10px;" onclick="simulateMatchToEnd()">⚡ SIM TO END</button>
-            <button class="btn-hub-action" style="width:100%; margin-top:10px; background:rgba(255,255,255,0.1); border:1px solid #444;" onclick="Persistence.clear()">EXIT MATCH</button>
+            <button class="btn-gold" onclick="resumeFromReload()">RESUME MATCH</button>
+            <!-- MOVED SIM BUTTON HERE -->
+            <button class="btn-gold" style="background: var(--pdc-green); margin-top:10px;"
+                onclick="simulateMatchToEnd()">⚡ SIMULATE TO END</button>
+            <button class="btn-gold" style="background: #444; border:1px solid #666; margin-top:10px;"
+                onclick="Persistence.clear()">EXIT MATCH</button>
         </div>
     </div>
 
     <!-- ADVANCEMENT ANIMATION -->
-    <div id="advancement-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:200; align-items:center; justify-content:center; flex-direction:column;">
-        <div class="advancement-container" style="width:90%; max-height:80vh; overflow-y:auto; background:#1e293b; border-radius:16px; border:1px solid rgba(255,215,0,0.3); padding:20px;">
-            <div class="advancement-title" id="adv-title" style="text-align:center; color:var(--pdc-gold); font-size:24px; font-weight:900; margin-bottom:5px;">PLAYERS ADVANCING</div>
-            <div class="advancement-subtitle" id="adv-subtitle" style="text-align:center; color:#64748b; font-size:12px; margin-bottom:20px;">TO NEXT ROUND</div>
-            <div class="advancement-grid" id="adv-grid" style="display:grid; gap:10px;"></div>
+    <div id="advancement-overlay">
+        <div class="advancement-container">
+            <div class="advancement-title" id="adv-title">PLAYERS ADVANCING</div>
+            <div class="advancement-subtitle" id="adv-subtitle">TO QUARTER-FINALS</div>
+            <div class="advancement-grid" id="adv-grid"></div>
             <button class="advancement-continue" onclick="Tournament.closeAdvancementOverlay()">CONTINUE</button>
         </div>
     </div>
@@ -1184,30 +3076,15 @@
     <div id="event-info-modal">
         <div class="event-info-box">
             <div class="event-info-header" id="info-header">EVENT NAME</div>
-            <div class="event-info-details" id="info-details" style="font-size:14px; line-height:1.6; color:#cbd5e1;"></div>
-            <div id="info-results" style="margin-top:20px;"></div>
+            <div class="event-info-details" id="info-details"></div>
+            <div id="info-results"></div>
             <button class="close-event-info" onclick="Season.closeEventInfo()">CLOSE</button>
         </div>
     </div>
 
-    <!-- PWA Install Button -->
-    <button id="pwa-install-btn" class="hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-        </svg>
-        Install
-    </button>
-
-    <!-- AUTH MODAL -->
-    <div id="auth-modal" style="display:none;"></div> <!-- Placeholder -->
-
-    <!-- ALL JAVASCRIPT LOGIC -->
     <script>
-        // Paste the FULL previous JavaScript content here. 
-        // For brevity in this response, I am assuming the logic is preserved.
-        // I will add the specific helper for the bottom nav below.
-        
-        // --- SAFE ONCLICK WRAPPERS ---
+        // ===== SAFE ONCLICK WRAPPERS =====
+        // These wrappers safely call App methods from onclick handlers
         function switchTab(tab) { App && App.switchTab(tab); }
         function switchStandingSection(section) { App && App.switchStandingSection(section); }
         function switchOOMView(view) { App && App.switchOOMView(view); }
@@ -1219,68 +3096,57 @@
         function resumeFromReload() { App && App.resumeFromReload(); }
         function simulateMatchToEnd() { App && App.simulateMatchToEnd(); }
         function selectPlayer(id, idx) { App && App.selectPlayer(id, idx); }
+
+        function getBestFromCountry(code) {
+            return [...PLAYERS_DB]
+                .filter(p => p.country === code)
+                .sort((a, b) => (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0))[0];
+        }
+
+        function getBestFromRegion(region) {
+            return [...PLAYERS_DB]
+                .filter(p => REGION_MAP[region]?.includes(p.country))
+                .sort((a, b) => (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0))[0];
+        }
+
+        function getTopFromOOM(source, count, skipSet) {
+            return Object.entries(source)
+                .sort((a, b) => b[1] - a[1])
+                .map(e => e[0])
+                .filter(n => !skipSet.has(n))
+                .slice(0, count);
+        }
+
+        // ================= WAKE LOCK =================
+        let wakeLock = null;
         function toggleCustomTheme() {
             const el = document.getElementById('tourn-theme');
             const opts = document.getElementById('custom-theme-options');
-            if(el && opts) opts.style.display = (el.value === 'custom') ? 'block' : 'none';
+            if (el && opts) {
+                opts.style.display = (el.value === 'custom') ? 'block' : 'none';
+            }
         }
 
-        // ... [INCLUDE ALL PREVIOUS JS LOGIC HERE: Players, Season, Tournament, etc.] ...
-        // ... [Due to character limits, copy the huge JS block from the previous file] ...
-        
-        // ==========================================
-        //  MODERN UI OVERRIDES (Add this at end of JS)
-        // ==========================================
-        
-        // Fix viewport height for mobile browsers (address bar issue)
-        const setVh = () => {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock active');
+                } catch (err) {
+                    console.log('Wake Lock Error:', err.message);
+                }
+            }
         };
-        window.addEventListener('resize', setVh);
-        setVh();
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
 
-        // Initialize App Object Override
-        // We need to ensure the App object exists before overriding
-        // If you paste the full JS above, this will run after.
-        
-        // Overwrite switchTab to handle the new bottom nav classes
-        if(typeof App !== 'undefined') {
-            App.switchTab = (tabName) => {
-                // 1. Handle Content Switching
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                const content = document.getElementById(`tab-${tabName}`);
-                if (content) content.classList.add('active');
+            }
+        });
 
-                // 2. Handle Bottom Nav Active State
-                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-                const btn = document.getElementById(`nav-btn-${tabName}`);
-                if (btn) btn.classList.add('active');
-
-                // 3. Logic Triggers
-                if (tabName === 'news' && typeof NewsSystem !== 'undefined') {
-                    NewsSystem.renderNews(NewsSystem.viewState.filter);
-                }
-
-                if (tabName === 'standings') {
-                    if (!document.querySelector('.standing-section.active')) {
-                        App.switchStandingSection('oom');
-                    } else {
-                        if (document.getElementById('section-premier').classList.contains('active')) Season.renderPremierLeagueStandings();
-                        if (document.getElementById('section-qschool').classList.contains('active')) Season.renderQSchoolStandings();
-                        if (document.getElementById('section-oom').classList.contains('active')) {
-                            Season.renderOOMTable('oom-hub-main', Season.state.orderOfMerit);
-                            Season.renderOOMTable('oom-hub-pro', Season.state.proTourOOM);
-                            Season.renderOOMTable('oom-hub-challenge', Season.state.challengeTourOOM);
-                            Season.renderOOMTable('oom-hub-ws', Season.state.worldSeriesOOM);
-                        }
-                    }
-                }
-            };
-        }
-   
-    
-     const API_BASE = '/api';
+        // ================= DATA =================
+        // API URL for database operations
+        const API_BASE = '/api';
 
         // Global event themes - initialized with defaults immediately, then merged with server data
         let EVENT_THEMES = {
@@ -11724,44 +13590,6 @@
             deferredPrompt = null;
         });
     </script>
-    <script>
-        // Mobile menu handlers
-        function toggleMobileMenu() {
-            const el = document.getElementById('mobile-sidebar');
-            if (!el) return;
-            el.classList.toggle('open');
-            el.setAttribute('aria-hidden', !el.classList.contains('open'));
-        }
-
-        function closeMobileMenuIfNeeded() {
-            const el = document.getElementById('mobile-sidebar');
-            if (!el) return;
-            if (window.innerWidth <= 768 && el.classList.contains('open')) {
-                el.classList.remove('open');
-                el.setAttribute('aria-hidden', 'true');
-            }
-        }
-
-        // Close mobile menu when tapping outside or on resize to larger screens
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.mobile-sidebar') && !e.target.closest('.menu-toggle')) {
-                closeMobileMenuIfNeeded();
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            const el = document.getElementById('mobile-sidebar');
-            if (!el) return;
-            if (window.innerWidth > 768) {
-                el.classList.remove('open');
-                el.setAttribute('aria-hidden', 'true');
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeMobileMenuIfNeeded();
-        });
-    </script>
 </body>
+
 </html>
-       
