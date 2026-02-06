@@ -118,7 +118,140 @@
             flex-shrink: 0;
             min-height: 40px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            /* Mobile-friendly horizontal scroll */
+            overflow-x: auto;
+            gap: 6px;
+            padding: 6px 8px;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
         }
+
+        /* Hide native scrollbar for a cleaner mobile look */
+        .tabs::-webkit-scrollbar { height: 6px; }
+        .tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        .tab-btn {
+            flex: 0 0 auto;
+            min-width: 110px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: #999;
+            font-family: 'Roboto Condensed';
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            scroll-snap-align: start;
+            border-radius: 8px;
+            height: 44px;
+        }
+
+        .tab-btn:hover {
+            color: #ccc;
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 215, 0, 0.08);
+            color: var(--pdc-gold);
+            border-bottom: 3px solid var(--pdc-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        /* --- Mobile Menu Toggle & Sheet --- */
+        .menu-toggle {
+            display: none;
+            position: absolute;
+            left: 10px;
+            /* moved higher to improve reachability on tall-screen phones */
+            top: calc(-6px + env(safe-area-inset-top, 0px));
+            background: rgba(0,0,0,0.35);
+            color: var(--pdc-gold);
+            border: 1px solid rgba(255,215,0,0.12);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 18px;
+            height: 36px;
+            width: 44px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        /* Extra nudge on very small devices */
+        @media (max-width: 380px) {
+            .menu-toggle { top: calc(-10px + env(safe-area-inset-top, 0px)); }
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            display: none;
+        }
+
+        .mobile-menu-sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, rgba(16,18,24,0.98), rgba(8,10,14,0.98));
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+            transform: translateY(110%);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .mobile-menu-sheet.active {
+            transform: translateY(0);
+        }
+
+        /* Slightly tighter spacing between menu buttons on mobile */
+        .mobile-menu-content .tab-btn { display: block; width: 100%; margin: 6px 0; min-width: auto; }
+
+        /* Small screens: hide tabs and show toggle */
+        @media (max-width: 600px) {
+            .tabs { display: none; }
+            /* Make the toggle fixed so it can escape parent clipping and be moved aggressively upwards */
+            .menu-toggle {
+                display: flex !important; /* ensure visible */
+                position: fixed;
+                left: 12px;
+                /* reduce top area: smaller height and padding, and move 1px lower */
+                top: calc(env(safe-area-inset-top, 8px) + 1px);
+                z-index: 11000;
+                box-shadow: 0 6px 26px rgba(0,0,0,0.7);
+                transform: translateY(1px);
+                height: 44px; /* slightly smaller so top part is smaller */
+                width: 44px;
+                padding: 6px 8px; /* reduce padding for smaller top area */
+                font-size: 20px;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0,0,0,0.6);
+                border: 1px solid rgba(255,215,0,0.16);
+                border-radius: 10px;
+            }
+            .setup-box { padding-top: 56px; }
+            /* Hide full-size account / install buttons on mobile and rely on the menu */
+            button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
+        }
+
+        /* For very narrow screens: reduce top area and move 1px lower */
+        @media (max-width: 380px) {
+            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) - 9px); transform: translateY(-9px); height:44px; width:44px; padding:6px 8px; border-radius:10px; }
+        }
+        
 
         .tab-btn {
             flex: 1;
@@ -2475,15 +2608,22 @@
     <!-- SETUP SCREEN -->
     <div id="setup-screen">
         <div class="setup-box">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE
-                    MATCH</button>
-                <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
-                <button class="tab-btn" onclick="switchTab('season')" id="tab-btn-season">SEASON</button>
-                <!-- Merged Tab -->
-                <button class="tab-btn" onclick="switchTab('standings')" id="tab-btn-standings">STANDINGS</button>
-                <button class="tab-btn" onclick="switchTab('news')" id="tab-btn-news">NEWS</button>
+            <div class="tabs-wrapper" style="position:relative;">
+                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">☰</button>
+                <div class="tabs" role="tablist" aria-label="Main Menu">
+                    <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE MATCH</button>
+                    <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
+                    <button class="tab-btn" onclick="switchTab('season')" id="tab-btn-season">SEASON</button>
+                    <!-- Merged Tab -->
+                    <button class="tab-btn" onclick="switchTab('standings')" id="tab-btn-standings">STANDINGS</button>
+                    <button class="tab-btn" onclick="switchTab('news')" id="tab-btn-news">NEWS</button>
+                </div>
             </div>
+            <div id="mobile-menu" class="mobile-menu-sheet" role="dialog" aria-modal="true" aria-hidden="true">
+                <div class="mobile-menu-content"></div>
+                <button class="mobile-menu-close" aria-label="Close menu" style="display:block; width:100%; margin-top:10px; padding:10px; border-radius:8px; background:#222; color:#fff; border:1px solid #333;">Close</button>
+            </div>
+            <div class="mobile-menu-overlay"></div>
 
             <!-- NEWS TAB -->
             <div id="tab-news" class="tab-content" style="padding:0;">
@@ -13350,9 +13490,130 @@
                 } else {
                     // No update or first run
                     localStorage.setItem('pdc_code_hash', currentHash);
-                    App.init();
+                    App.init(); initMobileMenu();
                 }
                 console.log("App initialized successfully");
+
+                /* Mobile menu initializer - lightweight and non-intrusive */
+                function initMobileMenu() {
+                    try {
+                        const tabs = document.querySelector('.tabs');
+                        if (!tabs) return;
+                        const menuToggle = document.getElementById('menu-toggle');
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        const overlay = document.querySelector('.mobile-menu-overlay');
+                        const mobileContent = mobileMenu ? mobileMenu.querySelector('.mobile-menu-content') : null;
+
+                        // Ensure elements exist
+                        if (!menuToggle || !mobileMenu || !overlay || !mobileContent) return;
+
+                        // Populate mobile menu from existing tab buttons (clone to keep original handlers)
+                        mobileContent.innerHTML = '';
+
+                        // --- Add quick actions (Install & Account) at top of menu (mobile only)
+                        const actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'mobile-menu-actions';
+                        actionsDiv.style.cssText = 'display:flex; flex-direction:column; gap:6px; margin-bottom:10px;';
+
+                        // Account action - triggers the existing Auth modal
+                        const accountAction = document.createElement('button');
+                        // Use same label logic as main account button (dynamic username short or ACCOUNT)
+                        const accountBtn = document.querySelector('[onclick="AuthSystem.showModal()"]');
+                        if (accountBtn) {
+                            accountAction.innerHTML = accountBtn.innerHTML;
+                        } else {
+                            accountAction.innerHTML = '👤 ACCOUNT';
+                        }
+                        accountAction.className = 'tab-btn';
+                        accountAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
+                        accountAction.addEventListener('click', () => { try { AuthSystem.showModal(); } catch(e){ const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if(b) b.click(); } closeMenu(); });
+
+                        // Install action - triggers the existing install button's behavior if present
+                        const installAction = document.createElement('button');
+                        const installBtnOrig = document.getElementById('pwa-install-btn');
+                        installAction.innerHTML = installBtnOrig ? installBtnOrig.innerText : 'Install App';
+                        installAction.className = 'tab-btn';
+                        installAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
+                        installAction.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (installBtnOrig) {
+                                // programmatically click the original install button so its logic handles the flow
+                                installBtnOrig.click();
+                            } else {
+                                alert('Install not available on this platform');
+                            }
+                            closeMenu();
+                        });
+
+                        // Append actions to menu content first
+                        actionsDiv.appendChild(accountAction);
+                        actionsDiv.appendChild(installAction);
+                        mobileContent.appendChild(actionsDiv);
+
+                        // Now append tab entries
+                        const tabButtons = tabs.querySelectorAll('.tab-btn');
+                        tabButtons.forEach(btn => {
+                            const clone = btn.cloneNode(true);
+                            clone.classList.remove('active');
+                            clone.style.display = 'block';
+                            clone.style.width = '100%';
+                            clone.style.margin = '6px 0';
+                            // When clicking cloned button, trigger original action and close sheet
+                            clone.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                btn.click();
+                                closeMenu();
+                            });
+                            mobileContent.appendChild(clone);
+                        });
+
+                        function openMenu() {
+                            mobileMenu.classList.add('active');
+                            overlay.style.display = 'block';
+                            menuToggle.setAttribute('aria-expanded', 'true');
+                            mobileMenu.setAttribute('aria-hidden', 'false');
+                            document.body.style.overflow = 'hidden';
+                        }
+
+                        function closeMenu() {
+                            mobileMenu.classList.remove('active');
+                            overlay.style.display = 'none';
+                            menuToggle.setAttribute('aria-expanded', 'false');
+                            mobileMenu.setAttribute('aria-hidden', 'true');
+                            document.body.style.overflow = '';
+                        }
+
+                        menuToggle.addEventListener('click', () => {
+                            if (mobileMenu.classList.contains('active')) closeMenu(); else openMenu();
+                        });
+
+                        overlay.addEventListener('click', closeMenu);
+
+                        const closeBtn = mobileMenu.querySelector('.mobile-menu-close');
+                        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+
+                        // Close on ESC
+                        document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
+
+                        // Rebuild menu on orientation change or resize in case tabs change
+                        window.addEventListener('resize', () => {
+                            if (mobileMenu.classList.contains('active')) {
+                                // keep it open but rebuild contents
+                                const tabButtons2 = tabs.querySelectorAll('.tab-btn');
+                                mobileContent.innerHTML = '';
+                                tabButtons2.forEach(btn => {
+                                    const clone = btn.cloneNode(true);
+                                    clone.style.display = 'block'; clone.style.width = '100%'; clone.style.margin = '6px 0';
+                                    clone.addEventListener('click', (e) => { e.preventDefault(); btn.click(); closeMenu(); });
+                                    mobileContent.appendChild(clone);
+                                });
+                            }
+                        });
+
+                    } catch (err) {
+                        console.warn('initMobileMenu failed:', err);
+                    }
+                }
             } catch (e) {
                 console.error("Critical Error on startup:", e);
                 console.error("Stack:", e.stack);
