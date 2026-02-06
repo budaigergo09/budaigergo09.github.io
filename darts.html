@@ -13494,6 +13494,19 @@
                 }
                 console.log("App initialized successfully");
 
+                /* Haptics helper (uses Vibration API where available) */
+                window.Haptics = {
+                    buzz: (ms = 8) => {
+                        try {
+                            // Respect user preference for reduced motion/haptics
+                            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                            if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+                                navigator.vibrate(ms);
+                            }
+                        } catch (e) { /* ignore */ }
+                    }
+                };
+
                 /* Mobile menu initializer - lightweight and non-intrusive */
                 function initMobileMenu() {
                     try {
@@ -13526,7 +13539,7 @@
                         }
                         accountAction.className = 'tab-btn';
                         accountAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
-                        accountAction.addEventListener('click', () => { try { AuthSystem.showModal(); } catch(e){ const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if(b) b.click(); } closeMenu(); });
+                        accountAction.addEventListener('click', () => { Haptics.buzz(12); try { AuthSystem.showModal(); } catch(e){ const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if(b) b.click(); } closeMenu(); });
 
                         // Install action - triggers the existing install button's behavior if present
                         const installAction = document.createElement('button');
@@ -13536,6 +13549,7 @@
                         installAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
                         installAction.addEventListener('click', (e) => {
                             e.preventDefault();
+                            Haptics.buzz(12);
                             if (installBtnOrig) {
                                 // programmatically click the original install button so its logic handles the flow
                                 installBtnOrig.click();
@@ -13584,16 +13598,30 @@
                         }
 
                         menuToggle.addEventListener('click', () => {
+                            Haptics.buzz(10);
                             if (mobileMenu.classList.contains('active')) closeMenu(); else openMenu();
                         });
 
-                        overlay.addEventListener('click', closeMenu);
+                        // Provide haptic feedback when overlay or close button is used
+                        overlay.addEventListener('click', () => { Haptics.buzz(6); closeMenu(); });
 
                         const closeBtn = mobileMenu.querySelector('.mobile-menu-close');
-                        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+                        if (closeBtn) closeBtn.addEventListener('click', () => { Haptics.buzz(6); closeMenu(); });
+
+                        // Also add haptic to original tab buttons (so cloned clicks trigger feedback via original click)
+                        const originalTabButtons = tabs.querySelectorAll('.tab-btn');
+                        originalTabButtons.forEach(btn => { if (!btn.dataset.haptic) { btn.dataset.haptic = '1'; btn.addEventListener('click', () => Haptics.buzz(8)); } });
+
+                        // (replaced by haptic-aware handlers above)
 
                         // Close on ESC
                         document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
+
+                        // Attach haptics to original account & install buttons too
+                        const origAccountBtn = document.querySelector('[onclick="AuthSystem.showModal()"]');
+                        if (origAccountBtn && !origAccountBtn.dataset.haptic) { origAccountBtn.dataset.haptic = '1'; origAccountBtn.addEventListener('click', () => Haptics.buzz(10)); }
+                        const origInstallBtn = document.getElementById('pwa-install-btn');
+                        if (origInstallBtn && !origInstallBtn.dataset.haptic) { origInstallBtn.dataset.haptic = '1'; origInstallBtn.addEventListener('click', () => Haptics.buzz(10)); }
 
                         // Rebuild menu on orientation change or resize in case tabs change
                         window.addEventListener('resize', () => {
