@@ -111,6 +111,10 @@
             transition: all 0.3s ease;
         }
 
+        /* APP HERO (hidden on desktop, shown on mobile) */
+        .app-hero { display: none; }
+        .app-hero .hero-title { font-family: 'Roboto Condensed', sans-serif; }
+
         .tabs {
             display: flex;
             background: linear-gradient(180deg, rgba(12, 16, 28, 0.9), rgba(8, 11, 20, 0.95));
@@ -219,6 +223,137 @@
         /* Slightly tighter spacing between menu buttons on mobile */
         .mobile-menu-content .tab-btn { display: block; width: 100%; margin: 6px 0; min-width: auto; }
 
+        /* ==================== MODERN BOTTOM NAV (from provided snippet) ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            /* Solid background to remove transparency */
+            background: var(--bg-header);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 500;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            gap: 4px;
+            padding: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: transform 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--pdc-gold);
+        }
+
+        .nav-item.active svg {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
+        }
+
+        /* Keep existing top tabs visible on desktop but hide on small screens (mobile will use bottom-nav) */
+        @media (max-width: 900px) {
+            .tabs { display: none !important; }
+        }
+
+        /* Floating buttons above bottom navigation */
+        .bottom-actions {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            display: none; /* hidden by default; shown only on season tab */
+            justify-content: center;
+            gap: 12px;
+            /* Increased z-index to ensure it sits above all interactive content */
+            z-index: 12000;
+            bottom: calc(70px + env(safe-area-inset-bottom) + 12px);
+            pointer-events: auto;
+            /* ensure touches are handled by these buttons, not by content underneath */
+            touch-action: manipulation;
+        }
+
+        /* Make room after the event list on small screens so users can scroll past the last item */
+        @media (max-width: 600px) {
+            .season-list { padding-bottom: 160px !important; }
+        }
+
+        /* Layout helper for season controls */
+        .season-controls-row { display:flex; gap:8px; }
+        @media (min-width: 900px) {
+            /* Stack the season control buttons vertically on desktop */
+            .season-controls-row { flex-direction: column !important; align-items: stretch; }
+            .season-controls-row button { width: 100%; }
+            /* Make the full-size simulate/reset buttons taller and rounded */
+            .season-controls-row .btn-sim { padding: 18px 20px; border-radius: 12px; font-size: 16px; box-shadow: 0 6px 18px rgba(0, 179, 89, 0.25); }
+            .season-controls-row .btn-reset { padding: 18px 20px; border-radius: 12px; font-size: 16px; }
+            /* Hide floating bottom actions and bottom navigation on wide screens (desktop) */
+            .bottom-actions { display: none !important; }
+            .bottom-nav { display: none !important; }
+            /* Prevent horizontal scrollbar caused by subtle transforms/margins */
+            #setup-screen { overflow-x: hidden; }
+            .season-list { overflow-x: hidden; }
+        }
+
+        /* Mobile: hide the full-size season control buttons so the floating quick actions remain */
+        @media (max-width: 900px) {
+            .season-controls-row { display: none !important; }
+        }
+
+        .bottom-action-btn {
+            min-width: 160px;
+            padding: 12px 20px;
+            min-height: 48px;
+            border-radius: 18px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+            font-family: 'Roboto Condensed', sans-serif;
+            font-size: 14px;
+        }
+
+        .bottom-action-sim {
+            background: linear-gradient(135deg, var(--pdc-green), #009647);
+            color: white;
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .bottom-action-reset {
+            background: linear-gradient(135deg, #9a0000, #cc0000);
+            color: white;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        @media (min-width: 900px) {
+            /* hide floating actions on desktop - season controls available in UI */
+            .bottom-actions { display: none !important; }
+        }
+
         /* Small screens: hide tabs and show toggle */
         @media (max-width: 600px) {
             .tabs { display: none; }
@@ -242,7 +377,28 @@
                 border: 1px solid rgba(255,215,0,0.16);
                 border-radius: 10px;
             }
-            .setup-box { padding-top: 56px; }
+            /* Mobile: remove container border & make background homogeneous; show hero */
+            .setup-box {
+                padding-top: 0;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: var(--bg-dark);
+                height: 100dvh;
+                max-height: none;
+            }
+
+            /* show compact hero header in the upper space */
+            .app-hero { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 16px; gap:6px; text-align:center; }
+            /* Move account icon to top-right and make it compact on mobile */
+            #mobile-account-btn { position: fixed; top: calc(env(safe-area-inset-top, 8px) + 8px); right: 12px; width:40px; height:40px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index:12001; }
+            #mobile-account-btn svg { width:20px; height:20px; fill: var(--pdc-gold); }
+            .app-hero .hero-title { font-size:18px; font-weight:bold; color:var(--pdc-gold); letter-spacing:0.6px; }
+            .app-hero .hero-sub { font-size:12px; color:#cbd5e1; opacity:0.95; }
+            /* Ensure the centered hero doesn't collide with the fixed account button */
+            .app-hero { padding-top: 56px; }
+            /* Hide full-size account / install buttons on mobile and rely on the menu */
+            button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
             /* Hide full-size account / install buttons on mobile and rely on the menu */
             button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
         }
@@ -2475,36 +2631,6 @@
             display: none;
         }
 
-        /* EMERGENCY RESET */
-        #btn-emergency-reset {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            z-index: 9999999;
-            background: #9a0000;
-            color: white;
-            padding: 8px 12px;
-            border: 2px solid white;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            animation: fadeOutReset 5s forwards;
-        }
-
-        @keyframes fadeOutReset {
-            0% {
-                opacity: 1;
-            }
-
-            80% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-                pointer-events: none;
-            }
-        }
 
         /* --- OPTIMIZED PLAYER SELECTOR (Smaller) --- */
         .player-option {
@@ -2602,14 +2728,18 @@
 
 <body>
 
-    <!-- EMERGENCY RESET -->
-    <button id="btn-emergency-reset" onclick="localStorage.clear(); location.reload();">⚠️ RESET APP</button>
 
     <!-- SETUP SCREEN -->
     <div id="setup-screen">
         <div class="setup-box">
+            <div class="app-hero" role="region" aria-label="App header">
+                <button id="mobile-account-btn" class="hero-account" aria-label="Account" title="Account" type="button">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/>
+                    </svg>
+                </button>
+            </div>
             <div class="tabs-wrapper" style="position:relative;">
-                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">☰</button>
                 <div class="tabs" role="tablist" aria-label="Main Menu">
                     <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE MATCH</button>
                     <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
@@ -2907,9 +3037,7 @@
 
             <!-- SEASON TAB -->
             <div id="tab-season" class="tab-content">
-                <div
-                    style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">
-                    PDC SEASON <span id="season-year-disp">2026</span></div>
+                <!-- Season header moved to app hero (mobile) -->
                 <div class="season-list" id="season-event-list"></div>
 
                 <div class="oom-nav" style="display:none;">
@@ -2924,13 +3052,8 @@
 
                 <div id="season-controls" style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
                     <div style="display:flex; gap:5px;">
-                        <button class="btn-sim" style="flex:1; padding:15px;"
-                            onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
-                        <button class="btn-gold" onclick="AuthSystem.showModal()"
-                            style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
+                        <button class="btn-gold" onclick="AuthSystem.showModal()" style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
                     </div>
-                    <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET
-                        CAREER</button>
                 </div>
             </div>
 
@@ -3000,6 +3123,36 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- MODERN BOTTOM NAV (injected from snippet) -->
+    <nav class="bottom-nav" aria-label="Main Navigation">
+        <button class="nav-item active" onclick="switchTab('single')" id="nav-btn-single">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/><path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"/></svg>
+            <span>Match</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('tourn')" id="nav-btn-tourn">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2zm-4-8h2v2H8V5zm0 4h2v2H8V9zm0 4h2v2H8v-2zM5 5h2v2H5V5zm0 4h2v2H5V9zm0 4h2v2H5v-2zm14 14H5v-2h14v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V5h2v2z"/></svg>
+            <span>Tourn</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('season')" id="nav-btn-season">
+            <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+            <span>Season</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('standings')" id="nav-btn-standings">
+            <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+            <span>Rankings</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('news')" id="nav-btn-news">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-6h11v6zm0-8H4V6h11v4zm5 8h-4v-6h4v6zm0-8h-4V6h4v4z"/></svg>
+            <span>News</span>
+        </button>
+    </nav>
+
+    <!-- Floating actions above bottom nav -->
+    <div class="bottom-actions" aria-hidden="false">
+        <button class="bottom-action-btn bottom-action-sim" onclick="Season.simulateRemainingSeason()">⚡ Simulate Remaining Season</button>
+        <button class="bottom-action-btn bottom-action-reset" onclick="Season.reset()">Reset Season</button>
     </div>
 
     <!-- TOURNAMENT HUB -->
@@ -3225,7 +3378,31 @@
     <script>
         // ===== SAFE ONCLICK WRAPPERS =====
         // These wrappers safely call App methods from onclick handlers
-        function switchTab(tab) { App && App.switchTab(tab); }
+        function switchTab(tab) {
+            // Call app-level handler if present
+            if (typeof App !== 'undefined' && typeof App.switchTab === 'function') {
+                App.switchTab(tab);
+            }
+
+            // Fallback: show/hide tab content (keeps behavior if App is not ready)
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const content = document.getElementById(`tab-${tab}`);
+            if (content) content.classList.add('active');
+
+            // Update bottom nav active state
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`nav-btn-${tab}`);
+            if (btn) btn.classList.add('active');
+
+            // Show/hide floating season actions
+            const bottomActionsEl = document.querySelector('.bottom-actions');
+            if (bottomActionsEl) bottomActionsEl.style.display = (tab === 'season') ? 'flex' : 'none';
+
+            // Optional: trigger news render when switching to news
+            if (tab === 'news' && typeof NewsSystem !== 'undefined') {
+                try { NewsSystem.renderNews(NewsSystem.viewState.filter); } catch(e) {}
+            }
+        }
         function switchStandingSection(section) { App && App.switchStandingSection(section); }
         function switchOOMView(view) { App && App.switchOOMView(view); }
         function switchQSchoolView(venue) { App && App.switchQSchoolView(venue); }
@@ -6867,18 +7044,23 @@
                 // ============================
                 const list = document.getElementById('season-event-list');
                 list.innerHTML = '';
-                document.getElementById('season-year-disp').innerText = Season.state.year;
+                const syEl = document.getElementById('season-year-disp'); if (syEl) syEl.innerText = Season.state.year;
 
                 const allDone = Season.state.activeEventIndex >= Season.events.length;
                 if (allDone) {
+                    // Show only the Start Season button on desktop; account button removed from full-size controls (mobile has top-right account)
                     document.getElementById('season-controls').innerHTML = `
-                        <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year + 1}</button>
-                        <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
+                        <div class="season-controls-row">
+                            <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year + 1}</button>
+                        </div>
                     `;
                 } else {
+                    // Restored SIMULATE REMAINING SEASON and RESET into the season controls for full-size (desktop).
                     document.getElementById('season-controls').innerHTML = `
-                        <button class="btn-sim" style="width:100%; padding:15px;" onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
-                        <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
+                        <div class="season-controls-row">
+                            <button class="btn-sim" onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                            <button class="btn-gold btn-reset" style="background:#9a0000;" onclick="Season.reset()">RESET SEASON</button>
+                        </div>
                     `;
                 }
 
@@ -13490,7 +13672,34 @@
                 } else {
                     // No update or first run
                     localStorage.setItem('pdc_code_hash', currentHash);
-                    App.init(); initMobileMenu();
+                    App.init(); initMobileMenu(); attachHaptics();
+
+                    // Wire mobile account button (if present) to open account modal
+                    if (document.getElementById('mobile-account-btn')) {
+                        document.getElementById('mobile-account-btn').addEventListener('click', function(e){
+                            e.stopPropagation();
+                            if (window.AuthSystem && typeof AuthSystem.showModal === 'function') AuthSystem.showModal();
+                            if (window.Haptics && typeof Haptics.buzz === 'function') Haptics.buzz(35);
+                        });
+                    }
+
+                    // Ensure bottom action visibility matches current tab on first run
+                    try {
+                        const activeContent = document.querySelector('.tab-content.active');
+                        const bottomActionsEl = document.querySelector('.bottom-actions');
+                        if (activeContent && bottomActionsEl) {
+                            const tabName = activeContent.id.replace('tab-','');
+                            bottomActionsEl.style.display = (tabName === 'season') ? 'flex' : 'none';
+                        }
+
+                        // Prevent pointer events from passing through these floating buttons to underlying content
+                        if (bottomActionsEl && !bottomActionsEl.dataset.protect) {
+                            bottomActionsEl.dataset.protect = '1';
+                            ['pointerdown','touchstart','click'].forEach(evt => {
+                                bottomActionsEl.addEventListener(evt, e => { e.stopPropagation(); }, { capture: true, passive: true });
+                            });
+                        }
+                    } catch (e) { }
                 }
                 console.log("App initialized successfully");
 
@@ -13506,6 +13715,40 @@
                         } catch (e) { /* ignore */ }
                     }
                 };
+
+                /* Attach haptic handlers to interactive elements -- idempotent */
+                function attachHaptics() {
+                    try {
+                        const selectors = 'button, [role="button"], .nav-item, .tab-btn, .format-btn, .filter-btn, .btn-gold, .btn-blue, .btn-sim, .btn-hub-action, .mobile-menu-close, .oom-nav-btn';
+                        document.querySelectorAll(selectors).forEach(el => {
+                            if (el.dataset.haptic) return;
+                            el.dataset.haptic = '1';
+                            el.addEventListener('click', (e) => {
+                                // Determine strength based on role/class
+                                let ms = 8; // default
+                                if (el.classList && el.classList.contains('nav-item')) ms = 14;
+                                else if (el.classList && (el.classList.contains('btn-gold') || el.classList.contains('btn-sim') || el.classList.contains('btn-blue') )) ms = 20;
+                                else if (el.classList && (el.classList.contains('bottom-action-sim') || el.classList.contains('bottom-action-reset') )) ms = 26;
+                                else if (el.classList && (el.classList.contains('format-btn') || el.classList.contains('filter-btn') || el.classList.contains('oom-nav-btn'))) ms = 10;
+                                else ms = 8;
+                                Haptics.buzz(ms);
+                            }, { passive: true });
+                        });
+                    } catch (e) { console.warn('attachHaptics failed:', e); }
+
+                // Observe DOM for dynamically added interactive elements and re-attach haptics as needed
+                try {
+                    const hapticObserver = new MutationObserver((mutations) => {
+                        for (const m of mutations) {
+                            if (m.addedNodes && m.addedNodes.length) {
+                                setTimeout(attachHaptics, 40);
+                                break;
+                            }
+                        }
+                    });
+                    hapticObserver.observe(document.body, { childList: true, subtree: true });
+                } catch (e) { }
+                }
 
                 /* Mobile menu initializer - lightweight and non-intrusive */
                 function initMobileMenu() {
@@ -13744,7 +13987,9 @@
                 </div>
 
                 <button onclick="AuthSystem.logout()"
-                    style="width:100%; padding:10px; background:#9a0000; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🚪
+                    style="width:100%; padding:10px; background:#9a0000; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🚪 LOGOUT</button>
+
+                <div style="font-size:12px; color:#aaa; margin-top:12px; text-align:center;">v2.2.1 | PDC Darts Simulator</div>
                     LOGOUT</button>
             </div>
 
@@ -13766,11 +14011,7 @@
         Install App
     </button>
 
-    <!-- VERSION FOOTER -->
-    <div id="version-footer"
-        style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
-        v2.2.1 | PDC Darts Simulator
-    </div>
+
 
     <!-- PWA Service Worker Registration and Install Logic -->
     <script>
