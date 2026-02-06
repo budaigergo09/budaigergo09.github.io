@@ -741,6 +741,57 @@
             gap: 10px;
         }
 
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--pdc-gold);
+            color: var(--pdc-gold);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Mobile sidebar (hidden by default) */
+        .mobile-sidebar {
+            display: none;
+            position: absolute;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(145deg, #0f1525, #121726);
+            border-top: 1px solid rgba(255,215,0,0.06);
+            z-index: 200;
+            box-shadow: var(--shadow-lg);
+            padding: 12px;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .mobile-sidebar.open {
+            display: flex;
+        }
+
+        .mobile-sidebar a,
+        .mobile-sidebar button {
+            display: block;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: transparent;
+            color: #e6eef3;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.03);
+            text-decoration: none;
+        }
+
+        .mobile-sidebar a:hover,
+        .mobile-sidebar button:hover {
+            background: rgba(255, 215, 0, 0.06);
+            color: var(--pdc-gold);
+        }
+
         .btn-reset-hub {
             background: linear-gradient(145deg, #9a0000, #7a0000);
             color: white;
@@ -756,6 +807,23 @@
         .btn-reset-hub:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(154, 0, 0, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .hub-header {
+                padding: 12px 14px;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .hub-title {
+                font-size: 16px;
+                flex: 1;
+                text-align: left;
+            }
+
+            .hub-actions { display: none; }
+            .menu-toggle { display: block; }
         }
 
         .bracket-wrapper {
@@ -2865,6 +2933,7 @@
     <!-- TOURNAMENT HUB -->
     <div id="tournament-hub">
         <div class="hub-header">
+            <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
             <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
             <div class="hub-actions">
                 <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current
@@ -2874,6 +2943,15 @@
                     Event</button>
                 <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
             </div>
+        </div>
+
+        <div id="mobile-sidebar" class="mobile-sidebar" aria-hidden="true">
+            <a href="index.html" onclick="closeMobileMenuIfNeeded()">Home</a>
+            <a href="career.html" onclick="closeMobileMenuIfNeeded()">Career</a>
+            <a href="season.html" onclick="closeMobileMenuIfNeeded()">Season</a>
+            <a href="admin.html" onclick="closeMobileMenuIfNeeded()">Admin</a>
+            <button onclick="returnToMenu(); closeMobileMenuIfNeeded();">Return to Menu</button>
+            <button onclick="Tournament.leaveEvent(); closeMobileMenuIfNeeded();">Leave Event</button>
         </div>
 
         <div class="bracket-wrapper" id="tourn-bracket"></div>
@@ -13588,6 +13666,44 @@
             console.log('PWA was installed');
             installBtn.classList.add('hidden');
             deferredPrompt = null;
+        });
+    </script>
+    <script>
+        // Mobile menu handlers
+        function toggleMobileMenu() {
+            const el = document.getElementById('mobile-sidebar');
+            if (!el) return;
+            el.classList.toggle('open');
+            el.setAttribute('aria-hidden', !el.classList.contains('open'));
+        }
+
+        function closeMobileMenuIfNeeded() {
+            const el = document.getElementById('mobile-sidebar');
+            if (!el) return;
+            if (window.innerWidth <= 768 && el.classList.contains('open')) {
+                el.classList.remove('open');
+                el.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        // Close mobile menu when tapping outside or on resize to larger screens
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.mobile-sidebar') && !e.target.closest('.menu-toggle')) {
+                closeMobileMenuIfNeeded();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            const el = document.getElementById('mobile-sidebar');
+            if (!el) return;
+            if (window.innerWidth > 768) {
+                el.classList.remove('open');
+                el.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMobileMenuIfNeeded();
         });
     </script>
 </body>
