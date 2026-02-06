@@ -1093,6 +1093,7 @@
         @media (max-width: 768px) {
             .bracket-wrapper {
                 padding: 15px 10px;
+                padding-bottom: 120px; /* Extra scroll area on mobile */
             }
 
             .bracket-round-column {
@@ -2860,6 +2861,11 @@
                         border-color: var(--pdc-gold);
                         font-weight: bold;
                     }
+
+                    /* Mobile: remove filter header background for a cleaner look */
+                    @media (max-width: 600px) {
+                        .news-filters { background: transparent !important; border-bottom: none !important; padding: 8px 0 !important; }
+                    }
                 </style>
                 <div class="news-filters">
                     <button class="filter-btn active" onclick="NewsSystem.setFilter('all')">ALL</button>
@@ -3356,7 +3362,7 @@
     </div>
 
     <!-- ADVANCEMENT ANIMATION -->
-    <div id="advancement-overlay">
+    <div id="advancement-overlay" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="advancement-container">
             <div class="advancement-title" id="adv-title">PLAYERS ADVANCING</div>
             <div class="advancement-subtitle" id="adv-subtitle">TO QUARTER-FINALS</div>
@@ -3402,6 +3408,9 @@
             if (tab === 'news' && typeof NewsSystem !== 'undefined') {
                 try { NewsSystem.renderNews(NewsSystem.viewState.filter); } catch(e) {}
             }
+
+            // Update nav/controls visibility when switching tabs (handles popups and match state)
+            if (typeof updateNavForScreen === 'function') updateNavForScreen();
         }
         function switchStandingSection(section) { App && App.switchStandingSection(section); }
         function switchOOMView(view) { App && App.switchOOMView(view); }
@@ -3413,6 +3422,50 @@
         function resumeFromReload() { App && App.resumeFromReload(); }
         function simulateMatchToEnd() { App && App.simulateMatchToEnd(); }
         function selectPlayer(id, idx) { App && App.selectPlayer(id, idx); }
+
+        /* Utility: update bottom nav and floating actions visibility based on current screen/tab and popups */
+        function updateNavForScreen() {
+            try {
+                const matchShown = document.getElementById('match-screen')?.style?.display === 'flex';
+                const bottomNav = document.querySelector('.bottom-nav');
+                const bottomActions = document.querySelector('.bottom-actions');
+
+                // Detect visible dialogs/popups (role=dialog or aria-modal) that are present and visible
+                let hasVisiblePopup = false;
+                try {
+                    const candidates = document.querySelectorAll('[role="dialog"], [aria-modal="true"]');
+                    for (let i=0;i<candidates.length;i++){
+                        const el = candidates[i];
+                        if (el && el.getClientRects && el.getClientRects().length>0) {
+                            const s = window.getComputedStyle(el);
+                            if (s && s.display !== 'none' && s.visibility !== 'hidden' && el.getAttribute('aria-hidden') !== 'true') { hasVisiblePopup = true; break; }
+                        }
+                    }
+                } catch (e) { hasVisiblePopup = false; }
+
+                // If in match, hide bottom nav and floating actions
+                if (bottomNav) bottomNav.style.display = matchShown ? 'none' : (window.innerWidth < 900 ? '' : 'none');
+
+                // Show floating actions only when NOT in match, active tab is season, no visible popup, and on mobile viewport
+                if (bottomActions) {
+                    const activeContent = document.querySelector('.tab-content.active');
+                    const isSeasonTab = activeContent && activeContent.id === 'tab-season';
+                    const shouldShow = !matchShown && isSeasonTab && window.innerWidth < 900 && !hasVisiblePopup;
+                    bottomActions.style.display = shouldShow ? 'flex' : 'none';
+                }
+            } catch (e) { /* silent */ }
+        }
+
+        // Watch for DOM changes (popups opening/closing) and resize events to recalc visibility
+        (function(){
+            let timer = null;
+            const debouncedUpdate = () => { clearTimeout(timer); timer = setTimeout(updateNavForScreen, 50); };
+            const observer = new MutationObserver(debouncedUpdate);
+            observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','aria-hidden','aria-modal'] });
+            window.addEventListener('resize', debouncedUpdate, { passive: true });
+            // Run once now
+            updateNavForScreen();
+        })();
 
         function getBestFromCountry(code) {
             return [...PLAYERS_DB]
@@ -6723,6 +6776,9 @@
 
                 const overlay = document.createElement('div');
                 overlay.id = 'season-sim-overlay';
+                overlay.setAttribute('role','dialog');
+                overlay.setAttribute('aria-modal','true');
+                overlay.setAttribute('aria-hidden','false');
                 overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Arial, sans-serif;";
                 overlay.innerHTML = `
                     <div style="text-align:center; max-width:600px;">
@@ -7481,6 +7537,9 @@
                     });
 
                 const modal = document.createElement('div');
+                modal.setAttribute('role','dialog');
+                modal.setAttribute('aria-modal','true');
+                modal.setAttribute('aria-hidden','false');
                 modal.style.cssText = `
                 position: fixed;
                 inset: 0;
@@ -10919,7 +10978,10 @@
                 });
 
                 console.log('Displaying overlay...');
+                // Mark overlay as visible to assist popup detection and hide floating actions
+                overlay.setAttribute('aria-hidden','false');
                 overlay.style.display = 'flex';
+                if (typeof updateNavForScreen === 'function') updateNavForScreen();
 
                 // Make overlay clickable to skip
                 overlay.onclick = () => {
@@ -10977,7 +11039,10 @@
                     grid.appendChild(div);
                 });
 
+                // Mark overlay as visible to assist popup detection and hide floating actions
+                overlay.setAttribute('aria-hidden','false');
                 overlay.style.display = 'flex';
+                if (typeof updateNavForScreen === 'function') updateNavForScreen();
 
                 // For celebrations, we DON'T auto-close. User must click "CONTINUE" or overlay.
                 overlay.onclick = (e) => {
@@ -10986,7 +11051,12 @@
             },
 
             closeAdvancementOverlay: () => {
-                document.getElementById('advancement-overlay').style.display = 'none';
+                const ov = document.getElementById('advancement-overlay');
+                if (ov) {
+                    ov.style.display = 'none';
+                    ov.setAttribute('aria-hidden','true');
+                }
+                if (typeof updateNavForScreen === 'function') updateNavForScreen();
             },
 
             simulateRound: () => {
@@ -13646,6 +13716,9 @@
                 if (cachedHash && cachedHash !== currentHash) {
                     // Code has been updated
                     const updateModal = document.createElement('div');
+                    updateModal.setAttribute('role','dialog');
+                    updateModal.setAttribute('aria-modal','true');
+                    updateModal.setAttribute('aria-hidden','false');
                     updateModal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; display:flex; justify-content:center; align-items:center;';
                     updateModal.innerHTML = `
                         <div style="background:#1a1a1a; border:2px solid var(--pdc-gold); border-radius:8px; padding:30px; max-width:400px; color:white; text-align:center;">
@@ -13696,7 +13769,13 @@
                         if (bottomActionsEl && !bottomActionsEl.dataset.protect) {
                             bottomActionsEl.dataset.protect = '1';
                             ['pointerdown','touchstart','click'].forEach(evt => {
-                                bottomActionsEl.addEventListener(evt, e => { e.stopPropagation(); }, { capture: true, passive: true });
+                                bottomActionsEl.addEventListener(evt, e => {
+                                    try {
+                                        // If the event originated from a bottom-action button (or a child of it), let it through
+                                        if (e.target && e.target.closest && e.target.closest('.bottom-action-btn')) return;
+                                    } catch (ex) { }
+                                    e.stopPropagation();
+                                }, { capture: true, passive: true });
                             });
                         }
                     } catch (e) { }
