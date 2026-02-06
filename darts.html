@@ -222,16 +222,16 @@
         /* Small screens: hide tabs and show toggle */
         @media (max-width: 600px) {
             .tabs { display: none; }
-            /* Make the toggle fixed so it can escape parent clipping and be moved aggressively upwards */
+            /* Make the toggle fixed and move it 6px lower as requested */
             .menu-toggle {
                 display: flex !important; /* ensure visible */
                 position: fixed;
                 left: 12px;
-                /* reduce top area: smaller height and padding, and move 1px lower */
-                top: calc(env(safe-area-inset-top, 8px) + 1px);
+                /* moved 6px lower */
+                top: calc(env(safe-area-inset-top, 8px) + 7px);
                 z-index: 11000;
                 box-shadow: 0 6px 26px rgba(0,0,0,0.7);
-                transform: translateY(1px);
+                transform: translateY(7px);
                 height: 44px; /* slightly smaller so top part is smaller */
                 width: 44px;
                 padding: 6px 8px; /* reduce padding for smaller top area */
@@ -247,9 +247,9 @@
             button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
         }
 
-        /* For very narrow screens: reduce top area and move 1px lower */
+        /* For very narrow screens, move 6px lower as well */
         @media (max-width: 380px) {
-            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) - 9px); transform: translateY(-9px); height:44px; width:44px; padding:6px 8px; border-radius:10px; }
+            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) - 3px); transform: translateY(-3px); height:44px; width:44px; padding:6px 8px; border-radius:10px; }
         }
         
 
