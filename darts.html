@@ -1093,12 +1093,15 @@
         @media (max-width: 768px) {
             .bracket-wrapper {
                 padding: 15px 10px;
-                padding-bottom: 120px; /* Extra scroll area on mobile */
+                padding-bottom: 160px; /* Extra scroll area on mobile (increased) */
             }
 
             .bracket-round-column {
                 min-width: 280px;
             }
+
+            /* Spacer after ENTER TOURNAMENT to give extra scroll room on mobile */
+            .tourn-bottom-spacer { height: 160px; width: 100%; flex-shrink: 0; } 
 
             .bracket-match {
                 min-height: 50px;
@@ -3039,6 +3042,7 @@
                         2)</label>
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
+                <div class="tourn-bottom-spacer" aria-hidden="true"></div>
             </div>
 
             <!-- SEASON TAB -->
