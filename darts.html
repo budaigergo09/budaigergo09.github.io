@@ -12845,6 +12845,8 @@ n                        // Add a short-lived finish glow to the connector so it
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tournament-hub').style.display = 'none';
                 document.getElementById('match-screen').style.display = 'flex';
+                // Hide bottom navigation while in a match to maximize viewport and avoid accidental taps on mobile
+                try { const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = 'none'; } catch(e) {}
                 let txt = App.config.event.toUpperCase();
                 if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
                 document.getElementById('txt-event-header').innerText = txt;
@@ -12974,6 +12976,8 @@ n                        // Add a short-lived finish glow to the connector so it
                 SOUND_OUTRO.currentTime = 0;
 
                 document.getElementById('post-match-screen').style.display = 'none';
+                // Restore bottom navigation when returning to menu
+                try { const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = ''; } catch (e) {}
                 if (Tournament.state.active) {
                     const winnerIdx = (App.matchState.sets[0] > App.matchState.sets[1] || App.matchState.legs[0] > App.matchState.legs[1]) ? 0 : 1;
                     let scoreStr = (App.config.mode === 'sets')
@@ -13120,17 +13124,17 @@ n                        // Add a short-lived finish glow to the connector so it
                     p.stats.pts += result.points;
                     p.stats.darts += result.dartsThrown;
 
-                    let delay = 1200;
+                    let delay = 900; /* reduced visit time */
 
                     if (result.points === 180) {
                         p.stats.c180++;
                         PlayerState.updateConfidence(p, 2);
                         PlayerState.updateConfidence(App.players[1 - pIdx], -2);
                         App.trigger180();
-                        delay = 3000;
+                        delay = 2200; /* slightly reduced intro delay for 180 */
                     } else if (result.points === 167) {
                         SOUND_167.play().catch(e => console.log(e));
-                        delay = 2000;
+                        delay = 1500; /* slightly reduced special case */
                     }
 
                     const rows = document.getElementById('visit-container').children;
