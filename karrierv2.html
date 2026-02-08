@@ -9843,11 +9843,33 @@
                         }
 
                         // Calculate costs
-                        const entryFee = nextEvent.entryFee || 0;
-                        const travelCost = typeof TravelSystem !== 'undefined' && TravelSystem.calculateTravelCost
-                            ? TravelSystem.calculateTravelCost(career.currentRegion || 'uk', nextEvent.location || nextEvent.region || 'uk')
-                            : 0;
+                        // Enrich event with venue information if not already done
+                        if (typeof EventEnrichment !== 'undefined' && EventEnrichment.enrichEvent && !nextEvent.venueId) {
+                            EventEnrichment.enrichEvent(nextEvent);
+                        }
+                        
+                        // Get entry fee from EventEnrichment or fallback to 0
+                        let entryFee = 0;
+                        if (typeof EventEnrichment !== 'undefined' && EventEnrichment.entryFees) {
+                            entryFee = EventEnrichment.entryFees[nextEvent.type] || 0;
+                        }
+                        
+                        // Calculate travel cost
+                        let travelCost = 0;
+                        if (typeof TravelSystem !== 'undefined' && TravelSystem.calculateTravel) {
+                            const eventLocation = TravelSystem.resolveEventLocation(nextEvent);
+                            const currentRegion = career.currentRegion || 'uk';
+                            const travelData = TravelSystem.calculateTravel(currentRegion, eventLocation.region || 'uk');
+                            travelCost = travelData ? travelData.totalCost : 0;
+                        }
+                        
                         const totalCost = entryFee + travelCost;
+                        
+                        // Get winner prize from PRIZE_STRUCTURE
+                        let winnerPrize = 0;
+                        if (typeof PRIZE_STRUCTURE !== 'undefined' && PRIZE_STRUCTURE[nextEvent.type]) {
+                            winnerPrize = PRIZE_STRUCTURE[nextEvent.type][1] || 0;
+                        }
 
                         // Get event logo image (same as calendar view)
                         let logoHTML = '';
@@ -9932,7 +9954,7 @@
                                                 </div>
                                                 <div class="mgr-detail-row">
                                                     <span class="mgr-detail-label">Winner Prize:</span>
-                                                    <span class="mgr-detail-value" style="color:var(--pdc-gold)">£${(nextEvent.prizeMoney || nextEvent.prize || (nextEvent.prizes && (nextEvent.prizes['1'] || nextEvent.prizes['W'] || nextEvent.prizes[1])) || 0).toLocaleString()}</span>
+                                                    <span class="mgr-detail-value" style="color:var(--pdc-gold)">£${winnerPrize.toLocaleString()}</span>
                                                 </div>
                                             </div>
                                         ` : `
@@ -10587,7 +10609,7 @@
                     action: mode,
                     forceInclude: canEnterSim,
                     forceExclude: !canEnterSim,
-                    chargesFees: false // Don't show cost dialog for simulation
+                    chargesFees: canEnterSim // Charge fees if player is participating
                 };
                 Season.startEvent(idx, true);
             },
@@ -10930,7 +10952,18 @@
                 }
 
                 if (policy.forceInclude) {
-                    // Always include player in the bracket when forceInclude is true
+                    // If tournament is at capacity and player is not already in, remove a random player to make room
+                    if (ev.players && Tournament.state.selectedPlayerIndices.size >= ev.players && !Tournament.state.selectedPlayerIndices.has(playerIdx)) {
+                        // Find a random player to remove (excluding the career player)
+                        const candidates = Array.from(Tournament.state.selectedPlayerIndices).filter(idx => idx !== playerIdx);
+                        if (candidates.length > 0) {
+                            const randomIdx = candidates[Math.floor(Math.random() * candidates.length)];
+                            Tournament.state.selectedPlayerIndices.delete(randomIdx);
+                            console.log(`[Career] Tournament at capacity (${ev.players}), removed player ${PLAYERS_DB[randomIdx]?.name} to make room for ${player.name}`);
+                        }
+                    }
+                    
+                    // Now add the career player
                     Tournament.state.selectedPlayerIndices.add(playerIdx);
                     Season.state.career.activeEventParticipating = true;
                     
@@ -13523,10 +13556,9 @@
                 // CHALLENGE TOUR FILL
                 // =======================
                 if (ev.type === "challenge") {
-                    // Filter to non-tour card players
-                    const challengePool = pool.filter(p => !p.tourCard);
-
-                    // Shuffle and select players
+                    // Pool is already filtered to non-tour card players above (line ~12740)
+                    // Shuffle pool
+                    const challengePool = [...pool]; // Copy pool
                     for (let i = challengePool.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [challengePool[i], challengePool[j]] = [challengePool[j], challengePool[i]];
@@ -13535,13 +13567,35 @@
                     // Add selected players to indices
                     challengePool.slice(0, ev.players).forEach(p => {
                         const idx = PLAYERS_DB.indexOf(p);
-                        if (idx >= 0) Tournament.state.selectedPlayerIndices.add(idx);
+                        if (idx >= 0) {
+                            Tournament.state.selectedPlayerIndices.add(idx);
+                        } else {
+                            console.error('Challenge Tour: Player not found in PLAYERS_DB:', p?.name);
+                        }
                     });
 
+                    console.log(`Challenge Tour: Added ${Tournament.state.selectedPlayerIndices.size} players from pool`);
+
                     // Backfill with generated players if short
-                    while (Tournament.state.selectedPlayerIndices.size < ev.players) {
-                        const newIdx = PlayerState.generateRandomPlayer(ev.type, null);
-                        if (newIdx >= 0) Tournament.state.selectedPlayerIndices.add(newIdx);
+                    const needed = ev.players - Tournament.state.selectedPlayerIndices.size;
+                    if (needed > 0) {
+                        console.log(`Challenge Tour: Generating ${needed} additional players`);
+                        for (let i = 0; i < needed; i++) {
+                            const newIdx = PlayerState.generateRandomPlayer(ev.type, null);
+                            if (newIdx >= 0 && newIdx < PLAYERS_DB.length) {
+                                Tournament.state.selectedPlayerIndices.add(newIdx);
+                                console.log(`Generated player ${i + 1}/${needed}: ${PLAYERS_DB[newIdx]?.name} (idx ${newIdx})`);
+                            } else {
+                                console.error(`Failed to generate player ${i + 1}/${needed} for Challenge Tour`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Final check
+                    console.log(`Challenge Tour: Final count ${Tournament.state.selectedPlayerIndices.size}/${ev.players}`);
+                    if (Tournament.state.selectedPlayerIndices.size < ev.players) {
+                        console.warn(`Challenge Tour: Could not fill ${ev.players} players, only got ${Tournament.state.selectedPlayerIndices.size}`);
                     }
                 }
                 // ========================
@@ -15569,7 +15623,25 @@
                         // Update size to match actual selection after replacement system
                         // This handles cases where withdrawals/replacements have adjusted the count
                     }
-                    Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({ ...PLAYERS_DB[idx] }));
+                    Tournament.state.selectedPlayerIndices.forEach(idx => {
+                        const player = PLAYERS_DB[idx];
+                        if (player && player.name) {
+                            participants.push({ ...player });
+                        } else {
+                            console.error(`Invalid player index ${idx} in selectedPlayerIndices (PLAYERS_DB length: ${PLAYERS_DB.length})`);
+                        }
+                    });
+                    
+                    // If we have fewer participants than expected due to invalid indices, log warning
+                    if (participants.length < Tournament.state.selectedPlayerIndices.size) {
+                        console.error(`Lost ${Tournament.state.selectedPlayerIndices.size - participants.length} players due to invalid indices`);
+                    }
+                    
+                    // Safety: If we somehow have more participants than the tournament size, trim to exact size
+                    if (ev && ev.players && participants.length > ev.players) {
+                        console.warn(`Tournament has ${participants.length} participants but only ${ev.players} slots. Trimming excess players.`);
+                        participants = participants.slice(0, ev.players);
+                    }
                 } else {
                     if (ev && ev.type === 'q-school') {
                         participants = PLAYERS_DB.filter(p => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country)));
