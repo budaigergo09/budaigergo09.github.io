@@ -230,8 +230,10 @@
             left: 0;
             width: 100%;
             height: 70px;
-            /* Solid background to remove transparency */
-            background: var(--bg-header);
+            /* Translucent dark background + blur for a modern floating feel */
+            background: rgba(10,14,26,0.6);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
             border-top: 1px solid rgba(255,255,255,0.04);
             display: flex;
             justify-content: space-around;
@@ -334,6 +336,22 @@
             font-family: 'Roboto Condensed', sans-serif;
             font-size: 14px;
         }
+
+        /* Mobile: more compact floating action buttons */
+        @media (max-width: 600px) {
+            .bottom-action-btn {
+                min-width: 120px;
+                padding: 10px 12px;
+                min-height: 40px;
+                border-radius: 14px;
+                font-size: 13px;
+            }
+            .bottom-action-sim { padding-left: 12px; padding-right: 12px; }
+            .bottom-action-reset { padding-left: 10px; padding-right: 10px; }
+        }
+
+        /* Next season button style */
+        .bottom-action-next { background: linear-gradient(135deg, var(--pdc-gold), #cc9900); color: black; }
 
         .bottom-action-sim {
             background: linear-gradient(135deg, var(--pdc-green), #009647);
@@ -1061,7 +1079,8 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            min-width: 320px;
+            /* Slightly wider columns to give a more spacious horizontal appearance */
+            min-width: 360px;
             flex-shrink: 0;
             position: relative;
         }
@@ -1097,7 +1116,8 @@
             }
 
             .bracket-round-column {
-                min-width: 280px;
+                /* Slightly larger min width on mobile for better touch targets */
+                min-width: 300px;
             }
 
             /* Spacer after ENTER TOURNAMENT to give extra scroll room on mobile */
@@ -1228,10 +1248,7 @@
         .bracket-match-wrapper::before {
             content: '';
             position: absolute;
-            left: 100%;
-            top: 50%;
-            width: 30px;
-            height: 2px;
+            left: calc(100% + 8px); /* slight spacing from card edge */
             background: rgba(255, 215, 0, 0.7);
             transform: translateY(-50%);
             z-index: 1;
@@ -1283,6 +1300,7 @@
 
         /* Compact Bracket Match */
         .bracket-match {
+            width: 100%; /* fill the column horizontally */
             background: linear-gradient(145deg, #1a1f35, #12172a);
             border: 2px solid rgba(255, 215, 0, 0.2);
             border-left: 4px solid rgba(255, 215, 0, 0.4);
@@ -1535,6 +1553,7 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 3px;
+            flex: 1; /* allow rows to expand to fill card */
         }
 
         .bm-row:last-child {
@@ -1553,8 +1572,9 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            max-width: 130px;
+            max-width: none; /* allow name to use available space */
             font-size: 13px;
+            flex: 1; /* use remaining horizontal space */
         }
 
         .bm-avg {
@@ -3471,6 +3491,40 @@
             updateNavForScreen();
         })();
 
+        // ===== HUB MOBILE LAYOUT HELPERS =====
+        function updateHubMobileLayout(){
+            try{
+                const hub = document.getElementById('tournament-hub');
+                const bottomNav = document.querySelector('.bottom-nav');
+                const bracket = document.querySelector('.bracket-wrapper') || document.getElementById('tourn-bracket');
+                const hubVisible = hub && hub.style && hub.style.display !== 'none' && hub.getClientRects().length>0;
+                const isMobile = window.innerWidth <= 600;
+
+                if (hubVisible && isMobile) {
+                    if (bottomNav) bottomNav.style.display = 'none';
+                    if (bracket) {
+                        // Measure header height and fit bracket to remaining viewport
+                        const header = hub.querySelector('.hub-header');
+                        const headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 64;
+                        bracket.style.height = `calc(100dvh - ${headerH}px - env(safe-area-inset-bottom))`;
+                        bracket.style.overflowY = 'auto';
+                    }
+                } else {
+                    if (bottomNav) bottomNav.style.display = '';
+                    if (bracket) {
+                        bracket.style.height = '';
+                        bracket.style.overflowY = '';
+                    }
+                }
+            } catch(e){ console.warn('updateHubMobileLayout error', e); }
+        }
+
+        // Recalc on resize and DOM changes to keep UI consistent
+        window.addEventListener('resize', () => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); }, { passive: true });
+        const hubObs = new MutationObserver(() => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); });
+        hubObs.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+        // Helper: find the best player from a country by OOM rank
         function getBestFromCountry(code) {
             return [...PLAYERS_DB]
                 .filter(p => p.country === code)
@@ -7123,6 +7177,23 @@
                         </div>
                     `;
                 }
+
+                // Update floating bottom actions (mobile) to reflect season state: two buttons normally, a single Start Next Season button when finished
+                try {
+                    const bottomActionsEl = document.querySelector('.bottom-actions');
+                    if (bottomActionsEl) {
+                        if (allDone) {
+                            bottomActionsEl.innerHTML = `<button class="bottom-action-btn bottom-action-next" onclick="Season.startNewYear()">▶ START NEXT SEASON</button>`;
+                        } else {
+                            bottomActionsEl.innerHTML = `
+                                <button class="bottom-action-btn bottom-action-sim" onclick="Season.simulateRemainingSeason()">⚡ Simulate Remaining Season</button>
+                                <button class="bottom-action-btn bottom-action-reset" onclick="Season.reset()">Reset Season</button>
+                            `;
+                        }
+                        // Re-attach haptics to dynamic buttons if the utility is available
+                        if (typeof attachHaptics === 'function') attachHaptics();
+                    }
+                } catch (e) { console.warn('Could not update bottom actions', e); }
 
                 Season.events.forEach((ev, idx) => {
                     const isActive = idx === Season.state.activeEventIndex;
@@ -11427,16 +11498,17 @@
                 // Single-sided bracket layout
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
-                wrapper.style.gap = '60px';
+                /* Wider horizontal spacing so the bracket stretches more across the viewport */
+                wrapper.style.gap = '90px';
                 wrapper.style.flex = '1';
                 wrapper.style.overflowX = 'auto';
                 wrapper.style.overflowY = 'auto';
                 wrapper.style.alignItems = 'flex-start';
                 wrapper.style.WebkitOverflowScrolling = 'touch';
 
-                // Mobile responsive gap
+                // Mobile responsive gap (still roomy but slightly reduced)
                 if (window.innerWidth <= 768) {
-                    wrapper.style.gap = '40px';
+                    wrapper.style.gap = '60px';
                 }
 
                 Tournament.config.rounds.forEach((roundInfo, roundIdx) => {
@@ -11460,7 +11532,13 @@
 
                 Tournament.updateWatchButtonState();
                 Persistence.save();
+
+                // Ensure mobile hub layout (hide bottom nav & fit bracket) when needed
+                if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout();
             },
+
+            // Expose helper to allow external triggers if needed (no-op here)
+            updateHubMobileLayoutTrigger: () => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); },
 
             updateThemeSelector: function () {
                 const themeEl = document.getElementById('tourn-theme');
