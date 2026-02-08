@@ -4056,6 +4056,8 @@
                                 onclick="Season.switchCareerView('training')">Training</button>
                             <button class="career-nav-btn" id="career-nav-news"
                                 onclick="Season.switchCareerView('news')">News</button>
+                            <button class="career-nav-btn" id="career-nav-form"
+                                onclick="Season.switchCareerView('form')">Form Chart</button>
                         </div>
 
                         <div style="padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
@@ -4303,7 +4305,7 @@
         </div>
 
         <div id="career-match-banner" class="season-event" style="margin:10px 20px; display:none; cursor:default;">
-            <div>
+            <div style="cursor:pointer;" onclick="Season.findPlayerInBracket()" title="Click to find your match in the bracket">
                 <div class="s-date">YOUR MATCH</div>
                 <div class="s-name" id="career-match-title">Player vs Opponent</div>
                 <div class="s-winner" id="career-match-status"></div>
@@ -4672,6 +4674,33 @@
                     <div id="career-news-feed" style="max-height: 600px; overflow-y: auto;">
                         <div style="text-align:center; padding:40px; color:#666; font-size:13px;">Loading news...</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAREER FORM/FATIGUE OVERLAY -->
+    <div id="career-form-overlay" class="career-overlay">
+        <div class="career-overlay-card">
+            <div class="career-overlay-topbar">
+                <div class="career-overlay-title">📊 Form & Fatigue Chart</div>
+                <button class="btn-gold" style="padding: 10px 24px; font-size: 13px;"
+                    onclick="Season.closeCareerOverlay('career-form-overlay')">✕ CLOSE</button>
+            </div>
+            <div class="career-overlay-content">
+                <div class="career-overlay-panel">
+                    <table class="oom-table" id="career-form-table" style="margin-top:10px;">
+                        <thead>
+                            <tr style="background:#1a1f35; border-bottom:2px solid var(--pdc-gold); position:sticky; top:0;">
+                                <th style="padding:8px; text-align:left; color:var(--pdc-gold);">Rank</th>
+                                <th style="padding:8px; text-align:left; color:var(--pdc-gold);">Player</th>
+                                <th style="padding:8px; text-align:center; color:var(--pdc-gold);">Form</th>
+                                <th style="padding:8px; text-align:center; color:var(--pdc-gold);">Fatigue</th>
+                                <th style="padding:8px; text-align:center; color:var(--pdc-gold);">Avg</th>
+                            </tr>
+                        </thead>
+                        <tbody id="career-form-tbody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -6971,13 +7000,12 @@
                     }
 
                     if (typeof p.form === 'undefined') {
-                        // Estimated form based on average
-                        if (p.avg >= 95) p.form = 80 + Math.random() * 5;
-                        else if (p.avg >= 90) p.form = 65 + Math.random() * 10;
-                        else if (p.avg >= 85) p.form = 50 + Math.random() * 10;
+                        // Estimated form based on average (REDUCED BOOSTS)
+                        if (p.avg >= 95) p.form = 60 + Math.random() * 10;
+                        else if (p.avg >= 90) p.form = 50 + Math.random() * 10;
+                        else if (p.avg >= 85) p.form = 45 + Math.random() * 10;
                         else p.form = 40 + Math.random() * 10;
-                        // Boost for known top stars
-                        if (["Luke Humphries", "Luke Littler", "Michael van Gerwen"].includes(p.name)) p.form = 85;
+                        // REMOVED: Special boost for top stars - now based on actual form
                     }
                     if (typeof p.fatigue === 'undefined') p.fatigue = 0;
                     if (typeof p.consistency === 'undefined') {
@@ -7015,7 +7043,7 @@
 
             getPerformanceModifier: (player) => {
                 if (!player) return 0;
-                // (form - 50) * 0.002 + (confidence - 50) * 0.003 - (fatigue * 0.002)
+                // REDUCED MODIFIERS: form/fatigue/confidence effects are now less extreme
                 const conf = player.confidence || 50;
 
                 // Ensure form and fatigue are numbers
@@ -7023,7 +7051,8 @@
                 const ft = (!isNaN(player.fatigue)) ? player.fatigue : 0;
 
                 const c = (!isNaN(player.consistency)) ? player.consistency : 50;
-                return ((f - 50) * 0.002) + ((conf - 50) * 0.003) - (ft * 0.002) + ((c - 50) * 0.0015);
+                // (form - 50) * 0.0008 + (confidence - 50) * 0.0010 - (fatigue * 0.0008) + (consistency - 50) * 0.0006
+                return ((f - 50) * 0.0008) + ((conf - 50) * 0.0010) - (ft * 0.0008) + ((c - 50) * 0.0006);
             },
 
             shouldSkipEvent: (player, eventType) => {
@@ -9292,7 +9321,8 @@
                     calendar: 'career-nav-calendar',
                     rankings: 'career-nav-rankings',
                     training: 'career-nav-training',
-                    news: 'career-nav-news'
+                    news: 'career-nav-news',
+                    form: 'career-nav-form'
                 };
                 Object.entries(btns).forEach(([key, id]) => {
                     const el = document.getElementById(id);
@@ -9309,6 +9339,10 @@
                 }
                 if (view === 'news') {
                     Season.openCareerNewsOverlay();
+                    return;
+                }
+                if (view === 'form') {
+                    Season.openCareerFormOverlay();
                     return;
                 }
 
@@ -9385,6 +9419,43 @@
 
                     newsFeed.innerHTML = newsHtml;
                 }
+
+                overlay.classList.add('active');
+            },
+
+            openCareerFormOverlay: () => {
+                const overlay = document.getElementById('career-form-overlay');
+                const tbody = document.getElementById('career-form-tbody');
+                if (!overlay || !tbody) return;
+
+                tbody.innerHTML = '';
+
+                // Get all players sorted by OOM/AVG and show their form and fatigue
+                const playerList = [...PLAYERS_DB]
+                    .sort((a, b) => {
+                        const oomA = Season.state.orderOfMerit[a.name] || 0;
+                        const oomB = Season.state.orderOfMerit[b.name] || 0;
+                        if (oomA !== oomB) return oomB - oomA;
+                        return b.avg - a.avg;
+                    })
+                    .slice(0, 50); // Show top 50 players
+
+                playerList.forEach((p, idx) => {
+                    const form = Math.round(p.form || 50);
+                    const fatigue = Math.round(p.fatigue || 0);
+                    const formColor = form >= 70 ? '#2ecc71' : form >= 50 ? '#f39c12' : '#e74c3c';
+                    const fatigueColor = fatigue >= 70 ? '#e74c3c' : fatigue >= 50 ? '#f39c12' : '#2ecc71';
+                    
+                    tbody.innerHTML += `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.1); background: ${idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent'};">
+                            <td style="padding:6px 8px; color:#888; font-size:12px;">${idx + 1}</td>
+                            <td style="padding:6px 8px; color:#fff; font-weight:bold;">${p.name}</td>
+                            <td style="padding:6px 8px; text-align:center; color:${formColor}; font-weight:bold;">${form}</td>
+                            <td style="padding:6px 8px; text-align:center; color:${fatigueColor}; font-weight:bold;">${fatigue}%</td>
+                            <td style="padding:6px 8px; text-align:center; color:#ccc;">${(p.avg || 0).toFixed(1)}</td>
+                        </tr>
+                    `;
+                });
 
                 overlay.classList.add('active');
             },
@@ -9778,25 +9849,37 @@
                             : 0;
                         const totalCost = entryFee + travelCost;
 
-                        // Get event type logo
-                        const eventTypeLogos = {
-                            'worlds': 'WC',
-                            'major': 'MAJ',
-                            'premier-league': 'PL',
-                            'grand-slam': 'GS',
-                            'uk-open': 'UK',
-                            'et': 'ET',
-                            'pc': 'PC',
-                            'challenge': 'CT',
-                            'q-school': 'QS',
-                            'ws': 'WS'
-                        };
-                        const logoText = eventTypeLogos[nextEvent.type] || 'PDC';
-                        const logoColor = nextEvent.type === 'worlds' ? '#ffd700' :
-                            nextEvent.type === 'major' ? '#e74c3c' :
-                                nextEvent.type === 'premier-league' ? '#9b59b6' :
-                                    nextEvent.type === 'grand-slam' ? '#3498db' :
-                                        '#34495e';
+                        // Get event logo image (same as calendar view)
+                        let logoHTML = '';
+                        if (nextEvent.name === 'MATCHPLAY') {
+                            logoHTML = '<img src="worldmatchplay.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'UK OPEN') {
+                            logoHTML = '<img src="ukopen.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'PLAYERS CHAMPIONSHIP FINALS') {
+                            logoHTML = '<img src="playersc.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'GRAND SLAM OF DARTS') {
+                            logoHTML = '<img src="mrvegas.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'WORLD SERIES OF DARTS FINALS') {
+                            logoHTML = '<img src="worldseries.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'WORLD CHAMPIONSHIP') {
+                            logoHTML = '<img src="worldchampionship.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name === 'WINMAU WORLD MASTERS') {
+                            logoHTML = '<img src="worldmasters.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name.includes('WORLD GRAND PRIX')) {
+                            logoHTML = '<img src="grandprix.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.name.includes('MACHINESEEKER EUROPEAN CHAMPIONSHIP')) {
+                            logoHTML = '<img src="europeanchampionship.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.type === 'players') {
+                            logoHTML = '<img src="playersc.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.type === 'premier-league' || nextEvent.type === 'premier-league-playoff') {
+                            logoHTML = '<img src="premierleague.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.type === 'masters') {
+                            logoHTML = '<img src="worldseries.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else if (nextEvent.type === 'pc' || nextEvent.name.includes('PLAYERS CHAMPIONSHIP')) {
+                            logoHTML = '<img src="playersc.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        } else {
+                            logoHTML = '<img src="pdc-logo.png" alt="" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">';
+                        }
 
                         const locationInfo = (typeof TravelSystem !== 'undefined' && TravelSystem.resolveEventLocation)
                             ? TravelSystem.resolveEventLocation(nextEvent)
@@ -9814,7 +9897,7 @@
                             <div class="mgr-card-container">
                                 <div class="mgr-card-main">
                                     <div class="mgr-card-left">
-                                        <div class="mgr-comp-logo" style="background: ${logoColor};">${logoText}</div>
+                                        ${logoHTML}
                                         <div class="mgr-comp-name">${nextEvent.name}</div>
                                         <div class="mgr-comp-meta">${subText}</div>
                                     </div>
@@ -9854,7 +9937,8 @@
                                             </div>
                                         ` : `
                                             <div class="mgr-fixture-future">
-                                                <div style="font-size:14px; color:#aaa; margin-bottom:5px;">PREPARING FOR</div>
+                                                ${logoHTML}
+                                                <div style="font-size:14px; color:#aaa; margin-bottom:5px; margin-top:15px;">PREPARING FOR</div>
                                                 <div style="font-size:20px; font-weight:bold; color:#fff;">${nextEvent.name}</div>
                                             </div>
                                         `}
@@ -9998,6 +10082,20 @@
                     alert('Finish the current event before advancing the day.');
                     return;
                 }
+                
+                const player = Season.getCareerPlayer();
+                const career = Season.state.career;
+                if (player) {
+                    // Apply stat degradation for skipping training
+                    const avgDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
+                    const coDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
+                    const formDecrease = Math.floor(Math.random() * 2 + 1); // -1 to -2
+                    
+                    player.avg = Math.max(50, (player.avg || 60) - avgDecrease);
+                    player.co = Math.max(20, (player.co || 30) - coDecrease);
+                    player.form = Math.max(0, (player.form || 50) - formDecrease);
+                }
+                
                 Season.advanceCareerDate(1);
                 Season.state.career.lastAction = 'next';
                 Season.state.career.lastActionDate = Season.state.career.currentDate;
@@ -10057,9 +10155,9 @@
                 if (!player.form) player.form = 50;
                 if (!player.fatigue) player.fatigue = 0;
 
-                // Training improves stats but increases fatigue
-                const avgIncrease = parseFloat((Math.random() * 0.3).toFixed(2));
-                const coIncrease = parseFloat((Math.random() * 0.5).toFixed(2));
+                // Training improves stats but increases fatigue (IMPROVED GAINS)
+                const avgIncrease = parseFloat((Math.random() * 1.2 + 0.3).toFixed(2));
+                const coIncrease = parseFloat((Math.random() * 2.0 + 0.5).toFixed(2));
                 const fatigueIncrease = 5 + Math.random() * 5;
 
                 player.avg = Math.min(100, player.avg + avgIncrease);
@@ -10418,6 +10516,9 @@
                         seeds = [...PLAYERS_DB].sort((a, b) => b.avg - a.avg).slice(0, 24).map(p => p.name);
                     }
 
+                    // Exclude Luke Littler from automatic seeding - must come through qualifiers
+                    seeds = seeds.filter(name => name !== 'Luke Littler');
+
                     if (seeds.includes(player.name)) return true;
                     // Check qualifiers list
                     const qualList = (Season.state.wmQualifiers && Season.state.wmQualifiers[ev.id]) || (Season.state.winmauQualifiers || []);
@@ -10548,9 +10649,15 @@
                 const lastWorkDate = Season.state.career.lastWorkDate;
                 const eventsToday = Season.getEventsForDate(dateObj);
 
+                // Check if player is actually participating in any events today
                 if (eventsToday.length > 0) {
-                    alert('Training is disabled on match days.');
-                    return;
+                    const player = Season.getCareerPlayer();
+                    const canEnterAny = eventsToday.some(ev => Season.canCareerPlayerEnterEvent(ev));
+                    if (canEnterAny) {
+                        alert('You cannot train on days with available competitive events.');
+                        return;
+                    }
+                    // If no eligible events today, allow training
                 }
 
                 // Check if worked today
@@ -10575,7 +10682,16 @@
                 Season.showTrainingAnimation(type || 'scoring', result);
                 Season.state.career.dayChoices[iso] = { action: 'train', eventId: null };
                 Season.state.career.lastTrainDate = iso;
-                Season.advanceCareerDate(1);
+                
+                // If there are unplayed events today, simulate them first
+                // The simulation will advance the day automatically, so don't advance manually
+                if (eventsToday.length > 0) {
+                    Season.simulateEventsForDate(dateObj, true, true); // autoSim=true, skipParticipation=true
+                } else {
+                    // Only advance date if there were no events to simulate
+                    Season.advanceCareerDate(1);
+                }
+                
                 Season.renderCareerHub();
                 Persistence.save();
             },
@@ -10668,56 +10784,40 @@
                 }
 
                 const career = Season.state.career;
-                const overused = career.trainingStreak >= 3 || (player.fatigue || 0) > 70 || career.missedCompetitiveDays >= 5;
-                const lowForm = (player.form || 50) < 40;
-                const highFatigue = (player.fatigue || 0) > 75;
-                const lowConsistency = (player.consistency || 50) < 40;
+                const overused = career.trainingStreak >= 5; // Much stricter - 5+ days in a row
+                const tooFatigued = (player.fatigue || 0) > 85; // Only if VERY fatigued (>85%)
+                
+                // Training has trade-offs: improving one stat may reduce the other
+                // All training improves FORM significantly
 
-                // Determine if stats should decline (randomness factor)
-                const shouldDecline = lowForm || (highFatigue && Math.random() < 0.6) || (lowConsistency && Math.random() < 0.4);
-
-                let formDelta = overused ? -2 : 2;
-                let fatigueDelta = overused ? 12 : 8;
+                let formDelta = tooFatigued ? -2 : 4; // Base form gain
+                let fatigueDelta = tooFatigued ? 20 : 12; // Training is tiring!
                 let avgDelta = 0;
                 let coDelta = 0;
 
-                // Stat changes based on training type and conditions
+                // Stat changes based on training type - TRADE-OFF SYSTEM
                 if (type === 'scoring') {
-                    if (shouldDecline) {
-                        avgDelta = -0.2;
-                        coDelta = -0.05;
-                    } else {
-                        avgDelta = overused ? 0.1 : 0.3;
-                        coDelta = overused ? 0.05 : 0.1;
-                    }
+                    // Scoring session focuses on average, slight CO% loss
+                    avgDelta = overused ? 0.15 : 0.4;
+                    coDelta = overused ? -0.05 : -0.1; // Small CO% trade-off
+                    formDelta += 2; // Extra form bonus
                 } else if (type === 'checkout') {
-                    if (shouldDecline) {
-                        coDelta = -0.25;
-                        avgDelta = -0.1;
-                    } else {
-                        coDelta = overused ? 0.15 : 0.4;
-                        avgDelta = overused ? 0.05 : 0.1;
-                    }
-                    formDelta += 1;
+                    // Checkout drills focus on CO%, slight AVG loss
+                    coDelta = overused ? 0.15 : 0.4;
+                    avgDelta = overused ? -0.05 : -0.1; // Small AVG trade-off
+                    formDelta += 2; // Extra form bonus
                 } else if (type === 'consistency') {
-                    if (shouldDecline) {
-                        avgDelta = -0.1;
-                        coDelta = -0.1;
-                    } else {
-                        avgDelta = overused ? 0.1 : 0.15;
-                        coDelta = overused ? 0.1 : 0.15;
-                    }
-                    formDelta += 1;
+                    // Consistency lab improves both equally, no trade-offs
+                    avgDelta = overused ? 0.1 : 0.25;
+                    coDelta = overused ? 0.1 : 0.25;
+                    player.consistency = Math.min(100, (player.consistency || 50) + (overused ? 1 : 3));
+                    formDelta += 2; // Extra form bonus
                 } else if (type === 'stamina') {
-                    if (shouldDecline) {
-                        avgDelta = -0.1;
-                        coDelta = -0.05;
-                    } else {
-                        avgDelta = overused ? 0.05 : 0.1;
-                        coDelta = overused ? 0.05 : 0.1;
-                    }
-                    fatigueDelta -= 4;
-                    formDelta += 1;
+                    // Stamina reduces fatigue AND improves form
+                    avgDelta = overused ? 0.05 : 0.15;
+                    coDelta = overused ? 0.05 : 0.15;
+                    fatigueDelta = overused ? 10 : 2; // Stamina reduces fatigue loss compared to other training
+                    formDelta += 4; // Extra form bonus (most impactful)
                 }
 
                 // Apply stat changes with caps
@@ -10765,8 +10865,8 @@
                     if (skipParticipation) {
                         Season.pendingEventPolicy = { action: 'skip', forceInclude: false, forceExclude: true };
                     } else {
-                        // Include player only if eligible (skip money/fatigue checks for sim)
-                        const canEnter = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: true });
+                        // Include player only if eligible (includes money/fatigue/eligibility checks)
+                        const canEnter = Season.canCareerPlayerEnterEvent(ev);
                         Season.pendingEventPolicy = {
                             action: 'sim',
                             forceInclude: canEnter,
@@ -11029,6 +11129,66 @@
 
                 Season.state.career.activeEventParticipating = Tournament.state.selectedPlayerIndices.has(playerIdx);
                 Season.pendingEventPolicy = null;
+            },
+
+            findPlayerInBracket: () => {
+                const player = Season.getCareerPlayer();
+                if (!player) return;
+
+                const playerName = player.name;
+                let foundMatch = null;
+
+                // Check group stage first (for Grand Slam)
+                if (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
+                    Tournament.state.groupMatches.forEach((group, gIdx) => {
+                        group.forEach((m, mIdx) => {
+                            if (!m || !m.p1 || !m.p2) return;
+                            const hasPlayer = m.p1.name === playerName || m.p2.name === playerName;
+                            if (hasPlayer && !foundMatch) {
+                                foundMatch = { type: 'group', groupIdx: gIdx };
+                            }
+                        });
+                    });
+                }
+
+                // Check bracket
+                const bracketRounds = (Tournament.state.bracketData && Tournament.state.bracketData.length > 0)
+                    ? Tournament.state.bracketData
+                    : (Tournament.state.bracket || []);
+
+                if (!foundMatch) {
+                    bracketRounds.forEach((round, rIdx) => {
+                        round.forEach((m, mIdx) => {
+                            if (!m || !m.p1 || !m.p2) return;
+                            const hasPlayer = m.p1.name === playerName || m.p2.name === playerName;
+                            if (hasPlayer && !foundMatch) {
+                                foundMatch = { type: 'bracket', roundIdx: rIdx, matchIdx: mIdx };
+                            }
+                        });
+                    });
+                }
+
+                if (foundMatch) {
+                    if (foundMatch.type === 'bracket') {
+                        // Find and scroll to the match element
+                        const matchElement = document.getElementById(`bm-${foundMatch.roundIdx}-${foundMatch.matchIdx}`);
+                        if (matchElement) {
+                            matchElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                            
+                            // Add a temporary highlight pulse
+                            matchElement.style.boxShadow = '0 0 20px 4px rgba(52, 152, 219, 0.8)';
+                            setTimeout(() => {
+                                matchElement.style.boxShadow = '';
+                            }, 2000);
+                        }
+                    } else if (foundMatch.type === 'group') {
+                        // Scroll to group stage view
+                        const bracket = document.getElementById('tourn-bracket');
+                        if (bracket && bracket.firstChild) {
+                            bracket.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                }
             },
 
             updateCareerMatchBanner: () => {
@@ -11876,6 +12036,11 @@
                     } else if (ev.type === 'q-school') {
                         logoHTML = '<img class="season-event-logo" src="pdc-logo.png" alt="">';
                     } else if (ev.type === 'challenge') {
+                        logoHTML = '<img class="season-event-logo" src="pdc-logo.png" alt="">';
+                    } else if (ev.type === 'pc' || ev.name.includes('PLAYERS CHAMPIONSHIP')) {
+                        logoHTML = '<img class="season-event-logo" src="playersc.png" alt="">';
+                    } else {
+                        // Default fallback logo for any unmatched events
                         logoHTML = '<img class="season-event-logo" src="pdc-logo.png" alt="">';
                     }
 
