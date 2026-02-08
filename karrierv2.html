@@ -6335,7 +6335,10 @@
 
 
 
-        const getFlagUrl = (code) => FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
+        const getFlagUrl = (code) => {
+            if (!code) return FLAG_URL + "unknown.png";
+            return FLAG_URL + (FLAG_MAP[code.toLowerCase()] || code.toLowerCase()) + ".png";
+        };
 
         const ROUND_FORMATS = {
             'masters': {
@@ -8401,10 +8404,10 @@
              */
             applyEventFatigue: (player, event, matchesPlayed = 1) => {
                 // Base fatigue per event day
-                const baseFatigue = 3;
+                const baseFatigue = 2;
 
                 // Additional fatigue based on matches played
-                const matchFatigue = matchesPlayed * 1.5;
+                const matchFatigue = matchesPlayed * 1;
 
                 // Multi-day event fatigue multiplier
                 const eventDays = event.days || 1;
@@ -8445,7 +8448,7 @@
              */
             applyRest: (player, weeksRested = 1, lightTraining = false) => {
                 // Fatigue reduction
-                const fatigueReduction = lightTraining ? 15 * weeksRested : 25 * weeksRested;
+                const fatigueReduction = lightTraining ? 30 * weeksRested : 50 * weeksRested;
                 const oldFatigue = player.fatigue || 0;
                 player.fatigue = Math.max(0, oldFatigue - fatigueReduction);
 
@@ -8455,12 +8458,12 @@
 
                 if (!lightTraining) {
                     // Full rest causes rust
-                    avgLoss = 0.3 * weeksRested; // Lose 0.3 avg per week
-                    coLoss = 0.5 * weeksRested;  // Lose 0.5 checkout % per week
+                    avgLoss = 0.15 * weeksRested; // Lose 0.15 avg per week
+                    coLoss = 0.25 * weeksRested;  // Lose 0.25 checkout % per week
                 } else {
                     // Light training reduces rust
-                    avgLoss = 0.1 * weeksRested;
-                    coLoss = 0.2 * weeksRested;
+                    avgLoss = 0.05 * weeksRested;
+                    coLoss = 0.1 * weeksRested;
                 }
 
                 // Apply rust (never below certain thresholds)
@@ -9833,6 +9836,11 @@
                             ineligibleReason = 'Not eligible for this event';
                         }
 
+                        // Enrich event with venue information if not already done (BEFORE affordability check)
+                        if (typeof EventEnrichment !== 'undefined' && EventEnrichment.enrichEvent && !nextEvent.venueId) {
+                            EventEnrichment.enrichEvent(nextEvent);
+                        }
+
                         // Also check money, travel costs, and fatigue using EntrySystem
                         if (canEnter && typeof EntrySystem !== 'undefined' && EntrySystem.canEnterEvent) {
                             const entryCheck = EntrySystem.canEnterEvent(nextEvent, enrichedPlayer);
@@ -9843,10 +9851,6 @@
                         }
 
                         // Calculate costs
-                        // Enrich event with venue information if not already done
-                        if (typeof EventEnrichment !== 'undefined' && EventEnrichment.enrichEvent && !nextEvent.venueId) {
-                            EventEnrichment.enrichEvent(nextEvent);
-                        }
                         
                         // Get entry fee from EventEnrichment or fallback to 0
                         let entryFee = 0;
@@ -10604,7 +10608,7 @@
                 }
 
                 // Sim mode: Include player only if eligible
-                const canEnterSim = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: true });
+                const canEnterSim = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: false });
                 Season.pendingEventPolicy = {
                     action: mode,
                     forceInclude: canEnterSim,
@@ -15645,6 +15649,9 @@
                 } else {
                     if (ev && ev.type === 'q-school') {
                         participants = PLAYERS_DB.filter(p => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country)));
+                    } else if (ev && ev.type === 'challenge') {
+                        // Challenge Tour: exclude players with tour cards, only non-card players
+                        participants = PLAYERS_DB.filter(p => !p.tourCard && (eligibleRegions.length === 0 || eligibleRegions.includes(p.country)));
                     } else {
                         participants = [...PLAYERS_DB];
                     }
@@ -16064,9 +16071,10 @@
                     div.className = 'advancement-player';
                     div.style.animationDelay = `${index * 0.1}s`;
                     const avg = p.avg ? parseFloat(p.avg).toFixed(2) : '0.00';
+                    const country = p.player?.country || 'unknown';
                     div.innerHTML = `
-                        <img src="${getFlagUrl(p.player.country)}" class="advancement-flag">
-                        <div class="advancement-player-name">${p.player.name}</div>
+                        <img src="${getFlagUrl(country)}" class="advancement-flag">
+                        <div class="advancement-player-name">${p.player?.name || 'Unknown'}</div>
                         <div class="advancement-player-avg">${avg}</div>
                     `;
                     grid.appendChild(div);
