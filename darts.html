@@ -9224,10 +9224,24 @@
                     const isFinalStage = eventName.includes("Final Stage");
                     const isFirstStage = eventName.includes("First Stage");
                     const oom = location === 'uk' ? Season.state.qSchool.ukOOM : Season.state.qSchool.euOOM;
-                    const finalStageWinners = location === 'uk' ? Season.state.qSchool.ukFinalStageWinners : Season.state.qSchool.euFinalStageWinners;
+                    let finalStageWinners = location === 'uk' ? Season.state.qSchool.ukFinalStageWinners : Season.state.qSchool.euFinalStageWinners;
                     const qualified = location === 'uk' ? Season.state.qSchool.ukFinalStageQualified : Season.state.qSchool.euFinalStageQualified;
                     const participants = location === 'uk' ? Season.state.qSchool.ukParticipants : Season.state.qSchool.euParticipants;
-                    const tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+                    let tourCardWinners = location === 'uk' ? Season.state.qSchool.ukTourCardWinners : Season.state.qSchool.euTourCardWinners;
+
+                    // Defensive initialization in case state was not fully populated
+                    if (!Season.state.qSchool) Season.state.qSchool = {};
+                    if (location === 'uk') {
+                        if (!Season.state.qSchool.ukFinalStageWinners) Season.state.qSchool.ukFinalStageWinners = [];
+                        if (!Season.state.qSchool.ukTourCardWinners) Season.state.qSchool.ukTourCardWinners = [];
+                        finalStageWinners = Season.state.qSchool.ukFinalStageWinners;
+                        tourCardWinners = Season.state.qSchool.ukTourCardWinners;
+                    } else {
+                        if (!Season.state.qSchool.euFinalStageWinners) Season.state.qSchool.euFinalStageWinners = [];
+                        if (!Season.state.qSchool.euTourCardWinners) Season.state.qSchool.euTourCardWinners = [];
+                        finalStageWinners = Season.state.qSchool.euFinalStageWinners;
+                        tourCardWinners = Season.state.qchool.euTourCardWinners;
+                    }
 
                     // Track all players who participated in this event (for both First and Final Stage)
                     finalBracket.forEach((round) => {
