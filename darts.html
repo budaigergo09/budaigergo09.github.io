@@ -309,7 +309,10 @@
             .season-controls-row { flex-direction: column !important; align-items: stretch; }
             .season-controls-row button { width: 100%; }
             /* Make the full-size simulate/reset buttons taller and rounded */
-            .season-controls-row .btn-sim { padding: 18px 20px; border-radius: 12px; font-size: 16px; box-shadow: 0 6px 18px rgba(0, 179, 89, 0.25); }
+            .season-controls-row .btn-sim { padding: 10px 12px; border-radius: 8px; font-size: 13px; box-shadow: 0 4px 10px rgba(0, 179, 89, 0.18); }
+
+            /* Smaller reset button in desktop season controls */
+            .season-controls-row .btn-gold.btn-reset { padding: 10px 12px; font-size: 13px; border-radius: 8px; }
             .season-controls-row .btn-reset { padding: 18px 20px; border-radius: 12px; font-size: 16px; }
             /* Hide floating bottom actions and bottom navigation on wide screens (desktop) */
             .bottom-actions { display: none !important; }
@@ -1081,12 +1084,9 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            /* Slightly wider columns to give a more spacious horizontal appearance */
-            min-width: 360px;
+            min-width: 320px;
             flex-shrink: 0;
             position: relative;
-            /* Reduced connector offset so lines start closer to match borders */
-            --connector-horizontal: 6px; /* per-column connector offset */
         }
 
         .round-column-header {
@@ -1115,21 +1115,12 @@
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             .bracket-wrapper {
-                padding: 8px 6px;
-                /* make bracket fill the viewport area under the header on mobile and provide safe-area spacing */
-                padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
-                height: calc(100dvh - 56px - env(safe-area-inset-bottom)); /* header height approx 56px */
-                box-sizing: border-box;
-                overflow-y: auto;
+                padding: 15px 10px;
             }
 
             .bracket-round-column {
-                /* Slightly smaller min width on small devices for better fit */
-                min-width: 260px;
+                min-width: 280px;
             }
-
-            /* Spacer after ENTER TOURNAMENT to give extra scroll room on mobile */
-            .tourn-bottom-spacer { height: 160px; width: 100%; flex-shrink: 0; } 
 
             .bracket-match {
                 min-height: 50px;
@@ -1252,7 +1243,7 @@
             margin-bottom: 20px;
         }
 
-        /* Horizontal line extending right from each match (original spacing) */
+        /* Horizontal line extending right from each match */
         .bracket-match-wrapper::before {
             content: '';
             position: absolute;
@@ -1309,33 +1300,8 @@
             width: 3px;
         }
 
-        /* When a match is live, add a connected glow and allow the appropriate half to pulse */
-        @keyframes glowPulse { 0% { box-shadow: 0 0 0 rgba(255,215,0,0); } 50% { box-shadow: 0 0 18px rgba(255,215,0,0.65); } 100% { box-shadow: 0 0 0 rgba(255,215,0,0); } }
-        @keyframes finishPulse { 0% { box-shadow: 0 0 0 rgba(255,215,0,0); } 40% { box-shadow: 0 0 28px rgba(255,215,0,0.85); } 100% { box-shadow: 0 0 0 rgba(255,215,0,0); } }
-
-        .bracket-match-wrapper.playing::before,
-        .bracket-match-wrapper.playing:nth-child(odd):not(:last-child)::after,
-        .bracket-match-wrapper.playing:nth-child(even)::after {
-            background: var(--pdc-gold);
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
-        }
-
-        /* Finish pulse — temporary glow when a match ends (wrapper-only) */
-        .bracket-match-wrapper.finished-glow::before,
-        .bracket-match-wrapper.finished-glow:nth-child(odd):not(:last-child)::after,
-        .bracket-match-wrapper.finished-glow:nth-child(even)::after {
-            background: var(--pdc-gold);
-            animation: finishPulse 1.2s ease-out;
-        }
-
-        .bracket-match .bm-row { transition: background 0.18s, box-shadow 0.18s; position: relative; }
-        .bracket-match .bm-row.glow { animation: glowPulse 1.2s infinite; background: linear-gradient(90deg, rgba(255,215,0,0.06), rgba(255,215,0,0.02)); border-radius: 6px; }
-        .bracket-match .bm-row.top { border-top-left-radius: 6px; border-top-right-radius: 6px; }
-        .bracket-match .bm-row.bottom { border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; }
-
         /* Compact Bracket Match */
         .bracket-match {
-            width: 100%; /* fill the column horizontally */
             background: linear-gradient(145deg, #1a1f35, #12172a);
             border: 2px solid rgba(255, 215, 0, 0.2);
             border-left: 4px solid rgba(255, 215, 0, 0.4);
@@ -1389,10 +1355,6 @@
             }
         }
 
-        /* Basic bracket matches position - no per-card connector pseudo-elements in this design */
-        .bracket-match { position: relative; overflow: visible; }
-
-        /* also ensure wrapper glow remains authoritative */
         .bracket-match-wrapper.playing::before,
         .bracket-match-wrapper.playing:nth-child(odd):not(:last-child)::after,
         .bracket-match-wrapper.playing:nth-child(even)::after {
@@ -2347,6 +2309,7 @@
             background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .03) 0px, rgba(255, 255, 255, .03) 1px, transparent 1px, transparent 6px);
             animation: bgMove 3s linear infinite;
             pointer-events: none;
+           
         }
 
         @keyframes bgMove {
@@ -3513,8 +3476,15 @@
                     }
                 } catch (e) { hasVisiblePopup = false; }
 
-                // If in match, hide bottom nav and floating actions
-                if (bottomNav) bottomNav.style.display = matchShown ? 'none' : (window.innerWidth < 900 ? '' : 'none');
+                // Determine if hub is visible on mobile (keeps mobile hub from showing bottom nav)
+                const hubEl = document.getElementById('tournament-hub');
+                const hubVisible = hubEl && hubEl.style && hubEl.style.display !== 'none' && hubEl.getClientRects && hubEl.getClientRects().length > 0;
+
+                // If in match OR hub is visible on small screens, hide bottom nav. Otherwise show on mobile.
+                if (bottomNav) {
+                    const shouldHide = matchShown || (hubVisible && window.innerWidth <= 600);
+                    bottomNav.style.display = shouldHide ? 'none' : (window.innerWidth < 900 ? '' : 'none');
+                }
 
                 // Show floating actions only when NOT in match, active tab is season, no visible popup, and on mobile viewport
                 if (bottomActions) {
@@ -11473,6 +11443,9 @@
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
             leaveEvent: () => {
+                // Mark season/tournament as in-progress so it can be resumed later
+                if (typeof Season !== 'undefined') Season.state.inProgress = true;
+
                 // Save current tournament state
                 Persistence.save();
 
