@@ -3071,6 +3071,13 @@
                         2)</label>
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
+
+                <!-- Small scrollable area under the Enter Tournament button -->
+                <div id="tourn-scroll-area" class="tourn-scroll-area" aria-hidden="false" style="max-height:120px; overflow-y:auto; margin-top:8px; padding:8px; background:#0f0f0f; border:1px solid #222; border-radius:6px;"> 
+                    <!-- Content can be inserted here (selected players, notes, recent setups) -->
+                    <div id="tourn-scroll-empty" style="color:#777; font-size:13px;">Selected players and configuration will appear here.</div>
+                </div>
+
                 <div class="tourn-bottom-spacer" aria-hidden="true"></div>
             </div>
 
