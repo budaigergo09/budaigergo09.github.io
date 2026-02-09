@@ -10960,7 +10960,12 @@
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
             leaveEvent: () => {
-                // Save current tournament state
+                // Mark season as in-progress (user left but can resume) and save current tournament state
+                try {
+                    if (typeof Season !== 'undefined') Season.state.inProgress = true;
+                } catch (e) {
+                    console.warn('Could not set Season.state.inProgress', e);
+                }
                 Persistence.save();
 
                 // Hide tournament hub and show setup/hub screen
@@ -10978,7 +10983,8 @@
                     App.switchTab(targetTab);
                 }
 
-                if (targetTab === 'season' && typeof Season !== 'undefined' && Season.renderUI) {
+                // Ensure the season UI refreshes so the PLAY button becomes RESUME
+                if (typeof Season !== 'undefined' && Season.renderUI) {
                     Season.renderUI();
                 }
 

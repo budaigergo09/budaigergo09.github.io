@@ -174,8 +174,8 @@
             padding: 8px 10px;
             border-radius: 10px;
             font-size: 18px;
-            height: 36px;
-            width: 44px;
+            height: 32px;
+            width: 36px;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -232,10 +232,10 @@
                 z-index: 11000;
                 box-shadow: 0 6px 26px rgba(0,0,0,0.7);
                 transform: translateY(10px);
-                height: 44px; /* slightly smaller so top part is smaller */
-                width: 44px;
-                padding: 6px 8px; /* reduce padding for smaller top area */
-                font-size: 20px;
+                height: 32px; /* shorter menu button */
+                width: 36px;
+                padding: 4px 6px; /* reduced padding */
+                font-size: 18px;
                 align-items: center;
                 justify-content: center;
                 background: rgba(0,0,0,0.6);
@@ -249,7 +249,7 @@
 
         /* For very narrow screens, move 3px lower as well */
         @media (max-width: 380px) {
-            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) + 0px); transform: translateY(0px); height:44px; width:44px; padding:6px 8px; border-radius:10px; }
+            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) + 0px); transform: translateY(0px); height:32px; width:36px; padding:4px 6px; border-radius:10px; }
         }
         
 
@@ -1449,6 +1449,16 @@
 
         .event-bar img {
             height: 24px;
+        }
+
+        /* Center primary logo regardless of other inline items */
+        #pdc-logo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            height: 24px;
+            pointer-events: none;
         }
 
         .event-logo {
@@ -11100,7 +11110,12 @@
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
             leaveEvent: () => {
-                // Save current tournament state
+                // Mark season as in-progress (user left but can resume) and save current tournament state
+                try {
+                    if (typeof Season !== 'undefined') Season.state.inProgress = true;
+                } catch (e) {
+                    console.warn('Could not set Season.state.inProgress', e);
+                }
                 Persistence.save();
 
                 // Hide tournament hub and show setup/hub screen
@@ -11118,7 +11133,8 @@
                     App.switchTab(targetTab);
                 }
 
-                if (targetTab === 'season' && typeof Season !== 'undefined' && Season.renderUI) {
+                // Ensure the season UI refreshes so the PLAY button becomes RESUME
+                if (typeof Season !== 'undefined' && Season.renderUI) {
                     Season.renderUI();
                 }
 
