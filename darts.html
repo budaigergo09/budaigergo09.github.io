@@ -111,10 +111,6 @@
             transition: all 0.3s ease;
         }
 
-        /* APP HERO (hidden on desktop, shown on mobile) */
-        .app-hero { display: none; }
-        .app-hero .hero-title { font-family: 'Roboto Condensed', sans-serif; }
-
         .tabs {
             display: flex;
             background: linear-gradient(180deg, rgba(12, 16, 28, 0.9), rgba(8, 11, 20, 0.95));
@@ -223,158 +219,6 @@
         /* Slightly tighter spacing between menu buttons on mobile */
         .mobile-menu-content .tab-btn { display: block; width: 100%; margin: 6px 0; min-width: auto; }
 
-        /* ==================== MODERN BOTTOM NAV (from provided snippet) ==================== */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            /* Translucent dark background + blur for a modern floating feel */
-            background: rgba(10,14,26,0.6);
-            -webkit-backdrop-filter: blur(8px);
-            backdrop-filter: blur(8px);
-            border-top: 1px solid rgba(255,255,255,0.04);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 500;
-            padding-bottom: env(safe-area-inset-bottom);
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 10px;
-            font-weight: 600;
-            gap: 4px;
-            padding: 8px 0;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            fill: currentColor;
-            transition: transform 0.2s;
-        }
-
-        .nav-item.active {
-            color: var(--pdc-gold);
-        }
-
-        .nav-item.active svg {
-            transform: translateY(-2px);
-            filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
-        }
-
-        /* Keep existing top tabs visible on desktop but hide on small screens (mobile will use bottom-nav) */
-        @media (max-width: 900px) {
-            .tabs { display: none !important; }
-        }
-
-        /* Floating buttons above bottom navigation */
-        .bottom-actions {
-            position: fixed;
-            left: 0;
-            width: 100%;
-            display: none; /* hidden by default; shown only on season tab */
-            justify-content: center;
-            gap: 12px;
-            /* Increased z-index to ensure it sits above all interactive content */
-            z-index: 12000;
-            bottom: calc(70px + env(safe-area-inset-bottom) + 12px);
-            pointer-events: auto;
-            /* ensure touches are handled by these buttons, not by content underneath */
-            touch-action: manipulation;
-        }
-
-        /* Make room after the event list on small screens so users can scroll past the last item */
-        @media (max-width: 600px) {
-            .season-list { padding-bottom: 160px !important; }
-        }
-
-        /* Layout helper for season controls */
-        .season-controls-row { display:flex; gap:8px; }
-        @media (min-width: 900px) {
-            /* Stack the season control buttons vertically on desktop */
-            .season-controls-row { flex-direction: column !important; align-items: stretch; }
-            .season-controls-row button { width: 100%; }
-            /* Make the full-size simulate/reset buttons taller and rounded */
-            .season-controls-row .btn-sim { padding: 10px 12px; border-radius: 8px; font-size: 13px; box-shadow: 0 4px 10px rgba(0, 179, 89, 0.18); }
-
-            /* Smaller reset button in desktop season controls */
-            .season-controls-row .btn-gold.btn-reset { padding: 10px 12px; font-size: 13px; border-radius: 8px; }
-            .season-controls-row .btn-reset { padding: 18px 20px; border-radius: 12px; font-size: 16px; }
-            /* Hide floating bottom actions and bottom navigation on wide screens (desktop) */
-            .bottom-actions { display: none !important; }
-            .bottom-nav { display: none !important; }
-            /* Prevent horizontal scrollbar caused by subtle transforms/margins */
-            #setup-screen { overflow-x: hidden; }
-            .season-list { overflow-x: hidden; }
-        }
-
-        /* Mobile: hide the full-size season control buttons so the floating quick actions remain */
-        @media (max-width: 900px) {
-            .season-controls-row { display: none !important; }
-        }
-
-        .bottom-action-btn {
-            min-width: 160px;
-            padding: 12px 20px;
-            min-height: 48px;
-            border-radius: 18px;
-            font-weight: 800;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.45);
-            font-family: 'Roboto Condensed', sans-serif;
-            font-size: 14px;
-        }
-
-        /* Mobile: more compact floating action buttons */
-        @media (max-width: 600px) {
-            .bottom-action-btn {
-                min-width: 120px;
-                padding: 10px 12px;
-                min-height: 40px;
-                border-radius: 14px;
-                font-size: 13px;
-            }
-            .bottom-action-sim { padding-left: 12px; padding-right: 12px; }
-            .bottom-action-reset { padding-left: 10px; padding-right: 10px; }
-        }
-
-        /* Next season button style */
-        .bottom-action-next { background: linear-gradient(135deg, var(--pdc-gold), #cc9900); color: black; }
-
-        .bottom-action-sim {
-            background: linear-gradient(135deg, var(--pdc-green), #009647);
-            color: white;
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-
-        .bottom-action-reset {
-            background: linear-gradient(135deg, #9a0000, #cc0000);
-            color: white;
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-
-        @media (min-width: 900px) {
-            /* hide floating actions on desktop - season controls available in UI */
-            .bottom-actions { display: none !important; }
-        }
-
         /* Small screens: hide tabs and show toggle */
         @media (max-width: 600px) {
             .tabs { display: none; }
@@ -398,30 +242,7 @@
                 border: 1px solid rgba(255,215,0,0.16);
                 border-radius: 10px;
             }
-            /* Mobile: remove container border & make background homogeneous; show hero */
-            .setup-box {
-                padding-top: 0;
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-                background: var(--bg-dark);
-                height: 100dvh;
-                max-height: none;
-            }
-
-            /* show compact hero header in the upper space */
-            .app-hero { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px 16px; gap:6px; text-align:center; }
-            /* Move account icon to top-right and make it compact on mobile */
-            #mobile-account-btn { position: fixed; top: calc(env(safe-area-inset-top, 8px) + 8px); right: 12px; width:40px; height:40px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); box-shadow: 0 6px 18px rgba(0,0,0,0.4); z-index:12001; }
-            #mobile-account-btn svg { width:20px; height:20px; fill: var(--pdc-gold); }
-            .app-hero .hero-title { font-size:18px; font-weight:bold; color:var(--pdc-gold); letter-spacing:0.6px; }
-            .app-hero .hero-sub { font-size:12px; color:#cbd5e1; opacity:0.95; }
-            /* Ensure the centered hero doesn't collide with the fixed account button */
-            .app-hero { padding-top: 56px; }
-            /* Hide full-size account / install buttons on mobile and rely on the menu */
-            button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
-            /* Show a single install action within the account dialog on mobile */
-            #auth-install-btn { display: block !important; }
+            .setup-box { padding-top: 56px; }
             /* Hide full-size account / install buttons on mobile and rely on the menu */
             button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
         }
@@ -1355,13 +1176,6 @@
             }
         }
 
-        .bracket-match-wrapper.playing::before,
-        .bracket-match-wrapper.playing:nth-child(odd):not(:last-child)::after,
-        .bracket-match-wrapper.playing:nth-child(even)::after {
-            background: var(--pdc-gold);
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.6);
-        }
-
         /* ADVANCEMENT ANIMATION */
         #advancement-overlay {
             position: fixed;
@@ -1561,7 +1375,6 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 3px;
-            flex: 1; /* allow rows to expand to fill card */
         }
 
         .bm-row:last-child {
@@ -1580,9 +1393,8 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            max-width: none; /* allow name to use available space */
+            max-width: 130px;
             font-size: 13px;
-            flex: 1; /* use remaining horizontal space */
         }
 
         .bm-avg {
@@ -2309,7 +2121,6 @@
             background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .03) 0px, rgba(255, 255, 255, .03) 1px, transparent 1px, transparent 6px);
             animation: bgMove 3s linear infinite;
             pointer-events: none;
-           
         }
 
         @keyframes bgMove {
@@ -2664,6 +2475,36 @@
             display: none;
         }
 
+        /* EMERGENCY RESET */
+        #btn-emergency-reset {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 9999999;
+            background: #9a0000;
+            color: white;
+            padding: 8px 12px;
+            border: 2px solid white;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            animation: fadeOutReset 5s forwards;
+        }
+
+        @keyframes fadeOutReset {
+            0% {
+                opacity: 1;
+            }
+
+            80% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
 
         /* --- OPTIMIZED PLAYER SELECTOR (Smaller) --- */
         .player-option {
@@ -2761,18 +2602,14 @@
 
 <body>
 
+    <!-- EMERGENCY RESET -->
+    <button id="btn-emergency-reset" onclick="localStorage.clear(); location.reload();">⚠️ RESET APP</button>
 
     <!-- SETUP SCREEN -->
     <div id="setup-screen">
         <div class="setup-box">
-            <div class="app-hero" role="region" aria-label="App header">
-                <button id="mobile-account-btn" class="hero-account" aria-label="Account" title="Account" type="button">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-                        <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v2h20v-2c0-3.33-6.67-5-10-5z"/>
-                    </svg>
-                </button>
-            </div>
             <div class="tabs-wrapper" style="position:relative;">
+                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">☰</button>
                 <div class="tabs" role="tablist" aria-label="Main Menu">
                     <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE MATCH</button>
                     <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
@@ -2892,11 +2729,6 @@
                         color: #000;
                         border-color: var(--pdc-gold);
                         font-weight: bold;
-                    }
-
-                    /* Mobile: remove filter header background for a cleaner look */
-                    @media (max-width: 600px) {
-                        .news-filters { background: transparent !important; border-bottom: none !important; padding: 8px 0 !important; }
                     }
                 </style>
                 <div class="news-filters">
@@ -3071,19 +2903,13 @@
                         2)</label>
                 </div>
                 <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
-
-                <!-- Small scrollable area under the Enter Tournament button -->
-                <div id="tourn-scroll-area" class="tourn-scroll-area" aria-hidden="false" style="max-height:120px; overflow-y:auto; margin-top:8px; padding:8px; background:#0f0f0f; border:1px solid #222; border-radius:6px;"> 
-                    <!-- Content can be inserted here (selected players, notes, recent setups) -->
-                    <div id="tourn-scroll-empty" style="color:#777; font-size:13px;">Selected players and configuration will appear here.</div>
-                </div>
-
-                <div class="tourn-bottom-spacer" aria-hidden="true"></div>
             </div>
 
             <!-- SEASON TAB -->
             <div id="tab-season" class="tab-content">
-                <!-- Season header moved to app hero (mobile) -->
+                <div
+                    style="text-align:center; margin-bottom:10px; font-size:20px; font-weight:bold; color:var(--pdc-gold);">
+                    PDC SEASON <span id="season-year-disp">2026</span></div>
                 <div class="season-list" id="season-event-list"></div>
 
                 <div class="oom-nav" style="display:none;">
@@ -3098,8 +2924,13 @@
 
                 <div id="season-controls" style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
                     <div style="display:flex; gap:5px;">
-                        <button class="btn-gold" onclick="AuthSystem.showModal()" style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
+                        <button class="btn-sim" style="flex:1; padding:15px;"
+                            onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                        <button class="btn-gold" onclick="AuthSystem.showModal()"
+                            style="background:#0066cc; padding:15px;">👤 ACCOUNT</button>
                     </div>
+                    <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET
+                        CAREER</button>
                 </div>
             </div>
 
@@ -3169,36 +3000,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- MODERN BOTTOM NAV (injected from snippet) -->
-    <nav class="bottom-nav" aria-label="Main Navigation">
-        <button class="nav-item active" onclick="switchTab('single')" id="nav-btn-single">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="3"/><path d="M12 6v2c2.21 0 4 1.79 4 4h2c0-3.31-2.69-6-6-6z"/></svg>
-            <span>Match</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('tourn')" id="nav-btn-tourn">
-            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 2h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2zm-4-8h2v2H8V5zm0 4h2v2H8V9zm0 4h2v2H8v-2zM5 5h2v2H5V5zm0 4h2v2H5V9zm0 4h2v2H5v-2zm14 14H5v-2h14v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V5h2v2z"/></svg>
-            <span>Tourn</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('season')" id="nav-btn-season">
-            <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-            <span>Season</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('standings')" id="nav-btn-standings">
-            <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-            <span>Rankings</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('news')" id="nav-btn-news">
-            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-6h11v6zm0-8H4V6h11v4zm5 8h-4v-6h4v6zm0-8h-4V6h4v4z"/></svg>
-            <span>News</span>
-        </button>
-    </nav>
-
-    <!-- Floating actions above bottom nav -->
-    <div class="bottom-actions" aria-hidden="false">
-        <button class="bottom-action-btn bottom-action-sim" onclick="Season.simulateRemainingSeason()">⚡ Simulate Remaining Season</button>
-        <button class="bottom-action-btn bottom-action-reset" onclick="Season.reset()">Reset Season</button>
     </div>
 
     <!-- TOURNAMENT HUB -->
@@ -3402,7 +3203,7 @@
     </div>
 
     <!-- ADVANCEMENT ANIMATION -->
-    <div id="advancement-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="advancement-overlay">
         <div class="advancement-container">
             <div class="advancement-title" id="adv-title">PLAYERS ADVANCING</div>
             <div class="advancement-subtitle" id="adv-subtitle">TO QUARTER-FINALS</div>
@@ -3424,34 +3225,7 @@
     <script>
         // ===== SAFE ONCLICK WRAPPERS =====
         // These wrappers safely call App methods from onclick handlers
-        function switchTab(tab) {
-            // Call app-level handler if present
-            if (typeof App !== 'undefined' && typeof App.switchTab === 'function') {
-                App.switchTab(tab);
-            }
-
-            // Fallback: show/hide tab content (keeps behavior if App is not ready)
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            const content = document.getElementById(`tab-${tab}`);
-            if (content) content.classList.add('active');
-
-            // Update bottom nav active state
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            const btn = document.getElementById(`nav-btn-${tab}`);
-            if (btn) btn.classList.add('active');
-
-            // Show/hide floating season actions
-            const bottomActionsEl = document.querySelector('.bottom-actions');
-            if (bottomActionsEl) bottomActionsEl.style.display = (tab === 'season') ? 'flex' : 'none';
-
-            // Optional: trigger news render when switching to news
-            if (tab === 'news' && typeof NewsSystem !== 'undefined') {
-                try { NewsSystem.renderNews(NewsSystem.viewState.filter); } catch(e) {}
-            }
-
-            // Update nav/controls visibility when switching tabs (handles popups and match state)
-            if (typeof updateNavForScreen === 'function') updateNavForScreen();
-        }
+        function switchTab(tab) { App && App.switchTab(tab); }
         function switchStandingSection(section) { App && App.switchStandingSection(section); }
         function switchOOMView(view) { App && App.switchOOMView(view); }
         function switchQSchoolView(venue) { App && App.switchQSchoolView(venue); }
@@ -3463,91 +3237,6 @@
         function simulateMatchToEnd() { App && App.simulateMatchToEnd(); }
         function selectPlayer(id, idx) { App && App.selectPlayer(id, idx); }
 
-        /* Utility: update bottom nav and floating actions visibility based on current screen/tab and popups */
-        function updateNavForScreen() {
-            try {
-                const matchShown = document.getElementById('match-screen')?.style?.display === 'flex';
-                const bottomNav = document.querySelector('.bottom-nav');
-                const bottomActions = document.querySelector('.bottom-actions');
-
-                // Detect visible dialogs/popups (role=dialog or aria-modal) that are present and visible
-                let hasVisiblePopup = false;
-                try {
-                    const candidates = document.querySelectorAll('[role="dialog"], [aria-modal="true"]');
-                    for (let i=0;i<candidates.length;i++){
-                        const el = candidates[i];
-                        if (el && el.getClientRects && el.getClientRects().length>0) {
-                            const s = window.getComputedStyle(el);
-                            if (s && s.display !== 'none' && s.visibility !== 'hidden' && el.getAttribute('aria-hidden') !== 'true') { hasVisiblePopup = true; break; }
-                        }
-                    }
-                } catch (e) { hasVisiblePopup = false; }
-
-                // Determine if hub is visible on mobile (keeps mobile hub from showing bottom nav)
-                const hubEl = document.getElementById('tournament-hub');
-                const hubVisible = hubEl && hubEl.style && hubEl.style.display !== 'none' && hubEl.getClientRects && hubEl.getClientRects().length > 0;
-
-                // If in match OR hub is visible on small screens, hide bottom nav. Otherwise show on mobile.
-                if (bottomNav) {
-                    const shouldHide = matchShown || (hubVisible && window.innerWidth <= 600);
-                    bottomNav.style.display = shouldHide ? 'none' : (window.innerWidth < 900 ? '' : 'none');
-                }
-
-                // Show floating actions only when NOT in match, active tab is season, no visible popup, and on mobile viewport
-                if (bottomActions) {
-                    const activeContent = document.querySelector('.tab-content.active');
-                    const isSeasonTab = activeContent && activeContent.id === 'tab-season';
-                    const shouldShow = !matchShown && isSeasonTab && window.innerWidth < 900 && !hasVisiblePopup;
-                    bottomActions.style.display = shouldShow ? 'flex' : 'none';
-                }
-            } catch (e) { /* silent */ }
-        }
-
-        // Watch for DOM changes (popups opening/closing) and resize events to recalc visibility
-        (function(){
-            let timer = null;
-            const debouncedUpdate = () => { clearTimeout(timer); timer = setTimeout(updateNavForScreen, 50); };
-            const observer = new MutationObserver(debouncedUpdate);
-            observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','aria-hidden','aria-modal'] });
-            window.addEventListener('resize', debouncedUpdate, { passive: true });
-            // Run once now
-            updateNavForScreen();
-        })();
-
-        // ===== HUB MOBILE LAYOUT HELPERS =====
-        function updateHubMobileLayout(){
-            try{
-                const hub = document.getElementById('tournament-hub');
-                const bottomNav = document.querySelector('.bottom-nav');
-                const bracket = document.querySelector('.bracket-wrapper') || document.getElementById('tourn-bracket');
-                const hubVisible = hub && hub.style && hub.style.display !== 'none' && hub.getClientRects().length>0;
-                const isMobile = window.innerWidth <= 600;
-
-                if (hubVisible && isMobile) {
-                    if (bottomNav) bottomNav.style.display = 'none';
-                    if (bracket) {
-                        // Measure header height and fit bracket to remaining viewport
-                        const header = hub.querySelector('.hub-header');
-                        const headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 64;
-                        bracket.style.height = `calc(100dvh - ${headerH}px - env(safe-area-inset-bottom))`;
-                        bracket.style.overflowY = 'auto';
-                    }
-                } else {
-                    if (bottomNav) bottomNav.style.display = '';
-                    if (bracket) {
-                        bracket.style.height = '';
-                        bracket.style.overflowY = '';
-                    }
-                }
-            } catch(e){ console.warn('updateHubMobileLayout error', e); }
-        }
-
-        // Recalc on resize and DOM changes to keep UI consistent
-        window.addEventListener('resize', () => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); }, { passive: true });
-        const hubObs = new MutationObserver(() => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); });
-        hubObs.observe(document.body, { childList: true, subtree: true, attributes: true });
-
-        // Helper: find the best player from a country by OOM rank
         function getBestFromCountry(code) {
             return [...PLAYERS_DB]
                 .filter(p => p.country === code)
@@ -6857,9 +6546,6 @@
 
                 const overlay = document.createElement('div');
                 overlay.id = 'season-sim-overlay';
-                overlay.setAttribute('role','dialog');
-                overlay.setAttribute('aria-modal','true');
-                overlay.setAttribute('aria-hidden','false');
                 overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; font-family:Arial, sans-serif;";
                 overlay.innerHTML = `
                     <div style="text-align:center; max-width:600px;">
@@ -7181,42 +6867,20 @@
                 // ============================
                 const list = document.getElementById('season-event-list');
                 list.innerHTML = '';
-                const syEl = document.getElementById('season-year-disp'); if (syEl) syEl.innerText = Season.state.year;
+                document.getElementById('season-year-disp').innerText = Season.state.year;
 
                 const allDone = Season.state.activeEventIndex >= Season.events.length;
                 if (allDone) {
-                    // Show only the Start Season button on desktop; account button removed from full-size controls (mobile has top-right account)
                     document.getElementById('season-controls').innerHTML = `
-                        <div class="season-controls-row">
-                            <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year + 1}</button>
-                        </div>
+                        <button class="btn-gold" onclick="Season.startNewYear()">START SEASON ${Season.state.year + 1}</button>
+                        <button class="btn-gold" style="background:#9a0000; margin-top:10px;" onclick="Season.reset()">RESET CAREER</button>
                     `;
                 } else {
-                    // Restored SIMULATE REMAINING SEASON and RESET into the season controls for full-size (desktop).
                     document.getElementById('season-controls').innerHTML = `
-                        <div class="season-controls-row">
-                            <button class="btn-sim" onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
-                            <button class="btn-gold btn-reset" style="background:#9a0000;" onclick="Season.reset()">RESET SEASON</button>
-                        </div>
+                        <button class="btn-sim" style="width:100%; padding:15px;" onclick="Season.simulateRemainingSeason()">⚡ SIMULATE REMAINING SEASON</button>
+                        <button class="btn-gold" style="background:#9a0000;" onclick="Season.reset()">RESET CAREER</button>
                     `;
                 }
-
-                // Update floating bottom actions (mobile) to reflect season state: two buttons normally, a single Start Next Season button when finished
-                try {
-                    const bottomActionsEl = document.querySelector('.bottom-actions');
-                    if (bottomActionsEl) {
-                        if (allDone) {
-                            bottomActionsEl.innerHTML = `<button class="bottom-action-btn bottom-action-next" onclick="Season.startNewYear()">▶ START NEXT SEASON</button>`;
-                        } else {
-                            bottomActionsEl.innerHTML = `
-                                <button class="bottom-action-btn bottom-action-sim" onclick="Season.simulateRemainingSeason()">⚡ Simulate Remaining Season</button>
-                                <button class="bottom-action-btn bottom-action-reset" onclick="Season.reset()">Reset Season</button>
-                            `;
-                        }
-                        // Re-attach haptics to dynamic buttons if the utility is available
-                        if (typeof attachHaptics === 'function') attachHaptics();
-                    }
-                } catch (e) { console.warn('Could not update bottom actions', e); }
 
                 Season.events.forEach((ev, idx) => {
                     const isActive = idx === Season.state.activeEventIndex;
@@ -7635,9 +7299,6 @@
                     });
 
                 const modal = document.createElement('div');
-                modal.setAttribute('role','dialog');
-                modal.setAttribute('aria-modal','true');
-                modal.setAttribute('aria-hidden','false');
                 modal.style.cssText = `
                 position: fixed;
                 inset: 0;
@@ -11076,10 +10737,7 @@
                 });
 
                 console.log('Displaying overlay...');
-                // Mark overlay as visible to assist popup detection and hide floating actions
-                overlay.setAttribute('aria-hidden','false');
                 overlay.style.display = 'flex';
-                if (typeof updateNavForScreen === 'function') updateNavForScreen();
 
                 // Make overlay clickable to skip
                 overlay.onclick = () => {
@@ -11137,10 +10795,7 @@
                     grid.appendChild(div);
                 });
 
-                // Mark overlay as visible to assist popup detection and hide floating actions
-                overlay.setAttribute('aria-hidden','false');
                 overlay.style.display = 'flex';
-                if (typeof updateNavForScreen === 'function') updateNavForScreen();
 
                 // For celebrations, we DON'T auto-close. User must click "CONTINUE" or overlay.
                 overlay.onclick = (e) => {
@@ -11149,12 +10804,7 @@
             },
 
             closeAdvancementOverlay: () => {
-                const ov = document.getElementById('advancement-overlay');
-                if (ov) {
-                    ov.style.display = 'none';
-                    ov.setAttribute('aria-hidden','true');
-                }
-                if (typeof updateNavForScreen === 'function') updateNavForScreen();
+                document.getElementById('advancement-overlay').style.display = 'none';
             },
 
             simulateRound: () => {
@@ -11450,9 +11100,6 @@
                 App.startMatch(match.p1, match.p2, roundInfo.target);
             },
             leaveEvent: () => {
-                // Mark season/tournament as in-progress so it can be resumed later
-                if (typeof Season !== 'undefined') Season.state.inProgress = true;
-
                 // Save current tournament state
                 Persistence.save();
 
@@ -11524,17 +11171,16 @@
                 // Single-sided bracket layout
                 const wrapper = document.createElement('div');
                 wrapper.style.display = 'flex';
-                /* Wider horizontal spacing so the bracket stretches more across the viewport */
-                wrapper.style.gap = '90px';
+                wrapper.style.gap = '60px';
                 wrapper.style.flex = '1';
                 wrapper.style.overflowX = 'auto';
                 wrapper.style.overflowY = 'auto';
                 wrapper.style.alignItems = 'flex-start';
                 wrapper.style.WebkitOverflowScrolling = 'touch';
 
-                // Mobile responsive gap (still roomy but slightly reduced)
+                // Mobile responsive gap
                 if (window.innerWidth <= 768) {
-                    wrapper.style.gap = '60px';
+                    wrapper.style.gap = '40px';
                 }
 
                 Tournament.config.rounds.forEach((roundInfo, roundIdx) => {
@@ -11558,13 +11204,7 @@
 
                 Tournament.updateWatchButtonState();
                 Persistence.save();
-
-                // Ensure mobile hub layout (hide bottom nav & fit bracket) when needed
-                if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout();
             },
-
-            // Expose helper to allow external triggers if needed (no-op here)
-            updateHubMobileLayoutTrigger: () => { if (typeof updateHubMobileLayout === 'function') updateHubMobileLayout(); },
 
             updateThemeSelector: function () {
                 const themeEl = document.getElementById('tourn-theme');
@@ -11646,7 +11286,7 @@
                         card.className = `bracket-match ${m.winner ? 'completed' : ''}`;
                         card.id = `bm-${roundIdx}-${idx}`;
 
-const getPHTML = (p, score, avg, isWinner, pos) => {
+                        const getPHTML = (p, score, avg, isWinner) => {
                             const name = p ? p.name : 'TBD';
                             const flag = p ? getFlagUrl(p.country) : '';
                             const avgTxt = (m.winner && avg) ? `(${avg})` : '';
@@ -11677,11 +11317,8 @@ const getPHTML = (p, score, avg, isWinner, pos) => {
 
                             const style = isWinner ? "color:var(--pdc-gold); font-weight:900;" : (m.winner ? "color:#555; text-decoration:line-through;" : "color:#aaa;");
 
-                            // pos: 0 => top row, 1 => bottom row - used for glow targeting when a match is live
-                            const posClass = pos === 0 ? 'top' : 'bottom';
-
                             return `
-                                <div class="bm-row ${posClass}" style="${style}">
+                                <div class="bm-row" style="${style}">
                                     ${p ? `<img src="${flag}" class="bm-flag">` : ''}
                                     <span class="bm-name">${name}${seedTxt && !m.winner ? ' ' + seedTxt : ''}${pointsTxt}${statsTxt}</span>
                                     <span class="bm-avg">${avgTxt}</span>
@@ -11696,15 +11333,12 @@ const getPHTML = (p, score, avg, isWinner, pos) => {
                             checkbox = `<input type="checkbox" class="match-select-cb" value="${idx}" data-round="${roundIdx}" onchange="Tournament.updateWatchButtonState()">`;
                         }
 
-                        // Ensure the wrapper gets an id/class we can target when a match is live
-                        const wrapperId = `bm-${roundIdx}-${idx}`;
-
                         let html = `
                             <button class="match-nav-btn" onclick="Tournament.traceMatch(-1, ${idx}, ${roundIdx})">&lt;</button>
                             ${checkbox}
                             <div class="bm-content">
-                                ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1, 0)}
-                                ${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2, 1)}
+                                ${getPHTML(m.p1, m.score ? m.score[0] : null, m.averages ? m.averages[0] : null, m.winner === m.p1)}
+                                ${getPHTML(m.p2, m.score ? m.score[1] : null, m.averages ? m.averages[1] : null, m.winner === m.p2)}
                             </div>
                         `;
 
@@ -11725,8 +11359,6 @@ const getPHTML = (p, score, avg, isWinner, pos) => {
                             wrapper.classList.add('completed');
                             card.classList.add('completed');
                         }
-                        // expose a stable id on the card so we can find it later
-                        card.id = wrapperId;
                         wrapper.appendChild(card);
                         matchesList.appendChild(wrapper);
                     });
@@ -11757,19 +11389,6 @@ const getPHTML = (p, score, avg, isWinner, pos) => {
                         App.config.setLegs = (roundInfo.target * 2) - 1;
                     }
                 }
-
-                // Mark bracket wrapper as playing ahead of match start so UI reflects it immediately
-                try {
-                    const el = document.getElementById(`bm-${roundIdx}-${matchIdx}`);
-                    if (el && el.parentElement) {
-                        // clear previous playing states
-                        document.querySelectorAll('.bracket-match-wrapper.playing').forEach(x => {
-                            x.classList.remove('playing');
-                            x.querySelectorAll('.bm-row').forEach(r => r.classList.remove('glow'));
-                        });
-                        el.parentElement.classList.add('playing');
-                    }
-                } catch (e) {}
 
                 App.startMatch(m.p1, m.p2, roundInfo.target);
             },
@@ -11925,24 +11544,6 @@ const getPHTML = (p, score, avg, isWinner, pos) => {
                 if (matchObj && matchObj.p1 && matchObj.p2) {
                     const winnerCopy = (winnerIdx === 0) ? matchObj.p1 : matchObj.p2;
                     const loserCopy = (winnerIdx === 0) ? matchObj.p2 : matchObj.p1;
-
-                // Clear playing/glow state on the bracket for the finished match
-                try {
-                    const rIdx = Tournament.state.currentActiveRound;
-                    const mIdx = Tournament.activeMatchIdx;
-                    const card = document.getElementById(`bm-${rIdx}-${mIdx}`);
-                    if (card && card.parentElement) {
-                        const w = card.parentElement;
-                        w.classList.remove('playing');
-                        w.querySelectorAll('.bm-row').forEach(r => r.classList.remove('glow'));
-
-n                        // Add a short-lived finish glow to the connector so it pulses on match end
-                        try {
-                            w.classList.add('finished-glow');
-                            setTimeout(() => { w.classList.remove('finished-glow'); }, 1400);
-                        } catch (err) { /* ignore */ }
-                    }
-                } catch (e) {}
 
                     // FIND REAL PLAYERS IN DB TO UPDATE PERSISTENT STATS
                     const winnerReal = (typeof PLAYERS_DB !== 'undefined') ? PLAYERS_DB.find(p => p.name === winnerCopy.name) : winnerCopy;
@@ -12825,8 +12426,6 @@ n                        // Add a short-lived finish glow to the connector so it
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('tournament-hub').style.display = 'none';
                 document.getElementById('match-screen').style.display = 'flex';
-                // Hide bottom navigation while in a match to maximize viewport and avoid accidental taps on mobile
-                try { const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = 'none'; } catch(e) {}
                 let txt = App.config.event.toUpperCase();
                 if (App.config.tiebreak && App.config.mode === 'legs') txt += " (TB)";
                 document.getElementById('txt-event-header').innerText = txt;
@@ -12838,17 +12437,6 @@ n                        // Add a short-lived finish glow to the connector so it
                 document.getElementById('flag-p1').src = getFlagUrl(p1.country);
                 document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
                 document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
-
-                // Keep the bracket in sync: ensure the wrapper is marked playing and highlight the starter thrower when the match enters the intro sequence
-                try {
-                    const rIdx = Tournament.state.currentActiveRound;
-                    const mIdx = Tournament.activeMatchIdx;
-                    const el = document.getElementById(`bm-${rIdx}-${mIdx}`);
-                    if (el && el.parentElement) {
-                        el.parentElement.classList.add('playing');
-                        // starter thrower will be set later; we'll rely on gameLoop to toggle the per-half glow dynamically
-                    }
-                } catch (e) {}
 
                 document.getElementById('lbl-score-type').innerText = (App.config.mode === 'sets') ? "SETS" : "LEGS";
 
@@ -12956,8 +12544,6 @@ n                        // Add a short-lived finish glow to the connector so it
                 SOUND_OUTRO.currentTime = 0;
 
                 document.getElementById('post-match-screen').style.display = 'none';
-                // Restore bottom navigation when returning to menu
-                try { const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = ''; } catch (e) {}
                 if (Tournament.state.active) {
                     const winnerIdx = (App.matchState.sets[0] > App.matchState.sets[1] || App.matchState.legs[0] > App.matchState.legs[1]) ? 0 : 1;
                     let scoreStr = (App.config.mode === 'sets')
@@ -13061,20 +12647,6 @@ n                        // Add a short-lived finish glow to the connector so it
                 // Apply dynamic active gradient from theme data
                 App.applyActivePlayerTheme(pIdx);
 
-                // Update bracket UI: highlight the half currently throwing for the active match
-                try {
-                    const rIdx = Tournament.state.currentActiveRound;
-                    const mIdx = Tournament.activeMatchIdx;
-                    if (typeof rIdx !== 'undefined' && typeof mIdx !== 'undefined') {
-                        const card = document.getElementById(`bm-${rIdx}-${mIdx}`);
-                        if (card && card.parentElement) {
-                            const w = card.parentElement;
-                            w.classList.add('playing');
-                            const rows = w.querySelectorAll('.bm-row');
-                            rows.forEach((row, i) => row.classList.toggle('glow', i === pIdx));
-                        }
-                    }
-                } catch (e) {}
                 const rows = document.getElementById('visit-container').children;
                 if (rows.length > 0) {
                     const row = rows[rows.length - 1];
@@ -13104,17 +12676,17 @@ n                        // Add a short-lived finish glow to the connector so it
                     p.stats.pts += result.points;
                     p.stats.darts += result.dartsThrown;
 
-                    let delay = 900; /* reduced visit time */
+                    let delay = 1200;
 
                     if (result.points === 180) {
                         p.stats.c180++;
                         PlayerState.updateConfidence(p, 2);
                         PlayerState.updateConfidence(App.players[1 - pIdx], -2);
                         App.trigger180();
-                        delay = 2200; /* slightly reduced intro delay for 180 */
+                        delay = 3000;
                     } else if (result.points === 167) {
                         SOUND_167.play().catch(e => console.log(e));
-                        delay = 1500; /* slightly reduced special case */
+                        delay = 2000;
                     }
 
                     const rows = document.getElementById('visit-container').children;
@@ -13892,9 +13464,6 @@ n                        // Add a short-lived finish glow to the connector so it
                 if (cachedHash && cachedHash !== currentHash) {
                     // Code has been updated
                     const updateModal = document.createElement('div');
-                    updateModal.setAttribute('role','dialog');
-                    updateModal.setAttribute('aria-modal','true');
-                    updateModal.setAttribute('aria-hidden','false');
                     updateModal.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; display:flex; justify-content:center; align-items:center;';
                     updateModal.innerHTML = `
                         <div style="background:#1a1a1a; border:2px solid var(--pdc-gold); border-radius:8px; padding:30px; max-width:400px; color:white; text-align:center;">
@@ -13921,40 +13490,7 @@ n                        // Add a short-lived finish glow to the connector so it
                 } else {
                     // No update or first run
                     localStorage.setItem('pdc_code_hash', currentHash);
-                    App.init(); initMobileMenu(); attachHaptics();
-
-                    // Wire mobile account button (if present) to open account modal
-                    if (document.getElementById('mobile-account-btn')) {
-                        document.getElementById('mobile-account-btn').addEventListener('click', function(e){
-                            e.stopPropagation();
-                            if (window.AuthSystem && typeof AuthSystem.showModal === 'function') AuthSystem.showModal();
-                            if (window.Haptics && typeof Haptics.buzz === 'function') Haptics.buzz(35);
-                        });
-                    }
-
-                    // Ensure bottom action visibility matches current tab on first run
-                    try {
-                        const activeContent = document.querySelector('.tab-content.active');
-                        const bottomActionsEl = document.querySelector('.bottom-actions');
-                        if (activeContent && bottomActionsEl) {
-                            const tabName = activeContent.id.replace('tab-','');
-                            bottomActionsEl.style.display = (tabName === 'season') ? 'flex' : 'none';
-                        }
-
-                        // Prevent pointer events from passing through these floating buttons to underlying content
-                        if (bottomActionsEl && !bottomActionsEl.dataset.protect) {
-                            bottomActionsEl.dataset.protect = '1';
-                            ['pointerdown','touchstart','click'].forEach(evt => {
-                                bottomActionsEl.addEventListener(evt, e => {
-                                    try {
-                                        // If the event originated from a bottom-action button (or a child of it), let it through
-                                        if (e.target && e.target.closest && e.target.closest('.bottom-action-btn')) return;
-                                    } catch (ex) { }
-                                    e.stopPropagation();
-                                }, { capture: true, passive: true });
-                            });
-                        }
-                    } catch (e) { }
+                    App.init(); initMobileMenu();
                 }
                 console.log("App initialized successfully");
 
@@ -13970,40 +13506,6 @@ n                        // Add a short-lived finish glow to the connector so it
                         } catch (e) { /* ignore */ }
                     }
                 };
-
-                /* Attach haptic handlers to interactive elements -- idempotent */
-                function attachHaptics() {
-                    try {
-                        const selectors = 'button, [role="button"], .nav-item, .tab-btn, .format-btn, .filter-btn, .btn-gold, .btn-blue, .btn-sim, .btn-hub-action, .mobile-menu-close, .oom-nav-btn';
-                        document.querySelectorAll(selectors).forEach(el => {
-                            if (el.dataset.haptic) return;
-                            el.dataset.haptic = '1';
-                            el.addEventListener('click', (e) => {
-                                // Determine strength based on role/class
-                                let ms = 8; // default
-                                if (el.classList && el.classList.contains('nav-item')) ms = 14;
-                                else if (el.classList && (el.classList.contains('btn-gold') || el.classList.contains('btn-sim') || el.classList.contains('btn-blue') )) ms = 20;
-                                else if (el.classList && (el.classList.contains('bottom-action-sim') || el.classList.contains('bottom-action-reset') )) ms = 26;
-                                else if (el.classList && (el.classList.contains('format-btn') || el.classList.contains('filter-btn') || el.classList.contains('oom-nav-btn'))) ms = 10;
-                                else ms = 8;
-                                Haptics.buzz(ms);
-                            }, { passive: true });
-                        });
-                    } catch (e) { console.warn('attachHaptics failed:', e); }
-
-                // Observe DOM for dynamically added interactive elements and re-attach haptics as needed
-                try {
-                    const hapticObserver = new MutationObserver((mutations) => {
-                        for (const m of mutations) {
-                            if (m.addedNodes && m.addedNodes.length) {
-                                setTimeout(attachHaptics, 40);
-                                break;
-                            }
-                        }
-                    });
-                    hapticObserver.observe(document.body, { childList: true, subtree: true });
-                } catch (e) { }
-                }
 
                 /* Mobile menu initializer - lightweight and non-intrusive */
                 function initMobileMenu() {
@@ -14242,16 +13744,12 @@ n                        // Add a short-lived finish glow to the connector so it
                 </div>
 
                 <button onclick="AuthSystem.logout()"
-                    style="width:100%; padding:10px; background:#9a0000; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🚪 LOGOUT</button>
-
-                <div style="font-size:12px; color:#aaa; margin-top:12px; text-align:center;">v2.2.1 | PDC Darts Simulator</div>
+                    style="width:100%; padding:10px; background:#9a0000; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold;">🚪
+                    LOGOUT</button>
             </div>
 
-            <button id="auth-install-btn" onclick="(function(){ Haptics.buzz(10); const b = document.getElementById('pwa-install-btn'); if (b) { b.click(); } else { alert('Install not available on this platform'); } })()"
-                style="width:100%; padding:10px; margin-bottom:8px; background: linear-gradient(135deg, var(--pdc-gold), #cc9900); border:none; color:#000; border-radius:4px; cursor:pointer; font-weight:bold;">📥
-                INSTALL APP</button>
             <button onclick="AuthSystem.closeModal()"
-                style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold; margin-top:8px;">CLOSE</button>
+                style="width:100%; padding:10px; background:#444; border:none; color:white; border-radius:4px; cursor:pointer; font-weight:bold; margin-top:15px;">CLOSE</button>
         </div>
     </div>
 
@@ -14268,7 +13766,11 @@ n                        // Add a short-lived finish glow to the connector so it
         Install App
     </button>
 
-
+    <!-- VERSION FOOTER -->
+    <div id="version-footer"
+        style="position: fixed; bottom: 8px; right: 12px; font-size: 12px; color: #aaa; font-family: Arial, sans-serif; z-index: 9999; pointer-events: none; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;">
+        v2.2.1 | PDC Darts Simulator
+    </div>
 
     <!-- PWA Service Worker Registration and Install Logic -->
     <script>
