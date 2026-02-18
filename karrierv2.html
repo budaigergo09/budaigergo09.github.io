@@ -3816,6 +3816,142 @@
             overflow-y: auto;
         }
     </style>
+    <style>
+        /* --- Mobile Menu Toggle & Sheet --- */
+        .menu-toggle {
+            display: none;
+            position: absolute;
+            left: 10px;
+            top: calc(-6px + env(safe-area-inset-top, 0px));
+            background: rgba(0, 0, 0, 0.35);
+            color: var(--pdc-gold);
+            border: 1px solid rgba(255, 215, 0, 0.12);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 18px;
+            height: 32px;
+            width: 36px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            display: none;
+        }
+
+        .mobile-menu-sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            background: linear-gradient(180deg, rgba(16, 18, 24, 0.98), rgba(8, 10, 14, 0.98));
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+            transform: translateY(110%);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .mobile-menu-sheet.active {
+            transform: translateY(0);
+        }
+
+        .mobile-menu-content .career-nav-btn {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ccc;
+            font-weight: bold;
+            font-family: 'Roboto Condensed';
+        }
+
+        .mobile-menu-content .career-nav-btn.active {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--pdc-gold);
+            color: var(--pdc-gold);
+        }
+
+        @media (max-width: 600px) {
+            .career-horizontal-nav {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: flex !important;
+                position: fixed;
+                left: 12px;
+                top: calc(env(safe-area-inset-top, 8px) + 10px);
+                z-index: 11000;
+                box-shadow: 0 6px 26px rgba(0, 0, 0, 0.7);
+            }
+
+            .career-topbar {
+                padding-top: 50px;
+            }
+
+            .career-topbar-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .career-topbar-stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+                width: 100%;
+            }
+
+            .career-pill {
+                font-size: 9px;
+                padding: 4px 6px;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .career-main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .setup-box {
+                height: 100dvh;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .career-hero {
+                padding: 10px;
+            }
+
+            .career-hero-title {
+                font-size: 22px;
+            }
+
+            .career-stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .career-topbar-right {
+                display: none;
+                /* Hide topbar buttons on mobile, moved to menu */
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -4058,6 +4194,15 @@
                     <main class="career-main">
                         <div class="career-topbar">
                             <div class="career-topbar-row">
+                                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false"
+                                    aria-controls="mobile-menu" aria-label="Open menu">☰</button>
+                                <div id="mobile-menu" class="mobile-menu-sheet" role="dialog" aria-modal="true"
+                                    aria-hidden="true">
+                                    <div class="mobile-menu-content"></div>
+                                    <button class="mobile-menu-close" aria-label="Close menu"
+                                        style="display:block; width:100%; margin-top:10px; padding:10px; border-radius:8px; background:#222; color:#fff; border:1px solid #333;">Close</button>
+                                </div>
+                                <div class="mobile-menu-overlay"></div>
                                 <div class="career-brand-mini">CAREER MODE <span id="season-year-disp">2026</span></div>
                                 <div class="career-date" id="career-date-display">January 1, 2026</div>
                                 <div class="career-topbar-right">
@@ -18777,6 +18922,111 @@
             }
         };
 
+        /* Haptics helper */
+        window.Haptics = {
+            buzz: (ms = 8) => {
+                try {
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+                        navigator.vibrate(ms);
+                    }
+                } catch (e) { /* ignore */ }
+            }
+        };
+
+        /* Mobile menu initializer */
+        function initMobileMenu() {
+            try {
+                const nav = document.querySelector('.career-horizontal-nav');
+                if (!nav) return;
+                const menuToggle = document.getElementById('menu-toggle');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const overlay = document.querySelector('.mobile-menu-overlay');
+                const mobileContent = mobileMenu ? mobileMenu.querySelector('.mobile-menu-content') : null;
+
+                if (!menuToggle || !mobileMenu || !overlay || !mobileContent) return;
+
+                function updateMobileContent() {
+                    mobileContent.innerHTML = '';
+
+                    // Dashboard etc
+                    const navButtons = nav.querySelectorAll('.career-nav-btn');
+                    navButtons.forEach(btn => {
+                        const clone = btn.cloneNode(true);
+                        clone.classList.remove('active');
+                        if (btn.classList.contains('active')) clone.classList.add('active');
+
+                        clone.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            Haptics.buzz(12);
+                            btn.click();
+                            closeMenu();
+                        });
+                        mobileContent.appendChild(clone);
+                    });
+
+                    // Spacer
+                    const hr = document.createElement('hr');
+                    hr.style.cssText = 'border:none; border-top:1px solid rgba(255,255,255,0.1); margin:10px 0;';
+                    mobileContent.appendChild(hr);
+
+                    // Account Button
+                    const accountBtn = document.createElement('button');
+                    accountBtn.innerHTML = '👤 ACCOUNT';
+                    accountBtn.className = 'career-nav-btn';
+                    accountBtn.addEventListener('click', () => {
+                        Haptics.buzz(12);
+                        AuthSystem.showModal();
+                        closeMenu();
+                    });
+                    mobileContent.appendChild(accountBtn);
+
+                    // Back to Hub
+                    const hubBtn = document.createElement('button');
+                    hubBtn.innerHTML = '🏠 BACK TO HUB';
+                    hubBtn.className = 'career-nav-btn';
+                    hubBtn.style.color = 'var(--pdc-gold)';
+                    hubBtn.addEventListener('click', () => {
+                        Haptics.buzz(12);
+                        window.location.href = 'darts.html';
+                        closeMenu();
+                    });
+                    mobileContent.appendChild(hubBtn);
+                }
+
+                updateMobileContent();
+
+                function openMenu() {
+                    updateMobileContent(); // Refresh active state
+                    mobileMenu.classList.add('active');
+                    overlay.style.display = 'block';
+                    menuToggle.setAttribute('aria-expanded', 'true');
+                    mobileMenu.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeMenu() {
+                    mobileMenu.classList.remove('active');
+                    overlay.style.display = 'none';
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+
+                menuToggle.addEventListener('click', () => {
+                    Haptics.buzz(10);
+                    if (mobileMenu.classList.contains('active')) closeMenu(); else openMenu();
+                });
+
+                overlay.addEventListener('click', () => { Haptics.buzz(6); closeMenu(); });
+                const closeBtn = mobileMenu.querySelector('.mobile-menu-close');
+                if (closeBtn) closeBtn.addEventListener('click', () => { Haptics.buzz(6); closeMenu(); });
+
+                document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
+
+            } catch (e) { console.error('Mobile menu init error:', e); }
+        }
+
         // INITIALIZATION - Async to load from database first
         document.addEventListener("DOMContentLoaded", async () => {
             try {
@@ -18848,6 +19098,7 @@
                     // No update or first run
                     localStorage.setItem('pdc_code_hash', currentHash);
                     App.init();
+                    initMobileMenu();
                 }
                 console.log("App initialized successfully");
             } catch (e) {

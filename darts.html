@@ -13612,26 +13612,20 @@
                         accountAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
                         accountAction.addEventListener('click', () => { Haptics.buzz(12); try { AuthSystem.showModal(); } catch (e) { const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if (b) b.click(); } closeMenu(); });
 
-                        // Install action - triggers the existing install button's behavior if present
-                        const installAction = document.createElement('button');
-                        const installBtnOrig = document.getElementById('pwa-install-btn');
-                        installAction.innerHTML = installBtnOrig ? installBtnOrig.innerText : 'Install App';
-                        installAction.className = 'tab-btn';
-                        installAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
-                        installAction.addEventListener('click', (e) => {
-                            e.preventDefault();
+                        // Career Mode action
+                        const careerAction = document.createElement('button');
+                        careerAction.innerHTML = '🏆 CAREER MODE';
+                        careerAction.className = 'tab-btn';
+                        careerAction.style.cssText = 'width:100%; display:block; margin:0; height:44px; color:var(--pdc-gold); font-weight:bold;';
+                        careerAction.addEventListener('click', () => {
                             Haptics.buzz(12);
-                            if (installBtnOrig) {
-                                // programmatically click the original install button so its logic handles the flow
-                                installBtnOrig.click();
-                            } else {
-                                alert('Install not available on this platform');
-                            }
+                            window.location.href = 'karrierv2.html';
                             closeMenu();
                         });
 
                         // Append actions to menu content first
                         actionsDiv.appendChild(accountAction);
+                        actionsDiv.appendChild(careerAction);
                         actionsDiv.appendChild(installAction);
                         mobileContent.appendChild(actionsDiv);
 
