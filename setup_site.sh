@@ -3,7 +3,7 @@
 # PDC Darts Simulator - Nginx Config for /admin/home/budaigergo09.github.io
 # Run with: sudo bash setup_site.sh
 
-WEB_ROOT="/home/admin/budaigergo09.github.io"
+WEB_ROOT=$(pwd)
 PORT=8080
 SITE_NAME="pdc-darts"
 

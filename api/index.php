@@ -175,7 +175,8 @@ function getInput() {
 
 // Route handling
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = preg_replace('/^.*\/api/', '', $uri); // Get path after /api
+$uri = preg_replace('/^.*\/api(\/index\.php)?/', '', $uri); // Get path after /api or /api/index.php
+if (empty($uri)) $uri = '/'; // Handle root /api/ or /api/index.php/ as /
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Event themes data - EXACT copy from admin.html DEFAULT_APPEARANCE
