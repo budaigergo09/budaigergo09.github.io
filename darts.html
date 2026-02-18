@@ -127,8 +127,14 @@
         }
 
         /* Hide native scrollbar for a cleaner mobile look */
-        .tabs::-webkit-scrollbar { height: 6px; }
-        .tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+        .tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+        }
 
         .tab-btn {
             flex: 0 0 auto;
@@ -168,9 +174,9 @@
             left: 10px;
             /* moved higher to improve reachability on tall-screen phones */
             top: calc(-6px + env(safe-area-inset-top, 0px));
-            background: rgba(0,0,0,0.35);
+            background: rgba(0, 0, 0, 0.35);
             color: var(--pdc-gold);
-            border: 1px solid rgba(255,215,0,0.12);
+            border: 1px solid rgba(255, 215, 0, 0.12);
             padding: 8px 10px;
             border-radius: 10px;
             font-size: 18px;
@@ -184,13 +190,15 @@
 
         /* Extra nudge on very small devices */
         @media (max-width: 380px) {
-            .menu-toggle { top: calc(-10px + env(safe-area-inset-top, 0px)); }
+            .menu-toggle {
+                top: calc(-10px + env(safe-area-inset-top, 0px));
+            }
         }
 
         .mobile-menu-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 9998;
             display: none;
         }
@@ -201,11 +209,11 @@
             right: 0;
             bottom: 0;
             z-index: 9999;
-            background: linear-gradient(180deg, rgba(16,18,24,0.98), rgba(8,10,14,0.98));
+            background: linear-gradient(180deg, rgba(16, 18, 24, 0.98), rgba(8, 10, 14, 0.98));
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
             padding: 14px 16px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
             transform: translateY(110%);
             transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
             max-height: 70vh;
@@ -217,41 +225,66 @@
         }
 
         /* Slightly tighter spacing between menu buttons on mobile */
-        .mobile-menu-content .tab-btn { display: block; width: 100%; margin: 6px 0; min-width: auto; }
+        .mobile-menu-content .tab-btn {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            min-width: auto;
+        }
 
         /* Small screens: hide tabs and show toggle */
         @media (max-width: 600px) {
-            .tabs { display: none; }
+            .tabs {
+                display: none;
+            }
+
             /* Make the toggle fixed and move it 3px lower (requested) */
             .menu-toggle {
-                display: flex !important; /* ensure visible */
+                display: flex !important;
+                /* ensure visible */
                 position: fixed;
                 left: 12px;
                 /* moved 3px lower */
                 top: calc(env(safe-area-inset-top, 8px) + 10px);
                 z-index: 11000;
-                box-shadow: 0 6px 26px rgba(0,0,0,0.7);
+                box-shadow: 0 6px 26px rgba(0, 0, 0, 0.7);
                 transform: translateY(10px);
-                height: 32px; /* shorter menu button */
+                height: 32px;
+                /* shorter menu button */
                 width: 36px;
-                padding: 4px 6px; /* reduced padding */
+                padding: 4px 6px;
+                /* reduced padding */
                 font-size: 18px;
                 align-items: center;
                 justify-content: center;
-                background: rgba(0,0,0,0.6);
-                border: 1px solid rgba(255,215,0,0.16);
+                background: rgba(0, 0, 0, 0.6);
+                border: 1px solid rgba(255, 215, 0, 0.16);
                 border-radius: 10px;
             }
-            .setup-box { padding-top: 56px; }
+
+            .setup-box {
+                padding-top: 56px;
+            }
+
             /* Hide full-size account / install buttons on mobile and rely on the menu */
-            button[onclick="AuthSystem.showModal()"], #pwa-install-btn { display: none !important; }
+            button[onclick="AuthSystem.showModal()"],
+            #pwa-install-btn {
+                display: none !important;
+            }
         }
 
         /* For very narrow screens, move 3px lower as well */
         @media (max-width: 380px) {
-            .menu-toggle { top: calc(env(safe-area-inset-top, 8px) + 0px); transform: translateY(0px); height:32px; width:36px; padding:4px 6px; border-radius:10px; }
+            .menu-toggle {
+                top: calc(env(safe-area-inset-top, 8px) + 0px);
+                transform: translateY(0px);
+                height: 32px;
+                width: 36px;
+                padding: 4px 6px;
+                border-radius: 10px;
+            }
         }
-        
+
 
         .tab-btn {
             flex: 1;
@@ -2619,10 +2652,14 @@
     <div id="setup-screen">
         <div class="setup-box">
             <div class="tabs-wrapper" style="position:relative;">
-                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">☰</button>
+                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false"
+                    aria-controls="mobile-menu" aria-label="Open menu">☰</button>
                 <div class="tabs" role="tablist" aria-label="Main Menu">
-                    <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE MATCH</button>
+                    <button class="tab-btn active" onclick="switchTab('single')" id="tab-btn-single">SINGLE
+                        MATCH</button>
                     <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
+                    <button class="tab-btn" onclick="window.location.href='karrierv2.html'"
+                        style="color:var(--pdc-gold); font-weight:bold;">CAREER MODE</button>
                     <button class="tab-btn" onclick="switchTab('season')" id="tab-btn-season">SEASON</button>
                     <!-- Merged Tab -->
                     <button class="tab-btn" onclick="switchTab('standings')" id="tab-btn-standings">STANDINGS</button>
@@ -2631,7 +2668,8 @@
             </div>
             <div id="mobile-menu" class="mobile-menu-sheet" role="dialog" aria-modal="true" aria-hidden="true">
                 <div class="mobile-menu-content"></div>
-                <button class="mobile-menu-close" aria-label="Close menu" style="display:block; width:100%; margin-top:10px; padding:10px; border-radius:8px; background:#222; color:#fff; border:1px solid #333;">Close</button>
+                <button class="mobile-menu-close" aria-label="Close menu"
+                    style="display:block; width:100%; margin-top:10px; padding:10px; border-radius:8px; background:#222; color:#fff; border:1px solid #333;">Close</button>
             </div>
             <div class="mobile-menu-overlay"></div>
 
@@ -8649,6 +8687,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8678,6 +8717,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8730,6 +8770,7 @@
                         if (AuthSystem.currentUser) {
                             AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                         }
+                        Season.state.inProgress = false;
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -11797,7 +11838,7 @@
                         // CRITICAL: For Premier League simulations, DO NOT call completeEvent here!
                         // Premier League handles completion in initializePremierLeague after the simulation loop
                         // to avoid cascading to the next night automatically
-                        if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                        if ((Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') && Season.silentSimulation) {
                             console.log(`[checkRoundComplete] PL sim detected, NOT calling completeEvent (will be called by initializePremierLeague)`);
                             return;
                         }
@@ -13569,7 +13610,7 @@
                         }
                         accountAction.className = 'tab-btn';
                         accountAction.style.cssText = 'width:100%; display:block; margin:0; height:44px;';
-                        accountAction.addEventListener('click', () => { Haptics.buzz(12); try { AuthSystem.showModal(); } catch(e){ const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if(b) b.click(); } closeMenu(); });
+                        accountAction.addEventListener('click', () => { Haptics.buzz(12); try { AuthSystem.showModal(); } catch (e) { const b = document.querySelector('[onclick="AuthSystem.showModal()"]'); if (b) b.click(); } closeMenu(); });
 
                         // Install action - triggers the existing install button's behavior if present
                         const installAction = document.createElement('button');

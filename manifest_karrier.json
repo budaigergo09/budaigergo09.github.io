@@ -1,0 +1,28 @@
+{
+  "name": "PDC Career Mode V2",
+  "short_name": "PDC Career",
+  "description": "Professional Darts Career Simulator V2 - Build your legacy",
+  "id": "pdc-career-v2-unique",
+  "start_url": "./karrierv2.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["games", "sports"],
+  "lang": "en"
+}

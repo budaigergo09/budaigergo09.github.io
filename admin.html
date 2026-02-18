@@ -699,6 +699,7 @@
                 <button onclick="showSection('tournaments', this)">🏆 Tournaments</button>
                 <button onclick="showSection('players', this)">👤 Players</button>
                 <button onclick="showSection('themes', this)">🎨 Themes</button>
+                <button onclick="showSection('career-saves', this)">🎯 Career Saves</button>
                 <button onclick="showSection('users', this)">👥 Users</button>
                 <button onclick="showSection('import', this)">📥 Import Data</button>
             </div>
@@ -804,6 +805,35 @@
                 </div>
 
                 <!-- Users -->
+                <!-- Career Saves -->
+                <div id="section-career-saves" class="section" style="display:none;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>🎯 Career V2 Saves</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="career-save-search" placeholder="Search by Player/User..."
+                                onkeyup="filterCareerSaves()"
+                                style="padding: 8px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: #fff;">
+                            <button onclick="loadCareerSaves()" class="btn btn-edit">🔄 Reload</button>
+                        </div>
+                    </div>
+                    <div id="career-saves-loading" class="loading">Loading career saves...</div>
+                    <table class="data-table" id="career-saves-table" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Player</th>
+                                <th>Rank</th>
+                                <th>Avg</th>
+                                <th>Balance</th>
+                                <th>Last Save</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="career-saves-tbody"></tbody>
+                    </table>
+                </div>
+
                 <div id="section-users" class="section" style="display:none;">
                     <h2>User Management</h2>
                     <div id="users-loading" class="loading">Loading users...</div>
@@ -1271,6 +1301,7 @@
             if (section === 'players') loadPlayers();
             if (section === 'users') loadUsers();
             if (section === 'themes') loadThemes();
+            if (section === 'career-saves') loadCareerSaves();
             if (section === 'dashboard') loadDashboard();
         }
 
@@ -2022,6 +2053,75 @@
         function resetThemeToDefault() {
             const id = document.getElementById('edit-theme-original-id').value;
             if (id) deleteTheme(id);
+        }
+
+        // ==================== CAREER SAVES ====================
+        let careerSaves = [];
+
+        async function loadCareerSaves() {
+            document.getElementById('career-saves-loading').style.display = 'block';
+            document.getElementById('career-saves-table').style.display = 'none';
+
+            try {
+                // Fetch career saves from the server
+                // Note: Assuming an endpoint that returns saves filtered by type=career_v2
+                const response = await fetch(API_BASE + '/admin/saves?type=career_v2');
+                const result = await response.json();
+
+                if (result.success) {
+                    careerSaves = result.saves || [];
+                    renderCareerSaves();
+                } else {
+                    document.getElementById('career-saves-loading').innerText = 'Failed to load career saves: ' + (result.error || 'Unknown error');
+                }
+            } catch (e) {
+                console.error('Failed to load career saves:', e);
+                document.getElementById('career-saves-loading').innerText = 'Failed to load career saves (Check API)';
+
+                // FALLBACK: Mock data for demonstration if API fails
+                if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                    careerSaves = [
+                        { id: 1, username: 'demo_user', playerName: 'Luke Littler', rank: 1, avg: 98.5, money: 2500000, updatedAt: new Date().toISOString() },
+                        { id: 2, username: 'test_pro', playerName: 'Michael Smith', rank: 5, avg: 96.2, money: 1200000, updatedAt: new Date().toISOString() }
+                    ];
+                    renderCareerSaves();
+                }
+            }
+        }
+
+        function renderCareerSaves(data = null) {
+            const list = data || careerSaves;
+            document.getElementById('career-saves-loading').style.display = 'none';
+            document.getElementById('career-saves-table').style.display = 'table';
+
+            const tbody = document.getElementById('career-saves-tbody');
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No career saves found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(s => `
+                <tr>
+                    <td data-label="User">${s.username || 'Anonymous'}</td>
+                    <td data-label="Player">${s.playerName || 'Unknown'}</td>
+                    <td data-label="Rank">${s.rank || '--'}</td>
+                    <td data-label="Avg">${s.avg ? s.avg.toFixed(2) : '--'}</td>
+                    <td data-label="Balance">£${(s.money || 0).toLocaleString()}</td>
+                    <td data-label="Last Save">${new Date(s.updatedAt).toLocaleString()}</td>
+                    <td data-label="Actions">
+                        <button class="btn btn-edit" title="View details" onclick="alert('Raw Data:\\n' + JSON.stringify(JSON.parse(careerSaves.find(x => x.id === ${s.id}).data), null, 2))">View Data</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterCareerSaves() {
+            const search = document.getElementById('career-save-search').value.toLowerCase();
+            const filtered = careerSaves.filter(s =>
+                (s.username && s.username.toLowerCase().includes(search)) ||
+                (s.playerName && s.playerName.toLowerCase().includes(search))
+            );
+            renderCareerSaves(filtered);
         }
 
         // ==================== USERS ====================

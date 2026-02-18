@@ -534,41 +534,36 @@ switch ($uri) {
 
         $input = getInput();
         $data = $input['data'] ?? '';
+        $saveType = $input['saveType'] ?? 'season'; // 'season' or 'career_v2'
 
         if (!$data) {
             jsonResponse(['success' => false, 'error' => 'No data provided']);
         }
 
-        // Log save attempt for debugging
-        error_log("Save attempt for user {$user['userId']}, data size: " . strlen($data));
-
-        // Check data size (prevent extremely large saves)
-        if (strlen($data) > 50 * 1024 * 1024) { // 50MB limit
-            jsonResponse(['success' => false, 'error' => 'Save data too large']);
-        }
+        $targetTable = ($saveType === 'career_v2') ? 'career_saves' : 'saves';
 
         try {
             $db = getDB();
 
-            // Delete old saves for this user (keep only latest)
-            $stmt = $db->prepare('DELETE FROM saves WHERE user_id = :user_id');
+            // Delete old saves for this user (keep only latest of this type)
+            $stmt = $db->prepare("DELETE FROM $targetTable WHERE user_id = :user_id");
             $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
             $stmt->execute();
 
             // Insert new save
-            $stmt = $db->prepare('INSERT INTO saves (user_id, data, saved_at) VALUES (:user_id, :data, :saved_at)');
+            $stmt = $db->prepare("INSERT INTO $targetTable (user_id, data, saved_at) VALUES (:user_id, :data, :saved_at)");
             $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
             $stmt->bindValue(':data', $data, SQLITE3_TEXT);
             $stmt->bindValue(':saved_at', time(), SQLITE3_INTEGER);
             $stmt->execute();
 
-            jsonResponse(['success' => true, 'savedAt' => time()]);
+            jsonResponse(['success' => true, 'savedAt' => time(), 'type' => $saveType]);
         } catch (Exception $e) {
             error_log("Save failed for user {$user['userId']}: " . $e->getMessage());
             jsonResponse(['success' => false, 'error' => 'Database error'], 500);
         }
         break;
-    
+
     // Load game data
     case '/load':
         if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
@@ -578,8 +573,11 @@ switch ($uri) {
             jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
         }
         
+        $saveType = $_GET['type'] ?? 'season';
+        $targetTable = ($saveType === 'career_v2') ? 'career_saves' : 'saves';
+        
         $db = getDB();
-        $stmt = $db->prepare('SELECT data, saved_at FROM saves WHERE user_id = :user_id ORDER BY saved_at DESC LIMIT 1');
+        $stmt = $db->prepare("SELECT data, saved_at FROM $targetTable WHERE user_id = :user_id ORDER BY saved_at DESC LIMIT 1");
         $stmt->bindValue(':user_id', $user['userId'], SQLITE3_INTEGER);
         $save = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
         
@@ -587,10 +585,11 @@ switch ($uri) {
             jsonResponse([
                 'success' => true,
                 'data' => $save['data'],
-                'savedAt' => $save['saved_at']
+                'savedAt' => $save['saved_at'],
+                'type' => $saveType
             ]);
         } else {
-            jsonResponse(['success' => true, 'data' => null]);
+            jsonResponse(['success' => true, 'data' => null, 'type' => $saveType]);
         }
         break;
     
@@ -658,6 +657,66 @@ switch ($uri) {
         if (preg_match('/^\/admin\/(.+)/', $uri, $matches)) {
             $adminRoute = $matches[1];
             
+            // Admin saves monitoring
+            if ($adminRoute === 'saves' && $method === 'GET') {
+                $db = getDB();
+                $type = $_GET['type'] ?? 'season';
+                $table = ($type === 'career_v2') ? 'career_saves' : 'saves';
+                
+                $result = $db->query("SELECT s.id, u.username, s.data, s.saved_at 
+                    FROM $table s JOIN users u ON s.user_id = u.id 
+                    ORDER BY s.saved_at DESC");
+                
+                $saves = [];
+                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                    $data = json_decode($row['data'], true);
+                    
+                    // Extract player info for the admin table
+                    $playerName = 'Unknown';
+                    $rank = '-';
+                    $avg = 0;
+                    $money = 0;
+                    
+                    if ($type === 'career_v2' && isset($data['season']['career'])) {
+                        $career = $data['season']['career'];
+                        $playerName = $career['playerName'] ?? 'Unknown';
+                        $money = $career['money'] ?? 0;
+                        
+                        // Find this player in rankings if available
+                        if (isset($data['season']['playerRankings'])) {
+                            foreach ($data['season']['playerRankings'] as $r => $pName) {
+                                if ($pName === $playerName) {
+                                    $rank = $r;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // Find in players array for average
+                        if (isset($data['players'])) {
+                            foreach ($data['players'] as $p) {
+                                if ($p['n'] === $playerName) {
+                                    $avg = $p['avg'] ?? ($p['avg_running'] ?? 0);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    $saves[] = [
+                        'id' => $row['id'],
+                        'username' => $row['username'],
+                        'playerName' => $playerName,
+                        'rank' => $rank,
+                        'avg' => round($avg, 1),
+                        'money' => $money,
+                        'updatedAt' => date('Y-m-d H:i:s', $row['saved_at']),
+                        'data' => $row['data'] // For "View Data" button
+                    ];
+                }
+                jsonResponse(['success' => true, 'saves' => $saves]);
+            }
+
             // Admin stats
             if ($adminRoute === 'stats') {
                 $db = getDB();
@@ -696,6 +755,7 @@ switch ($uri) {
                 $db = getDB();
                 $userId = $m[1];
                 $db->exec("DELETE FROM saves WHERE user_id = $userId");
+                $db->exec("DELETE FROM career_saves WHERE user_id = $userId");
                 $db->exec("DELETE FROM users WHERE id = $userId");
                 jsonResponse(['success' => true]);
             }

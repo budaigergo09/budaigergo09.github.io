@@ -8499,6 +8499,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8528,6 +8529,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -8580,6 +8582,7 @@
                         if (AuthSystem.currentUser) {
                             AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                         }
+                        Season.state.inProgress = false;
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -11633,7 +11636,7 @@
                         // CRITICAL: For Premier League simulations, DO NOT call completeEvent here!
                         // Premier League handles completion in initializePremierLeague after the simulation loop
                         // to avoid cascading to the next night automatically
-                        if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                        if ((Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') && Season.silentSimulation) {
                             console.log(`[checkRoundComplete] PL sim detected, NOT calling completeEvent (will be called by initializePremierLeague)`);
                             return;
                         }

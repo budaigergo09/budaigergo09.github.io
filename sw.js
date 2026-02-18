@@ -3,6 +3,9 @@ const APP_VERSION = '2.1.0';
 
 const urlsToCache = [
   '/darts.html',
+  '/karrierv2.html',
+  '/career.html',
+  '/manifest_karrier.json',
   '/icon.png',
   '/darts.png',
   '/bottom_bg.png',

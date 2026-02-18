@@ -10,7 +10,7 @@
         rel="stylesheet">
 
     <!-- PWA Support -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest_karrier.json">
     <meta name="theme-color" content="#0a0e1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -71,7 +71,6 @@
         }
 
         /* ==================== LAYOUT COMPONENTS ==================== */
-        #setup-screen,
         #tournament-hub,
         #post-match-screen,
         #match-screen {
@@ -85,14 +84,18 @@
         }
 
         #setup-screen {
-            display: flex;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
             background: linear-gradient(135deg, #0f1729 0%, #1a2642 50%, #0f1729 100%);
             backdrop-filter: blur(10px);
-            justify-content: center;
-            align-items: center;
             z-index: 100;
-            padding: 5px;
             box-sizing: border-box;
+            overflow: hidden;
+            align-items: stretch;
+            justify-content: stretch;
         }
 
         .setup-box {
@@ -148,12 +151,12 @@
         }
 
         .tab-content {
-            padding: 10px;
+            padding: 0;
             display: none;
             flex-direction: column;
-            gap: 8px;
             overflow-y: auto;
             flex: 1;
+            height: 100%;
         }
 
         .tab-content.active {
@@ -934,7 +937,7 @@
         }
 
         .career-sidebar {
-            width: 160px;
+            width: 170px;
             background: linear-gradient(180deg, #1a2332 0%, #151d2a 100%);
             border: none;
             border-radius: 0;
@@ -943,18 +946,23 @@
             flex-direction: column;
             gap: 0;
             box-shadow: none;
+            align-items: center;
+            /* Center content */
+            text-align: center;
         }
 
         .career-brand {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            /* Center brand */
             font-family: 'Bebas Neue', sans-serif;
             font-size: 11px;
             letter-spacing: 1.5px;
             color: #fff;
-            padding: 20px 15px;
+            padding: calc(25px + env(safe-area-inset-top)) 15px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
         }
 
         .career-brand span {
@@ -986,16 +994,23 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
-            text-align: left;
+            text-align: center;
+            /* Center text */
             transition: all 0.2s;
             position: relative;
             font-weight: 600;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
 
         .career-nav-btn::before {
             content: '';
-            margin-right: 8px;
-            font-size: 14px;
+            margin-right: 0;
+            /* Align icon center */
+            font-size: 18px;
         }
 
         .career-nav-btn:nth-child(1)::before {
@@ -1028,9 +1043,19 @@
         }
 
         .career-nav-btn.active {
-            background: rgba(255, 215, 0, 0.08);
+            background: rgba(255, 215, 0, 0.12);
             color: var(--pdc-gold);
             border-left-color: var(--pdc-gold);
+        }
+
+        /* Prevent Clipping Fix */
+        .career-start,
+        .career-start-card {
+            margin: auto;
+        }
+
+        .career-brand {
+            padding-top: calc(20px + env(safe-area-inset-top));
         }
 
         .career-sidebar-card {
@@ -1048,6 +1073,7 @@
             font-weight: bold;
             letter-spacing: 0.5px;
             margin-bottom: 6px;
+            text-align: center;
         }
 
         .career-sidebar-name {
@@ -1063,12 +1089,83 @@
             margin-bottom: 8px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
         }
 
         .career-sidebar-meta::before {
             content: '📍';
             font-size: 12px;
+        }
+
+        .career-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #1a2332 0%, #0a0e1a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .career-menu-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .career-menu-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            color: var(--pdc-gold);
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .career-menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-menu:hover {
+            background: var(--pdc-gold);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-menu.btn-back-hub {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: rgba(220, 38, 38, 0.3);
+            color: #ff6666;
+            margin-top: 10px;
+        }
+
+        .btn-menu.btn-back-hub:hover {
+            background: #dc2626;
+            color: #fff;
+            border-color: #dc2626;
         }
 
         .career-select-btn {
@@ -1157,13 +1254,77 @@
 
         .career-topbar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
             background: rgba(26, 35, 50, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
-            padding: 14px 18px;
+            padding: 16px 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .career-topbar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .career-horizontal-nav {
+            display: flex;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .career-nav-btn {
+            background: none;
+            border: none;
+            color: #8fa3ad;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+        }
+
+        .career-nav-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .career-nav-btn.active {
+            color: #000;
+            background: var(--pdc-gold);
+        }
+
+        .career-topbar-stats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .career-brand-mini {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .career-brand-mini span {
+            font-size: 14px;
+            color: #000;
+            background: var(--pdc-gold);
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-weight: bold;
         }
 
         .career-date {
@@ -3502,17 +3663,19 @@
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #111;
             border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-family: 'Roboto Condensed', sans-serif;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Bebas Neue', sans-serif;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 16px;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         #pwa-install-btn:hover {
@@ -3661,14 +3824,8 @@
     <button id="btn-emergency-reset" onclick="localStorage.clear(); location.reload();">⚠️ RESET APP</button>
 
     <!-- SETUP SCREEN -->
-    <div id="setup-screen">
+    <div id="setup-screen" style="display:none;">
         <div class="setup-box">
-            <div class="tabs">
-                <button class="tab-btn" onclick="switchTab('single')" id="tab-btn-single">SINGLE
-                    MATCH</button>
-                <button class="tab-btn" onclick="switchTab('tourn')" id="tab-btn-tourn">TOURNAMENT</button>
-                <button class="tab-btn active" onclick="switchTab('season')" id="tab-btn-season">CAREER</button>
-            </div>
 
             <!-- NEWS TAB (HIDDEN) -->
             <div id="tab-news" class="tab-content" style="padding:0; display:none;">
@@ -3791,168 +3948,23 @@
             </div>
 
             <!-- SINGLE MATCH TAB -->
-            <div id="tab-single" class="tab-content">
-                <div>
-                    <label>Event Name</label>
-                    <input type="text" id="inp-event" value="PDC MATCHPLAY">
-                </div>
-                <div>
-                    <label>Format</label>
-                    <div class="format-row">
-                        <button class="format-btn selected" id="btn-sets" onclick="setMode('sets')">SETS</button>
-                        <button class="format-btn" id="btn-legs" onclick="setMode('legs')">LEGS</button>
-                    </div>
-                </div>
-                <div class="pc-row">
-                    <div>
-                        <label id="lbl-target">Target</label>
-                        <select id="inp-target">
-                            <option value="1">1</option>
-                            <option value="3">3</option>
-                            <option value="5">5</option>
-                            <option value="7" selected>7</option>
-                        </select>
-                    </div>
-                    <div id="legs-per-set-div">
-                        <label>Legs/Set</label>
-                        <select id="inp-set-legs">
-                            <option value="3">3</option>
-                            <option value="5" selected>5</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="pc-row">
-                    <div>
-                        <label>Player 1</label>
-                        <div class="search-dropdown-container">
-                            <input type="text" id="inp-p1-text" placeholder="Search Player 1..."
-                                onkeyup="App.filterDropdown('p1')" onfocus="App.showDropdown('p1')">
-                            <div class="search-results-list" id="list-p1"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <label>Player 2</label>
-                        <div class="search-dropdown-container">
-                            <input type="text" id="inp-p2-text" placeholder="Search Player 2..."
-                                onkeyup="App.filterDropdown('p2')" onfocus="App.showDropdown('p2')">
-                            <div class="search-results-list" id="list-p2"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
-                    <input type="checkbox" id="inp-tiebreak">
-                    <label for="inp-tiebreak"
-                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by 2)</label>
-                </div>
-                <button class="btn-gold" onclick="startMatch()">START MATCH</button>
-            </div>
 
-            <!-- TOURNAMENT TAB -->
-            <div id="tab-tourn" class="tab-content">
-                <div>
-                    <label>Event Name</label>
-                    <input type="text" id="tourn-event-name" value="CUSTOM TOURNAMENT">
-                </div>
-                <div>
-                    <label>Theme</label>
-                    <select id="tourn-theme" onchange="toggleCustomTheme()">
-                        <option value="default">Default / Auto</option>
-                        <option value="world">World Championship (Green/Gold)</option>
-                        <option value="matchplay">World Matchplay (Red/Blue)</option>
-                        <option value="premier">Premier League (Blue/Neon)</option>
-                        <option value="grandprix">World Grand Prix (Blue/Teal)</option>
-                        <option value="grandslam">Grand Slam (Orange/Black)</option>
-                        <option value="ukopen">UK Open (Yellow/Red)</option>
-                        <option value="players">Players Championship (Red/Black)</option>
-                        <option value="european">European Championship (Purple/Silver)</option>
-                        <option value="worldseries">World Series (Maroon/Black)</option>
-                        <option value="masters">The Masters (Gold/Black)</option>
-                        <option value="winmau">Winmau (Black/White)</option>
-                        <option value="custom">✨ Custom Theme...</option>
-                    </select>
-                    <div id="custom-theme-options"
-                        style="display:none; margin-top:10px; padding:10px; background:#222; border:1px solid #444; border-radius:4px;">
-                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">Custom Gradient Colors</div>
-                        <div style="display:flex; gap:10px;">
-                            <div style="flex:1;">
-                                <label style="font-size:10px;">Start Color</label>
-                                <input type="color" id="theme-col-1" value="#000000"
-                                    style="width:100%; height:30px; border:none; padding:0;">
-                            </div>
-                            <div style="flex:1;">
-                                <label style="font-size:10px;">End Color</label>
-                                <input type="color" id="theme-col-2" value="#ffffff"
-                                    style="width:100%; height:30px; border:none; padding:0;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pc-row">
-                    <div>
-                        <label>Players</label>
-                        <select id="tourn-size" onchange="Tournament.updateConfigUI()">
-                            <option value="4">4 (Semi-Finals)</option>
-                            <option value="8">8 (Quarter-Finals)</option>
-                            <option value="16">16 (Last 16)</option>
-                            <option value="32" selected>32 (Last 32)</option>
-                            <option value="64">64 (Last 64)</option>
-                            <option value="128">128 (Last 128)</option>
-                            <option value="256">256 (Last 256)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Selection</label>
-                        <div class="format-row">
-                            <button class="format-btn selected" id="sel-random"
-                                onclick="Tournament.setSelectionMethod('random')">RANDOM</button>
-                            <button class="format-btn" id="sel-manual"
-                                onclick="Tournament.setSelectionMethod('manual')">MANUAL</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="manual-selector" class="player-selector-box">
-                    <div class="selector-header">
-                        <label style="margin:0;">Selected: <span id="sel-count" style="color:var(--pdc-gold)">0</span> /
-                            <span id="sel-total">32</span></label>
-                        <button onclick="Tournament.clearSelection()"
-                            style="background:#444; border:1px solid #555; color:#ccc; font-size:10px; cursor:pointer; padding:4px 8px;">CLEAR</button>
-                    </div>
-                    <div style="padding:10px; border-bottom:1px solid #333;">
-                        <input type="text" id="player-search" placeholder="Search name..."
-                            onkeyup="Tournament.filterPlayerList()" style="padding:8px; font-size:14px;">
-                    </div>
-                    <div class="player-list-container" id="player-list-container"></div>
-                </div>
-                <div>
-                    <label>Format</label>
-                    <div class="format-row">
-                        <button class="format-btn selected" id="tourn-mode-sets"
-                            onclick="Tournament.setMode('sets')">SETS</button>
-                        <button class="format-btn" id="tourn-mode-legs"
-                            onclick="Tournament.setMode('legs')">LEGS</button>
-                    </div>
-                </div>
-                <div id="tourn-legs-per-set-div">
-                    <label>Legs/Set</label>
-                    <select id="inp-tourn-set-legs">
-                        <option value="3" selected>3</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <label>Distances (First to X)</label>
-                <div class="tourn-config-grid" id="tourn-rounds-container"></div>
-                <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
-                    <input type="checkbox" id="tourn-tiebreak">
-                    <label for="tourn-tiebreak"
-                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tiebreak (Win by
-                        2)</label>
-                </div>
-                <button class="btn-blue" onclick="Tournament.start()">ENTER TOURNAMENT</button>
-            </div>
 
             <!-- CAREER TAB -->
             <div id="tab-season" class="tab-content active">
-                <div id="career-start" class="career-start">
+                <div id="career-main-menu" class="career-menu-overlay">
+                    <div class="career-menu-card">
+                        <div class="career-menu-title">CAREER MODE</div>
+                        <div class="career-menu-actions">
+                            <button class="btn-menu" onclick="Season.showCareerStart()">START NEW CAREER</button>
+                            <button class="btn-menu" onclick="AuthSystem.showModal()">LOAD CAREER</button>
+                            <button class="btn-menu btn-back-hub" onclick="window.location.href='darts.html'">BACK TO
+                                MAIN HUB</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="career-start" class="career-start" style="display:none;">
                     <div class="career-start-card">
                         <div class="career-start-title">Customize Your Player</div>
                         <div class="career-start-tabs">
@@ -4024,8 +4036,8 @@
                                     style="background: linear-gradient(135deg, #2d3f5f 0%, #1e2a3f 100%); font-size: 11px;"
                                     onclick="Season.switchCareerStartTab('existing')">PLAY AS EXISTING PLAYER</button>
                                 <button class="btn-blue"
-                                    style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); font-size: 11px;"
-                                    onclick="switchTab('single')">BACK TO MAIN MENU</button>
+                                    style="background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); font-size: 11px;"
+                                    onclick="document.getElementById('career-start').style.display='none'; Season.renderCareerHub();">BACK</button>
                                 <button class="btn-gold" onclick="Season.createCareerPlayerFromHub()">Start
                                     Career</button>
                             </div>
@@ -4043,86 +4055,52 @@
                 </div>
 
                 <div class="career-shell">
-                    <aside class="career-sidebar">
-                        <div class="career-brand">CAREER MODE <span id="season-year-disp">2026</span></div>
-                        <div class="career-nav">
-                            <button class="career-nav-btn active" id="career-nav-dashboard"
-                                onclick="Season.switchCareerView('dashboard')">Dashboard</button>
-                            <button class="career-nav-btn" id="career-nav-calendar"
-                                onclick="Season.switchCareerView('calendar')">Calendar</button>
-                            <button class="career-nav-btn" id="career-nav-rankings"
-                                onclick="Season.switchCareerView('rankings')">Rankings</button>
-                            <button class="career-nav-btn" id="career-nav-training"
-                                onclick="Season.switchCareerView('training')">Training</button>
-                            <button class="career-nav-btn" id="career-nav-news"
-                                onclick="Season.switchCareerView('news')">News</button>
-                            <button class="career-nav-btn" id="career-nav-form"
-                                onclick="Season.switchCareerView('form')">Form Chart</button>
-                        </div>
-
-                        <div style="padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
-                            <div class="career-sidebar-label">MY PRO</div>
-                        </div>
-
-                        <div class="career-sidebar-card">
-                            <div id="career-player-name" class="career-sidebar-name">Luke Littler</div>
-                            <div id="career-player-meta" class="career-sidebar-meta"></div>
-                            <button class="career-select-btn" id="career-player-select-btn"
-                                onclick="Season.openCareerPlayerModal()">MANAGE PROFILE</button>
-                        </div>
-
-                        <div class="career-mini-grid">
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">Rank</div>
-                                <div id="career-stat-rank" class="career-mini-value">--</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">World</div>
-                                <div id="career-pill-world" class="career-mini-value">£2,770,500</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">Balance</div>
-                                <div id="career-pill-balance" class="career-mini-value">£856,340</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">AGE</div>
-                                <div id="career-pill-age" class="career-mini-value">--</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">AVG</div>
-                                <div id="career-pill-avg" class="career-mini-value">--</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">Form</div>
-                                <div id="career-pill-form" class="career-mini-value">--</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">CO</div>
-                                <div id="career-pill-co" class="career-mini-value">--</div>
-                            </div>
-                            <div class="career-mini-item">
-                                <div class="career-mini-label">RS</div>
-                                <div id="career-pill-rs" class="career-mini-value">--</div>
-                            </div>
-                        </div>
-
-                        <div id="career-latest-news" class="career-muted"></div>
-
-                        <div class="career-sidebar-actions">
-                            <button class="btn-gold" onclick="AuthSystem.showModal()"
-                                style="background:#0066cc;">ACCOUNT</button>
-                            <button class="btn-gold" onclick="Season.reset()" style="background:#9a0000;">RESET
-                                CAREER</button>
-                        </div>
-                    </aside>
-
                     <main class="career-main">
                         <div class="career-topbar">
-                            <div class="career-date" id="career-date-display">January 1, 2026</div>
-                            <div class="career-topbar-right">
-                                <div class="career-pill">AVG <span id="career-stat-avg">--</span></div>
-                                <div class="career-pill">CO% <span id="career-stat-co">--</span></div>
-                                <div class="career-pill">FAT <span id="career-stat-fatigue">--</span></div>
+                            <div class="career-topbar-row">
+                                <div class="career-brand-mini">CAREER MODE <span id="season-year-disp">2026</span></div>
+                                <div class="career-date" id="career-date-display">January 1, 2026</div>
+                                <div class="career-topbar-right">
+                                    <button class="career-pill" onclick="Season.openCareerPlayerModal()"
+                                        style="cursor:pointer; background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); color:var(--pdc-gold);">
+                                        👤 PROFILE
+                                    </button>
+                                    <button class="career-pill" onclick="AuthSystem.showModal()"
+                                        style="cursor:pointer; background:rgba(0,102,204,0.1); border-color:rgba(0,102,204,0.3); color:#88ccff;">
+                                        ☁️ <span id="auth-pill-status">ACCOUNT</span>
+                                    </button>
+                                    <button class="career-pill" onclick="Season.reset()"
+                                        style="background:rgba(154,0,0,0.1); border-color:rgba(154,0,0,0.3); color:#ff6666; cursor:pointer;">
+                                        RESET
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="career-topbar-row"
+                                style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                                <nav class="career-horizontal-nav">
+                                    <button class="career-nav-btn active" id="career-nav-dashboard"
+                                        onclick="Season.switchCareerView('dashboard')">Dashboard</button>
+                                    <button class="career-nav-btn" id="career-nav-calendar"
+                                        onclick="Season.switchCareerView('calendar')">Calendar</button>
+                                    <button class="career-nav-btn" id="career-nav-rankings"
+                                        onclick="Season.switchCareerView('rankings')">Rankings</button>
+                                    <button class="career-nav-btn" id="career-nav-training"
+                                        onclick="Season.switchCareerView('training')">Training</button>
+                                    <button class="career-nav-btn" id="career-nav-news"
+                                        onclick="Season.switchCareerView('news')">News</button>
+                                    <button class="career-nav-btn" id="career-nav-form"
+                                        onclick="Season.switchCareerView('form')">Form</button>
+                                </nav>
+
+                                <div class="career-topbar-stats">
+                                    <div class="career-pill">RANK <span id="career-stat-rank">--</span></div>
+                                    <div class="career-pill">WORLD <span id="career-pill-world">--</span></div>
+                                    <div class="career-pill">BANK <span id="career-pill-balance">--</span></div>
+                                    <div class="career-pill">AVG <span id="career-stat-avg">--</span></div>
+                                    <div class="career-pill">CO% <span id="career-stat-co">--</span></div>
+                                    <div class="career-pill">FAT <span id="career-stat-fatigue">--</span></div>
+                                </div>
                             </div>
                         </div>
 
@@ -4130,6 +4108,11 @@
                             <section class="career-card" id="career-section-recent">
                                 <div class="career-card-title">Recent Activity</div>
                                 <div id="career-activity-text" class="career-muted">No recent activity</div>
+                            </section>
+
+                            <section class="career-card">
+                                <div class="career-card-title">Latest News</div>
+                                <div id="career-latest-news" class="career-muted">No news available</div>
                             </section>
 
                             <section class="career-card">
@@ -4305,7 +4288,8 @@
         </div>
 
         <div id="career-match-banner" class="season-event" style="margin:10px 20px; display:none; cursor:default;">
-            <div style="cursor:pointer;" onclick="Season.findPlayerInBracket()" title="Click to find your match in the bracket">
+            <div style="cursor:pointer;" onclick="Season.findPlayerInBracket()"
+                title="Click to find your match in the bracket">
                 <div class="s-date">YOUR MATCH</div>
                 <div class="s-name" id="career-match-title">Player vs Opponent</div>
                 <div class="s-winner" id="career-match-status"></div>
@@ -4530,7 +4514,8 @@
                     onclick="Season.switchCareerPlayerTab('custom')">CREATE PLAYER</button>
             </div>
 
-            <div id="career-player-existing" style="display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden;">
+            <div id="career-player-existing"
+                style="display:flex; flex-direction:column; gap:8px; flex:1; overflow:hidden;">
                 <label>Search Player</label>
                 <input type="text" id="career-player-search" placeholder="Type a name..."
                     onkeyup="Season.filterCareerPlayerList()">
@@ -4571,21 +4556,24 @@
                 <div>
                     <label>MATCH AVERAGE</label>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <input type="range" id="career-custom-avg" min="60" max="110" step="0.1" value="60" style="flex:1;">
+                        <input type="range" id="career-custom-avg" min="60" max="110" step="0.1" value="60"
+                            style="flex:1;">
                         <span id="career-custom-avg-display" style="min-width:50px; text-align:right;">60.0</span>
                     </div>
                 </div>
                 <div>
                     <label>CHECKOUT %</label>
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <input type="range" id="career-custom-co" min="20" max="60" step="0.1" value="35" style="flex:1;">
+                        <input type="range" id="career-custom-co" min="20" max="60" step="0.1" value="35"
+                            style="flex:1;">
                         <span id="career-custom-co-display" style="min-width:50px; text-align:right;">35.0%</span>
                     </div>
                 </div>
                 <div class="checkbox-row" onclick="const cb=this.querySelector('input'); cb.checked=!cb.checked;">
                     <input type="checkbox" id="career-custom-tourcard">
                     <label for="career-custom-tourcard"
-                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tour Card Holder (Costs additional qualification for major events)</label>
+                        style="margin:0; color:#ddd; font-size:12px; text-transform:none;">Tour Card Holder (Costs
+                        additional qualification for major events)</label>
                 </div>
                 <button class="btn-gold" onclick="Season.createCustomCareerPlayer()">CREATE PLAYER</button>
             </div>
@@ -4691,7 +4679,8 @@
                 <div class="career-overlay-panel">
                     <table class="oom-table" id="career-form-table" style="margin-top:10px;">
                         <thead>
-                            <tr style="background:#1a1f35; border-bottom:2px solid var(--pdc-gold); position:sticky; top:0;">
+                            <tr
+                                style="background:#1a1f35; border-bottom:2px solid var(--pdc-gold); position:sticky; top:0;">
                                 <th style="padding:8px; text-align:left; color:var(--pdc-gold);">Rank</th>
                                 <th style="padding:8px; text-align:left; color:var(--pdc-gold);">Player</th>
                                 <th style="padding:8px; text-align:center; color:var(--pdc-gold);">Form</th>
@@ -6459,9 +6448,12 @@
 
         // ================= PERSISTENCE =================
         window.Persistence = {
+            // New prefix for V2 to prevent tangling with season saves
+            prefix: 'pdcv2_',
+
             // Save completed tournament to history (autosave when tournament finishes)
             saveTournamentResult: (winner, runnerUp, tournamentName, bracketData) => {
-                const history = JSON.parse(localStorage.getItem('pdc_tournament_history') || '[]');
+                const history = JSON.parse(localStorage.getItem(Persistence.prefix + 'tournament_history') || '[]');
                 const result = {
                     id: Date.now(),
                     name: tournamentName || Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'CUSTOM TOURNAMENT',
@@ -6475,7 +6467,7 @@
                         bracketData[bracketData.length - 1][0]?.score?.join(' - ') : null
                 };
                 history.push(result);
-                localStorage.setItem('pdc_tournament_history', JSON.stringify(history));
+                localStorage.setItem(Persistence.prefix + 'tournament_history', JSON.stringify(history));
                 console.log('[Autosave] Tournament result saved:', result);
                 return result;
             },
@@ -6483,17 +6475,15 @@
             save: () => {
                 if (typeof PLAYERS_DB !== 'undefined') {
                     const states = PLAYERS_DB.map(p => ({ n: p.name, f: p.form, ft: p.fatigue }));
-                    localStorage.setItem('pdc_player_states', JSON.stringify(states));
+                    localStorage.setItem(Persistence.prefix + 'player_states', JSON.stringify(states));
                 }
 
-                if (App.players.length > 0) localStorage.setItem('pdc_players', JSON.stringify(App.players));
-                localStorage.setItem('pdc_match_state', JSON.stringify(App.matchState));
-                localStorage.setItem('pdc_app_config', JSON.stringify(App.config));
+                if (App.players && App.players.length > 0) localStorage.setItem(Persistence.prefix + 'players', JSON.stringify(App.players));
+                localStorage.setItem(Persistence.prefix + 'match_state', JSON.stringify(App.matchState));
+                localStorage.setItem(Persistence.prefix + 'app_config', JSON.stringify(App.config));
 
-                // Get tournament name - always save it when in tournament
                 const tournName = document.getElementById('tourn-event-name')?.value || Tournament.config.name || 'CUSTOM TOURNAMENT';
 
-                // Only save tournament state if it's active
                 if (Tournament.state.active) {
                     const cleanBracket = Tournament.state.bracketData.map(round =>
                         round.map(m => ({
@@ -6501,7 +6491,6 @@
                         }))
                     );
 
-                    // Clean group matches if they exist (for Grand Slam group stage)
                     let cleanGroupMatches = null;
                     if (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
                         cleanGroupMatches = Tournament.state.groupMatches.map(group =>
@@ -6512,7 +6501,7 @@
                         );
                     }
 
-                    localStorage.setItem('pdc_tourn_state', JSON.stringify({
+                    localStorage.setItem(Persistence.prefix + 'tourn_state', JSON.stringify({
                         active: true,
                         bracketData: cleanBracket,
                         currentActiveRound: Tournament.state.currentActiveRound,
@@ -6520,60 +6509,50 @@
                         selectedPlayerIndices: Array.from(Tournament.state.selectedPlayerIndices),
                         matchQueue: Tournament.state.matchQueue,
                         tournamentName: tournName,
-                        // Group stage data for Grand Slam
                         groupMatches: cleanGroupMatches,
                         groupStandings: Tournament.state.groupStandings || null,
                         groupStageData: Tournament.state.groupStageData || null
                     }));
-                    localStorage.setItem('pdc_tourn_config', JSON.stringify({
+                    localStorage.setItem(Persistence.prefix + 'tourn_config', JSON.stringify({
                         ...Tournament.config,
                         name: tournName
                     }));
-                    // Cache tournament name for restoration
-                    localStorage.setItem('pdc_tournament_name', tournName);
+                    localStorage.setItem(Persistence.prefix + 'tournament_name', tournName);
                 } else {
-                    // Clear tournament state if not active
-                    localStorage.removeItem('pdc_tourn_state');
-                    localStorage.removeItem('pdc_tourn_config');
+                    localStorage.removeItem(Persistence.prefix + 'tourn_state');
+                    localStorage.removeItem(Persistence.prefix + 'tourn_config');
                 }
 
-                // Season Save
-                localStorage.setItem('pdc_season_state', JSON.stringify(Season.state));
+                localStorage.setItem(Persistence.prefix + 'season_state', JSON.stringify(Season.state));
 
-                // Save career player stats
                 if (Season.state && Season.state.career && Season.state.career.playerName) {
                     const player = Season.getCareerPlayer();
                     if (player) {
                         const careerPlayerStats = {
-                            name: player.name,
-                            avg: player.avg,
-                            co: player.co,
-                            form: player.form,
-                            fatigue: player.fatigue,
-                            consistency: player.consistency,
-                            confidence: player.confidence,
-                            money: player.money
+                            name: player.name, avg: player.avg, co: player.co,
+                            form: player.form, fatigue: player.fatigue, consistency: player.consistency,
+                            confidence: player.confidence, money: player.money
                         };
-                        localStorage.setItem('pdc_career_player_stats', JSON.stringify(careerPlayerStats));
+                        localStorage.setItem(Persistence.prefix + 'career_player_stats', JSON.stringify(careerPlayerStats));
                     }
                 }
 
                 if (Season.state && Season.state.career && Array.isArray(Season.state.career.customPlayers)) {
-                    localStorage.setItem('pdc_custom_players', JSON.stringify(Season.state.career.customPlayers));
+                    localStorage.setItem(Persistence.prefix + 'custom_players', JSON.stringify(Season.state.career.customPlayers));
                 }
 
                 let screen = 'setup';
                 if (document.getElementById('match-screen').style.display === 'flex') screen = 'match';
                 else if (document.getElementById('tournament-hub').style.display === 'flex' && Tournament.state.active) screen = 'hub';
                 else if (document.getElementById('post-match-screen').style.display === 'flex') screen = 'stats';
-                localStorage.setItem('pdc_active_screen', screen);
+                localStorage.setItem(Persistence.prefix + 'active_screen', screen);
             },
 
             load: () => {
                 try {
-                    // Load Player States
-                    const pStates = JSON.parse(localStorage.getItem('pdc_player_states'));
-                    if (pStates && typeof PLAYERS_DB !== 'undefined') {
+                    const pStatesSource = localStorage.getItem(Persistence.prefix + 'player_states');
+                    if (pStatesSource && typeof PLAYERS_DB !== 'undefined') {
+                        const pStates = JSON.parse(pStatesSource);
                         pStates.forEach(s => {
                             const p = PLAYERS_DB.find(x => x.name === s.n);
                             if (p) {
@@ -6583,230 +6562,92 @@
                         });
                     }
 
-                    // Always load Season state regardless of screen
-                    const sState = localStorage.getItem('pdc_season_state');
-                    if (sState) {
-                        Season.state = JSON.parse(sState);
+                    const sStateSource = localStorage.getItem(Persistence.prefix + 'season_state');
+                    if (sStateSource) {
+                        Season.state = JSON.parse(sStateSource);
                         console.log('Season state loaded successfully');
                     }
 
-                    // Restore career player stats
-                    const careerPlayerStats = localStorage.getItem('pdc_career_player_stats');
-                    if (careerPlayerStats && Season.state && Season.state.career && Season.state.career.playerName) {
-                        const stats = JSON.parse(careerPlayerStats);
+                    const careerPlayerStatsSource = localStorage.getItem(Persistence.prefix + 'career_player_stats');
+                    if (careerPlayerStatsSource && Season.state && Season.state.career && Season.state.career.playerName) {
+                        const stats = JSON.parse(careerPlayerStatsSource);
                         const player = PLAYERS_DB.find(p => p.name === stats.name);
                         if (player) {
-                            player.avg = stats.avg;
-                            player.co = stats.co;
-                            player.form = stats.form;
-                            player.fatigue = stats.fatigue;
-                            player.consistency = stats.consistency;
-                            player.confidence = stats.confidence;
-                            player.money = stats.money;
-                            console.log('Career player stats restored:', stats.name);
+                            player.avg = stats.avg; player.co = stats.co; player.form = stats.form;
+                            player.fatigue = stats.fatigue; player.consistency = stats.consistency;
+                            player.confidence = stats.confidence; player.money = stats.money;
                         }
                     }
 
-                    // If no tournament is active but inProgress is true, reset it
-                    // BUT: Don't reset if guard is active (we're in a transition period)
-                    if (!Tournament.state.active && Season.state.inProgress && !Season.guardAgainstAutoStart) {
-                        Season.state.inProgress = false;
-                        console.log('Reset inProgress flag since no tournament is active');
-                    }
-
-                    const screen = localStorage.getItem('pdc_active_screen');
-                    if (!screen || screen === 'setup') return;
-
-                    const pData = localStorage.getItem('pdc_players');
-                    if (pData) App.players = JSON.parse(pData);
-
-                    const mData = localStorage.getItem('pdc_match_state');
-                    if (mData) App.matchState = JSON.parse(mData);
-
-                    const cData = localStorage.getItem('pdc_app_config');
-                    if (cData) {
-                        App.config = JSON.parse(cData);
-                        // Restore theme immediately
-                        if (App.config.event && App.applyEventColors) {
-                            App.applyEventColors(App.config.event);
-                        }
-                    }
-
-                    const tState = localStorage.getItem('pdc_tourn_state');
-                    if (tState) {
-                        const parsed = JSON.parse(tState);
-                        Tournament.state.active = parsed.active;
-                        Tournament.state.bracketData = parsed.bracketData;
-                        Tournament.state.currentActiveRound = parsed.currentActiveRound;
-                        Tournament.state.viewingRound = parsed.viewingRound;
-                        Tournament.state.selectedPlayerIndices = new Set(parsed.selectedPlayerIndices);
-                        Tournament.state.matchQueue = parsed.matchQueue || [];
-                        // Restore tournament name from state if available
-                        if (parsed.tournamentName) {
-                            Tournament.config.name = parsed.tournamentName;
-                        }
-                        // Restore group stage data for Grand Slam
-                        if (parsed.groupMatches) {
-                            Tournament.state.groupMatches = parsed.groupMatches;
-                        }
-                        if (parsed.groupStandings) {
-                            Tournament.state.groupStandings = parsed.groupStandings;
-                        }
-                        if (parsed.groupStageData) {
-                            Tournament.state.groupStageData = parsed.groupStageData;
-                        }
-                    }
-
-                    const tConfig = localStorage.getItem('pdc_tourn_config');
-                    if (tConfig) {
-                        const loadedConfig = JSON.parse(tConfig);
-                        Tournament.config = { ...Tournament.config, ...loadedConfig };
-                        // Ensure rounds array is preserved if not in loaded config
-                        if (!Tournament.config.rounds) {
-                            Tournament.config.rounds = [];
-                        }
-                    }
-
-                    // Restore cached tournament name if exists
-                    const cachedTournName = localStorage.getItem('pdc_tournament_name');
-                    if (cachedTournName && document.getElementById('tourn-event-name')) {
-                        document.getElementById('tourn-event-name').value = cachedTournName;
-                        Tournament.config.name = cachedTournName;
-                    }
-
-                    // ===== PRO TOUR OOM SAFETY INIT =====
+                    // Safety inits
                     if (!Season.state.proTourOOM) Season.state.proTourOOM = {};
                     if (!Season.state.proTourHistory) Season.state.proTourHistory = [];
                     if (!Season.state.challengeTourOOM) Season.state.challengeTourOOM = {};
                     if (!Season.state.challengeTourHistory) Season.state.challengeTourHistory = [];
-
-                    // ===== Q-SCHOOL SAFETY INIT =====
-                    if (!Season.state.qSchool) Season.state.qSchool = {};
-                    if (!Season.state.qSchool.ukOOM) Season.state.qSchool.ukOOM = {};
-                    if (!Season.state.qSchool.euOOM) Season.state.qSchool.euOOM = {};
-                    if (!Season.state.qSchool.ukParticipants) Season.state.qSchool.ukParticipants = [];
-                    if (!Season.state.qSchool.euParticipants) Season.state.qSchool.euParticipants = [];
-                    if (!Season.state.qSchool.ukFinalStageQualified) Season.state.qSchool.ukFinalStageQualified = [];
-                    if (!Season.state.qSchool.euFinalStageQualified) Season.state.qSchool.euFinalStageQualified = [];
-
-                    // ===== WORLD SERIES SAFETY INIT =====
-                    if (!Season.state.worldSeriesOOM) Season.state.worldSeriesOOM = {};
-                    if (!Season.state.worldSeriesHistory) Season.state.worldSeriesHistory = [];
-
-                    // ===== PREMIER LEAGUE SAFETY INIT =====
-                    if (!Season.state.premierLeague) Season.state.premierLeague = {};
-                    if (!Season.state.premierLeague.standings) Season.state.premierLeague.standings = {};
-                    if (!Season.state.premierLeague.nightResults) Season.state.premierLeague.nightResults = [];
-                    if (!Season.state.premierLeague.playoffQualifiers) Season.state.premierLeague.playoffQualifiers = [];
-
-                    // ===== GENERAL SAFETY INIT =====
-                    if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: new Set(), internationalQualifiers: [] };
-                    if (!Season.state.wcQualified.qualifiers) Season.state.wcQualified.qualifiers = new Set();
-                    if (!Season.state.wcQualified.internationalQualifiers) Season.state.wcQualified.internationalQualifiers = [];
-                    if (!Season.state.winmauQualifiers) Season.state.winmauQualifiers = [];
-                    if (!Season.state.activeOOMView) Season.state.activeOOMView = "main";
+                    if (!Season.state.qSchool) Season.state.qSchool = { ukOOM: {}, euOOM: {}, ukParticipants: [], euParticipants: [], ukFinalStageQualified: [], euFinalStageQualified: [] };
+                    if (!Season.state.wcQualified) Season.state.wcQualified = { qualifiers: [], internationalQualifiers: [] };
                     if (Season.ensureCareerState) Season.ensureCareerState();
 
+                    const screen = localStorage.getItem(Persistence.prefix + 'active_screen') || 'setup';
 
-                    document.getElementById('setup-screen').style.display = 'none';
+                    if (screen === 'hub' || screen === 'match' || screen === 'stats') {
+                        const tState = JSON.parse(localStorage.getItem(Persistence.prefix + 'tourn_state') || 'null');
+                        const tConfig = JSON.parse(localStorage.getItem(Persistence.prefix + 'tourn_config') || 'null');
 
-                    if (screen === 'match') {
-                        document.getElementById('match-screen').style.display = 'flex';
-                        // Force update of Sets vs Legs label immediately based on LOADED config
-                        document.getElementById('lbl-score-type').innerText = (App.config.mode === 'sets') ? "SETS" : "LEGS";
+                        if (tState && tConfig) {
+                            Tournament.config = tConfig;
+                            Tournament.state = {
+                                ...Tournament.state,
+                                ...tState,
+                                selectedPlayerIndices: new Set(tState.selectedPlayerIndices || [])
+                            };
+                            Tournament.state.active = true;
 
-                        if (App.config.mode === 'legs') {
-                            document.getElementById('bot-sets-p0').style.display = "none";
-                            document.getElementById('bot-sets-p1').style.display = "none";
-                            document.getElementById('bot-legs-p0').className = "main-score";
-                            document.getElementById('bot-legs-p1').className = "main-score";
-                        } else {
-                            document.getElementById('bot-sets-p0').style.display = "block";
-                            document.getElementById('bot-sets-p1').style.display = "block";
-                            document.getElementById('bot-legs-p0').className = "sub-score";
-                            document.getElementById('bot-legs-p1').className = "sub-score";
-                        }
-
-                        App.updateScoreboard();
-
-                        if (App.players && App.players[0] && App.players[1]) {
-                            const p0 = App.players[0]; const p1 = App.players[1];
-                            document.getElementById('name-p0').innerText = p0.name;
-                            document.getElementById('name-p1').innerText = p1.name;
-                            document.getElementById('flag-p0').src = getFlagUrl(p0.country);
-                            document.getElementById('flag-p1').src = getFlagUrl(p1.country);
-                            document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
-                            document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
-                            document.getElementById('txt-event-header').innerText = App.config.event.toUpperCase();
-
-                            App.ensureRow();
-
-                            App.isPaused = false;
-                            App.updatePauseInfo();
-                            document.getElementById('overlay-resume').style.display = 'none';
-
-                            // Apply event-specific colors
-                            if (App.applyEventColors) {
-                                App.applyEventColors(App.config.event);
+                            const cachedTournName = localStorage.getItem(Persistence.prefix + 'tournament_name');
+                            if (cachedTournName && document.getElementById('tourn-event-name')) {
+                                document.getElementById('tourn-event-name').value = cachedTournName;
                             }
 
-                            // Start the leg automatically for loaded matches
-                            setTimeout(() => App.startLeg(), 100);
-                        }
-                    } else if (screen === 'hub') {
-                        if (Tournament.state.active) {
-                            // Check if tournament is actually finished (all rounds complete)
-                            const allRoundsComplete = Tournament.state.bracketData.every(round =>
-                                round.every(match => match.winner)
-                            );
+                            if (screen === 'match') {
+                                App.matchState = JSON.parse(localStorage.getItem(Persistence.prefix + 'match_state') || '{}');
+                                App.players = JSON.parse(localStorage.getItem(Persistence.prefix + 'players') || '[]');
+                                App.config = JSON.parse(localStorage.getItem(Persistence.prefix + 'app_config') || '{}');
 
-                            if (allRoundsComplete) {
-                                // Tournament is finished
-                                // Generate News for Winner
-                                const finalRound = Tournament.state.bracketData[Tournament.state.bracketData.length - 1];
-                                if (finalRound && finalRound.length > 0) {
-                                    const finalMatch = finalRound[0];
-                                    const winnerObj = finalMatch.winner;
-                                    const runnerUpObj = finalMatch.p1 === winnerObj ? finalMatch.p2 : finalMatch.p1;
+                                document.getElementById('setup-screen').style.display = 'none';
+                                document.getElementById('match-screen').style.display = 'flex';
+                                document.getElementById('lbl-score-type').innerText = (App.config.mode === 'sets') ? "SETS" : "LEGS";
+                                App.updateScoreboard();
 
-                                    // Use NAMES for strings to avoid crash
-                                    const winnerName = winnerObj ? winnerObj.name : "Unknown";
-                                    const runnerUpName = runnerUpObj ? runnerUpObj.name : "Unknown";
-
-                                    if (typeof NewsSystem !== 'undefined' && winnerName !== "Unknown") {
-                                        const championQuote = NewsSystem.quotes.champion[Math.floor(Math.random() * NewsSystem.quotes.champion.length)];
-                                        NewsSystem.add('win', {
-                                            headline: `${winnerName.toUpperCase()} CROWNED ${Tournament.config.name.toUpperCase()} CHAMPION!`,
-                                            subtext: `In a thrilled final, ${winnerName} defeated ${runnerUpName} to lift the trophy. ${championQuote}`,
-                                            player: winnerName,
-                                            event: Tournament.config.name || 'Tournament',
-                                            importance: 'high'
-                                        });
-                                    }
+                                if (App.players && App.players[0] && App.players[1]) {
+                                    const p0 = App.players[0]; const p1 = App.players[1];
+                                    document.getElementById('name-p0').innerText = p0.name;
+                                    document.getElementById('name-p1').innerText = p1.name;
+                                    document.getElementById('flag-p0').src = typeof getFlagUrl !== 'undefined' ? getFlagUrl(p0.country) : '';
+                                    document.getElementById('flag-p1').src = typeof getFlagUrl !== 'undefined' ? getFlagUrl(p1.country) : '';
+                                    document.getElementById('bot-name-p0').innerText = p0.name.split(' ').pop();
+                                    document.getElementById('bot-name-p1').innerText = p1.name.split(' ').pop();
+                                    document.getElementById('txt-event-header').innerText = (App.config.event || 'MATCH').toUpperCase();
+                                    App.ensureRow();
+                                    App.isPaused = false;
+                                    document.getElementById('overlay-resume').style.display = 'none';
+                                    if (App.applyEventColors) App.applyEventColors(App.config.event);
+                                    setTimeout(() => App.startLeg(), 100);
                                 }
-
-                                console.log('Tournament complete, returning to setup screen');
-                                Persistence.clearTournamentOnly();
-                                document.getElementById('setup-screen').style.display = 'flex';
-                                document.getElementById('tournament-hub').style.display = 'none';
+                            } else if (screen === 'stats') {
+                                App.showPostMatch();
                             } else {
                                 Tournament.renderHub();
+                                App.switchTab('hub');
                             }
                         } else {
-                            // Tournament is no longer active, go back to season
-                            document.getElementById('setup-screen').style.display = 'flex';
-                            document.getElementById('tournament-hub').style.display = 'none';
-                            App.switchTab('season');
-                            Season.renderUI();
+                            App.switchTab('setup');
                         }
-                    } else if (screen === 'stats') {
-                        App.showPostMatch();
+                    } else {
+                        App.switchTab('setup');
                     }
-
                 } catch (e) {
-                    console.error("Load failed, resetting...", e);
-                    // Only clear tournament data, keep Season progress
-                    Persistence.clearTournamentOnly();
+                    console.error('Persistence.load error:', e);
+                    App.switchTab('setup');
                 }
             },
 
@@ -9097,7 +8938,7 @@
                     custom.style.display = 'flex';
                     existingBtn.classList.remove('selected');
                     customBtn.classList.add('selected');
-                    
+
                     // Initialize sliders
                     setTimeout(() => {
                         const avgSlider = document.getElementById('career-custom-avg');
@@ -9448,7 +9289,7 @@
                     const fatigue = Math.round(p.fatigue || 0);
                     const formColor = form >= 70 ? '#2ecc71' : form >= 50 ? '#f39c12' : '#e74c3c';
                     const fatigueColor = fatigue >= 70 ? '#e74c3c' : fatigue >= 50 ? '#f39c12' : '#2ecc71';
-                    
+
                     tbody.innerHTML += `
                         <tr style="border-bottom:1px solid rgba(255,255,255,0.1); background: ${idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent'};">
                             <td style="padding:6px 8px; color:#888; font-size:12px;">${idx + 1}</td>
@@ -9672,22 +9513,47 @@
                 Season.selectCareerPlayer(player.name, 'custom');
             },
 
+            showCareerStart: () => {
+                const mainMenu = document.getElementById('career-main-menu');
+                const startHub = document.getElementById('career-start');
+                if (mainMenu) mainMenu.style.display = 'none';
+                if (startHub) {
+                    startHub.style.display = 'flex';
+                    Season.populateCareerCountrySelect('career-start-country');
+                    Season.renderCareerPlayerListTo('career-start-list');
+                    Season.updateCareerStartRanges();
+                }
+            },
+
             renderCareerHub: () => {
                 Season.ensureCareerState();
                 const career = Season.state.career;
                 const player = Season.getCareerPlayer();
                 const dateObj = Season.getCareerDateObj();
 
+                const setupScreen = document.getElementById('setup-screen');
+                if (setupScreen) setupScreen.style.display = 'flex';
+
+                const mainMenu = document.getElementById('career-main-menu');
                 const startHub = document.getElementById('career-start');
                 const careerShell = document.querySelector('.career-shell');
-                if (startHub && careerShell) {
+
+                if (mainMenu && startHub && careerShell) {
                     const hasPlayer = !!player;
-                    startHub.style.display = hasPlayer ? 'none' : 'flex';
-                    careerShell.style.display = hasPlayer ? 'flex' : 'none';
-                    if (!hasPlayer) {
-                        Season.populateCareerCountrySelect('career-start-country');
-                        Season.renderCareerPlayerListTo('career-start-list');
-                        Season.updateCareerStartRanges();
+
+                    if (hasPlayer) {
+                        mainMenu.style.display = 'none';
+                        startHub.style.display = 'none';
+                        careerShell.style.display = 'flex';
+                    } else {
+                        // If no player, show main menu first (unless we are already in start hub)
+                        if (startHub.style.display === 'flex') {
+                            mainMenu.style.display = 'none';
+                        } else {
+                            mainMenu.style.display = 'flex';
+                            startHub.style.display = 'none';
+                        }
+                        careerShell.style.display = 'none';
                         return;
                     }
                 }
@@ -9851,13 +9717,13 @@
                         }
 
                         // Calculate costs
-                        
+
                         // Get entry fee from EventEnrichment or fallback to 0
                         let entryFee = 0;
                         if (typeof EventEnrichment !== 'undefined' && EventEnrichment.entryFees) {
                             entryFee = EventEnrichment.entryFees[nextEvent.type] || 0;
                         }
-                        
+
                         // Calculate travel cost
                         let travelCost = 0;
                         if (typeof TravelSystem !== 'undefined' && TravelSystem.calculateTravel) {
@@ -9866,9 +9732,9 @@
                             const travelData = TravelSystem.calculateTravel(currentRegion, eventLocation.region || 'uk');
                             travelCost = travelData ? travelData.totalCost : 0;
                         }
-                        
+
                         const totalCost = entryFee + travelCost;
-                        
+
                         // Get winner prize from PRIZE_STRUCTURE
                         let winnerPrize = 0;
                         if (typeof PRIZE_STRUCTURE !== 'undefined' && PRIZE_STRUCTURE[nextEvent.type]) {
@@ -10108,7 +9974,7 @@
                     alert('Finish the current event before advancing the day.');
                     return;
                 }
-                
+
                 const player = Season.getCareerPlayer();
                 const career = Season.state.career;
                 if (player) {
@@ -10116,12 +9982,12 @@
                     const avgDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
                     const coDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
                     const formDecrease = Math.floor(Math.random() * 2 + 1); // -1 to -2
-                    
+
                     player.avg = Math.max(50, (player.avg || 60) - avgDecrease);
                     player.co = Math.max(20, (player.co || 30) - coDecrease);
                     player.form = Math.max(0, (player.form || 50) - formDecrease);
                 }
-                
+
                 Season.advanceCareerDate(1);
                 Season.state.career.lastAction = 'next';
                 Season.state.career.lastActionDate = Season.state.career.currentDate;
@@ -10374,7 +10240,7 @@
                     }
                     return true;
                 }
-                
+
                 if (ev.type === 'challenge') {
                     if (player.tourCard) return false;
                     if (ev.eligibleRegions && ev.eligibleRegions.length > 0) {
@@ -10708,7 +10574,7 @@
                 Season.showTrainingAnimation(type || 'scoring', result);
                 Season.state.career.dayChoices[iso] = { action: 'train', eventId: null };
                 Season.state.career.lastTrainDate = iso;
-                
+
                 // If there are unplayed events today, simulate them first
                 // The simulation will advance the day automatically, so don't advance manually
                 if (eventsToday.length > 0) {
@@ -10717,7 +10583,7 @@
                     // Only advance date if there were no events to simulate
                     Season.advanceCareerDate(1);
                 }
-                
+
                 Season.renderCareerHub();
                 Persistence.save();
             },
@@ -10812,7 +10678,7 @@
                 const career = Season.state.career;
                 const overused = career.trainingStreak >= 5; // Much stricter - 5+ days in a row
                 const tooFatigued = (player.fatigue || 0) > 85; // Only if VERY fatigued (>85%)
-                
+
                 // Training has trade-offs: improving one stat may reduce the other
                 // All training improves FORM significantly
 
@@ -10966,11 +10832,11 @@
                             console.log(`[Career] Tournament at capacity (${ev.players}), removed player ${PLAYERS_DB[randomIdx]?.name} to make room for ${player.name}`);
                         }
                     }
-                    
+
                     // Now add the career player
                     Tournament.state.selectedPlayerIndices.add(playerIdx);
                     Season.state.career.activeEventParticipating = true;
-                    
+
                     // Check if player can enter and get details
                     const canEnter = Season.canCareerPlayerEnterEvent(ev);
 
@@ -11090,7 +10956,7 @@
                                         const eventIdToPlay = window.pendingEventForPlay;
                                         window.proceedWithEntry = null;
                                         window.pendingEventForPlay = null;
-                                        
+
                                         const targetSize = ev.players || Tournament.config.playerCount || Tournament.state.selectedPlayerIndices.size;
                                         if (Tournament.state.selectedPlayerIndices.size > targetSize) {
                                             const overflow = Tournament.state.selectedPlayerIndices.size - targetSize;
@@ -11105,7 +10971,7 @@
                                                 console.log(`[Career] ${result.message}`);
                                                 // Update career balance after entry
                                                 Season.state.career.balance = enrichedPlayer.money;
-                                                
+
                                                 // If user clicked "CONFIRM & PLAY", start the event
                                                 if (playAfterEntry && eventIdToPlay) {
                                                     setTimeout(() => {
@@ -11211,7 +11077,7 @@
                         const matchElement = document.getElementById(`bm-${foundMatch.roundIdx}-${foundMatch.matchIdx}`);
                         if (matchElement) {
                             matchElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                            
+
                             // Add a temporary highlight pulse
                             matchElement.style.boxShadow = '0 0 20px 4px rgba(52, 152, 219, 0.8)';
                             setTimeout(() => {
@@ -11607,7 +11473,7 @@
                 const player = Season.getCareerPlayer();
                 const todayDate = Season.state.career.currentDate;
                 const lastWorkDate = Season.state.career.lastWorkDate;
-                
+
                 if (!player) return;
 
                 // Check if worked today (can't train on work days)
@@ -13595,7 +13461,7 @@
                             }
                         }
                     }
-                    
+
                     // Final check
                     console.log(`Challenge Tour: Final count ${Tournament.state.selectedPlayerIndices.size}/${ev.players}`);
                     if (Tournament.state.selectedPlayerIndices.size < ev.players) {
@@ -13831,6 +13697,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -13860,6 +13727,7 @@
                             if (AuthSystem.currentUser) {
                                 AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                             }
+                            Season.state.inProgress = false;
                             document.getElementById('setup-screen').style.display = 'flex';
                             document.getElementById('match-screen').style.display = 'none';
                             document.getElementById('tournament-hub').style.display = 'none';
@@ -13912,6 +13780,7 @@
                         if (AuthSystem.currentUser) {
                             AuthSystem.saveToCloud().catch(e => console.log('Auto-save failed:', e.message));
                         }
+                        Season.state.inProgress = false;
                         document.getElementById('setup-screen').style.display = 'flex';
                         document.getElementById('match-screen').style.display = 'none';
                         document.getElementById('tournament-hub').style.display = 'none';
@@ -15138,17 +15007,22 @@
 
             setMode: (mode) => {
                 Tournament.config.mode = mode;
-                document.getElementById('tourn-mode-sets').className = `format-btn ${mode === 'sets' ? 'selected' : ''}`;
-                document.getElementById('tourn-mode-legs').className = `format-btn ${mode === 'legs' ? 'selected' : ''}`;
+                const btnSets = document.getElementById('tourn-mode-sets');
+                const btnLegs = document.getElementById('tourn-mode-legs');
+                if (btnSets) btnSets.className = `format-btn ${mode === 'sets' ? 'selected' : ''}`;
+                if (btnLegs) btnLegs.className = `format-btn ${mode === 'legs' ? 'selected' : ''}`;
                 const legDiv = document.getElementById('tourn-legs-per-set-div');
                 if (legDiv) legDiv.style.display = (mode === 'sets') ? 'block' : 'none';
                 Tournament.updateConfigUI();
             },
             setSelectionMethod: (method) => {
                 Tournament.config.selectionMethod = method;
-                document.getElementById('sel-random').className = `format-btn ${method === 'random' ? 'selected' : ''}`;
-                document.getElementById('sel-manual').className = `format-btn ${method === 'manual' ? 'selected' : ''}`;
-                document.getElementById('manual-selector').style.display = (method === 'manual') ? 'flex' : 'none';
+                const btnRandom = document.getElementById('sel-random');
+                const btnManual = document.getElementById('sel-manual');
+                const manualSelector = document.getElementById('manual-selector');
+                if (btnRandom) btnRandom.className = `format-btn ${method === 'random' ? 'selected' : ''}`;
+                if (btnManual) btnManual.className = `format-btn ${method === 'manual' ? 'selected' : ''}`;
+                if (manualSelector) manualSelector.style.display = (method === 'manual') ? 'flex' : 'none';
                 if (method === 'manual') Tournament.updatePlayerSelectUI();
             },
             startGrandSlamGroupStage: () => {
@@ -15381,11 +15255,15 @@
                 Tournament.renderHub();
             },
             updateConfigUI: () => {
-                const size = parseInt(document.getElementById('tourn-size').value);
+                const tournSizeEl = document.getElementById('tourn-size');
+                if (!tournSizeEl) return;
+                const size = parseInt(tournSizeEl.value);
                 Tournament.config.playerCount = size;
-                document.getElementById('sel-total').innerText = size;
+                const selTotalEl = document.getElementById('sel-total');
+                if (selTotalEl) selTotalEl.innerText = size;
                 Tournament.updateSelectionCount();
                 const container = document.getElementById('tourn-rounds-container');
+                if (!container) return;
                 container.innerHTML = '';
                 let roundsNeeded = Math.log2(size);
                 let roundNames = ["L256", "L128", "L64", "L32", "L16", "QF", "SF", "F"];
@@ -15410,7 +15288,7 @@
             },
             updatePlayerSelectUI: () => {
                 const container = document.getElementById('player-list-container');
-                if (container.children.length > 0) return;
+                if (!container || container.children.length > 0) return;
 
                 const ev = Tournament.getCurrentEvent();
                 let regionFilter = null;
@@ -15479,7 +15357,10 @@
                 }
                 Tournament.updateSelectionCount();
             },
-            updateSelectionCount: () => { document.getElementById('sel-count').innerText = Tournament.state.selectedPlayerIndices.size; },
+            updateSelectionCount: () => {
+                const selCountEl = document.getElementById('sel-count');
+                if (selCountEl) selCountEl.innerText = Tournament.state.selectedPlayerIndices.size;
+            },
             clearSelection: () => {
                 Tournament.state.selectedPlayerIndices.clear();
                 document.querySelectorAll('.player-option').forEach(el => el.classList.remove('selected'));
@@ -15487,7 +15368,9 @@
                 Tournament.updateSelectionCount();
             },
             filterPlayerList: () => {
-                const term = document.getElementById('player-search').value.toLowerCase();
+                const searchEl = document.getElementById('player-search');
+                if (!searchEl) return;
+                const term = searchEl.value.toLowerCase();
                 const opts = document.getElementsByClassName('player-option');
                 for (let i = 0; i < opts.length; i++) {
                     const txt = opts[i].innerText.toLowerCase();
@@ -15635,12 +15518,12 @@
                             console.error(`Invalid player index ${idx} in selectedPlayerIndices (PLAYERS_DB length: ${PLAYERS_DB.length})`);
                         }
                     });
-                    
+
                     // If we have fewer participants than expected due to invalid indices, log warning
                     if (participants.length < Tournament.state.selectedPlayerIndices.size) {
                         console.error(`Lost ${Tournament.state.selectedPlayerIndices.size - participants.length} players due to invalid indices`);
                     }
-                    
+
                     // Safety: If we somehow have more participants than the tournament size, trim to exact size
                     if (ev && ev.players && participants.length > ev.players) {
                         console.warn(`Tournament has ${participants.length} participants but only ${ev.players} slots. Trimming excess players.`);
@@ -17175,7 +17058,7 @@
                         // CRITICAL: For Premier League simulations, DO NOT call completeEvent here!
                         // Premier League handles completion in initializePremierLeague after the simulation loop
                         // to avoid cascading to the next night automatically
-                        if (Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') {
+                        if ((Tournament.config.eventType === 'premier-league' || Tournament.config.eventType === 'premier-league-playoff') && Season.silentSimulation) {
                             console.log(`[checkRoundComplete] PL sim detected, NOT calling completeEvent (will be called by initializePremierLeague)`);
                             return;
                         }
@@ -17507,9 +17390,16 @@
                     console.warn('Failed to load custom players:', e);
                 }
 
-                App.renderDropdown('p1'); App.renderDropdown('p2');
-                document.getElementById('inp-p1-text').value = PLAYERS_DB[0].name;
-                document.getElementById('inp-p2-text').value = PLAYERS_DB[1].name;
+                const inpP1 = document.getElementById('inp-p1-text');
+                const inpP2 = document.getElementById('inp-p2-text');
+                if (inpP1) {
+                    App.renderDropdown('p1');
+                    inpP1.value = PLAYERS_DB[0].name;
+                }
+                if (inpP2) {
+                    App.renderDropdown('p2');
+                    inpP2.value = PLAYERS_DB[1].name;
+                }
                 Tournament.updateConfigUI();
 
                 // Load saved state FIRST before initializing
@@ -17532,10 +17422,13 @@
                 if (btnWs) btnWs.onclick = () => { Season.state.activeOOMView = "worldseries"; Season.renderUI(); };
 
                 document.addEventListener('click', function (event) {
-                    if (!document.getElementById('list-p1').parentElement.contains(event.target)) document.getElementById('list-p1').style.display = 'none';
-                    if (!document.getElementById('list-p2').parentElement.contains(event.target)) document.getElementById('list-p2').style.display = 'none';
+                    const listP1 = document.getElementById('list-p1');
+                    const listP2 = document.getElementById('list-p2');
+                    if (listP1 && !listP1.parentElement.contains(event.target)) listP1.style.display = 'none';
+                    if (listP2 && !listP2.parentElement.contains(event.target)) listP2.style.display = 'none';
                 });
-                document.getElementById('btn-end-match').addEventListener('click', App.showPostMatch);
+                const btnEndMatch = document.getElementById('btn-end-match');
+                if (btnEndMatch) btnEndMatch.addEventListener('click', App.showPostMatch);
 
                 // Auto-start in Career Mode (fullscreen)
                 setTimeout(() => {
@@ -17650,15 +17543,21 @@
             },
             setMode: (mode) => {
                 App.config.mode = mode;
-                document.getElementById('btn-sets').className = `format-btn ${mode === 'sets' ? 'selected' : ''}`;
-                document.getElementById('btn-legs').className = `format-btn ${mode === 'legs' ? 'selected' : ''}`;
-                document.getElementById('legs-per-set-div').style.display = (mode === 'sets') ? 'block' : 'none';
-                document.getElementById('lbl-target').innerText = (mode === 'sets') ? "Sets" : "Legs";
+                const btnSets = document.getElementById('btn-sets');
+                const btnLegs = document.getElementById('btn-legs');
+                if (btnSets) btnSets.className = `format-btn ${mode === 'sets' ? 'selected' : ''}`;
+                if (btnLegs) btnLegs.className = `format-btn ${mode === 'legs' ? 'selected' : ''}`;
+                const legDiv = document.getElementById('legs-per-set-div');
+                if (legDiv) legDiv.style.display = (mode === 'sets') ? 'block' : 'none';
+                const lblTarget = document.getElementById('lbl-target');
+                if (lblTarget) lblTarget.innerText = (mode === 'sets') ? "Sets" : "Legs";
                 const sel = document.getElementById('inp-target');
-                if (mode === 'legs') {
-                    sel.innerHTML = `<option>3</option><option>5</option><option>7</option><option>10</option><option>11</option><option>13</option><option>15</option><option>18</option><option>21</option>`;
+                if (sel) {
+                    if (mode === 'legs') {
+                        sel.innerHTML = `<option>3</option><option>5</option><option>7</option><option>10</option><option>11</option><option>13</option><option>15</option><option>18</option><option>21</option>`;
+                    }
+                    else { sel.innerHTML = `<option>1</option><option>3</option><option>5</option><option>7</option>`; sel.value = 3; }
                 }
-                else { sel.innerHTML = `<option>1</option><option>3</option><option>5</option><option>7</option>`; sel.value = 3; }
             },
             applyEventColors: (eventName) => {
                 const eventBar = document.querySelector('.event-bar');
@@ -18564,12 +18463,23 @@
 
             updateUIStatus: () => {
                 // Update any UI elements showing login status
-                const accountBtn = document.querySelector('[onclick="AuthSystem.showModal()"]');
-                if (accountBtn && AuthSystem.currentUser) {
-                    accountBtn.innerHTML = '👤 ' + AuthSystem.currentUser.username.substring(0, 8);
-                } else if (accountBtn) {
-                    accountBtn.innerHTML = '👤 ACCOUNT';
-                }
+                const accountBtns = document.querySelectorAll('[onclick="AuthSystem.showModal()"]');
+                accountBtns.forEach(btn => {
+                    if (AuthSystem.currentUser) {
+                        const name = AuthSystem.currentUser.username.substring(0, 8);
+                        if (btn.classList.contains('career-pill')) {
+                            btn.innerHTML = `👤 <span>${name}</span>`;
+                        } else {
+                            btn.innerHTML = '👤 ' + name;
+                        }
+                    } else {
+                        if (btn.classList.contains('career-pill')) {
+                            btn.innerHTML = `👤 <span>LOGIN</span>`;
+                        } else {
+                            btn.innerHTML = '👤 ACCOUNT';
+                        }
+                    }
+                });
             },
 
             switchToRegister: () => {
@@ -18799,7 +18709,8 @@
                     console.log('Save data size:', serialized.length, 'characters');
 
                     const result = await AuthSystem.apiCall('/save', 'POST', {
-                        data: serialized
+                        data: serialized,
+                        saveType: 'career_v2' // Separate identifier for server
                     });
 
                     if (!result.success) {
@@ -18832,7 +18743,7 @@
                     const loadBtn = document.getElementById('auth-load-btn');
                     if (loadBtn) loadBtn.innerText = '⏳ Loading...';
 
-                    const result = await AuthSystem.apiCall('/load', 'GET');
+                    const result = await AuthSystem.apiCall('/load?type=career_v2', 'GET');
 
                     if (result.success && result.data) {
                         const gameState = AuthSystem.deserialize(result.data);
@@ -19050,17 +18961,14 @@
         </div>
     </div>
 
-    <!-- BACK TO MAIN MENU BUTTON (Always Visible) -->
-    <button onclick="switchTab('single')"
-        style="position: fixed; bottom: 35px; right: 12px; z-index: 9998; background: #cc3300; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">←
-        BACK TO MAIN MENU</button>
+
 
     <!-- PWA Install Button -->
     <button id="pwa-install-btn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
         </svg>
-        Install App
+        INSTALL CAREER MODE
     </button>
 
     <!-- VERSION FOOTER -->
@@ -19121,16 +19029,21 @@
                     });
 
                 // Listen for controller change (new SW took over)
+                let refreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    // Only reload if we were previously controlled (meaning this is an update)
+                    if (!navigator.serviceWorker.controller) return;
+                    refreshing = true;
                     console.log('New service worker activated, reloading page...');
                     window.location.reload();
                 });
 
                 // Listen for messages from SW
                 navigator.serviceWorker.addEventListener('message', event => {
-                    if (event.data && event.data.type === 'SW_UPDATED') {
+                    if (event.data && event.data.type === 'SW_UPDATED' && !refreshing) {
+                        refreshing = true;
                         console.log('SW updated to version:', event.data.version);
-                        // Reload to get the latest version
                         window.location.reload();
                     }
                 });
