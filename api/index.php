@@ -386,7 +386,23 @@ switch ($uri) {
         if ($method !== 'GET') jsonResponse(['error' => 'Method not allowed'], 405);
         
         $db = getDB();
-        $result = $db->query('SELECT * FROM tournaments ORDER BY id');
+        $result = $db->query('SELECT * FROM tournaments ORDER BY 
+            CASE substr(date, 1, 3)
+                WHEN \'Jan\' THEN 1
+                WHEN \'Feb\' THEN 2
+                WHEN \'Mar\' THEN 3
+                WHEN \'Apr\' THEN 4
+                WHEN \'May\' THEN 5
+                WHEN \'Jun\' THEN 6
+                WHEN \'Jul\' THEN 7
+                WHEN \'Aug\' THEN 8
+                WHEN \'Sep\' THEN 9
+                WHEN \'Oct\' THEN 10
+                WHEN \'Nov\' THEN 11
+                WHEN \'Dec\' THEN 12
+            END,
+            CAST(substr(date, 5) AS INTEGER),
+            id');
         $tournaments = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $row['cardRequired'] = (bool)$row['cardRequired'];
@@ -765,7 +781,23 @@ switch ($uri) {
             
             if ($adminRoute === 'tournaments' && $method === 'GET') {
                 $db = getDB();
-                $result = $db->query('SELECT * FROM tournaments ORDER BY id');
+                $result = $db->query('SELECT * FROM tournaments ORDER BY 
+                    CASE substr(date, 1, 3)
+                        WHEN \'Jan\' THEN 1
+                        WHEN \'Feb\' THEN 2
+                        WHEN \'Mar\' THEN 3
+                        WHEN \'Apr\' THEN 4
+                        WHEN \'May\' THEN 5
+                        WHEN \'Jun\' THEN 6
+                        WHEN \'Jul\' THEN 7
+                        WHEN \'Aug\' THEN 8
+                        WHEN \'Sep\' THEN 9
+                        WHEN \'Oct\' THEN 10
+                        WHEN \'Nov\' THEN 11
+                        WHEN \'Dec\' THEN 12
+                    END,
+                    CAST(substr(date, 5) AS INTEGER),
+                    id');
                 $tournaments = [];
                 while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
                     $row['cardRequired'] = (bool)$row['cardRequired'];
