@@ -101,17 +101,23 @@
         .setup-box {
             background: linear-gradient(145deg, rgba(26, 31, 53, 0.95), rgba(15, 21, 37, 0.95));
             backdrop-filter: blur(20px);
-            border-radius: 16px;
+            border-radius: 0;
             width: 100%;
-            max-width: 600px;
-            height: 90dvh;
-            max-height: 900px;
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 215, 0, 0.3);
+            max-width: none;
+            height: 100dvh;
+            max-height: none;
+            border: none;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .setup-box {
+                border-radius: 0;
+            }
         }
 
         .tabs {
@@ -352,12 +358,19 @@
 
         .format-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .format-row {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
 
         .format-btn {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             background: linear-gradient(145deg, #1a1f35, #12172a);
             border: 2px solid rgba(255, 255, 255, 0.1);
             color: #aaa;
@@ -366,9 +379,16 @@
             border-radius: 8px;
             text-align: center;
             font-size: 12px;
-            height: 40px;
+            height: 44px;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-sm);
+        }
+
+        @media (max-width: 768px) {
+            .format-btn {
+                height: 40px;
+                padding: 10px;
+            }
         }
 
         .format-btn:hover {
@@ -392,7 +412,7 @@
         .btn-hub-action {
             font-weight: 900;
             cursor: pointer;
-            padding: 12px 20px;
+            padding: 14px 22px;
             font-size: 14px;
             text-transform: uppercase;
             border: none;
@@ -403,6 +423,15 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .btn-gold,
+            .btn-blue,
+            .btn-hub-action {
+                padding: 12px 18px;
+                font-size: 12px;
+            }
         }
 
         .btn-gold {
@@ -536,11 +565,18 @@
         .tourn-config-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 5px;
-            max-height: 120px;
+            gap: 12px;
+            margin-top: 8px;
+            max-height: 140px;
             overflow-y: auto;
             flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .tourn-config-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
 
         .checkbox-row {
@@ -588,18 +624,17 @@
         .season-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             flex: 1;
             min-height: 0;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 2px;
-            padding-bottom: 16px;
+            padding: 4px 4px 16px 4px;
         }
 
         .season-event {
             background: linear-gradient(145deg, rgba(26, 31, 53, 0.7), rgba(18, 23, 40, 0.8));
-            padding: 16px 20px;
+            padding: 18px 22px;
             border-radius: 12px;
             border-left: 4px solid rgba(255, 215, 0, 0.3);
             display: flex;
@@ -610,6 +645,14 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-left-width: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .season-event {
+                padding: 14px 16px;
+                flex-direction: column;
+                text-align: center;
+            }
         }
 
         .season-event:hover {
@@ -666,10 +709,16 @@
             background: linear-gradient(135deg, rgba(10, 14, 26, 0.9), rgba(24, 36, 68, 0.9));
             border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 14px;
-            padding: 14px;
+            padding: 18px;
             box-shadow: var(--shadow-md);
             position: relative;
             overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .career-hero {
+                padding: 14px;
+            }
         }
 
         .career-hero::after {
@@ -712,22 +761,34 @@
         .career-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 12px;
         }
 
         @media (min-width: 720px) {
             .career-grid {
-                grid-template-columns: 1.1fr 1fr;
+                grid-template-columns: 1.2fr 1fr;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .career-grid {
+                grid-template-columns: 1.3fr 1.1fr;
             }
         }
 
         .career-panel {
-            background: linear-gradient(145deg, rgba(26, 31, 53, 0.9), rgba(15, 21, 37, 0.95));
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.85), rgba(15, 21, 37, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
-            padding: 12px;
-            box-shadow: var(--shadow-sm);
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .career-panel {
+                padding: 14px;
+            }
         }
 
         .career-panel-header {
@@ -770,7 +831,19 @@
         .career-stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .career-stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .career-stat-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .career-stat {
@@ -796,8 +869,84 @@
 
         .career-actions {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .career-actions {
+                gap: 6px;
+            }
+        }
+
+        .career-actions .btn-hub-action {
+            min-width: 110px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .career-actions .btn-hub-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .career-action-insights {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .career-action-insights {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        .career-insight-item {
+            background: linear-gradient(145deg, rgba(26, 31, 53, 0.7), rgba(14, 20, 36, 0.85));
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        @media (max-width: 768px) {
+            .career-insight-item {
+                padding: 8px 10px;
+            }
+        }
+
+        .career-insight-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #8fa3ad;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .career-insight-value {
+            font-size: 12px;
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .career-recommend-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 215, 0, 0.35);
+            color: var(--pdc-gold);
+            background: rgba(255, 215, 0, 0.08);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
         .career-day-summary {
@@ -808,10 +957,68 @@
         .career-day-events {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             max-height: 220px;
             overflow-y: auto;
-            padding-right: 2px;
+            padding-right: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .career-day-events {
+                gap: 8px;
+                max-height: none;
+            }
+        }
+
+        .career-day-event-row {
+            padding: 12px;
+            margin: 4px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid #444;
+        }
+
+        @media (max-width: 768px) {
+            .career-day-event-row {
+                padding: 10px;
+                margin: 3px 0;
+            }
+        }
+
+        .career-day-event-row.active {
+            background: rgba(255, 215, 0, 0.1);
+            border-left-color: var(--pdc-gold);
+        }
+
+        .career-day-event-row.completed {
+            border-left-color: #2ecc71;
+        }
+
+        .career-day-event-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .career-day-event-name {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 3px;
+        }
+
+        .career-day-event-meta {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .career-day-event-badge {
+            text-align: right;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .career-calendar-list {
@@ -820,23 +1027,44 @@
             gap: 12px;
             max-height: 420px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 12px;
             background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .career-calendar-list {
+                gap: 10px;
+                padding: 10px;
+                max-height: none;
+            }
         }
 
         .career-training-panel {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .career-training-panel {
+                padding: 10px;
+            }
         }
 
         .career-training-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .career-training-grid {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
         }
 
         .career-training-btn {
@@ -881,9 +1109,17 @@
         .career-news-feed {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             max-height: 280px;
             overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .career-news-feed {
+                gap: 8px;
+                max-height: none;
+            }
         }
 
         .career-standings-tabs,
@@ -931,38 +1167,76 @@
 
         .career-shell {
             display: flex;
-            gap: 0;
-            min-height: 520px;
+            gap: 16px;
+            min-height: 0;
+            height: 100%;
+            flex: 1;
+            overflow: hidden;
             background: linear-gradient(135deg, #0d1219 0%, #1a2332 50%, #0d1219 100%);
+            padding: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .career-shell {
+                flex-direction: column;
+                gap: 12px;
+                padding: 8px;
+            }
+        }
+
+        body.career-fullscreen .career-shell {
+            min-height: 0;
+            height: 100%;
+            flex: 1;
+            overflow: hidden;
         }
 
         .career-sidebar {
-            width: 170px;
+            width: 200px;
             background: linear-gradient(180deg, #1a2332 0%, #151d2a 100%);
-            border: none;
-            border-radius: 0;
-            padding: 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 12px;
             display: flex;
             flex-direction: column;
-            gap: 0;
-            box-shadow: none;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             align-items: center;
-            /* Center content */
             text-align: center;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .career-sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 12px;
+                overflow-x: auto;
+                height: auto;
+            }
         }
 
         .career-brand {
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Center brand */
             font-family: 'Bebas Neue', sans-serif;
             font-size: 11px;
             letter-spacing: 1.5px;
             color: #fff;
-            padding: calc(25px + env(safe-area-inset-top)) 15px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: calc(20px + env(safe-area-inset-top)) 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             width: 100%;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .career-brand {
+                padding: 10px 12px;
+                margin-bottom: 0;
+                border-bottom: none;
+                border-right: 1px solid rgba(255, 255, 255, 0.08);
+            }
         }
 
         .career-brand span {
@@ -978,32 +1252,42 @@
 
         .career-nav {
             display: flex;
-            flex-direction: column;
-            gap: 0;
-            padding: 10px 0;
+            flex-direction: row;
+            gap: 8px;
+            padding: 0;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .career-nav-btn {
             background: transparent;
             border: none;
-            border-left: 3px solid transparent;
+            border-bottom: 2px solid transparent;
             color: #6b7a8a;
-            padding: 12px 15px;
-            border-radius: 0;
+            padding: 8px 12px;
+            border-radius: 8px;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
             text-align: center;
-            /* Center text */
             transition: all 0.2s;
             position: relative;
             font-weight: 600;
-            width: 100%;
+            width: auto;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             gap: 4px;
+            flex-shrink: 0;
+            min-width: max-content;
+        }
+
+        @media (max-width: 768px) {
+            .career-nav-btn {
+                padding: 6px 10px;
+                font-size: 9px;
+            }
         }
 
         .career-nav-btn::before {
@@ -1038,14 +1322,14 @@
         }
 
         .career-nav-btn:hover {
-            background: rgba(255, 215, 0, 0.05);
+            background: rgba(255, 215, 0, 0.08);
             color: #a8b5c0;
         }
 
         .career-nav-btn.active {
-            background: rgba(255, 215, 0, 0.12);
+            background: rgba(255, 215, 0, 0.15);
             color: var(--pdc-gold);
-            border-left-color: var(--pdc-gold);
+            border-bottom-color: var(--pdc-gold);
         }
 
         /* Prevent Clipping Fix */
@@ -1061,9 +1345,19 @@
         .career-sidebar-card {
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 12px;
-            margin: 15px 10px;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .career-sidebar-card {
+                padding: 10px;
+                margin: 0;
+                flex-shrink: 0;
+                min-width: 150px;
+            }
         }
 
         .career-sidebar-label {
@@ -1103,20 +1397,27 @@
             inset: 0;
             background: radial-gradient(circle at center, #1a2332 0%, #0a0e1a 100%);
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: stretch;
+            align-items: stretch;
             z-index: 10000;
+            padding: 0;
         }
 
         .career-menu-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
+            border-radius: 0;
             padding: 40px;
-            width: 400px;
+            width: 100%;
+            height: 100%;
+            max-width: none;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: none;
             backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .career-menu-title {
@@ -1190,8 +1491,15 @@
         .career-mini-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            padding: 0 12px;
+            gap: 10px;
+            padding: 0 14px;
+        }
+
+        @media (max-width: 768px) {
+            .career-mini-grid {
+                gap: 8px;
+                padding: 0 10px;
+            }
         }
 
         .career-mini-item {
@@ -1199,11 +1507,17 @@
             border: none;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 0;
-            padding: 8px 0;
+            padding: 10px 0;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .career-mini-item {
+                padding: 8px 0;
+            }
         }
 
         .career-mini-label {
@@ -1234,8 +1548,18 @@
             margin-top: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 15px 12px;
+            gap: 10px;
+            padding: 16px 12px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .career-sidebar-actions {
+                flex-direction: row;
+                gap: 6px;
+                padding: 8px 12px;
+                margin-top: 0;
+            }
         }
 
         .career-sidebar-actions .btn-gold {
@@ -1248,34 +1572,124 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             padding: 20px;
+            min-height: 0;
+            overflow: hidden;
+            background: rgba(10, 14, 26, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 768px) {
+            .career-main {
+                padding: 16px;
+                gap: 12px;
+            }
+        }
+
+        body.career-fullscreen .career-main {
+            min-height: 0;
+            overflow: hidden;
         }
 
         .career-topbar {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            background: rgba(26, 35, 50, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 16px 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            margin-bottom: 10px;
+            gap: 16px;
+            background: rgba(26, 35, 50, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 768px) {
+            .career-topbar {
+                padding: 16px;
+                gap: 12px;
+            }
+        }
+
+        .career-topbar-primary {
+            display: grid;
+            grid-template-columns: minmax(240px, 1.2fr) auto minmax(260px, 1fr);
+            gap: 16px;
+            align-items: center;
+        }
+
+        .career-player-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .career-player-eyebrow {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #8fa3ad;
+            font-weight: 700;
+        }
+
+        .career-topbar-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+        }
+
+        .career-topbar-nav-row {
+            align-items: flex-start;
+        }
+
+        @media (max-width: 1100px) {
+            .career-topbar-primary {
+                grid-template-columns: 1fr;
+                justify-items: start;
+            }
+
+            .career-topbar-center {
+                align-items: flex-start;
+                text-align: left;
+            }
         }
 
         .career-topbar-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .career-topbar-row {
+                gap: 10px;
+            }
         }
 
         .career-horizontal-nav {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             background: rgba(0, 0, 0, 0.2);
-            padding: 4px;
+            padding: 6px;
             border-radius: 8px;
+            flex-wrap: wrap;
+            flex: 1 1 520px;
+            min-width: 0;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .career-horizontal-nav {
+                gap: 4px;
+                padding: 4px;
+            }
         }
 
         .career-nav-btn {
@@ -1304,8 +1718,16 @@
 
         .career-topbar-stats {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+            justify-content: flex-end;
+            flex: 1 1 320px;
+        }
+
+        @media (max-width: 768px) {
+            .career-topbar-stats {
+                gap: 6px;
+            }
         }
 
         .career-brand-mini {
@@ -1316,6 +1738,19 @@
             display: flex;
             align-items: center;
             gap: 10px;
+        }
+
+        .career-player-name {
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .career-player-meta {
+            font-size: 11px;
+            color: #8fa3ad;
+            min-height: 16px;
         }
 
         .career-brand-mini span {
@@ -1335,21 +1770,35 @@
 
         .career-topbar-right {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .career-topbar-right {
+                gap: 8px;
+            }
         }
 
         .career-pill {
             background: rgba(0, 0, 0, 0.35);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 999px;
-            padding: 6px 10px;
+            padding: 8px 12px;
             font-size: 11px;
             text-transform: uppercase;
             color: #8fa3ad;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .career-pill {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
         }
 
         .career-pill span {
@@ -1360,7 +1809,26 @@
         .career-main-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 14px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            align-content: start;
+            padding-right: 6px;
+        }
+
+        @media (max-width: 1024px) {
+            .career-main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        body.career-fullscreen .career-main-grid {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            align-content: start;
+            padding-right: 2px;
         }
 
         .career-card {
@@ -1636,8 +2104,11 @@
         body.career-fullscreen #setup-screen .setup-box {
             width: 100%;
             max-width: none;
-            height: 100vh;
+            height: 100dvh;
             border-radius: 0;
+            border: none;
+            box-shadow: none;
+            overflow: hidden;
         }
 
         body.career-fullscreen #setup-screen .tabs {
@@ -1645,28 +2116,110 @@
         }
 
         body.career-fullscreen #tab-season {
-            height: 100vh;
+            height: 100dvh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #tab-season {
+            position: relative;
+            width: 100%;
+            min-height: 100dvh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #career-main-menu,
+        #career-start {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            min-height: 100dvh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+        }
+
+        #career-main-menu {
+            display: flex;
+        }
+
+        #career-start {
+            display: none;
+        }
+
+        #career-start.visible {
+            display: flex !important;
+            z-index: 10002 !important;
         }
 
         .career-start {
-            display: none;
-            height: 100%;
-            align-items: center;
-            justify-content: center;
-            padding: 28px;
+            height: 100dvh;
+            align-items: stretch;
+            justify-content: stretch;
+            padding: 0;
         }
 
         .career-start-card {
-            width: min(680px, 100%);
-            height: auto;
+            width: 100%;
+            height: 100dvh;
+            max-width: none;
             background: radial-gradient(120% 120% at 10% 0%, rgba(255, 215, 0, 0.12), transparent 55%),
                 linear-gradient(165deg, rgba(24, 34, 54, 0.98) 0%, rgba(16, 22, 36, 0.96) 60%, rgba(12, 16, 28, 0.98) 100%);
             border: 1px solid rgba(255, 215, 0, 0.18);
-            border-radius: 18px;
+            border-radius: 0;
             padding: 28px 32px 32px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 215, 0, 0.08) inset;
+            box-shadow: none;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .career-screen-controls {
+            position: fixed;
+            right: 14px;
+            top: 14px;
+            z-index: 10110;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .career-screen-btn {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(10, 14, 26, 0.72);
+            color: #e5ebf2;
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .career-screen-btn:hover {
+            border-color: rgba(255, 215, 0, 0.5);
+            color: var(--pdc-gold);
+            transform: translateY(-1px);
+        }
+
+        .career-screen-btn.danger {
+            border-color: rgba(220, 38, 38, 0.35);
+            color: #ff8a8a;
+            background: rgba(220, 38, 38, 0.12);
+        }
+
+        .career-screen-btn.danger:hover {
+            border-color: #ff6b6b;
+            color: #ffd1d1;
         }
 
         .career-start-card::after {
@@ -3254,7 +3807,6 @@
             background: #222;
             padding: 30px 20px;
             text-align: center;
-            border: 1px solid #444;
             width: 90%;
             max-width: 400px;
             box-sizing: border-box;
@@ -3561,7 +4113,7 @@
         /* RESPONSIVE */
         @media (min-width: 768px) {
             .setup-box {
-                max-width: 750px;
+                max-width: none;
             }
 
             .pc-row {
@@ -3888,20 +4440,17 @@
 
         @media (max-width: 600px) {
             .career-horizontal-nav {
-                display: none;
+                display: flex;
+                flex-wrap: nowrap;
+                width: 100%;
             }
 
             .menu-toggle {
-                display: flex !important;
-                position: fixed;
-                left: 12px;
-                top: calc(env(safe-area-inset-top, 8px) + 10px);
-                z-index: 11000;
-                box-shadow: 0 6px 26px rgba(0, 0, 0, 0.7);
+                display: none !important;
             }
 
             .career-topbar {
-                padding-top: 50px;
+                padding-top: 16px;
             }
 
             .career-topbar-row {
@@ -3910,11 +4459,20 @@
                 gap: 10px;
             }
 
+            .career-topbar-primary {
+                gap: 10px;
+            }
+
+            .career-topbar-center {
+                align-items: flex-start;
+            }
+
             .career-topbar-stats {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
                 width: 100%;
+                justify-content: stretch;
             }
 
             .career-pill {
@@ -3947,8 +4505,8 @@
             }
 
             .career-topbar-right {
-                display: none;
-                /* Hide topbar buttons on mobile, moved to menu */
+                display: flex;
+                width: 100%;
             }
         }
     </style>
@@ -3960,6 +4518,33 @@
     <button id="btn-emergency-reset" onclick="localStorage.clear(); location.reload();">⚠️ RESET APP</button>
 
     <!-- SETUP SCREEN -->
+    <!-- TOURNAMENT HUB -->
+    <div id="tournament-hub">
+        <div class="hub-header">
+            <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
+            <div class="hub-actions">
+                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current
+                    Round</button>
+                <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
+                <button class="btn-hub-action" style="background:#3498db;" onclick="Tournament.leaveEvent()">← Leave
+                    Event</button>
+                <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
+            </div>
+        </div>
+
+        <div id="career-match-banner" class="season-event" style="margin:10px 20px; display:none; cursor:default;">
+            <div style="cursor:pointer;" onclick="Season.findPlayerInBracket()"
+                title="Click to find your match in the bracket">
+                <div class="s-date">YOUR MATCH</div>
+                <div class="s-name" id="career-match-title">Player vs Opponent</div>
+                <div class="s-winner" id="career-match-status"></div>
+            </div>
+            <div id="career-match-action"></div>
+        </div>
+
+        <div class="bracket-wrapper" id="tourn-bracket"></div>
+    </div>
+
     <div id="setup-screen" style="display:none;">
         <div class="setup-box">
 
@@ -4089,6 +4674,10 @@
             <!-- CAREER TAB -->
             <div id="tab-season" class="tab-content active">
                 <div id="career-main-menu" class="career-menu-overlay">
+                    <div class="career-screen-controls">
+                        <button class="career-screen-btn" onclick="window.location.href='darts.html'">Back to Hub</button>
+                        <button class="career-screen-btn danger" onclick="if(confirm('Reset all season and career progress?')) Season.reset();">Reset</button>
+                    </div>
                     <div class="career-menu-card">
                         <div class="career-menu-title">CAREER MODE</div>
                         <div class="career-menu-actions">
@@ -4100,7 +4689,12 @@
                     </div>
                 </div>
 
-                <div id="career-start" class="career-start" style="display:none;">
+                     <div id="career-start" class="career-start">
+                    <div class="career-screen-controls">
+                        <button class="career-screen-btn"
+                            onclick="document.getElementById('career-start').classList.remove('visible'); document.getElementById('career-main-menu').style.display='flex';">Back</button>
+                        <button class="career-screen-btn danger" onclick="if(confirm('Reset all season and career progress?')) Season.reset();">Reset</button>
+                    </div>
                     <div class="career-start-card">
                         <div class="career-start-title">Customize Your Player</div>
                         <div class="career-start-tabs">
@@ -4173,7 +4767,7 @@
                                     onclick="Season.switchCareerStartTab('existing')">PLAY AS EXISTING PLAYER</button>
                                 <button class="btn-blue"
                                     style="background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%); font-size: 11px;"
-                                    onclick="document.getElementById('career-start').style.display='none'; Season.renderCareerHub();">BACK</button>
+                                    onclick="document.getElementById('career-start').classList.remove('visible'); document.getElementById('career-main-menu').style.display='flex';">BACK</button>
                                 <button class="btn-gold" onclick="Season.createCareerPlayerFromHub()">Start
                                     Career</button>
                             </div>
@@ -4193,18 +4787,16 @@
                 <div class="career-shell">
                     <main class="career-main">
                         <div class="career-topbar">
-                            <div class="career-topbar-row">
-                                <button id="menu-toggle" class="menu-toggle" aria-haspopup="true" aria-expanded="false"
-                                    aria-controls="mobile-menu" aria-label="Open menu">☰</button>
-                                <div id="mobile-menu" class="mobile-menu-sheet" role="dialog" aria-modal="true"
-                                    aria-hidden="true">
-                                    <div class="mobile-menu-content"></div>
-                                    <button class="mobile-menu-close" aria-label="Close menu"
-                                        style="display:block; width:100%; margin-top:10px; padding:10px; border-radius:8px; background:#222; color:#fff; border:1px solid #333;">Close</button>
+                            <div class="career-topbar-primary">
+                                <div class="career-player-summary">
+                                    <div class="career-player-eyebrow">Your Player</div>
+                                    <div class="career-player-name" id="career-player-name">No player selected</div>
+                                    <div class="career-player-meta" id="career-player-meta"></div>
                                 </div>
-                                <div class="mobile-menu-overlay"></div>
-                                <div class="career-brand-mini">CAREER MODE <span id="season-year-disp">2026</span></div>
-                                <div class="career-date" id="career-date-display">January 1, 2026</div>
+                                <div class="career-topbar-center">
+                                    <div class="career-brand-mini">CAREER MODE <span id="season-year-disp">2026</span></div>
+                                    <div class="career-date" id="career-date-display">January 1, 2026</div>
+                                </div>
                                 <div class="career-topbar-right">
                                     <button class="career-pill" onclick="Season.openCareerPlayerModal()"
                                         style="cursor:pointer; background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); color:var(--pdc-gold);">
@@ -4221,7 +4813,7 @@
                                 </div>
                             </div>
 
-                            <div class="career-topbar-row"
+                            <div class="career-topbar-row career-topbar-nav-row"
                                 style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
                                 <nav class="career-horizontal-nav">
                                     <button class="career-nav-btn active" id="career-nav-dashboard"
@@ -4318,7 +4910,10 @@
                                         Day</button>
                                     <button class="btn-hub-action" style="background:#c49a1a;"
                                         onclick="Season.advanceCareerDayManual()">Next Day</button>
+                                    <button class="btn-hub-action" style="background:#7c3aed;"
+                                        onclick="Season.showCareerCoachTip()">Coach Tip</button>
                                 </div>
+                                <div id="career-action-insights" class="career-action-insights"></div>
                                 <div id="career-training-panel" class="career-training-panel" style="display:none;">
                                     <div class="career-label">Training Options</div>
                                     <div class="career-training-grid">
@@ -4416,33 +5011,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- TOURNAMENT HUB -->
-    <div id="tournament-hub">
-        <div class="hub-header">
-            <div class="hub-title" id="tourn-hub-title">TOURNAMENT</div>
-            <div class="hub-actions">
-                <button class="btn-hub-action btn-sim" onclick="Tournament.simulateCurrentRound()">Simulate Current
-                    Round</button>
-                <button class="btn-hub-action btn-watch" onclick="Tournament.startAutoPlay()">Watch Round</button>
-                <button class="btn-hub-action" style="background:#3498db;" onclick="Tournament.leaveEvent()">← Leave
-                    Event</button>
-                <button class="btn-reset-hub" onclick="Persistence.clear()">RESET</button>
-            </div>
-        </div>
-
-        <div id="career-match-banner" class="season-event" style="margin:10px 20px; display:none; cursor:default;">
-            <div style="cursor:pointer;" onclick="Season.findPlayerInBracket()"
-                title="Click to find your match in the bracket">
-                <div class="s-date">YOUR MATCH</div>
-                <div class="s-name" id="career-match-title">Player vs Opponent</div>
-                <div class="s-winner" id="career-match-status"></div>
-            </div>
-            <div id="career-match-action"></div>
-        </div>
-
-        <div class="bracket-wrapper" id="tourn-bracket"></div>
     </div>
 
     <!-- CLEAN INTRO -->
@@ -6482,7 +7050,7 @@
                 QF: 10, SF: 10, F: 11
             },
             'minor': {
-                L32: 6, L16: 6, QF: 6, SF: 7, F: 8
+                L48: 6, L32: 6, L16: 6, QF: 6, SF: 7, F: 8
             },
             'matchplay': {
                 L32: 10, L16: 11, QF: 16, SF: 17, F: 18
@@ -8776,6 +9344,8 @@
                     playerType: "",
                     playerMeta: {},
                     trainingStreak: 0,
+                    trainingTypeStreak: 0,
+                    lastTrainingType: null,
                     missedCompetitiveDays: 0,
                     lastActionDate: "",
                     lastAction: "",
@@ -8928,6 +9498,8 @@
                         playerType: "",
                         playerMeta: {},
                         trainingStreak: 0,
+                        trainingTypeStreak: 0,
+                        lastTrainingType: null,
                         missedCompetitiveDays: 0,
                         lastActionDate: "",
                         lastAction: "",
@@ -8962,6 +9534,8 @@
                 const career = Season.state.career;
                 if (!career.playerMeta) career.playerMeta = {};
                 if (!career.dayChoices) career.dayChoices = {};
+                if (typeof career.trainingTypeStreak === 'undefined') career.trainingTypeStreak = 0;
+                if (typeof career.lastTrainingType === 'undefined') career.lastTrainingType = null;
                 if (!career.autoSimDay) career.autoSimDay = null;
                 if (!career.autoSimExcludeId) career.autoSimExcludeId = null;
                 if (!Array.isArray(career.customPlayers)) career.customPlayers = [];
@@ -9342,7 +9916,16 @@
                     training: 'career-section-training'
                 };
                 const target = document.getElementById(targets[view] || targets.dashboard);
-                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const grid = document.querySelector('.career-main-grid');
+                if (!grid || !target) return;
+
+                if (view === 'dashboard') {
+                    grid.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                const offset = Math.max(0, target.offsetTop - grid.offsetTop - 8);
+                grid.scrollTo({ top: offset, behavior: 'smooth' });
             },
 
             openCareerCalendarOverlay: () => {
@@ -9509,6 +10092,36 @@
                 Season.renderQSchoolStandingsForLocationTo('eu', 'career-rank-qschool-eu-view');
             },
 
+            isSameEvent: (a, b) => {
+                if (!a || !b) return false;
+                if (a.id !== b.id) return false;
+                if ((a.name || '') !== (b.name || '')) return false;
+
+                // Dates can be in different formats across stores (e.g. "Jan 05" vs "2026-01-05")
+                if (!a.date || !b.date) return true;
+                const ad = String(a.date);
+                const bd = String(b.date);
+                const oneIsoOneShort = (ad.includes('-') && !bd.includes('-')) || (!ad.includes('-') && bd.includes('-'));
+                if (oneIsoOneShort) return true;
+                return ad === bd;
+            },
+
+            findCompletedEvent: (ev, completedList = null) => {
+                const list = completedList || Season.state.completedEvents || [];
+                return list.find(c => Season.isSameEvent(c, ev));
+            },
+
+            isEventCompleted: (ev, completedList = null) => {
+                return !!Season.findCompletedEvent(ev, completedList);
+            },
+
+            getEventIndex: (ev) => {
+                if (!ev) return -1;
+                const byRef = Season.events.indexOf(ev);
+                if (byRef >= 0) return byRef;
+                return Season.events.findIndex(e => Season.isSameEvent(e, ev));
+            },
+
             showCareerEventSummary: (ev) => {
                 const career = Season.state.career;
                 const player = Season.getCareerPlayer();
@@ -9523,7 +10136,7 @@
                     document.body.appendChild(overlay);
                 }
 
-                const completed = Season.state.completedEvents.find(c => c.id === ev.id);
+                const completed = Season.findCompletedEvent(ev);
                 const participation = completed?.participations?.[player.name];
                 const position = participation?.position || null;
                 const moneyWon = participation?.money || 0;
@@ -9659,11 +10272,12 @@
             },
 
             showCareerStart: () => {
+                document.body.classList.add('career-fullscreen');
                 const mainMenu = document.getElementById('career-main-menu');
                 const startHub = document.getElementById('career-start');
                 if (mainMenu) mainMenu.style.display = 'none';
                 if (startHub) {
-                    startHub.style.display = 'flex';
+                    startHub.classList.add('visible');
                     Season.populateCareerCountrySelect('career-start-country');
                     Season.renderCareerPlayerListTo('career-start-list');
                     Season.updateCareerStartRanges();
@@ -9672,6 +10286,7 @@
 
             renderCareerHub: () => {
                 Season.ensureCareerState();
+                document.body.classList.add('career-fullscreen');
                 const career = Season.state.career;
                 const player = Season.getCareerPlayer();
                 const dateObj = Season.getCareerDateObj();
@@ -9687,22 +10302,29 @@
                     const hasPlayer = !!player;
 
                     if (hasPlayer) {
+                        // Hide both menus, show career shell
+                        startHub.classList.remove('visible');
                         mainMenu.style.display = 'none';
-                        startHub.style.display = 'none';
                         careerShell.style.display = 'flex';
                     } else {
-                        // If no player, show main menu first (unless we are already in start hub)
-                        if (startHub.style.display === 'flex') {
-                            mainMenu.style.display = 'none';
-                        } else {
-                            mainMenu.style.display = 'flex';
-                            startHub.style.display = 'none';
-                        }
+                        // Show main menu (for player selection or start new career)
+                        startHub.classList.remove('visible');
+                        mainMenu.style.display = 'flex';
                         careerShell.style.display = 'none';
-                        return;
+                        return; // Exit early if no player
                     }
                 }
 
+                // Guard: Only proceed if player exists
+                if (!player) {
+                    // Ensure activeView is set even without player
+                    if (!career.activeView) {
+                        Season.switchCareerView('dashboard');
+                    }
+                    return;
+                }
+
+                // Ensure activeView is set for player render
                 if (!career.activeView) {
                     Season.switchCareerView('dashboard');
                 }
@@ -9784,14 +10406,12 @@
 
                     // Find next playable/simmable event
                     const allEvents = Season.events;
-                    const completedIds = new Set(Season.state.completedEvents.map(c => c.id));
-
                     // Filter pending events
                     let nextEvent = null;
                     let daysUntil = 0;
 
                     // Find today's events first
-                    const eventsToday = Season.getEventsForDate(dateObj).filter(e => !completedIds.has(e.id));
+                    const eventsToday = Season.getEventsForDate(dateObj).filter(e => !Season.isEventCompleted(e));
 
                     if (eventsToday.length > 0) {
                         nextEvent = eventsToday[0];
@@ -9799,7 +10419,7 @@
                     } else {
                         // Find next future event by date
                         for (const ev of allEvents) {
-                            if (completedIds.has(ev.id)) continue;
+                            if (Season.isEventCompleted(ev)) continue;
                             const evDate = getEventDateObj(ev);
                             if (evDate > dateObj && !isSameDay(evDate, dateObj)) {
                                 nextEvent = ev;
@@ -9830,6 +10450,7 @@
 
                     if (nextEvent) {
                         const isToday = eventsToday.some(e => e.id === nextEvent.id);
+                        const nextEventIdx = Season.getEventIndex(nextEvent);
 
                         // Enrich player for eligibility check
                         const enrichedPlayer = {
@@ -9840,26 +10461,16 @@
                         };
 
                         // Check eligibility with detailed feedback
-                        let canEnter = Season.canCareerPlayerEnterEvent(nextEvent);
-                        let ineligibleReason = '';
-
-                        if (!canEnter) {
-                            ineligibleReason = 'Not eligible for this event';
-                        }
+                        const eligibility = Season.getCareerEventEligibilityDetails(nextEvent);
+                        let canEnter = eligibility.canEnter;
+                        let ineligibleReason = canEnter ? '' : eligibility.reason;
 
                         // Enrich event with venue information if not already done (BEFORE affordability check)
                         if (typeof EventEnrichment !== 'undefined' && EventEnrichment.enrichEvent && !nextEvent.venueId) {
                             EventEnrichment.enrichEvent(nextEvent);
                         }
 
-                        // Also check money, travel costs, and fatigue using EntrySystem
-                        if (canEnter && typeof EntrySystem !== 'undefined' && EntrySystem.canEnterEvent) {
-                            const entryCheck = EntrySystem.canEnterEvent(nextEvent, enrichedPlayer);
-                            canEnter = entryCheck.canEnter;
-                            if (!canEnter) {
-                                ineligibleReason = entryCheck.reason || 'Not eligible';
-                            }
-                        }
+                        // Entry/fatigue checks are already included by getCareerEventEligibilityDetails
 
                         // Calculate costs
 
@@ -9987,12 +10598,12 @@
                         let buttonsHTML = '';
                         if (isToday) {
                             if (canEnter) {
-                                buttonsHTML += `<button class="mgr-btn mgr-btn-primary" onclick="Season.startCareerEvent(${nextEvent.id}, 'play')">PLAY</button>`;
+                                buttonsHTML += `<button class="mgr-btn mgr-btn-primary" onclick="Season.startCareerEvent(${nextEventIdx}, 'play')">PLAY</button>`;
                                 buttonsHTML += `<button class="mgr-btn mgr-btn-secondary" onclick="Season.advanceCareerDayManual()">SKIP</button>`;
-                                buttonsHTML += `<button class="mgr-btn mgr-btn-info" onclick="Season.startCareerEvent(${nextEvent.id}, 'sim')">SIM</button>`;
+                                buttonsHTML += `<button class="mgr-btn mgr-btn-info" onclick="Season.startCareerEvent(${nextEventIdx}, 'sim')">SIM</button>`;
                             } else {
-                                buttonsHTML += `<button class="mgr-btn mgr-btn-info" onclick="Season.startCareerEvent(${nextEvent.id}, 'watch')">WATCH</button>`;
-                                buttonsHTML += `<button class="mgr-btn mgr-btn-secondary" onclick="Season.startCareerEvent(${nextEvent.id}, 'sim')">SIM</button>`;
+                                buttonsHTML += `<button class="mgr-btn mgr-btn-info" onclick="Season.startCareerEvent(${nextEventIdx}, 'watch')">WATCH</button>`;
+                                buttonsHTML += `<button class="mgr-btn mgr-btn-secondary" onclick="Season.startCareerEvent(${nextEventIdx}, 'sim')">SIM</button>`;
                             }
                         } else {
                             buttonsHTML += `<button class="mgr-btn mgr-btn-primary" onclick="Season.advanceCareerDayManual()">CONTINUE</button>`;
@@ -10052,32 +10663,32 @@
                 const todayContainer = document.getElementById('career-day-events');
                 if (todayContainer) {
                     const eventsToday = Season.getEventsForDate(dateObj);
-                    const completedIds = new Set(Season.state.completedEvents.map(c => c.id));
 
                     if (eventsToday.length > 0) {
                         let todayHTML = '';
                         eventsToday.forEach((ev, idx) => {
-                            const isCompleted = completedIds.has(ev.id);
+                            const isCompleted = Season.isEventCompleted(ev);
                             const isActive = idx === 0 && !isCompleted; // First non-completed event is active
-                            const isLocked = !isActive && !isCompleted; // Future events today are locked
 
                             const locationInfo = (typeof TravelSystem !== 'undefined' && TravelSystem.resolveEventLocation)
                                 ? TravelSystem.resolveEventLocation(ev)
                                 : null;
                             const venueName = locationInfo?.venueName || ev.venue || ev.city || ev.location || 'Unknown Venue';
 
-                            const statusBadge = isCompleted ? '<span style="color:#2ecc71;">✓ COMPLETED</span>' :
-                                isActive ? '<span style="color:#ffd700;">● ACTIVE</span>' :
-                                    '<span style="color:#888;">🔒 LOCKED</span>';
+                            const statusBadge = isCompleted
+                                ? '<span style="color:#2ecc71;">Completed</span>'
+                                : isActive
+                                    ? '<span style="color:#ffd700;">Active</span>'
+                                    : '<span style="color:#888;">Locked</span>';
 
                             todayHTML += `
-                                <div style="padding: 10px; margin: 5px 0; background: ${isActive ? 'rgba(255,215,0,0.1)' : 'rgba(0,0,0,0.2)'}; border-left: 3px solid ${isActive ? 'var(--pdc-gold)' : isCompleted ? '#2ecc71' : '#444'}; border-radius: 4px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="career-day-event-row ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
+                                    <div class="career-day-event-main">
                                         <div>
-                                            <div style="font-weight: bold; color: white; margin-bottom: 3px;">${ev.name}</div>
-                                            <div style="font-size: 11px; color: #888;">${venueName} • ${ev.format || 'SETS'}</div>
+                                            <div class="career-day-event-name">${ev.name}</div>
+                                            <div class="career-day-event-meta">${venueName} • ${ev.format || 'SETS'}</div>
                                         </div>
-                                        <div style="text-align: right; font-size: 12px;">
+                                        <div class="career-day-event-badge">
                                             ${statusBadge}
                                         </div>
                                     </div>
@@ -10097,6 +10708,8 @@
                     }
                 }
 
+                Season.renderCareerActionInsights();
+
                 // Update OOM Preview on dashboard
                 const oomContainer = document.getElementById('career-oom-container');
                 if (oomContainer) {
@@ -10113,42 +10726,209 @@
                 panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
             },
 
+            getCareerDayPlan: () => {
+                Season.ensureCareerState();
+                const career = Season.state.career;
+                const player = Season.getCareerPlayer();
+                const dateObj = Season.getCareerDateObj();
+                const iso = career.currentDate;
+                const eventsToday = Season.getEventsForDate(dateObj).filter(ev => !Season.isEventCompleted(ev));
+                const playableToday = eventsToday.filter(ev => Season.canCareerPlayerEnterEvent(ev));
+                const fatigue = player?.fatigue || 0;
+                const alreadyPlanned = !!career.dayChoices?.[iso];
+
+                if (alreadyPlanned) {
+                    return {
+                        action: 'locked',
+                        title: 'Day already planned',
+                        reason: 'You already took an action today.',
+                        eventsToday,
+                        playableToday,
+                        fatigue
+                    };
+                }
+
+                if (playableToday.length > 0) {
+                    return {
+                        action: 'compete',
+                        title: 'Compete today',
+                        reason: `${playableToday.length} playable event${playableToday.length > 1 ? 's' : ''} available.`,
+                        eventsToday,
+                        playableToday,
+                        fatigue
+                    };
+                }
+
+                if (fatigue >= 75) {
+                    return {
+                        action: 'rest',
+                        title: 'Prioritize recovery',
+                        reason: `Fatigue is high at ${Math.round(fatigue)}%.`,
+                        eventsToday,
+                        playableToday,
+                        fatigue
+                    };
+                }
+
+                if (fatigue >= 55) {
+                    return {
+                        action: 'light',
+                        title: 'Light training suggested',
+                        reason: `Fatigue is moderate at ${Math.round(fatigue)}%.`,
+                        eventsToday,
+                        playableToday,
+                        fatigue
+                    };
+                }
+
+                return {
+                    action: 'train',
+                    title: 'Push training today',
+                    reason: 'No playable events and fatigue is manageable.',
+                    eventsToday,
+                    playableToday,
+                    fatigue
+                };
+            },
+
+            renderCareerActionInsights: () => {
+                const container = document.getElementById('career-action-insights');
+                if (!container) return;
+
+                const career = Season.state.career || {};
+                const player = Season.getCareerPlayer();
+                const plan = Season.getCareerDayPlan();
+                const fatigue = Math.round(player?.fatigue || 0);
+                const actionLabel = career.lastAction ? career.lastAction.toUpperCase().replace('-', ' ') : 'NONE';
+
+                container.innerHTML = `
+                    <div class="career-insight-item">
+                        <div class="career-insight-label">Coach Plan</div>
+                        <div class="career-insight-value"><span class="career-recommend-chip">${plan.title}</span></div>
+                    </div>
+                    <div class="career-insight-item">
+                        <div class="career-insight-label">Reason</div>
+                        <div class="career-insight-value">${plan.reason}</div>
+                    </div>
+                    <div class="career-insight-item">
+                        <div class="career-insight-label">Training Streak</div>
+                        <div class="career-insight-value">${career.trainingStreak || 0} day${(career.trainingStreak || 0) === 1 ? '' : 's'}</div>
+                    </div>
+                    <div class="career-insight-item">
+                        <div class="career-insight-label">Status</div>
+                        <div class="career-insight-value">${actionLabel} • FAT ${fatigue}%</div>
+                    </div>
+                `;
+            },
+
+            showCareerCoachTip: () => {
+                const plan = Season.getCareerDayPlan();
+                const eventNote = plan.playableToday?.length
+                    ? `\nPlayable events: ${plan.playableToday.length}`
+                    : '\nNo playable events today.';
+                alert(`🧠 Coach Tip\n\n${plan.title}\n${plan.reason}${eventNote}`);
+            },
+
+            ensureCareerEventNotLocked: (actionLabel = 'starting another') => {
+                if (!Tournament.state.active) return true;
+
+                const hubVisible = document.getElementById('tournament-hub')?.style.display === 'flex';
+                const matchVisible = document.getElementById('match-screen')?.style.display === 'flex';
+                const postMatchVisible = document.getElementById('post-match-screen')?.style.display === 'flex';
+                const setupVisible = document.getElementById('setup-screen')?.style.display === 'flex';
+                const careerShellVisible = document.querySelector('.career-shell')?.style.display === 'flex';
+                const actuallyActive = hubVisible || matchVisible || postMatchVisible;
+
+                const spectatorOnlyLock = !!Season.state?.career?.activeEventId && !Season.state?.career?.activeEventParticipating;
+                if (spectatorOnlyLock && setupVisible && careerShellVisible) {
+                    console.warn('[Career] Recovered spectator-only event lock while on career hub');
+                    Tournament.state.active = false;
+                    Season.state.inProgress = false;
+                    Tournament.state.matchQueue = [];
+                    Tournament.state.currentActiveRound = 0;
+                    Season.state.career.activeEventId = null;
+                    Season.state.career.activeEventParticipating = false;
+                    if (Persistence.save) Persistence.save();
+                    return true;
+                }
+
+                if (!actuallyActive) {
+                    console.warn('[Career] Recovered stale Tournament.state.active lock');
+                    Tournament.state.active = false;
+                    Season.state.inProgress = false;
+                    Tournament.state.matchQueue = [];
+                    Tournament.state.currentActiveRound = 0;
+                    if (Persistence.save) Persistence.save();
+                    return true;
+                }
+
+                alert(`Finish the current event before ${actionLabel}.`);
+                return false;
+            },
+
             advanceCareerDayManual: () => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before advancing the day.');
+                if (!Season.ensureCareerEventNotLocked('advancing the day')) return;
+
+                const career = Season.state.career;
+                const player = Season.getCareerPlayer();
+                const iso = career.currentDate;
+                const dateObj = Season.getCareerDateObj();
+                const eventsToday = Season.getEventsForDate(dateObj).filter(ev => !Season.isEventCompleted(ev));
+
+                if (career.dayChoices[iso]) {
+                    alert('Day already scheduled.');
                     return;
                 }
 
-                const player = Season.getCareerPlayer();
-                const career = Season.state.career;
-                if (player) {
-                    // Apply stat degradation for skipping training
-                    const avgDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
-                    const coDecrease = parseFloat((Math.random() * 0.1 + 0.1).toFixed(2)); // -0.1 to -0.2
-                    const formDecrease = Math.floor(Math.random() * 2 + 1); // -1 to -2
+                if (eventsToday.length > 0) {
+                    const proceed = confirm('There are events scheduled today. Next Day will skip and simulate them. Continue?');
+                    if (!proceed) return;
+                    const canCompete = eventsToday.some(ev => Season.canCareerPlayerEnterEvent(ev));
+                    if (canCompete) career.missedCompetitiveDays = (career.missedCompetitiveDays || 0) + 1;
+                    Season.simulateEventsForDate(dateObj, true, true);
+                }
 
+                if (player) {
+                    const avgDecrease = parseFloat((Math.random() * 0.08 + 0.05).toFixed(2));
+                    const coDecrease = parseFloat((Math.random() * 0.08 + 0.05).toFixed(2));
+                    const formDecrease = 1;
                     player.avg = Math.max(50, (player.avg || 60) - avgDecrease);
                     player.co = Math.max(20, (player.co || 30) - coDecrease);
                     player.form = Math.max(0, (player.form || 50) - formDecrease);
                 }
 
+                career.dayChoices[iso] = { action: 'next', eventId: null };
+                career.lastAction = 'next';
+                career.lastActionDate = iso;
                 Season.advanceCareerDate(1);
-                Season.state.career.lastAction = 'next';
-                Season.state.career.lastActionDate = Season.state.career.currentDate;
                 Season.renderCareerHub();
                 Persistence.save();
             },
 
             workCareerDay: () => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before working.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('working')) return;
                 const career = Season.state.career;
                 const player = Season.getCareerPlayer();
                 if (!player) return;
+
+                const iso = career.currentDate;
+                const dateObj = Season.getCareerDateObj();
+                const eventsToday = Season.getEventsForDate(dateObj).filter(ev => !Season.isEventCompleted(ev));
+
+                if (career.dayChoices[iso]) {
+                    alert('Day already scheduled.');
+                    return;
+                }
+
+                if (eventsToday.length > 0) {
+                    const proceed = confirm('There are events scheduled today. Working will skip them. Continue?');
+                    if (!proceed) return;
+                    const canCompete = eventsToday.some(ev => Season.canCareerPlayerEnterEvent(ev));
+                    if (canCompete) career.missedCompetitiveDays = (career.missedCompetitiveDays || 0) + 1;
+                    Season.simulateEventsForDate(dateObj, true, true);
+                }
 
                 // Earn money from work (random £500-£1500)
                 const earnings = 500 + Math.floor(Math.random() * 1000);
@@ -10157,10 +10937,12 @@
                 // Increase fatigue slightly
                 player.fatigue = Math.min(100, (player.fatigue || 0) + 2);
 
-                // Advance day
-                Season.advanceCareerDate(1);
+                career.dayChoices[iso] = { action: 'work', eventId: null };
                 career.lastAction = 'work';
-                career.lastActionDate = career.currentDate;
+                career.lastActionDate = iso;
+                career.lastWorkDate = iso;
+
+                Season.advanceCareerDate(1);
 
                 alert(`✅ Work Complete!\n\nYou earned £${earnings.toLocaleString()} from work.\nFatigue increased slightly to ${player.fatigue.toFixed(1)}%`);
 
@@ -10170,10 +10952,7 @@
 
             trainCareerDay: () => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before training.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('training')) return;
                 const player = Season.getCareerPlayer();
                 const career = Season.state.career;
                 const todayDate = Season.state.career.currentDate;
@@ -10215,10 +10994,7 @@
 
             restCareerDay: () => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before resting.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('resting')) return;
                 const player = Season.getCareerPlayer();
                 const career = Season.state.career;
                 if (!player) return;
@@ -10423,7 +11199,18 @@
 
                 if (ev.type === 'wmasters-qual') {
                     if (isAllocated(ev.targetEvent)) return false;
-                    return true;
+
+                    const challengeTop32 = Object.entries(Season.state.challengeTourOOM || {})
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 32)
+                        .map(e => e[0]);
+
+                    const oomWindow25to56 = Object.entries(Season.state.orderOfMerit || {})
+                        .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
+                        .slice(24, 56)
+                        .map(e => e[0]);
+
+                    return challengeTop32.includes(player.name) || oomWindow25to56.includes(player.name);
                 }
 
                 if (ev.type === 'wc-qual-tc') {
@@ -10537,24 +11324,14 @@
                 }
 
                 if (ev.type === 'winmaudm') {
-                    let seeds = [];
-                    const oomEntries = Object.entries(Season.state.orderOfMerit);
-
-                    if (oomEntries.length >= 24) {
-                        // FIX: Add secondary sort by AVG (skill) to handle start-of-season tie (all £0)
-                        seeds = oomEntries.sort((a, b) => {
-                            if (b[1] !== a[1]) return b[1] - a[1];
-                            const pA = PLAYERS_DB.find(p => p.name === a[0]);
-                            const pB = PLAYERS_DB.find(p => p.name === b[0]);
-                            return (pB?.avg || 0) - (pA?.avg || 0);
-                        }).slice(0, 24).map(e => e[0]);
-                    } else if (typeof PLAYERS_DB !== 'undefined') {
-                        // Fallback: Use PLAYERS_DB sorted by average (skill) as a proxy for ranking if OOM is empty
-                        seeds = [...PLAYERS_DB].sort((a, b) => b.avg - a.avg).slice(0, 24).map(p => p.name);
-                    }
-
-                    // Exclude Luke Littler from automatic seeding - must come through qualifiers
-                    seeds = seeds.filter(name => name !== 'Luke Littler');
+                    const seeds = [...PLAYERS_DB]
+                        .sort((a, b) => {
+                            const oomDiff = (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0);
+                            if (oomDiff !== 0) return oomDiff;
+                            return a.name.localeCompare(b.name);
+                        })
+                        .slice(0, 24)
+                        .map(p => p.name);
 
                     if (seeds.includes(player.name)) return true;
                     // Check qualifiers list
@@ -10566,33 +11343,97 @@
                 return true;
             },
 
+            getCareerEventEligibilityDetails: (ev, options = {}) => {
+                const player = Season.getCareerPlayer();
+                if (!player || !ev) return { canEnter: false, reason: 'No career player selected' };
+
+                const skipEntryCheck = options.skipEntryCheck === true;
+                const career = Season.state.career || {};
+                const enrichedPlayer = {
+                    ...player,
+                    money: career.balance || player.money || 0,
+                    currentRegion: career.currentRegion || player.home?.region || 'uk',
+                    fatigue: player.fatigue || 0
+                };
+
+                if (!skipEntryCheck && typeof EntrySystem !== 'undefined' && EntrySystem.canEnterEvent) {
+                    const entryCheck = EntrySystem.canEnterEvent(ev, enrichedPlayer);
+                    if (!entryCheck.canEnter) {
+                        return { canEnter: false, reason: entryCheck.reason || 'Entry requirements not met' };
+                    }
+                }
+
+                const rulesEligible = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: true });
+                if (rulesEligible) return { canEnter: true, reason: 'OK' };
+
+                if (ev.type === 'q-school') {
+                    if (player.tourCard) return { canEnter: false, reason: 'Q-School is only for players without a Tour Card' };
+                    if (ev.eligibleRegions && ev.eligibleRegions.length > 0 && !ev.eligibleRegions.includes(player.country)) {
+                        return { canEnter: false, reason: 'Not eligible for this Q-School region' };
+                    }
+                    return { canEnter: false, reason: 'Not eligible for this Q-School event' };
+                }
+
+                if (ev.type === 'winmaudm') return { canEnter: false, reason: 'Not in Winmau qualification list (Top 24 OOM or qualified player)' };
+                if (ev.type === 'masters') return { canEnter: false, reason: 'Not in Masters field (Top 8 Main OOM or Top 8 regional OOM)' };
+                if (ev.type === 'wmasters-qual') return { canEnter: false, reason: 'Not in Winmau prelim pool (Challenge Top 32 or Main OOM 25-56)' };
+                if (ev.type === 'masters-final') return { canEnter: false, reason: 'Not qualified via World Series ranking/qualifier path' };
+                if (ev.type === 'players') return { canEnter: false, reason: 'Tour card required for Players Championship events' };
+                if (ev.type === 'minor') return { canEnter: false, reason: 'Not qualified via Euro Tour seeding/Pro Tour/qualifiers' };
+                if (ev.type === 'playersf') return { canEnter: false, reason: 'Not in Top 64 Pro Tour Order of Merit' };
+                if (ev.type === 'europeanf') return { canEnter: false, reason: 'Not in Top 32 European Order of Merit qualification' };
+                if (ev.type === 'world') return { canEnter: false, reason: 'Not qualified for World Championship field' };
+                if (ev.type === 'grandslam') return { canEnter: false, reason: 'Not qualified for Grand Slam field' };
+                if (ev.type === 'uk-open') return { canEnter: false, reason: 'Not a Tour Card holder or UK Open qualifier' };
+                if (ev.type === 'et-qual-tc') return { canEnter: false, reason: 'Not eligible for Tour Card qualifier field' };
+                if (ev.type === 'et-host-nation') return { canEnter: false, reason: 'Not from host nation or already qualified' };
+                if (ev.type === 'et-east-european') return { canEnter: false, reason: 'Not in East European qualifier region or already qualified' };
+                if (ev.type === 'et-nordic-baltic') return { canEnter: false, reason: 'Not in Nordic & Baltic qualifier region or already qualified' };
+                if (ev.type === 'ws-qual-tc' || ev.type === 'gs-qual-tc') return { canEnter: false, reason: 'Not eligible for this tour-card qualifier' };
+                if (ev.type === 'wc-qual-tc') return { canEnter: false, reason: 'Not eligible for World Championship Tour Card qualifier' };
+                if (ev.type === 'wc-qual-intl') return { canEnter: false, reason: 'Not eligible for this international qualifier region' };
+
+                return { canEnter: false, reason: 'Not eligible for this event' };
+            },
+
             startCareerEvent: (eventId, mode) => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before starting another.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('starting another')) return;
                 const dateObj = Season.getCareerDateObj();
                 const eventsToday = Season.getEventsForDate(dateObj);
-                const ev = eventsToday.find(e => e.id === eventId);
+                let ev = null;
+                let idx = -1;
+
+                // Prefer direct season index (robust against duplicate ids)
+                if (Number.isInteger(eventId) && eventId >= 0 && eventId < Season.events.length) {
+                    idx = eventId;
+                    ev = Season.events[idx];
+                } else {
+                    ev = eventsToday.find(e => e.id === eventId);
+                    idx = Season.getEventIndex(ev);
+                }
+
                 if (!ev) return;
 
-                const completed = Season.state.completedEvents.find(c => c.id === ev.id);
+                // In career flow, only today's events can be started from the dashboard
+                if (!eventsToday.includes(ev)) return;
+
+                const completed = Season.findCompletedEvent(ev);
                 if (completed) {
                     alert('This event is already completed.');
                     return;
                 }
 
                 const iso = Season.state.career.currentDate;
-                const idx = Season.events.findIndex(e => e.id === ev.id);
                 if (idx < 0) return;
 
                 // Check eligibility for 'play' mode
                 // For Q-School, skip EntrySystem checks (money/fatigue) - only verify basic eligibility
-                const isEligible = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: ev.type === 'q-school' });
+                const eligibility = Season.getCareerEventEligibilityDetails(ev, { skipEntryCheck: ev.type === 'q-school' });
+                const isEligible = eligibility.canEnter;
 
                 if (mode === 'play' && !isEligible) {
-                    alert('You are not eligible for this event.');
+                    alert(`You are not eligible for this event.\n\nReason: ${eligibility.reason}`);
                     return;
                 }
 
@@ -10618,7 +11459,7 @@
                     return;
                 }
 
-                // Sim mode: Include player only if eligible
+                // Sim mode: Include player only if eligible, otherwise spectate via simulation
                 const canEnterSim = Season.canCareerPlayerEnterEvent(ev, { skipEntryCheck: false });
                 Season.pendingEventPolicy = {
                     action: mode,
@@ -10635,10 +11476,7 @@
 
                 try {
                     Season.ensureCareerState();
-                    if (Tournament.state.active) {
-                        alert('Finish the current event before advancing the day.');
-                        return;
-                    }
+                    if (!Season.ensureCareerEventNotLocked('advancing the day')) return;
                     const dateObj = Season.getCareerDateObj();
                     const eventsToday = Season.getEventsForDate(dateObj);
                     const iso = Season.state.career.currentDate;
@@ -10648,8 +11486,9 @@
                         return;
                     }
 
-                    const completedIds = new Set((Season.state.career.completedEvents || []).map(c => c.id));
-                    const allEventsDoneToday = eventsToday.length > 0 && eventsToday.every(ev => completedIds.has(ev.id));
+                    const allEventsDoneToday = eventsToday.length > 0 && eventsToday.every(ev =>
+                        Season.isEventCompleted(ev, Season.state.career.completedEvents || [])
+                    );
 
                     if (eventsToday.length > 0 && !allEventsDoneToday) {
                         const canCompete = eventsToday.some(ev => Season.canCareerPlayerEnterEvent(ev));
@@ -10677,10 +11516,7 @@
                     alert('Select a career player before training.');
                     return;
                 }
-                if (Tournament.state.active) {
-                    alert('Finish the current event before training.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('training')) return;
                 const dateObj = Season.getCareerDateObj();
                 const iso = Season.state.career.currentDate;
                 const lastWorkDate = Season.state.career.lastWorkDate;
@@ -10785,10 +11621,7 @@
 
             restCareerDay: () => {
                 Season.ensureCareerState();
-                if (Tournament.state.active) {
-                    alert('Finish the current event before resting.');
-                    return;
-                }
+                if (!Season.ensureCareerEventNotLocked('resting')) return;
                 const dateObj = Season.getCareerDateObj();
                 const iso = Season.state.career.currentDate;
                 const eventsToday = Season.getEventsForDate(dateObj);
@@ -10823,6 +11656,10 @@
                 const career = Season.state.career;
                 const overused = career.trainingStreak >= 5; // Much stricter - 5+ days in a row
                 const tooFatigued = (player.fatigue || 0) > 85; // Only if VERY fatigued (>85%)
+                const sameTypeAsLast = career.lastTrainingType === type;
+                const sameTypeStreak = sameTypeAsLast ? (career.trainingTypeStreak || 0) + 1 : 1;
+                const varietyBonus = sameTypeAsLast ? 0 : 0.08;
+                const monotonyPenalty = sameTypeStreak >= 3 ? 0.08 : 0;
 
                 // Training has trade-offs: improving one stat may reduce the other
                 // All training improves FORM significantly
@@ -10857,6 +11694,15 @@
                     formDelta += 4; // Extra form bonus (most impactful)
                 }
 
+                avgDelta += varietyBonus - monotonyPenalty;
+                coDelta += varietyBonus - monotonyPenalty;
+                if (sameTypeStreak >= 4) {
+                    formDelta -= 1;
+                }
+                if ((player.fatigue || 0) >= 70) {
+                    fatigueDelta += 3;
+                }
+
                 // Apply stat changes with caps
                 player.avg = Math.min(110, Math.max(60, (player.avg || 75) + avgDelta));
                 player.co = Math.min(60, Math.max(20, (player.co || 30) + coDelta));
@@ -10865,6 +11711,8 @@
                 PlayerState.updateFatigue(player, fatigueDelta);
 
                 career.trainingStreak += 1;
+                career.lastTrainingType = type;
+                career.trainingTypeStreak = sameTypeStreak;
                 career.lastAction = 'train';
                 career.lastActionDate = career.currentDate;
 
@@ -10962,8 +11810,43 @@
                 }
 
                 if (policy.forceExclude) {
-                    Tournament.state.selectedPlayerIndices.delete(playerIdx);
-                    console.log(`[Career] Player excluded from ${ev.name}`);
+                    const selected = Tournament.state.selectedPlayerIndices;
+                    const removed = selected.delete(playerIdx);
+
+                    if (removed && ev.players && selected.size < ev.players) {
+                        const currentList = Array.from(selected);
+                        let repIdx = (typeof PlayerState !== 'undefined' && PlayerState.getReplacementPlayer)
+                            ? PlayerState.getReplacementPlayer(currentList, ev.type, ev.name)
+                            : -1;
+
+                        if (repIdx === -1 || selected.has(repIdx) || repIdx === playerIdx) {
+                            const fallbackPool = PLAYERS_DB
+                                .map((p, idx) => ({ p, idx }))
+                                .filter(x => x.idx !== playerIdx && !selected.has(x.idx));
+
+                            let candidates = fallbackPool;
+                            if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'playersf' || ev.cardRequired) {
+                                candidates = candidates.filter(x => x.p.tourCard);
+                            }
+
+                            if (ev.type === 'minor') {
+                                candidates.sort((a, b) =>
+                                    (Season.state.orderOfMerit[b.p.name] || 0) - (Season.state.orderOfMerit[a.p.name] || 0)
+                                );
+                            }
+
+                            repIdx = candidates.length > 0 ? candidates[0].idx : -1;
+                        }
+
+                        if (repIdx !== -1 && !selected.has(repIdx)) {
+                            selected.add(repIdx);
+                            console.log(`[Career] Player excluded from ${ev.name}; replacement added: ${PLAYERS_DB[repIdx]?.name}`);
+                        } else {
+                            console.warn(`[Career] Player excluded from ${ev.name}; no replacement found`);
+                        }
+                    } else {
+                        console.log(`[Career] Player excluded from ${ev.name}`);
+                    }
                 }
 
                 if (policy.forceInclude) {
@@ -11117,12 +12000,16 @@
                                                 // Update career balance after entry
                                                 Season.state.career.balance = enrichedPlayer.money;
 
-                                                // If user clicked "CONFIRM & PLAY", start the event
-                                                if (playAfterEntry && eventIdToPlay) {
+                                                // If user clicked "CONFIRM & PLAY", jump into next playable career match
+                                                if (playAfterEntry) {
                                                     setTimeout(() => {
-                                                        console.log(`[Career] Starting event ${eventIdToPlay} in play mode`);
-                                                        Season.startCareerEvent(eventIdToPlay, 'play');
-                                                    }, 800);
+                                                        console.log(`[Career] Launching next match for active event ${eventIdToPlay}`);
+                                                        if (!Tournament.state.active && eventIdToPlay) {
+                                                            Season.startCareerEvent(eventIdToPlay, 'play');
+                                                            return;
+                                                        }
+                                                        Season.playCareerNextMatch();
+                                                    }, 250);
                                                 }
                                             }
                                         }
@@ -11239,11 +12126,106 @@
                 }
             },
 
+            playCareerNextMatch: () => {
+                const player = Season.getCareerPlayer();
+                if (!player || !Tournament.state.active) return false;
+
+                const playerName = player.name;
+
+                // Group-stage first (Grand Slam)
+                if (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
+                    for (let gIdx = 0; gIdx < Tournament.state.groupMatches.length; gIdx++) {
+                        const group = Tournament.state.groupMatches[gIdx] || [];
+                        for (let mIdx = 0; mIdx < group.length; mIdx++) {
+                            const m = group[mIdx];
+                            if (!m || !m.p1 || !m.p2 || m.winner) continue;
+                            if (m.p1.name === playerName || m.p2.name === playerName) {
+                                Tournament.playGrandSlamMatch(gIdx, mIdx);
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                const bracketRounds = (Tournament.state.bracketData && Tournament.state.bracketData.length > 0)
+                    ? Tournament.state.bracketData
+                    : (Tournament.state.bracket || []);
+
+                for (let rIdx = Tournament.state.currentActiveRound || 0; rIdx < bracketRounds.length; rIdx++) {
+                    const round = bracketRounds[rIdx] || [];
+                    for (let mIdx = 0; mIdx < round.length; mIdx++) {
+                        const m = round[mIdx];
+                        if (!m || !m.p1 || !m.p2 || m.winner) continue;
+                        if (m.p1.name === playerName || m.p2.name === playerName) {
+                            Tournament.playMatch(mIdx, rIdx);
+                            return true;
+                        }
+                    }
+                }
+
+                Season.findPlayerInBracket();
+                return false;
+            },
+
             updateCareerMatchBanner: () => {
                 const banner = document.getElementById('career-match-banner');
                 if (!banner) return;
                 const player = Season.getCareerPlayer();
-                if (!player || !Tournament.state.active || !Season.state.career.activeEventId) {
+                if (!player || !Tournament.state.active) {
+                    banner.style.display = 'none';
+                    return;
+                }
+
+                const career = Season.state.career || {};
+                const currentEvent = Tournament.getCurrentEvent ? Tournament.getCurrentEvent() : null;
+
+                if (currentEvent) {
+                    // Keep active event tracking aligned with the actually loaded tournament
+                    if (career.activeEventId !== currentEvent.id) {
+                        career.activeEventId = currentEvent.id;
+                    }
+
+                    // Recalculate participation from real tournament state (self-heals stale flags)
+                    const playerName = player.name;
+                    const playerIdx = PLAYERS_DB.findIndex(p => p.name === playerName);
+                    const inSelected = playerIdx >= 0 && Tournament.state.selectedPlayerIndices.has(playerIdx);
+
+                    let inBracketOrGroups = false;
+
+                    if (Tournament.state.groupMatches && Tournament.state.groupMatches.length > 0) {
+                        for (const group of Tournament.state.groupMatches) {
+                            for (const m of (group || [])) {
+                                if (!m || !m.p1 || !m.p2) continue;
+                                if (m.p1.name === playerName || m.p2.name === playerName) {
+                                    inBracketOrGroups = true;
+                                    break;
+                                }
+                            }
+                            if (inBracketOrGroups) break;
+                        }
+                    }
+
+                    if (!inBracketOrGroups) {
+                        const bracketRounds = (Tournament.state.bracketData && Tournament.state.bracketData.length > 0)
+                            ? Tournament.state.bracketData
+                            : (Tournament.state.bracket || []);
+
+                        for (const round of bracketRounds) {
+                            for (const m of (round || [])) {
+                                if (!m || !m.p1 || !m.p2) continue;
+                                if (m.p1.name === playerName || m.p2.name === playerName) {
+                                    inBracketOrGroups = true;
+                                    break;
+                                }
+                            }
+                            if (inBracketOrGroups) break;
+                        }
+                    }
+
+                    career.activeEventParticipating = !!(inSelected || inBracketOrGroups);
+                }
+
+                if (!career.activeEventId) {
                     banner.style.display = 'none';
                     return;
                 }
@@ -11565,8 +12547,9 @@
                 // Only advance to next day if all events for today are completed
                 const dateObj = Season.getCareerDateObj();
                 const eventsToday = Season.getEventsForDate(dateObj);
-                const completedIds = new Set(career.completedEvents.map(c => c.id));
-                const allEventsCompletedToday = eventsToday.every(ev => completedIds.has(ev.id));
+                const allEventsCompletedToday = eventsToday.every(ev =>
+                    Season.isEventCompleted(ev, career.completedEvents)
+                );
 
                 if (allEventsCompletedToday && eventsToday.length > 0) {
                     // All events for today are done, advance to next day
@@ -11616,15 +12599,31 @@
             performCareerRest: (lightTraining = false) => {
                 Season.ensureCareerState();
                 const player = Season.getCareerPlayer();
-                const todayDate = Season.state.career.currentDate;
-                const lastWorkDate = Season.state.career.lastWorkDate;
+                const career = Season.state.career;
+                const todayDate = career.currentDate;
+                const lastWorkDate = career.lastWorkDate;
+                const dateObj = Season.getCareerDateObj();
+                const eventsToday = Season.getEventsForDate(dateObj).filter(ev => !Season.isEventCompleted(ev));
 
                 if (!player) return;
+
+                if (career.dayChoices[todayDate]) {
+                    alert('Day already scheduled.');
+                    return;
+                }
 
                 // Check if worked today (can't train on work days)
                 if (lightTraining && lastWorkDate === todayDate) {
                     alert('You cannot train on a day you worked! You must choose one or the other.');
                     return;
+                }
+
+                if (eventsToday.length > 0) {
+                    const proceed = confirm(`${lightTraining ? 'Light training' : 'Rest'} will skip all scheduled events today. Continue?`);
+                    if (!proceed) return;
+                    const canCompete = eventsToday.some(ev => Season.canCareerPlayerEnterEvent(ev));
+                    if (canCompete) career.missedCompetitiveDays = (career.missedCompetitiveDays || 0) + 1;
+                    Season.simulateEventsForDate(dateObj, true, true);
                 }
 
                 if (typeof RestSystem !== 'undefined' && RestSystem.applyRest) {
@@ -11639,12 +12638,13 @@
 
                 // Mark training date if doing light training
                 if (lightTraining) {
-                    Season.state.career.lastTrainDate = todayDate;
+                    career.lastTrainDate = todayDate;
                 }
 
+                career.dayChoices[todayDate] = { action: lightTraining ? 'light-train' : 'rest', eventId: null };
+                career.lastAction = lightTraining ? 'light-train' : 'rest';
+                career.lastActionDate = todayDate;
                 Season.advanceCareerDate(1);
-                Season.state.career.lastAction = lightTraining ? 'light-train' : 'rest';
-                Season.state.career.lastActionDate = Season.state.career.currentDate;
                 Season.renderCareerHub();
                 Persistence.save();
             },
@@ -11718,12 +12718,39 @@
                 alert(details);
             },
 
+            normalizePlayersEvents: () => {
+                if (!Array.isArray(Season.events) || Season.events.length === 0) return;
+
+                Season.events.forEach(ev => {
+                    if (!ev || typeof ev.name !== 'string') return;
+
+                    const playersChampMatch = ev.name.match(/^PLAYERS CHAMPIONSHIP\s+(\d{1,2})$/i);
+                    if (playersChampMatch) {
+                        const eventNumber = Number(playersChampMatch[1]);
+                        if (Number.isFinite(eventNumber)) {
+                            ev.name = `PLAYERS CHAMPIONSHIP ${eventNumber}`;
+                        }
+
+                        ev.type = 'players';
+                        ev.format = 'legs';
+                        ev.players = 128;
+                        ev.cardRequired = true;
+                    }
+
+                    if (ev.type === 'players') {
+                        ev.format = 'legs';
+                    }
+                });
+            },
+
             init: () => {
                 // Load events from defaults if not already loaded from DB
                 if (Season.events.length === 0) {
                     Season.events = [...Season.defaultEvents];
                     console.log('[Season.init] Using default events:', Season.events.length);
                 }
+
+                Season.normalizePlayersEvents();
 
                 // Enrich events with venues and entry fees
                 if (typeof EventEnrichment !== 'undefined' && EventEnrichment.enrichAllEvents) {
@@ -11818,8 +12845,46 @@
                 localStorage.removeItem('pdc_code_hash');
                 localStorage.removeItem('pdc_custom_players');
 
-                // Remove custom players from the in-memory DB
-                PLAYERS_DB = PLAYERS_DB.filter(p => !p.isCustom);
+                // Also clear V2 prefixed persistence keys
+                localStorage.removeItem(Persistence.prefix + 'player_states');
+                localStorage.removeItem(Persistence.prefix + 'players');
+                localStorage.removeItem(Persistence.prefix + 'match_state');
+                localStorage.removeItem(Persistence.prefix + 'app_config');
+                localStorage.removeItem(Persistence.prefix + 'tourn_state');
+                localStorage.removeItem(Persistence.prefix + 'tourn_config');
+                localStorage.removeItem(Persistence.prefix + 'season_state');
+                localStorage.removeItem(Persistence.prefix + 'career_player_stats');
+                localStorage.removeItem(Persistence.prefix + 'custom_players');
+                localStorage.removeItem(Persistence.prefix + 'active_screen');
+                localStorage.removeItem(Persistence.prefix + 'tournament_name');
+                localStorage.removeItem(Persistence.prefix + 'tournament_history');
+
+                // Rebuild player database from default RAW_PLAYERS (hard reset of avg/co/form/fatigue etc.)
+                const normalizeName = (raw) => {
+                    let n = raw || '';
+                    if (n.includes(',')) {
+                        const parts = n.split(',');
+                        n = `${parts[1].trim()} ${parts[0].trim()}`;
+                    }
+                    return n.trim().replace(/\s+/g, ' ');
+                };
+
+                const freshPlayers = [];
+                const seenNames = new Set();
+                RAW_PLAYERS.forEach(p => {
+                    const cleanName = normalizeName(p.name);
+                    const key = cleanName.toLowerCase();
+                    if (seenNames.has(key)) return;
+                    seenNames.add(key);
+                    freshPlayers.push({
+                        ...p,
+                        name: cleanName,
+                        form: 50,
+                        fatigue: 0,
+                        consistency: 50
+                    });
+                });
+                PLAYERS_DB = freshPlayers;
 
                 NewsSystem.items = [];
 
@@ -11856,6 +12921,8 @@
                         playerType: "",
                         playerMeta: {},
                         trainingStreak: 0,
+                        trainingTypeStreak: 0,
+                        lastTrainingType: null,
                         missedCompetitiveDays: 0,
                         lastActionDate: "",
                         lastAction: "",
@@ -11912,9 +12979,11 @@
 
             showEventInfo: (idx) => {
                 const ev = Season.events[idx];
-                const completed = Season.state.completedEvents.find(c => c.id === ev.id);
+                const completed = Season.findCompletedEvent(ev);
                 const isFutureEvent = idx > Season.state.activeEventIndex;
                 const isCurrentEvent = idx === Season.state.activeEventIndex;
+                const isQualifierEvent = !!(ev?.type && (ev.type.includes('qual') || ev.type.includes('host-nation') || ev.type.includes('east-european') || ev.type.includes('nordic-baltic')));
+                const canEnterQualifier = isQualifierEvent ? Season.canCareerPlayerEnterEvent(ev) : true;
 
                 document.getElementById('info-header').innerText = ev.name;
 
@@ -11951,13 +13020,14 @@
                     resultsDiv.innerHTML = `
                         <div style="text-align:center; margin-top:15px;">
                             <div style="color:#888; margin-bottom:15px;">Event has not started yet</div>
+                            ${isQualifierEvent && !canEnterQualifier ? '<div style="color:#ff6b6b; font-weight:bold; margin-bottom:12px;">Not eligible for this qualifier</div>' : ''}
                             <button class="btn-sim" style="padding:12px 24px; font-size:14px;" onclick="Season.closeEventInfo(); Season.simulateToEvent(${idx})">
                                 ⚡ SIMULATE TO THIS EVENT
                             </button>
                         </div>
                     `;
                 } else if (isCurrentEvent) {
-                    resultsDiv.innerHTML = `<div style="text-align:center; color:var(--pdc-gold); margin-top:15px;">This is the current event</div>`;
+                    resultsDiv.innerHTML = `<div style="text-align:center; color:var(--pdc-gold); margin-top:15px;">This is the current event</div>${isQualifierEvent && !canEnterQualifier ? '<div style="text-align:center; color:#ff6b6b; font-weight:bold; margin-top:10px;">Not eligible for this qualifier</div>' : ''}`;
                 } else {
                     resultsDiv.innerHTML = `<div style="text-align:center; color:#888; margin-top:15px;">Event has not started yet</div>`;
                 }
@@ -12024,7 +13094,9 @@
                 Season.events.forEach((ev, idx) => {
                     const isActive = idx === Season.state.activeEventIndex;
                     const isDone = idx < Season.state.activeEventIndex;
-                    const completedData = Season.state.completedEvents.find(c => c.id === ev.id);
+                    const completedData = Season.findCompletedEvent(ev);
+                    const isQualifierEvent = !!(ev?.type && (ev.type.includes('qual') || ev.type.includes('host-nation') || ev.type.includes('east-european') || ev.type.includes('nordic-baltic')));
+                    const canEnterQualifier = isQualifierEvent ? Season.canCareerPlayerEnterEvent(ev) : true;
 
                     let statusClass = isActive ? 'active' : (isDone ? 'completed' : '');
                     let action = '';
@@ -12104,6 +13176,10 @@
                         action = `<span class="s-winner" style="font-size:10px; opacity:0.6;">on ${dayStr}</span>`;
                     }
 
+                    if (!isDone && isQualifierEvent && !canEnterQualifier) {
+                        action = `<span class="s-winner" style="color:#ff6b6b; font-size:10px; font-weight:700;">Not eligible for this qualifier</span>`;
+                    }
+
                     list.innerHTML += `
                         <div class="season-event ${statusClass}" onclick="Season.showEventInfo(${idx})" style="cursor:pointer;">
                             ${logoHTML}
@@ -12151,7 +13227,7 @@
                 Season.events
                     .filter(e => e.type === "minor")
                     .forEach(ev => {
-                        const res = Season.state.completedEvents.find(c => c.id === ev.id);
+                        const res = Season.findCompletedEvent(ev);
                         if (res?.winner) add(res.winner);
                     });
 
@@ -12159,7 +13235,7 @@
                 Season.events
                     .filter(e => e.type === "players")
                     .forEach(ev => {
-                        const res = Season.state.completedEvents.find(c => c.id === ev.id);
+                        const res = Season.findCompletedEvent(ev);
                         if (res?.winner) add(res.winner);
                     });
 
@@ -12231,12 +13307,16 @@
                         });
                 }
 
-                // Fallback: If we don't have 128 players yet, add top tour card holders by average
+                // Fallback: If we don't have 128 players yet, add top tour card holders by Main OOM
                 if (qualified.size < 128) {
                     const needed = 128 - qualified.size;
                     PLAYERS_DB
                         .filter(p => p.tourCard && !qualified.has(p.name))
-                        .sort((a, b) => (b.avg || 0) - (a.avg || 0))
+                        .sort((a, b) => {
+                            const diff = (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0);
+                            if (diff !== 0) return diff;
+                            return a.name.localeCompare(b.name);
+                        })
                         .slice(0, needed)
                         .forEach(p => qualified.add(p.name));
                 }
@@ -12632,11 +13712,6 @@
                     Season.guardAgainstAutoStart = false;
                 }
 
-                // Get full stack trace to see where startEvent is being called from
-                const errorStack = new Error().stack;
-                const stackLines = errorStack.split('\n').slice(1, 5).map(line => line.trim()).join('\n');
-                console.log(`[startEvent CALLED] idx=${idx}, isSim=${isSim}, guard=${Season.guardAgainstAutoStart}, inProgress=${Season.state.inProgress}\nStack:\n${stackLines}`);
-
                 // THREE-LEVEL PROTECTION: Guard + inProgress + explicit check
                 const guardActive = Season.guardAgainstAutoStart === true;
                 const inProgressActive = Season.state.inProgress === true;
@@ -12667,6 +13742,7 @@
 
                 Tournament.config.lockRounds = true;
                 Season.state.activeEventIndex = idx;
+                Tournament.state.activeEventIndex = idx;
 
                 const autoSimIfRequested = () => {
                     if (!isSim) return false;
@@ -12696,6 +13772,9 @@
                 Tournament.state.selectedPlayerIndices.clear();
 
                 const ev = Season.events[idx];
+                const eventNameUpper = String(ev?.name || '').toUpperCase();
+                const isWorldSeriesMastersEvent = eventNameUpper.includes('MASTERS') && !eventNameUpper.includes('FINALS') && ev.players === 16;
+                const roundsTypeKey = isWorldSeriesMastersEvent ? 'masters' : ev.type;
 
                 // ==============================
                 // EVENT BASIC CONFIG
@@ -12743,41 +13822,37 @@
                 // ==============================
                 Tournament.config.rounds = [];
 
-                if (ev.rounds && Array.isArray(ev.rounds) && ev.rounds.length > 0) {
-                    // Use rounds from database (set in admin panel)
-                    Tournament.config.rounds = ev.rounds.map(r => ({
-                        name: r.name,
-                        target: r.target
-                    }));
-                    console.log('[Season.startEvent] Using rounds from database:', Tournament.config.rounds);
-                } else {
-                    // Generate rounds dynamically from ROUND_FORMATS
-                    const formats = ROUND_FORMATS[ev.type] || {};
-                    let players = ev.players;
+                // Always generate season rounds from ROUND_FORMATS to avoid stale/custom event-round bleed
+                const formats = ROUND_FORMATS[roundsTypeKey] || {};
+                let players = ev.players;
 
-                    while (players >= 2) {
-                        const roundName =
-                            players === 2 ? "F" :
-                                players === 4 ? "SF" :
-                                    players === 8 ? "QF" :
-                                        players === 16 ? "L16" :
-                                            players === 32 ? "L32" :
-                                                players === 64 ? "L64" :
-                                                    players === 128 ? "L128" :
-                                                        players === 256 ? "L256" :
-                                                            `L${players}`;
+                while (players >= 2) {
+                    const roundName =
+                        players === 2 ? "F" :
+                            players === 4 ? "SF" :
+                                players === 8 ? "QF" :
+                                    players === 16 ? "L16" :
+                                        players === 32 ? "L32" :
+                                            players === 64 ? "L64" :
+                                                players === 128 ? "L128" :
+                                                    players === 256 ? "L256" :
+                                                        `L${players}`;
 
-                        const target = formats[roundName] ?? ev.dist ?? 6;
-
-                        Tournament.config.rounds.push({
-                            name: roundName,
-                            target: target
-                        });
-
-                        players /= 2;
+                    let target;
+                    if (ev.format === 'sets' && formats[`${roundName}_sets`] !== undefined) {
+                        target = formats[`${roundName}_sets`];
+                    } else {
+                        target = formats[roundName] ?? ev.dist ?? 6;
                     }
-                    console.log('[Season.startEvent] Generated rounds from ROUND_FORMATS');
+
+                    Tournament.config.rounds.push({
+                        name: roundName,
+                        target: target
+                    });
+
+                    players /= 2;
                 }
+                console.log('[Season.startEvent] Generated rounds from ROUND_FORMATS for type:', roundsTypeKey, Tournament.config.rounds);
 
                 // =======================
                 // PLAYER POOL
@@ -13335,6 +14410,17 @@
                         attempts++;
                     }
 
+                    // Pin Winmau round format explicitly (prevents cross-event round template bleed)
+                    const winmauFormats = ROUND_FORMATS['winmaudm'] || {};
+                    Tournament.config.rounds = [
+                        { name: 'L32', target: ev.format === 'sets' ? (winmauFormats.L32_sets ?? 3) : (winmauFormats.L32 ?? 6) },
+                        { name: 'L16', target: ev.format === 'sets' ? (winmauFormats.L16_sets ?? 4) : (winmauFormats.L16 ?? 6) },
+                        { name: 'QF', target: ev.format === 'sets' ? (winmauFormats.QF_sets ?? 4) : (winmauFormats.QF ?? 6) },
+                        { name: 'SF', target: ev.format === 'sets' ? (winmauFormats.SF_sets ?? 5) : (winmauFormats.SF ?? 7) },
+                        { name: 'F', target: ev.format === 'sets' ? (winmauFormats.F_sets ?? 6) : (winmauFormats.F ?? 8) }
+                    ];
+                    Tournament.config.tiebreak = false;
+
                     Tournament.setSelectionMethod('manual');
                     Tournament.updateConfigUI();
                     Tournament.start();
@@ -13377,17 +14463,27 @@
                     const selected = Tournament.state.selectedPlayerIndices;
                     selected.clear();
 
+                    const top24Main = new Set(
+                        Object.entries(Season.state.orderOfMerit)
+                            .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
+                            .slice(0, 24)
+                            .map(e => e[0])
+                    );
+
                     const challengeRanked = Object.entries(Season.state.challengeTourOOM)
                         .sort((a, b) => b[1] - a[1])
                         .slice(0, 32)
-                        .map(e => e[0]);
+                        .map(e => e[0])
+                        .filter(name => !top24Main.has(name));
 
                     const oomRanked = Object.entries(Season.state.orderOfMerit)
-                        .sort((a, b) => b[1] - a[1])
+                        .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
                         .slice(24, 56)
-                        .map(e => e[0]);
+                        .map(e => e[0])
+                        .filter(name => !top24Main.has(name));
 
                     const addByName = (name) => {
+                        if (top24Main.has(name)) return;
                         const p = PLAYERS_DB.find(x => x.name === name);
                         if (p) selected.add(PLAYERS_DB.indexOf(p));
                     };
@@ -13395,7 +14491,11 @@
                     challengeRanked.forEach(addByName);
                     oomRanked.forEach(addByName);
 
-                    const backfill = PLAYERS_DB.filter(p => p.tourCard && !selected.has(PLAYERS_DB.indexOf(p)));
+                    const backfill = PLAYERS_DB.filter(p =>
+                        p.tourCard &&
+                        !top24Main.has(p.name) &&
+                        !selected.has(PLAYERS_DB.indexOf(p))
+                    );
                     let attempts = 0;
                     while (selected.size < ev.players && attempts < 2000) {
                         const r = backfill[Math.floor(Math.random() * backfill.length)];
@@ -13444,6 +14544,16 @@
                         }
                     });
 
+                    // Pin World Series Masters round format explicitly (L16/QF/SF/F)
+                    const mastersFormats = ROUND_FORMATS['masters'] || {};
+                    Tournament.config.rounds = [
+                        { name: 'L16', target: mastersFormats.L16 ?? 6 },
+                        { name: 'QF', target: mastersFormats.QF ?? 6 },
+                        { name: 'SF', target: mastersFormats.SF ?? 8 },
+                        { name: 'F', target: mastersFormats.F ?? 8 }
+                    ];
+                    Tournament.config.tiebreak = false;
+
                     Tournament.setSelectionMethod('manual');
                     Tournament.updateConfigUI();
                     Tournament.start();
@@ -13456,7 +14566,13 @@
                 else if (ev.type === "players") {
                     pool = PLAYERS_DB.filter(p => p.tourCard);
 
-                    pool.sort((a, b) => (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0));
+                    pool.sort((a, b) => {
+                        const proDiff = (Season.state.proTourOOM[b.name] || 0) - (Season.state.proTourOOM[a.name] || 0);
+                        if (proDiff !== 0) return proDiff;
+                        const mainDiff = (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0);
+                        if (mainDiff !== 0) return mainDiff;
+                        return a.name.localeCompare(b.name);
+                    });
                     pool.slice(0, 128).forEach(p =>
                         Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p))
                     );
@@ -13475,6 +14591,19 @@
                             }
                         }
                     }
+
+                    // Pin Players Championship round format explicitly for all PC events
+                    const playersFormats = ROUND_FORMATS['players'] || {};
+                    Tournament.config.rounds = [
+                        { name: 'L128', target: playersFormats.L128 ?? 6 },
+                        { name: 'L64', target: playersFormats.L64 ?? 6 },
+                        { name: 'L32', target: playersFormats.L32 ?? 6 },
+                        { name: 'L16', target: playersFormats.L16 ?? 6 },
+                        { name: 'QF', target: playersFormats.QF ?? 6 },
+                        { name: 'SF', target: playersFormats.SF ?? 7 },
+                        { name: 'F', target: playersFormats.F ?? 8 }
+                    ];
+                    Tournament.config.tiebreak = false;
                 }
                 // ========================
                 // 3. EUROPEAN TOUR (MINOR)
@@ -13541,6 +14670,45 @@
                     seeds.forEach(p => Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p)));
                     proTourQualifiers.forEach(p => Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p)));
                     qualifierPlayerNames.forEach(p => Tournament.state.selectedPlayerIndices.add(PLAYERS_DB.indexOf(p)));
+
+                    // Hard backfill to target size to prevent under-filled ET fields
+                    const addIfPossible = (player) => {
+                        if (!player) return;
+                        const idx = PLAYERS_DB.indexOf(player);
+                        if (idx >= 0) Tournament.state.selectedPlayerIndices.add(idx);
+                    };
+
+                    if (Tournament.state.selectedPlayerIndices.size < ev.players) {
+                        rankPro(PLAYERS_DB.filter(p => p.tourCard)).forEach(p => {
+                            if (Tournament.state.selectedPlayerIndices.size < ev.players) addIfPossible(p);
+                        });
+                    }
+
+                    if (Tournament.state.selectedPlayerIndices.size < ev.players) {
+                        rankMain(PLAYERS_DB.filter(p => p.tourCard)).forEach(p => {
+                            if (Tournament.state.selectedPlayerIndices.size < ev.players) addIfPossible(p);
+                        });
+                    }
+
+                    if (Tournament.state.selectedPlayerIndices.size < ev.players) {
+                        rankMain([...PLAYERS_DB]).forEach(p => {
+                            if (Tournament.state.selectedPlayerIndices.size < ev.players) addIfPossible(p);
+                        });
+                    }
+
+                    // Last resort: generate replacement players if DB cannot fill all slots
+                    let genSafety = 0;
+                    while (Tournament.state.selectedPlayerIndices.size < ev.players && genSafety < 200) {
+                        const newIdx = PlayerState.getReplacementPlayer(Array.from(Tournament.state.selectedPlayerIndices), ev.type, ev.name);
+                        if (newIdx >= 0) {
+                            Tournament.state.selectedPlayerIndices.add(newIdx);
+                        } else {
+                            const randIdx = PlayerState.generateRandomPlayer(ev.type, ev.region);
+                            if (randIdx >= 0) Tournament.state.selectedPlayerIndices.add(randIdx);
+                            else break;
+                        }
+                        genSafety++;
+                    }
 
                     console.log(`[European Tour] Seeds: ${seeds.length}, Pro Tour: ${proTourQualifiers.length}, Qualifiers: ${qualifierPlayerNames.length}, Total selected: ${Tournament.state.selectedPlayerIndices.size}`);
 
@@ -13666,7 +14834,7 @@
                 // ========================
                 // ROUND FORMAT FROM TYPE
                 // ========================
-                const roundFormats = ROUND_FORMATS[ev.type];
+                const roundFormats = ROUND_FORMATS[roundsTypeKey];
 
                 if (roundFormats) {
                     const rounds = [];
@@ -15138,15 +16306,23 @@
         };
         window.Tournament = {
             config: { mode: 'sets', playerCount: 32, rounds: [], selectionMethod: 'random', tiebreak: false },
-            state: { active: false, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set(), matchQueue: [] },
+            state: { active: false, activeEventIndex: null, bracketData: [], currentActiveRound: 0, viewingRound: 0, selectedPlayerIndices: new Set(), matchQueue: [] },
             skipAdvancementAnimation: false,
             forceShowFinalAnimation: false,
             roundAdvanceAnimating: false,
             pendingAdvanceAction: null,
             getCurrentEvent: () => {
-                const isCustomTab = document.getElementById('tab-tourn')?.classList.contains('active');
-                if (isCustomTab) return null;
-                return (typeof Season !== 'undefined' && Season.state.inProgress) ? Season.events[Season.state.activeEventIndex] : null;
+                if (typeof Season === 'undefined') return null;
+
+                if (Number.isInteger(Tournament.state.activeEventIndex)) {
+                    return Season.events[Tournament.state.activeEventIndex] || null;
+                }
+
+                if (Season.state.inProgress && Number.isInteger(Season.state.activeEventIndex)) {
+                    return Season.events[Season.state.activeEventIndex] || null;
+                }
+
+                return null;
             },
 
 
@@ -15181,8 +16357,12 @@
                 let participants = [];
                 Tournament.state.selectedPlayerIndices.forEach(idx => participants.push({ ...PLAYERS_DB[idx] }));
 
-                // Sort by average (seeding) - don't shuffle randomly
-                participants.sort((a, b) => (b.avg || 0) - (a.avg || 0));
+                // Sort by Main OOM for seeding (no AVG-based seeding)
+                participants.sort((a, b) => {
+                    const diff = (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0);
+                    if (diff !== 0) return diff;
+                    return a.name.localeCompare(b.name);
+                });
 
                 // Create 8 groups of 4 using snake seeding pattern
                 // Seed 1-8 go to positions 0,7,6,1,2,5,4,3 to avoid early matchups
@@ -15266,19 +16446,119 @@
                 const totalPlayers = participants.length;
 
                 const ev = Tournament.getCurrentEvent();
-                const isEuropeanTour = ev && ev.type === 'european-tour';
+                const isEuropeanTour = ev && (ev.type === 'european-tour' || ev.type === 'minor');
+                const isMinorEvent = ev && ev.type === 'minor';
                 const isUkOpen = ev && ev.name && ev.name.includes('UK OPEN');
+                const isWinmauMasters = ev && ev.type === 'winmaudm';
+                const isProTourSeedEvent = ev && (
+                    ev.type === 'players' ||
+                    ev.type === 'playersf' ||
+                    ev.type === 'et-qual-tc' ||
+                    ev.type === 'ws-qual-tc' ||
+                    ev.type === 'gs-qual-tc'
+                );
                 const fullSeeding = isEuropeanTour || isUkOpen;
 
-                // Sort by average rating (descending), putting byes (null) at the end
+                // European Tour / minor special seeding:
+                // - Top 16 seeds are placed by bracket seed positions
+                // - Each top seed gets a bye opponent in round 1 (L48 structure in a 64 slot bracket)
+                // - Remaining 32 players are randomly drawn into the other 32 slots
+                if (isMinorEvent) {
+                    const realPlayers = participants.filter(p => !!p);
+                    const bracketSize = participants.length;
+                    const byesCount = participants.length - realPlayers.length;
+
+                    const ranked = [...realPlayers].sort((a, b) => {
+                        const aMain = Season.state.orderOfMerit[a.name] || 0;
+                        const bMain = Season.state.orderOfMerit[b.name] || 0;
+                        if (bMain !== aMain) return bMain - aMain;
+                        const aPro = Season.state.proTourOOM[a.name] || 0;
+                        const bPro = Season.state.proTourOOM[b.name] || 0;
+                        if (bPro !== aPro) return bPro - aPro;
+                        return a.name.localeCompare(b.name);
+                    });
+
+                    const seedCount = Math.min(16, ranked.length, byesCount);
+                    const seeds = ranked.slice(0, seedCount);
+                    const nonSeeds = ranked.slice(seedCount);
+
+                    for (let i = nonSeeds.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [nonSeeds[i], nonSeeds[j]] = [nonSeeds[j], nonSeeds[i]];
+                    }
+
+                    const bracketOrder = Tournament.generateBracketOrder(bracketSize);
+                    const slotBySeed = new Map();
+                    bracketOrder.forEach((seedNum, slotIdx) => slotBySeed.set(seedNum, slotIdx));
+
+                    const bracket = new Array(bracketSize).fill(undefined);
+                    const lockedSlots = new Set();
+
+                    // Place seeds in official seed positions
+                    for (let seedNum = 1; seedNum <= seedCount; seedNum++) {
+                        const slot = slotBySeed.get(seedNum);
+                        if (slot === undefined) continue;
+                        const player = seeds[seedNum - 1];
+                        if (player) {
+                            player.seed = seedNum;
+                            bracket[slot] = player;
+                            lockedSlots.add(slot);
+
+                            // Put bye on seed's first-round opponent slot
+                            const oppSlot = (slot % 2 === 0) ? slot + 1 : slot - 1;
+                            if (oppSlot >= 0 && oppSlot < bracketSize && !lockedSlots.has(oppSlot)) {
+                                bracket[oppSlot] = null;
+                                lockedSlots.add(oppSlot);
+                            }
+                        }
+                    }
+
+                    // Fill remaining slots with drawn non-seeded players
+                    let drawIdx = 0;
+                    for (let i = 0; i < bracketSize; i++) {
+                        if (bracket[i] === undefined) {
+                            if (drawIdx < nonSeeds.length) {
+                                nonSeeds[drawIdx].seed = null;
+                                bracket[i] = nonSeeds[drawIdx++];
+                            } else {
+                                bracket[i] = null;
+                            }
+                        }
+                    }
+
+                    return bracket;
+                }
+
+                // Sort seeded order, putting byes (null) at the end
                 const sorted = [...participants].sort((a, b) => {
                     if (!a) return 1;  // null goes to end
                     if (!b) return -1; // non-null comes first
-                    return (b.avg || 0) - (a.avg || 0);
+
+                    const rankA = isProTourSeedEvent
+                        ? (Season.state.proTourOOM[a.name] || 0)
+                        : (Season.state.orderOfMerit[a.name] || 0);
+                    const rankB = isProTourSeedEvent
+                        ? (Season.state.proTourOOM[b.name] || 0)
+                        : (Season.state.orderOfMerit[b.name] || 0);
+                    const mainA = Season.state.orderOfMerit[a.name] || 0;
+                    const mainB = Season.state.orderOfMerit[b.name] || 0;
+
+                    if (isWinmauMasters) {
+                        const oomDiff = (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0);
+                        if (oomDiff !== 0) return oomDiff;
+                        return a.name.localeCompare(b.name);
+                    }
+
+                    if (rankB !== rankA) return rankB - rankA;
+                    if (isProTourSeedEvent && mainB !== mainA) return mainB - mainA;
+                    return a.name.localeCompare(b.name);
                 });
 
                 // Determine how many players to seed
-                const numSeeded = fullSeeding ? totalPlayers : Math.floor(totalPlayers / 2);
+                let numSeeded = fullSeeding ? totalPlayers : Math.floor(totalPlayers / 2);
+                if (isMinorEvent) {
+                    numSeeded = Math.min(16, sorted.filter(p => !!p).length);
+                }
 
                 console.log(`[Seeding] Event: ${ev?.name || 'Standalone'}, Type: ${ev?.type || 'N/A'}, Seeding ${numSeeded}/${totalPlayers} players`);
 
@@ -15293,11 +16573,16 @@
                 const seededPlayers = sorted.slice(0, numSeeded);
                 const unseededPlayers = sorted.slice(numSeeded);
 
+                const unseededRealPlayers = unseededPlayers.filter(p => !!p);
+                const unseededByes = unseededPlayers.filter(p => !p);
+
                 // Shuffle unseeded players (random draw)
-                for (let i = unseededPlayers.length - 1; i > 0; i--) {
+                for (let i = unseededRealPlayers.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
-                    [unseededPlayers[i], unseededPlayers[j]] = [unseededPlayers[j], unseededPlayers[i]];
+                    [unseededRealPlayers[i], unseededRealPlayers[j]] = [unseededRealPlayers[j], unseededRealPlayers[i]];
                 }
+
+                const unseededDrawPool = [...unseededRealPlayers, ...unseededByes];
 
                 // Standard bracket seeding pattern for seeded players
                 const bracketOrder = Tournament.generateBracketOrder(totalPlayers);
@@ -15311,8 +16596,8 @@
                         bracket.push(seededPlayers[seedNum - 1]);
                     } else {
                         // Place unseeded player (random draw order)
-                        if (unseededIndex < unseededPlayers.length) {
-                            bracket.push(unseededPlayers[unseededIndex]);
+                        if (unseededIndex < unseededDrawPool.length) {
+                            bracket.push(unseededDrawPool[unseededIndex]);
                             unseededIndex++;
                         } else if (seedNum <= sorted.length) {
                             // Fallback to remaining sorted players if we run out
@@ -15526,6 +16811,52 @@
                 const ev = Tournament.getCurrentEvent();
                 let size = parseInt(document.getElementById('tourn-size')?.value) || (ev ? ev.players : 32);
 
+                // Safety normalization: force season event round targets to ROUND_FORMATS before any run
+                if (ev && typeof Season !== 'undefined' && Season.state?.inProgress) {
+                    const skipNormalizeTypes = new Set(['uk-open', 'premier-league', 'premier-league-playoff', 'grandslam']);
+                    if (!skipNormalizeTypes.has(ev.type)) {
+                        const cfg = ROUND_FORMATS[ev.type] || {};
+                        const rounds = [];
+
+                        if (ev.type === 'minor') {
+                            rounds.push({ name: 'L48', target: cfg.L48 ?? 6 });
+                            rounds.push({ name: 'L32', target: cfg.L32 ?? 6 });
+                            rounds.push({ name: 'L16', target: cfg.L16 ?? 6 });
+                            rounds.push({ name: 'QF', target: cfg.QF ?? 6 });
+                            rounds.push({ name: 'SF', target: cfg.SF ?? 7 });
+                            rounds.push({ name: 'F', target: cfg.F ?? 8 });
+                        } else {
+                            let playersForRounds = Number(ev.players) || 0;
+                            while (playersForRounds >= 2) {
+                                const roundName =
+                                    playersForRounds === 2 ? 'F' :
+                                        playersForRounds === 4 ? 'SF' :
+                                            playersForRounds === 8 ? 'QF' :
+                                                playersForRounds === 16 ? 'L16' :
+                                                    playersForRounds === 32 ? 'L32' :
+                                                        playersForRounds === 64 ? 'L64' :
+                                                            playersForRounds === 128 ? 'L128' :
+                                                                playersForRounds === 256 ? 'L256' :
+                                                                    `L${playersForRounds}`;
+
+                                const setKey = `${roundName}_sets`;
+                                const target = (ev.format === 'sets' && cfg[setKey] !== undefined)
+                                    ? cfg[setKey]
+                                    : (cfg[roundName] ?? 6);
+
+                                rounds.push({ name: roundName, target });
+                                playersForRounds /= 2;
+                            }
+                        }
+
+                        if (rounds.length > 0) {
+                            Tournament.config.rounds = rounds;
+                            Tournament.config.tiebreak = false;
+                            Tournament.config.lockRounds = true;
+                        }
+                    }
+                }
+
                 // ===== VALIDATION =====
                 // Check manual selection has enough players
                 if (Tournament.config.selectionMethod === 'manual') {
@@ -15545,6 +16876,7 @@
 
                 // ================= SKIP & REPLACEMENT SYSTEM =================
                 if (ev && Tournament.config.selectionMethod === 'manual') {
+                    const isPremierLeagueEvent = ev.type === 'premier-league' || ev.type === 'premier-league-playoff';
                     const selected = Array.from(Tournament.state.selectedPlayerIndices);
                     const toRemove = [];
                     const toAdd = [];
@@ -15552,7 +16884,7 @@
                     // Check withdrawals BEFORE applying fatigue reduction
                     selected.forEach(idx => {
                         const p = PLAYERS_DB[idx];
-                        if (PlayerState.shouldSkipEvent(p, ev.type)) {
+                        if (!isPremierLeagueEvent && PlayerState.shouldSkipEvent(p, ev.type)) {
                             toRemove.push(idx);
                             PlayerState.updateFatigue(p, -25);
 
@@ -15572,7 +16904,27 @@
                         const currentList = Array.from(Tournament.state.selectedPlayerIndices)
                             .concat(toAdd);
 
-                        const repIdx = PlayerState.getReplacementPlayer(currentList, ev.type, ev.name);
+                        let repIdx = PlayerState.getReplacementPlayer(currentList, ev.type, ev.name);
+
+                        if (repIdx === -1 || removedSet.has(repIdx)) {
+                            const used = new Set(currentList);
+                            let fallbackPool = PLAYERS_DB
+                                .map((player, index) => ({ player, index }))
+                                .filter(x => !used.has(x.index));
+
+                            if (ev.type === 'players' || ev.type === 'minor' || ev.type === 'playersf' || ev.cardRequired) {
+                                fallbackPool = fallbackPool.filter(x => x.player.tourCard);
+                            }
+
+                            if (ev.type === 'minor') {
+                                fallbackPool.sort((a, b) =>
+                                    (Season.state.orderOfMerit[b.player.name] || 0) - (Season.state.orderOfMerit[a.player.name] || 0)
+                                );
+                            }
+
+                            repIdx = fallbackPool.length > 0 ? fallbackPool[0].index : -1;
+                        }
+
                         if (repIdx !== -1 && !removedSet.has(repIdx)) {
                             toAdd.push(repIdx);
                             if (Season.addNews) Season.addNews(`${PLAYERS_DB[repIdx].name} enters ${ev.name} as a replacement.`);
@@ -15611,7 +16963,11 @@
                 // Season.startEvent() already sets Tournament.config.theme from themePreset
                 const themeEl = document.getElementById('tourn-theme');
                 const isCustomTab = document.getElementById('tab-tourn')?.classList.contains('active');
-                const isSeasonEvent = !isCustomTab && typeof Season !== 'undefined' && Season.state.inProgress;
+                const isSeasonEvent = !!(
+                    ev &&
+                    typeof Season !== 'undefined' &&
+                    (Season.state?.inProgress || Number.isInteger(Tournament.state.activeEventIndex))
+                );
                 if (themeEl && !isSeasonEvent) {
                     if (themeEl.value === 'custom') {
                         const c1 = document.getElementById('theme-col-1').value;
@@ -15627,7 +16983,7 @@
                 const numRounds = Math.log2(nextPowerOf2);
 
                 // Only rebuild rounds if they haven't been pre-configured
-                if (isCustomTab || !Tournament.config.rounds || Tournament.config.rounds.length === 0) {
+                if (!isSeasonEvent && (isCustomTab || !Tournament.config.rounds || Tournament.config.rounds.length === 0)) {
                     Tournament.config.rounds = [];
 
                     for (let i = 0; i < numRounds; i++) {
@@ -16564,6 +17920,43 @@
                 const tournName = Tournament.config.name || document.getElementById('tourn-event-name')?.value || 'TOURNAMENT';
                 const hubTitle = document.getElementById('tourn-hub-title');
                 if (hubTitle) hubTitle.innerText = tournName;
+
+                // Runtime safety: normalize round targets even for resumed/in-progress events
+                const currentEv = Tournament.getCurrentEvent ? Tournament.getCurrentEvent() : null;
+                if (currentEv) {
+                    const isPlayersChampionshipEvent =
+                        currentEv.type === 'players' ||
+                        /PLAYERS CHAMPIONSHIP\s+\d{1,2}/i.test(currentEv.name || '');
+
+                    if (isPlayersChampionshipEvent) {
+                        const playersCfg = ROUND_FORMATS.players || {};
+                        Tournament.config.rounds = [
+                            { name: 'L128', target: playersCfg.L128 ?? 6 },
+                            { name: 'L64', target: playersCfg.L64 ?? 6 },
+                            { name: 'L32', target: playersCfg.L32 ?? 6 },
+                            { name: 'L16', target: playersCfg.L16 ?? 6 },
+                            { name: 'QF', target: playersCfg.QF ?? 6 },
+                            { name: 'SF', target: playersCfg.SF ?? 7 },
+                            { name: 'F', target: playersCfg.F ?? 8 }
+                        ];
+                        Tournament.config.mode = 'legs';
+                        Tournament.config.tiebreak = false;
+                    }
+
+                    const skipNormalizeTypes = new Set(['uk-open', 'premier-league', 'premier-league-playoff', 'grandslam']);
+                    if (!skipNormalizeTypes.has(currentEv.type)) {
+                        const cfg = ROUND_FORMATS[currentEv.type] || {};
+                        (Tournament.config.rounds || []).forEach(r => {
+                            if (!r || !r.name) return;
+                            const setKey = `${r.name}_sets`;
+                            if (currentEv.format === 'sets' && cfg[setKey] !== undefined) {
+                                r.target = cfg[setKey];
+                            } else if (cfg[r.name] !== undefined) {
+                                r.target = cfg[r.name];
+                            }
+                        });
+                    }
+                }
 
                 // Apply theme colors to the hub
                 if (App.applyEventColors) App.applyEventColors(tournName);
