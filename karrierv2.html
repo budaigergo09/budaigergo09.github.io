@@ -2160,21 +2160,24 @@
 
         .career-start {
             height: 100dvh;
-            align-items: stretch;
-            justify-content: stretch;
-            padding: 0;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
         }
 
         .career-start-card {
             width: 100%;
-            height: 100dvh;
-            max-width: none;
+            height: auto;
+            max-height: 90vh;
+            max-width: 600px;
             background: radial-gradient(120% 120% at 10% 0%, rgba(255, 215, 0, 0.12), transparent 55%),
                 linear-gradient(165deg, rgba(24, 34, 54, 0.98) 0%, rgba(16, 22, 36, 0.96) 60%, rgba(12, 16, 28, 0.98) 100%);
             border: 1px solid rgba(255, 215, 0, 0.18);
-            border-radius: 0;
+            border-radius: 16px;
             padding: 28px 32px 32px;
-            box-shadow: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
             position: relative;
             overflow-y: auto;
             overflow-x: hidden;
@@ -2231,7 +2234,7 @@
         }
 
         .career-start-title {
-            margin-top: 60px;
+            margin-top: 10px;
             font-family: 'Bebas Neue', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Segoe UI', sans-serif;
             font-size: 34px;
             letter-spacing: 4px;
@@ -2451,14 +2454,16 @@
 
         .career-player-box {
             width: 100%;
-            height: 100%;
-            margin-top: 60px;
-            padding: 50px;
+            height: auto;
+            max-width: 600px;
+            max-height: 90vh;
+            margin: auto;
+            padding: 30px;
             background: radial-gradient(120% 120% at 0% 0%, rgba(255, 215, 0, 0.12), transparent 50%),
                 linear-gradient(170deg, rgba(21, 28, 44, 0.98), rgba(12, 16, 28, 0.98));
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -7970,11 +7975,13 @@
                         else if (nameUpper.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
                         else if (nameUpper.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
                         else if (nameUpper.includes("JAPAN")) regionFilter = ["jpn"];
-                        else if (nameUpper.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                        else if (nameUpper.includes("NORDIC & BALTIC") || nameUpper.includes("PDCNB")) regionFilter = REGION_MAP.nordic;
                         else if (nameUpper.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
-                        else if (nameUpper.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                        else if (nameUpper.includes("ASIAN") || nameUpper.includes("ADA TOUR")) regionFilter = REGION_MAP.asia;
                         else if (nameUpper.includes("CDC") || nameUpper.includes("CDLC")) regionFilter = REGION_MAP.america;
                         else if (nameUpper.includes("ANZ") || nameUpper.includes("DPA") || nameUpper.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+                        else if (nameUpper.includes("CHINA")) regionFilter = ["chn"];
+                        else if (nameUpper.includes("INDIA")) regionFilter = REGION_MAP.india;
                     }
                 }
 
@@ -9081,8 +9088,8 @@
                 }
 
                 // Apply rust (never below certain thresholds)
-                const minAvg = 70; // Never go below 70 avg
-                const minCo = 20;  // Never go below 20% checkout
+                const minAvg = 20; // Lowered to 20 so custom players don't get artificially boosted
+                const minCo = 10;  // Lowered to 10%
 
                 player.avg = Math.max(minAvg, (player.avg || 85) - avgLoss);
                 player.co = Math.max(minCo, (player.co || 35) - coLoss);
@@ -9785,9 +9792,13 @@
                     const item = document.createElement('div');
                     item.className = 'career-player-item';
                     const tc = p.tourCard ? '<span style="color:var(--pdc-gold); font-weight:bold;">TC</span>' : '<span style="color:#666;">-</span>';
+                    const avg = p.avg ? p.avg.toFixed(2) : '0.00';
+                    const co = p.co ? p.co.toFixed(2) : '0.00';
                     item.innerHTML = `
                         <img src="${getFlagUrl(p.country)}" style="width:20px; height:14px; border-radius:2px;">
                         <span style="flex:1; font-size:12px; color:#ddd;">${p.name}</span>
+                        <span style="font-size:10px; color:#aaa; margin-right:8px;">Avg: ${avg}</span>
+                        <span style="font-size:10px; color:#aaa; margin-right:8px;">CO: ${co}%</span>
                         <span style="font-size:10px;">${tc}</span>
                     `;
                     item.onclick = () => Season.selectCareerPlayer(p.name, 'pro');
@@ -10953,8 +10964,8 @@
                     const avgDecrease = parseFloat((Math.random() * 0.08 + 0.05).toFixed(2));
                     const coDecrease = parseFloat((Math.random() * 0.08 + 0.05).toFixed(2));
                     const formDecrease = 1;
-                    player.avg = Math.max(50, (player.avg || 60) - avgDecrease);
-                    player.co = Math.max(20, (player.co || 30) - coDecrease);
+                    player.avg = Math.max(20, (player.avg || 60) - avgDecrease);
+                    player.co = Math.max(10, (player.co || 30) - coDecrease);
                     player.form = Math.max(0, (player.form || 50) - formDecrease);
                 }
 
@@ -11273,7 +11284,28 @@
                     // Check if already qualified for worlds
                     const worldEv = Season.events.find(e => e.type === 'world');
                     if (worldEv && Season.canCareerPlayerEnterEvent(worldEv)) return false;
-                    return !player.tourCard || (ev.eligibleRegions ? ev.eligibleRegions.includes(player.country) : true);
+
+                    let regionFilter = null;
+                    if (ev.name.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
+                    else if (ev.name.includes("INDIA")) regionFilter = REGION_MAP.india;
+                    else if (ev.name.includes("JAPAN")) regionFilter = ["jpn"];
+                    else if (ev.name.includes("NORDIC & BALTIC") || ev.name.includes("PDCNB")) regionFilter = REGION_MAP.nordic;
+                    else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ASIAN") || ev.name.includes("ADA TOUR")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("CHINA")) regionFilter = ["chn"];
+                    else if (ev.name.includes("HUNGARIAN")) regionFilter = ["hun"];
+                    else if (ev.name.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
+                    else if (ev.name.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
+                    else if (ev.name.includes("SOUTH-EAST EUROPE")) regionFilter = ["rou", "bul", "srb", "cro", "slo"];
+                    else if (ev.name.includes("CZECHIA")) regionFilter = ["cze"];
+                    else if (ev.name.includes("POLISH") || ev.name.includes("PDO POLISH")) regionFilter = ["pol"];
+                    else if (ev.name.includes("DACH")) regionFilter = ["ger", "aut", "sui"];
+                    else if (ev.name.includes("UK&IRE")) regionFilter = ["eng", "sco", "wal", "nir", "irl"];
+                    else if (ev.name.includes("CDC") || ev.name.includes("CDLC")) regionFilter = REGION_MAP.america;
+                    else if (ev.name.includes("ANZ") || ev.name.includes("DPA") || ev.name.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
+
+                    if (regionFilter && !regionFilter.includes(player.country)) return false;
+                    return true;
                 }
 
                 if (ev.type === 'players') {
@@ -11753,8 +11785,8 @@
                 }
 
                 // Apply stat changes with caps
-                player.avg = Math.min(110, Math.max(60, (player.avg || 75) + avgDelta));
-                player.co = Math.min(60, Math.max(20, (player.co || 30) + coDelta));
+                player.avg = Math.min(110, Math.max(20, (player.avg || 75) + avgDelta));
+                player.co = Math.min(60, Math.max(10, (player.co || 30) + coDelta));
 
                 PlayerState.updateForm(player, formDelta);
                 PlayerState.updateFatigue(player, fatigueDelta);
@@ -12353,9 +12385,47 @@
                     return;
                 }
 
+                let elimText = 'You are eliminated';
+                let lastMatch = null;
+                let lastRoundName = '';
+
+                if (Tournament.config.isGroupStage && Tournament.state.groupMatches) {
+                    Tournament.state.groupMatches.forEach(group => {
+                        group.forEach(m => {
+                            if (!m || !m.p1 || !m.p2 || !m.winner) return;
+                            if (m.p1.name === playerName || m.p2.name === playerName) {
+                                lastMatch = m;
+                                lastRoundName = "Group Stage";
+                            }
+                        });
+                    });
+                }
+
+                bracketRounds.forEach((round, rIdx) => {
+                    round.forEach(m => {
+                        if (!m || !m.p1 || !m.p2 || !m.winner) return;
+                        if (m.p1.name === playerName || m.p2.name === playerName) {
+                            lastMatch = m;
+                            lastRoundName = Tournament.config.rounds && Tournament.config.rounds[rIdx] ? Tournament.config.rounds[rIdx].name : `Round ${rIdx+1}`;
+                        }
+                    });
+                });
+
+                if (lastMatch && lastMatch.score) {
+                    const isP1 = lastMatch.p1.name === playerName;
+                    const opp = isP1 ? lastMatch.p2.name : lastMatch.p1.name;
+                    const myScore = isP1 ? lastMatch.score[0] : lastMatch.score[1];
+                    const oppScore = isP1 ? lastMatch.score[1] : lastMatch.score[0];
+                    if (lastMatch.winner.name === playerName) {
+                        elimText = `Eliminated in ${lastRoundName}`;
+                    } else {
+                        elimText = `Eliminated in ${lastRoundName} (vs ${opp} ${myScore}-${oppScore})`;
+                    }
+                }
+
                 banner.style.display = 'flex';
                 if (title) title.innerText = playerName;
-                if (status) status.innerText = 'You are eliminated';
+                if (status) status.innerText = elimText;
                 if (action) action.innerHTML = '';
             },
 
@@ -13937,6 +14007,12 @@
                         .slice(0, 40)
                         .forEach(e => exclude.add(e[0]));
 
+                    // Exclude players who have already won a qualifier
+                    if (Season.state.wcQualified) {
+                        if (Season.state.wcQualified.qualifiers) Season.state.wcQualified.qualifiers.forEach(n => exclude.add(n));
+                        if (Season.state.wcQualified.internationalQualifiers) Season.state.wcQualified.internationalQualifiers.forEach(n => exclude.add(n));
+                    }
+
                     // Apply regional filtering based on event name
                     let regionFilter = null;
                     let isStrictRegionalEvent = false;  // Flag for strict regional enforcement
@@ -13951,9 +14027,9 @@
                     else if (ev.name.includes("AFRICAN")) { regionFilter = REGION_MAP.africa; isStrictRegionalEvent = true; }
                     else if (ev.name.includes("INDIA")) { regionFilter = REGION_MAP.india; isStrictRegionalEvent = true; }
                     else if (ev.name.includes("JAPAN")) { regionFilter = ["jpn"]; isStrictRegionalEvent = true; }
-                    else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (ev.name.includes("NORDIC & BALTIC") || ev.name.includes("PDCNB")) regionFilter = REGION_MAP.nordic;
                     else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
-                    else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("ASIAN") || ev.name.includes("ADA TOUR")) regionFilter = REGION_MAP.asia;
                     else if (ev.name.includes("CDC") || ev.name.includes("CDLC")) regionFilter = REGION_MAP.america;
                     else if (ev.name.includes("ANZ") || ev.name.includes("DPA") || ev.name.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
                     else if (ev.name.includes("CHALLENGE TOUR")) regionFilter = null; // No regional restriction
@@ -14488,7 +14564,10 @@
                     const rankByMain = (arr) => arr.slice().sort((a, b) => (Season.state.orderOfMerit[b.name] || 0) - (Season.state.orderOfMerit[a.name] || 0));
                     const top24Main = rankByMain(PLAYERS_DB.filter(p => p.tourCard)).slice(0, 24).map(p => p.name);
 
-                    const pool = PLAYERS_DB.filter(p => p.tourCard && !top24Main.includes(p.name));
+                    const qualStore = ev.type === 'ws-qual-tc' ? Season.state.wsQualifiers : Season.state.gsQualifiers;
+                    const alreadyQualified = qualStore?.[ev.targetEvent] || [];
+
+                    const pool = PLAYERS_DB.filter(p => p.tourCard && !top24Main.includes(p.name) && !alreadyQualified.includes(p.name));
                     pool.slice(0, ev.players).forEach(p => selected.add(PLAYERS_DB.indexOf(p)));
 
                     // Backfill if short
@@ -16782,9 +16861,10 @@
                     if (ev.name.includes("AFRICAN")) regionFilter = REGION_MAP.africa;
                     else if (ev.name.includes("INDIA")) regionFilter = REGION_MAP.india;
                     else if (ev.name.includes("JAPAN")) regionFilter = ["jpn"];
-                    else if (ev.name.includes("NORDIC & BALTIC")) regionFilter = REGION_MAP.nordic;
+                    else if (ev.name.includes("NORDIC & BALTIC") || ev.name.includes("PDCNB")) regionFilter = REGION_MAP.nordic;
                     else if (ev.name.includes("NORTH AMERICAN")) regionFilter = REGION_MAP.america;
-                    else if (ev.name.includes("ASIAN")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("ASIAN") || ev.name.includes("ADA TOUR")) regionFilter = REGION_MAP.asia;
+                    else if (ev.name.includes("CHINA")) regionFilter = ["chn"];
                     else if (ev.name.includes("HUNGARIAN")) regionFilter = ["hun"];
                     else if (ev.name.includes("NETHERLANDS & BELGIUM")) regionFilter = ["nl", "bel"];
                     else if (ev.name.includes("MEDITERRANEAN")) regionFilter = ["esp", "ita", "por", "gre", "tur"];
@@ -16797,10 +16877,18 @@
                     else if (ev.name.includes("ANZ") || ev.name.includes("DPA") || ev.name.includes("DPNZ")) regionFilter = REGION_MAP.oceania;
                 }
 
+                // Check for already qualified WC players
+                const wcQualifiedNames = new Set();
+                if (ev?.type === 'wc-qual-intl' && Season.state.wcQualified) {
+                    if (Season.state.wcQualified.qualifiers) Season.state.wcQualified.qualifiers.forEach(n => wcQualifiedNames.add(n));
+                    if (Season.state.wcQualified.internationalQualifiers) Season.state.wcQualified.internationalQualifiers.forEach(n => wcQualifiedNames.add(n));
+                }
+
                 let html = '';
                 PLAYERS_DB.forEach((p, idx) => {
                     // Skip players that don't match regional filter
                     if (regionFilter && !regionFilter.includes(p.country)) return;
+                    if (wcQualifiedNames.has(p.name)) return;
 
                     const flag = getFlagUrl(p.country);
                     html += `
@@ -18277,7 +18365,7 @@
                     if (ev && ev.type === 'winmaudm') {
                         App.config.setLegs = 3; // Best of 3 legs per set (first to 2 wins the set)
                     } else {
-                        App.config.setLegs = (roundInfo.target * 2) - 1;
+                        App.config.setLegs = 5; // Best of 5 legs per set (first to 3 wins the set)
                     }
                 }
 
